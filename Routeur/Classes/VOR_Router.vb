@@ -238,7 +238,7 @@ Public Class VOR_Router
 
         Public Overrides Function ToString() As String
 
-            Return T.ToString & " ; " & Cap.ToString("f2") & " ; " & DTF.ToString & " ; " & WindDir.ToString("f2") & " ; " & WindStrength.ToString("f2")
+            Return T.ToString & " ; " & Cap.ToString("f2") & " ; " & DTF.ToString & " ; " & P.ToString & " ; " & WindDir.ToString("f2") & " ; " & WindStrength.ToString("f2")
 
         End Function
 
@@ -1607,7 +1607,12 @@ Public Class VOR_Router
 
             If Now.Subtract(_lastflush).TotalMinutes > 15 Then
 
-                Dim S1 As New System.IO.StreamWriter(".\TempRoute" & Now.Minute Mod 7 & ".csv")
+                Dim BaseDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
+                If Not System.IO.Directory.Exists(BaseDir) Then
+                    System.IO.Directory.CreateDirectory(BaseDir)
+                End If
+
+                Dim S1 As New System.IO.StreamWriter(BaseDir & "\TempRoute" & Now.Minute Mod 7 & ".csv")
 
                 For Each P In TempRoute
                     S1.WriteLine(P.ToString)
@@ -1615,7 +1620,7 @@ Public Class VOR_Router
 
                 S1.Close()
 
-                Dim S2 As New System.IO.StreamWriter(".\BestRoute" & Now.Minute Mod 7 & ".csv")
+                Dim S2 As New System.IO.StreamWriter(BaseDir & "\BestRoute" & Now.Minute Mod 7 & ".csv")
 
                 For Each P In BruteRoute
                     S2.WriteLine(P.ToString)
