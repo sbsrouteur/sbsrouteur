@@ -1,0 +1,436 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Custom="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" 
+    xmlns:Routeur="clr-namespace:Routeur"
+	x:Class="RouteurMain"
+	x:Name="Window"
+	Width="640" Height="480"
+    Loaded="FormLoaded" Icon="Graphics/sailing ship.ico"
+    >
+
+	<Window.Resources>
+        		
+		<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        		
+		<Routeur:SailConverter x:Key="SailConverter"/>
+		
+		<Routeur:CoordsConverter x:Key="CoordsConverter"/>
+		
+		<Routeur:RouteurModel x:Key="RouteurModel" />
+
+		<DataTemplate x:Key="PointPresenter">
+			<Grid>
+				<TextBlock Text="{Binding Name, Mode=OneWay}" TextWrapping="Wrap"/>			
+			</Grid>
+		</DataTemplate>
+		
+		<DataTemplate DataType="{x:Type Routeur:RoutingGridPoint}">
+			<Grid d:DesignWidth="140" d:DesignHeight="148" RenderTransformOrigin="0,0" >
+				<Grid.RenderTransform>
+					<TransformGroup>
+						<ScaleTransform/>
+						<SkewTransform/>
+						<RotateTransform/>
+						<TranslateTransform X="-35" Y="-37"/>
+					</TransformGroup>
+				</Grid.RenderTransform>
+				<Routeur:WindArrow  DataContext="{Binding P, Mode=Default}" RenderTransformOrigin="0.5,0" Height="Auto">
+					<Routeur:WindArrow.RenderTransform>
+						<TransformGroup>
+							<ScaleTransform/>
+							<SkewTransform/>
+							<RotateTransform/>
+							<TranslateTransform X="-5"/>
+						</TransformGroup>
+					</Routeur:WindArrow.RenderTransform>
+				</Routeur:WindArrow>
+			</Grid>
+		</DataTemplate>
+		
+		<DataTemplate DataType="{x:Type Routeur:BoatInfo}">
+		
+			<Grid x:Name="grid" RenderTransformOrigin="0.5,0.5" >
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" MinWidth="7"/>
+					<ColumnDefinition Width="Auto" MinWidth="7"/>
+					<ColumnDefinition Width="Auto" MinWidth="7"/>
+				</Grid.ColumnDefinitions>
+					<TextBlock Text="{Binding Classement, Mode=OneWay}" TextWrapping="Wrap" FontSize="21.333" FontWeight="Bold" VerticalAlignment="Center" Style="{DynamicResource MargedText}"/>		
+					<StackPanel Grid.Column="1" VerticalAlignment="Top" >
+					<TextBlock Text="{Binding Name, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Top" Style="{DynamicResource MargedText}"/>		
+					<TextBlock Text="{Binding CurPos, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Top" Style="{DynamicResource MargedText}" FontSize="9.333"/>		
+					</StackPanel>
+					<Image Grid.Column="2" Stretch="Fill" Width="30" Height="20" OpacityMask="Black" Source="{Binding Flag, Mode=Default}" VerticalAlignment="Top" HorizontalAlignment="Right" />
+			</Grid>
+		</DataTemplate>
+		
+		<DataTemplate x:Key="CoordsPresenter">
+			<Grid>
+				<TextBlock Text="{Binding ToText, Converter={StaticResource CoordsConverter}, ConverterParameter=0, Mode=OneWay}" TextWrapping="Wrap"/>
+			</Grid>
+		</DataTemplate>
+        
+        <DataTemplate DataType ="{x:Type Routeur:StatInfo}">
+            <Grid>
+                <StackPanel Orientation="Horizontal" >
+                    <TextBlock Text="{Binding Name}"/>
+                    <TextBlock Text="{Binding Value}" />
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+		
+		<Style x:Key="CapLabel" TargetType="{x:Type Label}">
+			<Setter Property="Foreground" Value="#FFD31756"/>
+			<Setter Property="Padding" Value="5"/>
+			<Setter Property="HorizontalContentAlignment" Value="Left"/>
+			<Setter Property="VerticalContentAlignment" Value="Top"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Label}">
+						<Border SnapsToDevicePixels="true" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Height="21.459" Width="35.375" CornerRadius="6,6,6,6">
+							<Border.Background>
+								<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+									<GradientStop Color="#FF000000" Offset="0"/>
+									<GradientStop Color="#FF702323" Offset="0.518"/>
+									<GradientStop Color="#FF240A0A" Offset="0.991"/>
+								</LinearGradientBrush>
+							</Border.Background>
+							<Grid>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" MinHeight="11.802"/>
+									<RowDefinition Height="Auto" MinHeight="7.499"/>
+								</Grid.RowDefinitions>
+								<ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" RecognizesAccessKey="True" Height="Auto" Width="Auto" Grid.RowSpan="1" Margin="0,0,0,-2"/>
+								<ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" RecognizesAccessKey="True" Height="Auto" Width="Auto" Grid.RowSpan="1" Grid.Row="1" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Stretch" OpacityMask="#63000000" Margin="0,-2,0,0">
+									<ContentPresenter.RenderTransform>
+										<TransformGroup>
+											<ScaleTransform ScaleX="1" ScaleY="-1"/>
+											<SkewTransform AngleX="0" AngleY="0"/>
+											<RotateTransform Angle="0"/>
+											<TranslateTransform X="0" Y="0"/>
+										</TransformGroup>
+									</ContentPresenter.RenderTransform>
+								</ContentPresenter>
+							</Grid>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsEnabled" Value="false">
+								<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="Background" Value="#8CFFFFFF"/>
+		</Style>
+		
+		<Storyboard x:Key="OnMouseMove1">
+			<ThicknessAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="groupBox" Storyboard.TargetProperty="(FrameworkElement.Margin)">
+				<SplineThicknessKeyFrame KeyTime="00:00:00.5000000" Value="0,-150,0,0"/>
+			</ThicknessAnimationUsingKeyFrames>
+		</Storyboard>
+		
+		<Storyboard x:Key="OnMouseExit">
+			<ThicknessAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="groupBox" Storyboard.TargetProperty="(FrameworkElement.Margin)">
+				<SplineThicknessKeyFrame KeyTime="00:00:00" Value="0,-150,0,0"/>
+				<SplineThicknessKeyFrame KeyTime="00:00:00.5000000" Value="0,0,0,0"/>
+			</ThicknessAnimationUsingKeyFrames>
+		</Storyboard>
+		
+	</Window.Resources>
+    
+	<Grid >
+    
+    	<Grid.RowDefinitions>
+    		<RowDefinition Height="Auto" MinHeight="22.333"/>
+    		<RowDefinition Height="Auto" MinHeight="125.22"/>
+    		<RowDefinition Height="*"/>
+    	</Grid.RowDefinitions>
+        
+    	<Grid.ColumnDefinitions>
+    		<ColumnDefinition Width="0.342*"/>
+    		<ColumnDefinition Width="0.53*"/>
+    		<ColumnDefinition Width="0.128*"/>
+    	</Grid.ColumnDefinitions>
+    	<Menu HorizontalAlignment="Stretch" Width="Auto" Margin="0,0,0,59.88" Grid.RowSpan="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}">
+    		<ComboBox HorizontalAlignment="Right" IsSynchronizedWithCurrentItem="True" x:Name="comboBox" 
+                      ItemsSource="{Binding P_Info, Mode=OneWay}" SelectedItem="{Binding CurPlayer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Nick"/>
+            <!--<CheckBox Content="Autorouting" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=comboBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding AutoRouting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ShowAutorouting, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" VerticalAlignment="Center"/>-->
+            <CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}"/>
+            <CheckBox x:Name="chkGridRoute" Content="Grid Route" Checked="CheckGridRoute" Unchecked="CheckGridRoute" VerticalAlignment="Center"/>
+            <ComboBox     Height="26.92" ItemsSource="{Binding WPList, Mode=Default}" ToolTip="Route to this WP" SelectedItem="{Binding VorHandler.CurUserWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"     />
+            <CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center" d:IsChecked="True"/>
+            <Button Width="Auto" Height="Auto" Content="Redraw" Click="RedrawClick"/>
+            <CheckBox x:Name="chkNoObstacle" Content="Ignore Obstacles" VerticalAlignment="Center" IsChecked="{Binding NoObstacle, Mode=Default}"/>
+            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure "/>
+            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureDuration, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Durée de la trajectoire"/>
+			<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Collapsed"></Button>
+			<CheckBox Content="Hide Boat &amp; Wind Arrow" IsChecked="{Binding VorHandler.HideWindArrow, Mode=Default}" VerticalAlignment="Center" />
+        </Menu>
+   	<TabControl IsSynchronizedWithCurrentItem="True" Grid.Column="0" Grid.RowSpan="2" Grid.Row="1" Margin="4,-58.88,0,0" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}">
+ 			 <TabItem Header="Position / Vitesse" >
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="0.916*"/>
+						<RowDefinition Height="Auto" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="0.393*"/>
+						<ColumnDefinition Width="0.202*"/>
+						<ColumnDefinition Width="0.405*"/>
+					</Grid.ColumnDefinitions>
+					<TextBlock Text="Lat" TextWrapping="Wrap"/>
+					<TextBlock Grid.Row="1" Text="Lon" TextWrapping="Wrap"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Text="{Binding VorHandler.UserInfo.position.latitude, Converter={StaticResource CoordsConverter}, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.ColumnSpan="1"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="1" Text="{Binding VorHandler.UserInfo.position.longitude, Converter={StaticResource CoordsConverter}, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.ColumnSpan="1"/>
+					<TextBlock Text="Cap" TextWrapping="Wrap" Grid.Row="2"/>
+					<TextBlock Text="Vitesse" TextWrapping="Wrap" Grid.Row="3"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.cap, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="1"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.vitesse, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="1"/>
+					<TextBlock Text="Date" TextWrapping="Wrap" Grid.Column="2"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.date, Converter={StaticResource CoordsConverter}, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="3"/>
+					<TextBlock Text="Position" TextWrapping="Wrap" Grid.Column="2" Grid.Row="2" Grid.RowSpan="1"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.classement, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="2"/>
+					<TextBlock Text="Cap" TextWrapping="Wrap" Grid.Column="2" Grid.Row="3"/>
+					<TextBlock Text="Vitesse" TextWrapping="Wrap" Grid.Column="2" Grid.Row="4"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="3"/>
+					<GridSplitter Width="4" Grid.Column="1" Grid.RowSpan="11"/>
+					<GridSplitter Width="4" Grid.RowSpan="11"/>
+					<GridSplitter Width="4" Grid.Column="2" Grid.RowSpan="11"/>
+					<TextBlock Text="Age" TextWrapping="Wrap" Grid.Column="2" Grid.Row="1"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.PositionDataAge, Converter={StaticResource CoordsConverter}, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="1"/>
+					<TextBlock Text="Last Data :" TextWrapping="Wrap" Grid.Column="2" Grid.Row="10"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.date, Converter={StaticResource CoordsConverter}, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="10"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="4"/>
+				</Grid>
+			</TabItem> 
+ 			<TabItem Header="VOR Navigation" Visibility="Collapsed">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" MinHeight="15.199"/>
+						<RowDefinition Height="Auto" MinHeight="17.192"/>
+						<RowDefinition Height="Auto" MinHeight="11.053"/>
+						<RowDefinition Height="Auto" MinHeight="14.646"/>
+                        <RowDefinition Height="Auto" MinHeight="8"/>
+                        <RowDefinition Height="Auto" MinHeight="8"/>
+                        <RowDefinition Height="Auto" MinHeight="8"/>
+                        <RowDefinition Height="Auto" MinHeight="8"/>
+                        <RowDefinition Height="Auto" MinHeight="8"/>
+                        <RowDefinition Height="Auto" MinHeight="8"/>
+                        <RowDefinition Height="*"/>
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="0.243*"/>
+						<ColumnDefinition Width="0.757*"/>
+					</Grid.ColumnDefinitions>
+					<TextBlock Text="{Binding VorHandler.CurrentRoute.SurfaceDistance, Mode=Default, StringFormat=\{0:F2\}}" TextWrapping="Wrap" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" Width="Auto"/>
+					<TextBlock Text="{Binding VorHandler.CurrentRoute.Cap, Mode=Default, StringFormat=\{0:F2\}}" TextWrapping="Wrap" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Width="Auto"/>
+					<TextBlock TextWrapping="Wrap"><Run Text="Distance" Language="fr-fr"/></TextBlock>
+					<TextBlock Grid.Row="1" TextWrapping="Wrap"><Run Text="Cap" Language="fr-fr"/></TextBlock>
+					<TextBlock TextWrapping="Wrap" Grid.Row="2" Text="ETA"/>
+					<TextBlock Text="{Binding VorHandler.ETA, ConverterCulture=fr-fr, Mode=Default, StringFormat=\{0:D\}}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="2"/>
+					<TextBlock TextWrapping="Wrap" Text="VMG"  Grid.Row="3"/>
+					<TextBlock Text="{Binding VorHandler.VMG, Mode=Default, StringFormat=\{0:F2\}}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="3"/>
+                    <TextBlock TextWrapping="Wrap" Text="CurTarget" Grid.Row="4" Grid.RowSpan="1"/>
+                    <TextBlock TextWrapping="Wrap" Text="CurCap" Grid.Row="5" Grid.RowSpan="1"/>
+                    <TextBlock Text="{Binding VorHandler.Pilote.CurrentPoint.P, Converter={StaticResource CoordsConverter}, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="4"/>
+                    <TextBlock Text="{Binding VorHandler.Pilote.CurrentPoint.Cap, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="5"/>
+                    <TextBlock TextWrapping="Wrap" Text="Next ETA" VerticalAlignment="Top" Height="15.96" Grid.Row="6"/>
+                    <TextBlock Text="{Binding VorHandler.Pilote.CurrentPoint.T, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="6"/>
+                    <TextBlock TextWrapping="Wrap" Text="Distance to target" Grid.Row="7" Margin="-1,1,1,-1"/>
+                    <TextBlock TextWrapping="Wrap" Text="Cap to target" Grid.Row="8" Grid.RowSpan="1"/>
+                    <TextBlock Text="{Binding VorHandler.Pilote.CurTC.SurfaceDistance, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="7"/>
+                    <TextBlock Text="{Binding VorHandler.Pilote.CurTC.Cap, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="8"/>
+                    <TextBlock TextWrapping="Wrap" Text="Next ETA" VerticalAlignment="Top" Height="15.96" Grid.Row="9"/>
+                    <TextBlock Text="{Binding VorHandler.Pilote.NextPoint.T, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="9"/>
+                </Grid>
+			</TabItem> 
+			<TabItem Header="2D Viewer" >
+				<Grid x:Name="grid" Background="#FFE0E0F0" >
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="121.39"/>
+                        <ColumnDefinition Width="121.39"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto" MinWidth="136.239"/>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" MinHeight="24.572"/>
+						<RowDefinition Height="111.714"/>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="0.86*"/>
+						<RowDefinition Height="0.14*" MinHeight="34.572"/>
+					</Grid.RowDefinitions>
+					<GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
+					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
+					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left">
+						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
+								<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
+						</Grid>
+						<GroupBox  x:Name="BoatInfoGroupBox"  Header="" Background="#6DFFFFFF" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" Visibility="{Binding VorHandler.BoatInfoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" RenderTransformOrigin="0.5,0.5" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+							<GroupBox.BitmapEffect>
+								<DropShadowBitmapEffect/>
+							</GroupBox.BitmapEffect>
+							<Grid x:Name="grid1" >
+								<StackPanel Width="Auto" Height="Auto" >
+									<ItemsControl ItemsSource="{Binding VorHandler.BoatInfoList, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route" />
+								</StackPanel>
+							</Grid>
+						</GroupBox>
+					</Canvas>
+					<Canvas VerticalAlignment="Stretch" Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
+						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Left" VerticalAlignment="Top" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute">
+							<Routeur:_2D_Viewer.RenderTransform>
+								<TransformGroup>
+									<ScaleTransform ScaleX="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ScaleY="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+									<TranslateTransform X="{Binding Value, ElementName=SldLon, Mode=Default}" Y="{Binding Value, ElementName=SldLat}"/>
+								</TransformGroup>
+							</Routeur:_2D_Viewer.RenderTransform>
+						</Routeur:_2D_Viewer>
+						
+					</Canvas>
+					
+					<Image Grid.Row="1" Source="Graphics\Rosa_dels_vents.png" Stretch="UniformToFill"/>
+					<Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Grid.Row="1" Source="Graphics\Boat_Top.png" Stretch="None">
+						<Image.LayoutTransform>
+							<TransformGroup>
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<SkewTransform AngleX="0" AngleY="0"/>
+								<RotateTransform Angle="{Binding VorHandler.UserInfo.position.cap, Mode=Default}"/>
+								<TranslateTransform X="0" Y="0"/>
+							</TransformGroup>
+						</Image.LayoutTransform>
+						<Image.RenderTransform>
+							<TransformGroup>
+								<ScaleTransform/>
+								<SkewTransform AngleX="0" AngleY="0"/>
+								<RotateTransform/>
+								<TranslateTransform/>
+							</TransformGroup>
+						</Image.RenderTransform>
+					</Image>
+					<Label Content="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default, StringFormat=\{0:F2\}}" Style="{DynamicResource CapLabel}" Foreground="#FFCFBC22" RenderTransformOrigin="0.5,1" d:LayoutOverrides="Width, Height" Grid.Row="1">
+						<Label.RenderTransform>
+							<TransformGroup>
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<SkewTransform AngleX="0" AngleY="0"/>
+								<RotateTransform Angle="{Binding VorHandler.WindDir, Mode=Default}"/>
+								<TranslateTransform X="0" Y="-58"/>
+							</TransformGroup>
+						</Label.RenderTransform>
+						<Label.LayoutTransform>
+							<TransformGroup>
+								<ScaleTransform CenterX="0" CenterY="0.5" ScaleX="1" ScaleY="1"/>
+								<SkewTransform AngleX="0" AngleY="0" CenterX="0" CenterY="0.5"/>
+								<RotateTransform Angle="0" CenterX="0" CenterY="0.5"/>
+								<TranslateTransform X="0" Y="0"/>
+							</TransformGroup>
+						</Label.LayoutTransform>
+					</Label>
+					<Slider Grid.Row="2" x:Name="SldZoom" Value="1" Minimum="0.0001" Maximum="20" Margin="0,0,0,2.142"/>
+					<Slider Grid.Row="3" x:Name="SldLat" Minimum="-180000" Visibility="Hidden" Maximum="180000"/>
+					<Slider Grid.Row="4" x:Name="SldLon" Maximum="108000" Minimum="-108000" Visibility="Hidden"/>
+                    <StackPanel Grid.Row="3" Width="Auto" Height="Auto" Grid.ColumnSpan="2" Grid.RowSpan="4">
+					    <GroupBox  Grid.RowSpan="1"  Header="" Background="#6DFFFFFF">
+						    <GroupBox.BitmapEffect>
+							    <DropShadowBitmapEffect/>
+						    </GroupBox.BitmapEffect>
+						    <Grid>
+						    <StackPanel Width="Auto" Height="Auto">
+                                    <TextBlock Text="{Binding The2DViewer.CurCoords, Converter={StaticResource CoordsConverter}, ConverterParameter=2, Mode=Default}" TextWrapping="Wrap" Width="Auto" Height="Auto"/>
+                                    <TextBlock Text="{Binding VorHandler.CurWPDist, Mode=Default, StringFormat=Dist:\{0:F2\} nm}" TextWrapping="Wrap" Width="Auto" Height="Auto"/>
+                                    <ItemsControl ItemsSource="{Binding VorHandler.DiffEvolution, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Variation de classement" />
+						    </StackPanel>
+						    </Grid>
+					    </GroupBox>
+                        <GroupBox  Header="Route to Mouse" Background="#6DFFFFFF">
+                            <GroupBox.BitmapEffect>
+                                <DropShadowBitmapEffect/>
+                            </GroupBox.BitmapEffect>
+                            <Grid>
+                                <ItemsControl ItemsSource="{Binding VorHandler.BestRouteAtPoint, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route"  />
+                                
+                            </Grid>
+                        </GroupBox><GroupBox  Header="Best Route" Background="#6DFFFFFF">
+                            <GroupBox.BitmapEffect>
+                                <DropShadowBitmapEffect/>
+                            </GroupBox.BitmapEffect>
+                            <Grid MaxHeight="Infinity">
+                                <StackPanel Width="Auto" Height="Auto" >
+                                    <ItemsControl ItemsSource="{Binding VorHandler.BruteRoute, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route" />
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
+                    </StackPanel>
+					<GroupBox Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="3" Header="Journal" x:Name="groupBox" Background="#6DFFFFFF">
+						<Grid Width="Auto" Height="Auto">
+							<ListBox ItemsSource="{Binding VorHandler.Log, Mode=Default}"/>
+						</Grid>
+					</GroupBox>
+					<DockPanel Grid.Row="7" LastChildFill="False">
+						<TextBlock Width="Auto" Text="{Binding VorHandler.PositionDataAge, Converter={StaticResource CoordsConverter}, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom"/>
+						<TextBlock Width="Auto" Text="{Binding VorHandler.UserInfo.position.classement, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom" FontSize="24"/>
+					</DockPanel>
+					<GroupBox Margin="0,0,0,8" Header="Stats" Grid.Column="3" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
+						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
+					</GroupBox>
+				</Grid>
+			</TabItem> 
+			<TabItem Header="Auto Routeur">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="0.512*"/>
+						<RowDefinition Height="0.488*"/>
+					</Grid.RowDefinitions>
+					<Custom:DataGrid IsSynchronizedWithCurrentItem="True" AutoGenerateColumns="False" 
+						ItemsSource="{Binding VorHandler.TempRoute, Mode=Default}" CanUserReorderColumns="True" 
+						CanUserResizeColumns="True" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
+						<Custom:DataGrid.Columns>
+							<Custom:DataGridTextColumn Header="CAP" Binding="{Binding Cap, StringFormat=\{0:F2\}}"/>
+							<Custom:DataGridTextColumn Header="Speed" Binding="{Binding Speed, StringFormat=\{0:F2\}}"/>
+							<Custom:DataGridTextColumn Header="ETA" Binding="{Binding T}"/>
+							<Custom:DataGridTextColumn Header="Point" Binding="{Binding P, Converter={StaticResource CoordsConverter}, ConverterCulture=fr-fr, ConverterParameter=1}"/>
+							<Custom:DataGridTextColumn Header="Sail" Binding="{Binding Sail}"/>
+							<Custom:DataGridTextColumn Header="Wind Dir" Binding="{Binding WindDir}"/>
+							<Custom:DataGridTextColumn Header="Wind Strength" Binding="{Binding WindStrength, StringFormat=\{0:F2\}}"/>
+							<Custom:DataGridTextColumn Header="Cur Dist"  IsReadOnly ="true" Binding="{Binding DistFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+							<Custom:DataGridTextColumn Header="Cur Cap"  IsReadOnly ="true" Binding="{Binding CapFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+							<Custom:DataGridTextColumn Header="DTF"  IsReadOnly ="true" Binding="{Binding DTF, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+						</Custom:DataGrid.Columns>
+					</Custom:DataGrid>
+					<Custom:DataGrid IsSynchronizedWithCurrentItem="True"  AutoGenerateColumns="False" Grid.Row="1" 
+						ItemsSource="{Binding VorHandler.BruteRoute, Mode=Default}"
+						CanUserDeleteRows="False" CanUserAddRows="False">
+					<Custom:DataGrid.Columns>
+							<Custom:DataGridTextColumn Header="CAP" Binding="{Binding Cap, StringFormat=\{0:F2\}}"/>
+							<Custom:DataGridTextColumn Header="Speed" Binding="{Binding Speed, StringFormat=\{0:F2\}}"/>
+							<Custom:DataGridTextColumn Header="ETA" Binding="{Binding T}"/>
+							<Custom:DataGridTextColumn Header="Point" IsReadOnly ="true" Binding="{Binding P, Converter={StaticResource CoordsConverter}, ConverterCulture=fr-fr, ConverterParameter=1}"/>
+							<Custom:DataGridTextColumn Header="Sail" Binding="{Binding Sail}"/>
+							<Custom:DataGridTextColumn Header="Wind Dir" Binding="{Binding WindDir}"/>
+							<Custom:DataGridTextColumn Header="Wind Strength" Binding="{Binding WindStrength, StringFormat=\{0:F2\}}"/>
+							<Custom:DataGridTextColumn Header="Cur Dist" IsReadOnly ="true" Binding="{Binding DistFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+							<Custom:DataGridTextColumn Header="Cur Cap"  IsReadOnly ="true" Binding="{Binding CapFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+							<Custom:DataGridTextColumn Header="DTF"  IsReadOnly ="true" Binding="{Binding DTF, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+						</Custom:DataGrid.Columns>
+					</Custom:DataGrid>
+				</Grid>
+			</TabItem>
+         </TabControl>
+    	
+        
+    </Grid>
+</Window>

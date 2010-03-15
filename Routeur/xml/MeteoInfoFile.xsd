@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="PREVISIONS">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" name="PREVISION">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="M">
+                <xs:complexType>
+                  <xs:attribute name="LAT" type="xs:decimal" use="required" />
+                  <xs:attribute name="LON" type="xs:decimal" use="required" />
+                  <xs:attribute name="V" type="xs:decimal" use="required" />
+                  <xs:attribute name="D" type="xs:short" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="PREVISION" type="xs:unsignedByte" use="required" />
+            <xs:attribute name="DATE" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="COLS" type="xs:unsignedShort" use="required" />
+      <xs:attribute name="ROWS" type="xs:unsignedShort" use="required" />
+      <xs:attribute name="LONGITUDESTART" type="xs:decimal" use="required" />
+      <xs:attribute name="LATITUDESTART" type="xs:decimal" use="required" />
+      <xs:attribute name="DX" type="xs:decimal" use="required" />
+      <xs:attribute name="DY" type="xs:decimal" use="required" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
