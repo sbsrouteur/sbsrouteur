@@ -1607,7 +1607,7 @@ Public Class VOR_Router
 
             If Now.Subtract(_lastflush).TotalMinutes > 15 Then
 
-                Dim BaseDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
+                Dim BaseDir As String = RouteurModel.BaseFileDir
                 If Not System.IO.Directory.Exists(BaseDir) Then
                     System.IO.Directory.CreateDirectory(BaseDir)
                 End If

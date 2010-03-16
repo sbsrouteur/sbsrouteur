@@ -21,7 +21,9 @@ Public Class RouteurModel
     Private Shared _NoObstacle As Boolean
     Private _ClearBoats As Boolean = False
     Private Shared _WPList As New List(Of String)
-    
+
+    Public Shared BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
+
     Private Enum RaceZoneDirs As Integer
         East = 0
         North = 1
@@ -412,7 +414,18 @@ Public Class RouteurModel
 
         Dim S As System.IO.StreamReader = Nothing
         Try
-            S = New System.IO.StreamReader(".\Routeur.ini")
+            If Not System.IO.File.Exists(BaseFileDir & "\Routeur.ini") Then
+                If Not System.IO.Directory.Exists(BaseFileDir) Then
+                    System.IO.Directory.CreateDirectory(BaseFileDir)
+                End If
+
+                System.IO.File.Copy(".\Routeur.ini", BaseFileDir & "\Routeur.ini")
+                MessageBox.Show("Edit your Routeur ini file and restart Routeur")
+                Process.Start(BaseFileDir & "\Routeur.ini")
+                End
+            End If
+
+            S = New System.IO.StreamReader(basefiledir & "\Routeur.ini")
 
             Dim Line As String = ""
 

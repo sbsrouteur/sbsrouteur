@@ -449,6 +449,17 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_2474D76181914BB6AD6383363A3CB470"
+                    {
+                    "Name" = "8:Routeur pour VLM"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_8EBAC19F9AA042C99CEC1F6027FB7487"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
             "{1525181F-901A-416C-8A58-119130FE478E}:_DDBDA6FD3FE04200A00AA663160589C1"
@@ -523,14 +534,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Routeur"
-        "ProductCode" = "8:{B37E3132-AF36-41CD-A9E3-A1428E91E013}"
-        "PackageCode" = "8:{DC8C1898-56E1-45CA-A72E-0838BAF98675}"
+        "ProductCode" = "8:{8D27B01B-B78D-4C07-9F79-CB73868F1555}"
+        "PackageCode" = "8:{08EDCE78-F986-441E-A5F6-49C3A1AFBF30}"
         "UpgradeCode" = "8:{AB55297F-8D40-4FA0-8773-32E1C48C358D}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.12.0"
+        "ProductVersion" = "8:1.12.3"
         "Manufacturer" = "8:sbs"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -643,18 +654,18 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_7D5C4596BFCC4BD099F900C860D71DB7"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_050318C9CB744C8D83E9CE3B5448BCBB"
             {
             "Name" = "8:Routeur"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
+            "IconIndex" = "3:32512"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_AE3B60F23EAA4A4D98127D1BD90E3D0A"
-            "Folder" = "8:_3C49A4EC0B884213821BD5D710C06C02"
-            "WorkingFolder" = "8:_F06775D9264141FABFE274DD4E04D311"
-            "Icon" = "8:"
+            "Target" = "8:_AAFD4F7710CE4170974E9E184F5DBF5B"
+            "Folder" = "8:_2474D76181914BB6AD6383363A3CB470"
+            "WorkingFolder" = "8:_AE3B60F23EAA4A4D98127D1BD90E3D0A"
+            "Icon" = "8:_AAFD4F7710CE4170974E9E184F5DBF5B"
             "Feature" = "8:"
             }
         }
