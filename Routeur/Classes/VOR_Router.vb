@@ -54,11 +54,6 @@ Public Class VOR_Router
 
     Private WithEvents _gr As GridRouter
 
-#If BOTS = 1 Then
-    Private WithEvents _Pilote As New clsPilote
-    Private _PiloteCleared As Boolean = True
-    Private _AutoRouteFailures As Integer = 0
-#End If
 
     Private _StopBruteForcing As Boolean = False
 
@@ -870,15 +865,6 @@ Public Class VOR_Router
         End Get
     End Property
 
-#If BOTS = 1 Then
-    Public ReadOnly Property Pilote() As clsPilote
-        Get
-            Return _Pilote
-        End Get
-    End Property
-#End If
-
-
 
     Public ReadOnly Property PlannedRoute() As ObservableCollection(Of clsrouteinfopoints)
         Get
@@ -1066,8 +1052,6 @@ Public Class VOR_Router
 
     Private Function STR_GetUserInfo(Optional ByVal IsLogin As Boolean = False, Optional ByVal user As String = "", Optional ByVal password As String = "") As String
 
-        'Dim code As String = GetSHACheckSum("get_user.php" & _PlayerInfo.Nick & _Pass & _U)
-        'Return RouteurModel.BASE_GAME_URL & "/get_user.php?&checksum=" & code & "&clef=" & _Pass & "&pseudo=" & _PlayerInfo.Nick
         If IsLogin Then
             If user = "" Then
                 Return RouteurModel.BASE_GAME_URL & "/myboat.php?pseudo=" & _PlayerInfo.Nick & "&password=" & _PlayerInfo.Password & "&lang=fr&type=login"
@@ -1533,33 +1517,7 @@ Public Class VOR_Router
             Return
         End If
 
-#If BOTS = 1 Then
-        If _PiloteCleared AndAlso _PlayerInfo.AutoRouting AndAlso _UserInfo.date.AddMinutes(RouteurModel.VacationMinutes).Subtract(Now).TotalSeconds < 30 Then
 
-            'If _cookiesContainer Is Nothing Then
-            _CookiesContainer = Login()
-            'End If
-            If _CookiesContainer Is Nothing Then
-                Return
-            End If
-            _Pilote.CurrentRoute = BruteRoute
-            Dim Res = _Pilote.CheckDirectionAndSail(_PlayerInfo.NumBoat, _CookiesContainer)
-            _PiloteCleared = False
-            Select Case Res
-                Case clsPilote.enumroutingcheck.NOK
-                    _AutoRouteFailures += 1
-                    AddLog("Auto routing NOK " & _AutoRouteFailures)
-                    _CookiesContainer = Nothing
-                    If _AutoRouteFailures > 5 Then
-                        _PlayerInfo.AutoRouting = False
-                    End If
-                Case clsPilote.enumroutingcheck.OffCourse
-
-                    AddLog("Je suis perdu HORS COURSE, je continue...")
-
-            End Select
-        End If
-#End If
 
         If Not force AndAlso Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.date).TotalMinutes < RouteurModel.VacationMinutes Then
             Return
@@ -1570,10 +1528,6 @@ Public Class VOR_Router
             ResponseString = _WebClient.DownloadString(STR_GetUserInfo)
 
             UserInfo(meteo) = ParseVLMBoatInfoString(ResponseString)
-
-#If BOTS = 1 Then
-            _PiloteCleared = True
-#End If
 
 
             Dim VLMInfoMessage As String = "Meteo read D:" & UserInfo.position.wind_angle.ToString("f2")
@@ -1784,35 +1738,6 @@ Public Class VOR_Router
                 Return
             End If
 
-#If BOTS = 1 Then
-            _Pilote.ActualPosition = New clsrouteinfopoints() With {.P = P, .Cap = _UserInfo.position.cap, _
-                                                                    .Sail = CType(_UserInfo.position.voile, clsSailManager.EnumSail), _
-                                                                    .WindDir = MI.Dir, .WindStrength = MI.Strength _
-                                                                    }
-
-
-
-            Dim TC As New TravelCalculator With {.StartPoint = _Pilote.ActualPosition.P}
-            Try
-                Dim RP As clsrouteinfopoints
-                For Each RP In TempRoute
-                    TC.EndPoint = RP.P
-                    RP.CapFromPos = TC.Cap
-                    RP.DistFromPos = TC.SurfaceDistance
-                Next
-                For Each RP In BruteRoute
-                    TC.EndPoint = RP.P
-                    RP.CapFromPos = TC.Cap
-                    RP.DistFromPos = TC.SurfaceDistance
-                Next
-            Catch ex As Exception
-                AddLog("getBoat route postcompute..." & ex.ToString)
-            Finally
-                TC.EndPoint = Nothing
-                TC.StartPoint = Nothing
-                TC = Nothing
-            End Try
-#End If
 
             If _DiffEvolution.Count = 0 OrElse _DiffEvolution(0) <> _UserInfo.position.diffClassement Then
                 _DiffEvolution.Insert(0, _UserInfo.position.diffClassement)
@@ -2347,13 +2272,6 @@ Public Class VOR_Router
         End If
     End Sub
 
-#If BOTS = 1 Then
-    Private Sub _Pilote_Log(ByVal log As String) Handles _Pilote.Log
-
-        AddLog(log)
-
-    End Sub
-#End If
 
     Private Sub _gr_Log(ByVal Str As String) Handles _gr.Log
 

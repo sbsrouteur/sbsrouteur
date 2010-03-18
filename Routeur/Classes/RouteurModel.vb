@@ -146,7 +146,12 @@ Public Class RouteurModel
 
     Public Sub New()
 
-        _P_Info(0) = New clsPlayerInfo
+        Dim frm As New frmUserPicker
+        frm.DataContext = Me
+        frm.ShowDialog()
+
+        _P_Info(0) = frm.playerinfo
+
         LoadParams()
         CheckPassword()
 
@@ -390,6 +395,17 @@ Public Class RouteurModel
 
 
     End Sub
+
+    Public ReadOnly Property RegisteredPlayers() As ObservableCollection(Of RegistryPlayerInfo)
+        Get
+            Dim PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
+            Dim P As New RegistryPlayerInfo(9881)
+            PlayerList.Add(P)
+
+            Return PlayerList
+
+        End Get
+    End Property
 
     Public ReadOnly Property AppString() As String
         Get

@@ -53,12 +53,13 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <IncrementalBuild>false</IncrementalBuild>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314</NoWarn>
     <DebugType>Full</DebugType>
-    <DefineConstants>TOUR=true , ID="VLM"</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <PlatformTarget>x86</PlatformTarget>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -131,6 +132,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Dialogs\frmUserPicker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="frmRoutingProgress.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -193,14 +198,20 @@
     <Compile Include="Classes\GSHHS_Reader.vb" />
     <Compile Include="Classes\GribMeteo\MeteoArray.vb" />
     <Compile Include="Classes\GribMeteo\MeteoInfo.vb" />
+    <Compile Include="Classes\JSon\JSonParser.vb" />
     <Compile Include="Classes\PolyClipper\PolyClipper.vb" />
     <Compile Include="Classes\ProgressContext.vb" />
+    <Compile Include="Classes\RegistryPlayerInfo.vb" />
     <Compile Include="Classes\RouteurModel.vb" />
     <Compile Include="Classes\Stats.vb" />
     <Compile Include="Classes\TravelCalculator.vb" />
     <Compile Include="Classes\VOR_Router.vb" />
+    <Compile Include="Classes\WS\WS_Wrapper.vb" />
     <Compile Include="Controls\WindArrow.xaml.vb">
       <DependentUpon>WindArrow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\frmUserPicker.xaml.vb">
+      <DependentUpon>frmUserPicker.xaml</DependentUpon>
     </Compile>
     <Compile Include="frmRoutingProgress.xaml.vb">
       <DependentUpon>frmRoutingProgress.xaml</DependentUpon>
@@ -309,6 +320,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\1or002c.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\Sailor.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
