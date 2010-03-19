@@ -16,22 +16,23 @@
     		</ResourceDictionary.MergedDictionaries>
         
     		<DataTemplate DataType="{x:Type Routeur:RegistryPlayerInfo}">
-    			<Grid d:DesignWidth="189" d:DesignHeight="166">
+    			<Grid d:DesignWidth="240" d:DesignHeight="100">
     				<Grid.ColumnDefinitions>
     					<ColumnDefinition Width="Auto" MinWidth="60"/>
-    					<ColumnDefinition Width="Auto" MinWidth="60"/>
+    					<ColumnDefinition Width="Auto" MinWidth="180"/>
     				</Grid.ColumnDefinitions>
     				<Grid.RowDefinitions>
     					<RowDefinition Height="Auto" />
     					<RowDefinition Height="Auto" />
     					<RowDefinition Height="Auto"  />
-    					<RowDefinition Height="0"/>
+    					<RowDefinition Height="Auto"/>
     				</Grid.RowDefinitions>
-    				<TextBlock Text="Login" TextWrapping="Wrap"/>
+    				<TextBlock Text="Login" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}"/>
     				<TextBlock Text="Password" TextWrapping="Wrap" Grid.Row="1" Margin="{DynamicResource DefMargin}"/>
-    				<TextBlock Text="Race Info" TextWrapping="Wrap" Grid.Row="2"/>
-    				<TextBox Text="{Binding Nick, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Stretch" Height="Auto"/>
-    				<TextBox Text="{Binding Password, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Stretch" Height="Auto" Grid.Row="1"/>
+    				<TextBlock Text="Race Info" TextWrapping="Wrap" Grid.Row="2" Margin="{DynamicResource DefMargin}"/>
+    				<TextBox Text="{Binding Nick, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Stretch" Height="Auto" Margin="{DynamicResource DefMargin}" VerticalContentAlignment="Top"/>
+    				<TextBox Text="{Binding Password, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Stretch" Height="Auto" Grid.Row="1" Margin="{DynamicResource DefMargin}"/>
+    				<TextBlock Text="{Binding RaceInfo, IsAsync=true, Mode=OneWay}" TextWrapping="Wrap" Grid.Row="3" VerticalAlignment="Bottom" Height="15.96" Margin="{DynamicResource DefMargin}" Grid.ColumnSpan="2"/>
     			</Grid>
     		</DataTemplate>
     	</ResourceDictionary>

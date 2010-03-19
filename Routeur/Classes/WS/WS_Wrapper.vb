@@ -12,9 +12,13 @@ Module WS_Wrapper
         _LastUser = Player.Nick
         Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatinfo.php?forcefmt=json"
         Dim Retstring As String = RequestPage(URL)
+        Try
+            Return Parse(Retstring)
+        Catch ex As Exception
+            MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
+        End Try
 
-        Return Parse(Retstring)
-
+        Return Nothing
 
     End Function
 

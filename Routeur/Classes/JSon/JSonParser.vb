@@ -45,6 +45,30 @@ Module JSonParser
 
     End Function
 
+    Private Function ReadDouble(ByVal Data As String, ByRef dblValue As Double) As Integer
+        Dim SB As New StringBuilder
+        Dim Complete As Boolean = False
+        Dim CurIndex As Integer = 1
+
+        SB.Length = 0
+        While Not Complete
+            Select Case Data(CurIndex)
+                Case ","c
+                    Complete = True
+
+                Case Else
+                    'Read
+                    SB.Append(Data(CurIndex))
+                    CurIndex += 1
+            End Select
+        End While
+
+        Double.TryParse(SB.ToString, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, dblValue)
+
+        Return CurIndex
+
+    End Function
+
     Private Function ReadObject(ByVal Data As String, ByRef RetObj As Object) As Integer
 
         Dim CurData As String = Data
@@ -148,6 +172,12 @@ Module JSonParser
                 Dim Arr As New List(Of Object)
                 Index = ReadArray(Data, Arr)
                 Value = Arr
+
+            Case "0"c To "9"c, "-"c
+                Dim v As Double
+                Index = ReadDouble(Data, v)
+                Value = v
+
             Case Else
                 Throw New InvalidOperationException("Unsupported JSon Value type")
         End Select
