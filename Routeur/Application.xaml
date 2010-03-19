@@ -8,6 +8,7 @@ ShutdownMode="OnMainWindowClose">
     	<ResourceDictionary>
     		<ResourceDictionary.MergedDictionaries>
     			<!--<ResourceDictionary Source="Controls\PathResources.xaml"/>-->
+    			<ResourceDictionary Source="Styles/ControlsStyles.xaml"/>
     		</ResourceDictionary.MergedDictionaries>
     		<Thickness x:Key="DefMargin">4</Thickness>
 			

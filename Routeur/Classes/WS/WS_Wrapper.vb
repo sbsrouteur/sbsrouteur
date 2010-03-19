@@ -8,12 +8,23 @@ Module WS_Wrapper
 
     Public Function GetBoatInfo(ByVal Player As clsPlayerInfo) As Dictionary(Of String, Object)
 
-        _LastPassword = Player.Password
-        _LastUser = Player.Nick
+        If _LastPassword <> Player.Password OrElse _LastUser <> Player.Nick Then
+            _LastPassword = Player.Password
+            _LastUser = Player.Nick
+            _Cookies = New CookieContainer
+        End If
         Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatinfo.php?forcefmt=json"
-        Dim Retstring As String = RequestPage(URL)
+        Dim Retstring As String = ""
         Try
+            Retstring = RequestPage(URL)
             Return Parse(Retstring)
+        Catch wex As WebException
+            If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+                'Login error
+                Return Nothing
+            Else
+                MessageBox.Show(wex.Response.ToString)
+            End If
         Catch ex As Exception
             MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
         End Try

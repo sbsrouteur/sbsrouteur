@@ -1,4 +1,6 @@
 ﻿Imports System.ComponentModel
+Imports System.Security.Cryptography
+Imports System.IO
 
 Public Class RegistryPlayerInfo
     Implements INotifyPropertyChanged
@@ -10,14 +12,17 @@ Public Class RegistryPlayerInfo
     Private _IsMine As Boolean
     Private _Password As String
     Private _IsLoaded As Boolean = False
+    Private _RaceInfo As String = ""
+    Private _IsRacing As Boolean = False
+    Private _IsPasswordOK As Boolean = False
 
-    Public Sub New(ByVal Id As Integer)
-        _BoatNum = Id
+    Public Sub New(ByVal Name As String)
+        _Nick = Name
     End Sub
 
     Public Property BoatNum() As Integer
         Get
-            If Not _isloaded Then
+            If Not _IsLoaded Then
                 Load()
             End If
             Return _BoatNum
@@ -30,6 +35,31 @@ Public Class RegistryPlayerInfo
                 SaveUserInfo(Me)
             End If
         End Set
+    End Property
+
+    Public ReadOnly Property IsPasswordOK() As Boolean
+        Get
+            Return _IsPasswordOK
+        End Get
+    End Property
+
+    Public ReadOnly Property RaceInfo() As String
+        Get
+            If Not _IsLoaded Then
+                Load()
+            End If
+            Return _RaceInfo
+        End Get
+
+    End Property
+
+    Public ReadOnly Property IsRacing() As Boolean
+        Get
+            If Not _IsLoaded Then
+                Load()
+            End If
+            Return _IsRacing
+        End Get
     End Property
 
     Public ReadOnly Property Playerinfo() As clsPlayerInfo
@@ -90,14 +120,97 @@ Public Class RegistryPlayerInfo
                 _Password = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Password"))
                 SaveUserInfo(Me)
+                Load()
             End If
         End Set
     End Property
 
+    Public WriteOnly Property PasswordDecrypt() As Byte()
+        Set(ByVal value As Byte())
+
+            If value Is Nothing Then
+                Return
+            End If
+
+            Dim Key() As Byte = System.Text.Encoding.Unicode.GetBytes("USER" & _Nick)
+            Dim Crypter As New System.Security.Cryptography.RijndaelManaged
+
+
+            With Crypter
+                ReDim Preserve Key((.LegalKeySizes(0).MaxSize \ 8) - 1)
+                .KeySize = .LegalKeySizes(0).MaxSize
+                .BlockSize = .KeySize
+                .Key = Key
+                .IV = Key
+            End With
+            Dim MemStream As New MemoryStream()
+            Dim cstream As New CryptoStream(MemStream, Crypter.CreateDecryptor(), CryptoStreamMode.Write)
+            cstream.Write(value, 0, value.Count)
+            cstream.Flush()
+            cstream.Close()
+            
+            _Password = System.Text.Encoding.Unicode.GetString(MemStream.ToArray)
+            
+        End Set
+    End Property
+
+
+    Public ReadOnly Property PasswordEncrypt() As Byte()
+        Get
+            If _Password Is Nothing Then
+                _Password = ""
+            End If
+            Dim bytes() As Byte = System.Text.Encoding.Unicode.GetBytes(_Password)
+            Dim Key() As Byte = System.Text.Encoding.Unicode.GetBytes("USER" & _Nick)
+            Dim Crypter As New System.Security.Cryptography.RijndaelManaged
+
+            With Crypter
+                ReDim Preserve Key((.LegalKeySizes(0).MaxSize \ 8) - 1)
+                .KeySize = .LegalKeySizes(0).MaxSize
+                .BlockSize = .KeySize
+                .Key = Key
+                .IV = Key
+            End With
+            Dim MemStream As New MemoryStream
+            Using cstream As New CryptoStream(MemStream, Crypter.CreateEncryptor(), CryptoStreamMode.Write)
+                'Using sw As New StreamWriter(cstream)
+                ' sw.Write(bytes)
+                'End Using
+                cstream.Write(bytes, 0, bytes.Count)
+                cstream.FlushFinalBlock()
+                cstream.Close()
+            End Using
+            Crypter.Clear()
+
+            Return MemStream.ToArray
+
+        End Get
+    End Property
+
     Private Sub Load()
 
-        LoadUserInfo(Me, _BoatNum)
+        LoadUserInfo(Me, _Nick)
         _IsLoaded = True
+
+        Dim JSonData = GetBoatInfo(Playerinfo)
+        If JSonData Is Nothing Then
+            _IsPasswordOK = False
+            _RaceInfo = "Invalid password or username"
+            _IsRacing = False
+        Else
+            _IsPasswordOK = True
+            _RaceInfo = JSonHelper.GetJasonStringValue(JSonData("JsonData"), "RAN")
+            _IsRacing = True
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsRacing"))
+
+        End If
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsRacing"))
+
+
 
     End Sub
 

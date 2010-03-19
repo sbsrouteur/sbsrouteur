@@ -34,8 +34,30 @@ Module RegistryHelper
 
     End Function
 
-    Public Sub LoadUserInfo(ByVal User As RegistryPlayerInfo, ByVal BoatNum As Integer)
-        Dim UserKey As String = BASE_REG_PATH & "\" & USER_SUB_KEY & "\" & BoatNum.ToString
+    Public Sub LoadPlayers(ByVal List As IList(Of RegistryPlayerInfo))
+
+        Dim Reg As RegistryKey = Registry.CurrentUser.OpenSubKey(BASE_REG_PATH & "\" & USER_SUB_KEY, False)
+
+        If Reg Is Nothing Then
+            Return
+        End If
+        Dim names() As String = Reg.GetSubKeyNames()
+
+        For Each Name In names
+            Dim P As RegistryPlayerInfo = New RegistryPlayerInfo(Name)
+            List.Add(P)
+        Next
+
+        Return
+
+
+    End Sub
+
+    Public Sub LoadUserInfo(ByVal User As RegistryPlayerInfo, ByVal BoatNick As String)
+        If BoatNick Is Nothing Then
+            Return
+        End If
+        Dim UserKey As String = BASE_REG_PATH & "\" & USER_SUB_KEY & "\" & BoatNick
         Dim Reg As RegistryKey = Registry.CurrentUser.OpenSubKey(UserKey, False)
 
         If Reg Is Nothing Then
@@ -43,16 +65,21 @@ Module RegistryHelper
         End If
 
         With User
-            .Nick = CStr(Reg.GetValue(USER_NICK, "???"))
+            .Nick = BoatNick
+            .BoatNum = CInt(Reg.GetValue(USER_NUM, 0))
             .IsMine = CInt(Reg.GetValue(USER_MINE, 0)) = 1
-            .Password = CStr(Reg.GetValue(USER_PASSWORD, "???"))
+            .PasswordDecrypt = CType(Reg.GetValue(USER_PASSWORD, Nothing), Byte())
         End With
 
         Return
     End Sub
 
     Public Sub SaveUserInfo(ByVal User As RegistryPlayerInfo)
-        Dim UserKey As String = BASE_REG_PATH & "\" & USER_SUB_KEY & "\" & User.BoatNum.ToString
+
+        If User.Nick Is Nothing Then
+            Return
+        End If
+        Dim UserKey As String = BASE_REG_PATH & "\" & USER_SUB_KEY & "\" & User.Nick
         Dim Reg As RegistryKey = Registry.CurrentUser.OpenSubKey(UserKey, True)
 
         If Reg Is Nothing Then
@@ -61,9 +88,9 @@ Module RegistryHelper
 
         With User
 
-            Reg.SetValue(USER_NICK, .Nick, RegistryValueKind.String)
+            Reg.SetValue(USER_NUM, .BoatNum, RegistryValueKind.DWord)
             Reg.SetValue(USER_MINE, If(.IsMine, 1, 0), RegistryValueKind.DWord)
-            Reg.SetValue(USER_PASSWORD, .Password, RegistryValueKind.String)
+            Reg.SetValue(USER_PASSWORD, .PasswordEncrypt, RegistryValueKind.Binary)
         End With
 
         Return

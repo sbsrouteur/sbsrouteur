@@ -15,15 +15,5 @@
 	</Path>
 	<Path x:Key="LonLine"   Stroke="#FF000000" Width="2" Height="3600"  Data="M0,0 L0,3600" />		
 	<Path x:Key="LatLine"   Stroke="#FF000000" Width="10200" Height="2"  Data="M0,0 L10200,0" />
-	
-	<Style TargetType ="{x:Type TextBlock}" >
-		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
-	</Style>
-	
-	<Style TargetType ="{x:Type TextBox}" >
-		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
-	</Style>
-	
-	<Thickness x:Key="DefMargin">4</Thickness>		
 
 </ResourceDictionary>

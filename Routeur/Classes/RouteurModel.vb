@@ -153,8 +153,7 @@ Public Class RouteurModel
         _P_Info(0) = frm.playerinfo
 
         LoadParams()
-        CheckPassword()
-
+        
         Dim C1 As New Coords(90, 180)
         Dim C2 As New Coords(-90, -180)
         Dim Offset As Double = 0.5 / 180 * Math.PI
@@ -398,9 +397,10 @@ Public Class RouteurModel
 
     Public ReadOnly Property RegisteredPlayers() As ObservableCollection(Of RegistryPlayerInfo)
         Get
+
             Dim PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
-            Dim P As New RegistryPlayerInfo(9881)
-            PlayerList.Add(P)
+
+            LoadPlayers(PlayerList)
 
             Return PlayerList
 
