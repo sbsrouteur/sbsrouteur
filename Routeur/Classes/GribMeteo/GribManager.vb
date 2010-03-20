@@ -617,7 +617,7 @@ Public Class GribManager
             Dim Si As New System.Diagnostics.ProcessStartInfo
 
             With Si
-                .Arguments = """" & fName & """ -csv " & fName & ".csv"""
+                .Arguments = """" & fName & """ -csv """ & fName & ".csv"""
                 .FileName = "..\grib2\wgrib2.exe"
                 .UseShellExecute = False
                 .CreateNoWindow = True
