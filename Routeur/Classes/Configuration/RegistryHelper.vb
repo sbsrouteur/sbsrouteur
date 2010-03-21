@@ -10,6 +10,17 @@ Module RegistryHelper
     Private Const USER_MINE As String = "ISMINE"
 
 
+    Public Sub DeleteUser(ByVal P As RegistryPlayerInfo)
+
+        Dim Reg As RegistryKey = Registry.CurrentUser.OpenSubKey(BASE_REG_PATH & "\" & USER_SUB_KEY, True)
+
+        If Not Reg Is Nothing Then
+            Reg.DeleteSubKey(P.Nick)
+        End If
+
+        Return
+
+    End Sub
 
 
     Public Function GetUserPassword(ByVal UserName As String) As String

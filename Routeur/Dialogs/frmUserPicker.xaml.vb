@@ -107,4 +107,18 @@ Partial Public Class frmUserPicker
         Hide()
 
     End Sub
+
+    Private Sub DeleteBoat(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+        'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+
+        Dim P As RegistryPlayerInfo = CType(CType(sender, Button).DataContext, RegistryPlayerInfo)
+
+        If MessageBox.Show("Are you sure you want to delete " & P.Nick & " boat information?", "Delete Boat Info", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No, MessageBoxOptions.None) = MessageBoxResult.Yes Then
+            DeleteUser(P)
+            Dim R As RouteurModel = CType(DataContext, RouteurModel)
+            R.RegisteredPlayers.Remove(P)
+        End If
+
+    End Sub
+
 End Class

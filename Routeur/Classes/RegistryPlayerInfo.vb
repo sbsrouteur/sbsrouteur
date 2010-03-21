@@ -63,6 +63,12 @@ Public Class RegistryPlayerInfo
         End Get
     End Property
 
+    Public ReadOnly Property IsNotRacing() As Boolean
+        Get
+            Return Not IsRacing
+        End Get
+    End Property
+
     Public ReadOnly Property Playerinfo() As clsPlayerInfo
         Get
             Dim Ret As New clsPlayerInfo
