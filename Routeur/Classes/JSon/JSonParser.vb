@@ -11,6 +11,10 @@ Module JSonParser
         Dim ObjectData As Object = Nothing
         ObjectNum = 0
 
+        If Data.Trim = "null" Then
+            Return RetValue
+        End If
+
         Dim CurDataString = Data.Substring(CurIndex + 1)
 
         If Data(0) = "{"c Then

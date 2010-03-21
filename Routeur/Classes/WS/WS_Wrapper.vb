@@ -33,6 +33,27 @@ Module WS_Wrapper
 
     End Function
 
+    Public Function GetRaceInfo(ByVal RAN As Integer) As Dictionary(Of String, Object)
+
+        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/raceinfo.php?forcefmt=json&idrace=" & RAN.ToString
+        Dim Retstring As String = ""
+        Try
+            Retstring = RequestPage(URL)
+            Return Parse(Retstring)
+        Catch wex As WebException
+            If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+                'Login error
+                Return Nothing
+            Else
+                MessageBox.Show(wex.Response.ToString)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
+        End Try
+
+        Return Nothing
+    End Function
+
     Private Function RequestPage(ByVal URL As String) As String
 
         Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)

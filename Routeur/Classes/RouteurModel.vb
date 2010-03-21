@@ -149,6 +149,9 @@ Public Class RouteurModel
         Dim frm As New frmUserPicker
         frm.DataContext = Me
         frm.ShowDialog()
+        If frm.PlayerInfo Is Nothing Then
+            End
+        End If
 
         _P_Info(0) = frm.playerinfo
 
@@ -262,23 +265,23 @@ Public Class RouteurModel
                     Case "maplevel"
                         MapLevel = Line.Substring(PosEq + 1).ToLower
 
-                    Case "nick"
-                        P_Info(0).Nick = Line.Substring(PosEq + 1)
+                        'Case "nick"
+                        '    P_Info(0).Nick = Line.Substring(PosEq + 1)
 
-                    Case "numboat"
-                        Integer.TryParse(Line.Substring(PosEq + 1), P_Info(0).NumBoat)
+                        'Case "numboat"
+                        '    Integer.TryParse(Line.Substring(PosEq + 1), P_Info(0).NumBoat)
 
-                    Case "showgrid"
-                        Dim tmpInt As Integer
-                        Integer.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, tmpInt)
-                        If tmpInt = 42 Then
-                            RouteurModel.ShowGrid = True
-                        End If
-                    Case "startlat"
-                        Double.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, StartLat)
+                        'Case "showgrid"
+                        '    Dim tmpInt As Integer
+                        '    Integer.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, tmpInt)
+                        '    If tmpInt = 42 Then
+                        '        RouteurModel.ShowGrid = True
+                        '    End If
+                        'Case "startlat"
+                        '    Double.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, StartLat)
 
-                    Case "startlon"
-                        Double.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, StartLon)
+                        'Case "startlon"
+                        '    Double.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, StartLon)
 
 
                 End Select

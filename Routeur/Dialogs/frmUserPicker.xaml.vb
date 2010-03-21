@@ -86,4 +86,20 @@ Partial Public Class frmUserPicker
 
     End Sub
 
+    Private Sub cmdOK_Click(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs) Handles cmdOK.Click
+
+        If Me.lstUsers.SelectedItem Is Nothing Then
+            MessageBox.Show("You must select a boat to start")
+        Else
+            Hide()
+        End If
+
+    End Sub
+
+    Private Sub cmdCancel_Click(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs) Handles cmdCancel.Click
+
+        Me.lstUsers.SelectedItem = Nothing
+        Hide()
+
+    End Sub
 End Class
