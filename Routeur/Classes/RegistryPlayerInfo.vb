@@ -15,6 +15,7 @@ Public Class RegistryPlayerInfo
     Private _RaceInfo As String = ""
     Private _IsRacing As Boolean = False
     Private _IsPasswordOK As Boolean = False
+    Private _RaceNum As Integer
 
     Public Sub New(ByVal Name As String)
         _Nick = Name
@@ -202,6 +203,7 @@ Public Class RegistryPlayerInfo
             BoatNum = JSonHelper.GetJasonIntValue(JSonData("JsonData"), "IDU")
             _IsPasswordOK = True
             _RaceInfo = JSonHelper.GetJasonStringValue(JSonData("JsonData"), "RAN")
+            _RaceNum = JSonHelper.GetJasonIntValue(JSonData("JsonData"), "RAC")
             _IsRacing = True
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
@@ -218,6 +220,12 @@ Public Class RegistryPlayerInfo
 
 
     End Sub
+
+    Public ReadOnly Property RaceNum() As Integer
+        Get
+            Return _RaceNum
+        End Get
+    End Property
 
 
 

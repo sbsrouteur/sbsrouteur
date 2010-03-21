@@ -23,8 +23,6 @@ Public Class VOR_Router
     Private _WindChangeDate As DateTime
     Private _WindCoords As New Coords
 
-    'Private _Meteo As New clsMeteoOrganizer
-    'Private _VMGMeteo As New clsMeteoOrganizer
     Private _Meteo As New clsMeteoOrganizer
     Private _Sails As New clsSailManager
 
@@ -163,17 +161,6 @@ Public Class VOR_Router
             End Set
         End Property
 
-        'Public Property CurTC() As TravelCalculator
-        '    Get
-        '        Return _CurTC
-        '    End Get
-        '    Set(ByVal value As TravelCalculator)
-        '        _CurTC.StartPoint = Nothing
-        '        _CurTC.EndPoint = Nothing
-        '        _CurTC = value
-        '        RaiseEvent PropertyChanged(Me, CurTCProps)
-        '    End Set
-        'End Property
 
         Public Property DTF() As Double
             Get
@@ -213,14 +200,6 @@ Public Class VOR_Router
             End Set
         End Property
 
-        'Public Sub RefreshTC(ByVal CurPos As Coords)
-
-        '    _CurTC.EndPoint = _P
-        '    _CurTC.StartPoint = CurPos
-        '    RaiseEvent PropertyChanged(Me, CurTCProps)
-
-
-        'End Sub
 
         Public Property T() As DateTime
             Get
@@ -795,9 +774,6 @@ Public Class VOR_Router
                 '    V.RefreshTC(_ThreadSetterCurPos)
             Next
 
-            'If RefreshBoatInfo Then
-            '    getboatinfo(meteo)
-            'End If
             RaiseEvent PropertyChanged(Me, e)
 
 
@@ -1824,271 +1800,6 @@ Public Class VOR_Router
         End Set
 
     End Property
-
-
-
-    '    Private Function SimpleBestVMGTo(ByVal from As Coords, ByVal dest As Coords, ByVal CurDate As DateTime, ByVal Route As ObservableCollection(Of clsrouteinfopoints), ByVal NoTimeOptimization As Boolean, ByVal Precision As Double, ByVal TargetDistance As Double, ByVal StartTick As Long, ByRef meteo As clsMeteoOrganizer) As Boolean
-
-    '        Dim CurBestDir As Integer
-    '        Dim CurVMG As Double
-    '        Dim CurSail As clsSailManager.EnumSail
-    '        Dim CapLeft As Integer
-    '        Dim CurMeteo As MeteoInfo
-    '        Dim CurFactor As Double
-    '        Dim VMG As Double
-    '        Dim CurSpeed As Double
-    '        Dim speed As Double
-    '        Dim CapOrtho As Double
-    '        Dim CurDist As Double
-    '        Dim v As clsSailManager.EnumSail
-    '        Dim T As New TravelCalculator With {.StartPoint = New Coords(from), .EndPoint = New Coords(dest)}
-    '        Dim T2 As New TravelCalculator
-    '        Dim PrevLegLength As Double
-    '        Dim i As Integer
-    '        Dim MaxSpeed As Double
-    '        Dim RouteOK As Boolean
-    '        Dim MaxRetries As Integer = 0
-    '        Static VMGCounter As Long = 0
-    '        Dim PrevDir As Integer = -400
-    '        Dim HitDistance As Double = GSHHS_Reader.HitDistance(from, GSHHS_Reader.Polygons(from))
-    '        Dim P As clsrouteinfopoints = Nothing
-    '        Static LastRefresh As DateTime = Now
-    '        Dim Tests(360) As Boolean
-    '        Dim TestedOne As Boolean
-
-    '        Static MinDistance As Double = Double.MaxValue
-
-    '        If HitDistance < MinDistance Then
-    '            '            i = 0
-    '            MinDistance = HitDistance
-    '        End If
-    '        If HitDistance > GSHHS_Reader.MIN_DELTA Then
-    '            HitDistance = GSHHS_Reader.MIN_DELTA
-    '        Else
-    '            Return False
-    '        End If
-
-
-
-    '        If Route.Count > 0 Then
-    '            T2.StartPoint = Route(Route.Count - 1).P
-    '        Else
-    '            T2.StartPoint = from
-    '        End If
-
-    '        CurDist = T.SurfaceDistance
-    '        If CurDist <= TargetDistance Then
-    '            Return True
-    '        End If
-
-    '        If T.StartPoint.Lat_Deg < -65 Or T.StartPoint.Lat_Deg > 65 Then
-    '            Return False
-    '        End If
-
-    '        If Route.Count > 450 Then
-    '            Return False
-    '        End If
-
-    '        CurBestDir = CInt(T.Cap)
-    '        CapOrtho = T.Cap
-    '        CurSail = clsSailManager.Sails(0)
-    '        CurMeteo = meteo.GetMeteoToDate(T.StartPoint, CurDate, False)
-    '        If CurMeteo Is Nothing Then
-    '            'Debug.WriteLine("Meteo not found for " & CurDate & " " & T.StartPoint.ToString)
-    '            Return False
-    '        End If
-
-    '        MaxSpeed = 100
-    '        If _LastBestVMGCalc.TotalMilliseconds < 300 Then
-    '            _LastBestVMGCalc = New TimeSpan(0, 0, 1)
-    '        ElseIf _LastBestVMGCalc.TotalSeconds > 3 Then
-    '            _LastBestVMGCalc = New TimeSpan(0, 0, 3)
-
-    '        End If
-
-    'LOOPSTART:
-    '        If StartTick <> 0 AndAlso (Now.Ticks - StartTick) > 4 * _LastBestVMGCalc.Ticks Then
-    '            Return False
-    '        ElseIf StartTick = 0 And Now.Subtract(LastRefresh).TotalSeconds > 5 Then
-    '            LastRefresh = Now
-    '            TempVMGRoute = New ObservableCollection(Of clsrouteinfopoints)(Route)
-    '        End If
-
-    '        Const DELTA_VMG As Double = 0.0
-    '        VMGCounter += 1
-    '        MaxRetries += 1
-
-    '        'If MaxRetries > 50 Then
-    '        '    Return False
-    '        'End If
-
-    '        CurVMG = -40 ' _Sails.GetSpeed(CurSail, WindAngle(CurBestDir, CurMeteo.Dir), CurMeteo.Strength, _UserInfo.position.voiles_cassees)
-    '        CurSpeed = -40
-    '        'For Each V In clsSailManager.Sails
-    '        TestedOne = False
-    '        For i = 0 To 360
-
-    '            If Not Tests(CInt(i / 10)) Then
-    '                TestedOne = True
-    '                CapLeft = i '(CurMeteo.Dir - i + 360) Mod 180
-    '                CurFactor = Math.Cos((CapLeft - CapOrtho) / 180 * Math.PI)
-
-    '                speed = _Sails.GetBestSailSpeed(_UserInfo.type, v, WindAngle(CapLeft, CurMeteo.Dir), CurMeteo.Strength, BrokenSails)
-    '                VMG = CurFactor * speed
-    '                If VMG > CurVMG And VMG < MaxSpeed Then
-    '                    CurVMG = VMG
-    '                    CurSail = v
-    '                    CurBestDir = CapLeft
-    '                    CurSpeed = speed
-    '                End If
-    '            End If
-
-    '        Next
-
-    '        If Not TestedOne And Route.Count > 1 Then
-    '            'Undo the route for 1/3 of what has been computer
-    '            Dim TargetReturnDist As Double = CInt(Route(Route.Count - 1).DTF) \ 100 * 100 - 100
-    '            While Route.Count > 1 AndAlso Route(Route.Count - 1).DTF > TargetReturnDist
-    '                Route.RemoveAt(Route.Count - 1)
-    '            End While
-    '            GC.Collect()
-    '            Return False
-    '        ElseIf Not TestedOne Then
-    '            Return False
-
-    '        End If
-
-    '        'Next
-    '        'Debug.WriteLine("CurBestDir " & CurBestDir)
-    '        'If CurSpeed = CurVMG And CurSpeed = 0 Then
-    '        '    Return False
-    '        'End If
-
-    '        If MaxSpeed < -40 Or CurBestDir = PrevDir Then
-    '            Return False
-    '        End If
-    '        Tests(CInt(CurBestDir / 10)) = True
-    '        PrevDir = CurBestDir
-    '        If CurSpeed = 0 Or CurSpeed = -40 Then
-    '            MaxSpeed = CurVMG - DELTA_VMG
-    '            GoTo LOOPSTART
-    '        End If
-
-
-    '        If P Is Nothing Then
-    '            P = New clsrouteinfopoints
-    '            P.P = New Coords
-    '        End If
-
-    '        With P
-    '            .P.Lat = T.StartPoint.Lat
-    '            .P.Lon = T.StartPoint.Lon
-    '            .Cap = CurBestDir
-    '            .T = CurDate
-    '            .Sail = CurSail
-    '            .WindDir = CurMeteo.Dir
-    '            .WindStrength = CurMeteo.Strength
-    '            .Speed = CurSpeed
-    '            .DTF = CurDist
-    '        End With
-
-
-    '        'If CurDist < TargetDistance Then
-    '        '    Route.Add(P)
-    '        '    Return True
-    '        'End If
-
-    '        T.FindNextWindChangePoint(CInt(CurBestDir), CurSpeed)
-
-    '        If T.SurfaceDistance > Precision * CurSpeed Then
-    '            T.EndPoint = T.ReachDistance(Precision * CurSpeed, CurBestDir)
-    '        End If
-
-    '        If CurDist < T.SurfaceDistance Then
-    '            T.EndPoint = T.ReachDistance(CurDist, CurBestDir)
-    '        End If
-
-
-    '        If Not T.EndPoint Is Nothing Then
-    '            Dim NextDate As DateTime = CurDate.AddHours(T.SurfaceDistance / CurSpeed)
-    '            If CrossWindChange(CurDate, NextDate, meteo) Then
-
-    '                T.ReachDistance(NextDate.Subtract(CurDate).Ticks / TimeSpan.TicksPerHour / CurSpeed, CurBestDir)
-
-
-    '            End If
-
-    '            T2.EndPoint = from
-    '            PrevLegLength = T2.SurfaceDistance
-    '            T2.EndPoint = T.EndPoint
-    '            If T2.SurfaceDistance < PrevLegLength Then
-    '                MaxSpeed = CurVMG - DELTA_VMG
-    '                'Route.Remove(P)
-    '                GoTo LOOPSTART
-    '            End If
-
-    '            If HitDistance > GSHHS_Reader.HitDistance(T.EndPoint, GSHHS_Reader.Polygons(T.EndPoint)) Then
-    '                MaxSpeed = CurVMG - DELTA_VMG
-    '                'Route.Remove(P)
-    '                GoTo LOOPSTART
-    '            End If
-    '            If GSHHS_Reader.HitTest(T.EndPoint, HitDistance, GSHHS_Reader.Polygons(T.EndPoint), True) Then
-    '                MaxSpeed = CurVMG - DELTA_VMG
-    '                'Route.Remove(P)
-    '                GoTo LOOPSTART
-
-    '            End If
-    '            Route.Add(P)
-
-    '            'If NextDate > Now.AddHours(48) Then
-    '            '    RouteOK = SimpleBestVMGTo(New Coords(T.EndPoint), dest, NextDate, Route, NoTimeOptimization, 6, TargetDistance, StartTick, meteo)
-    '            '    'Return RouteOK
-    '            'Else
-
-    '            RouteOK = SimpleBestVMGTo(New Coords(T.EndPoint), dest, NextDate, Route, NoTimeOptimization, Precision, TargetDistance, StartTick, meteo)
-    '            'Return RouteOK
-    '            'End If
-
-    '            If Not RouteOK AndAlso Route(Route.Count - 1).P = from Then
-    '                MaxSpeed = CurVMG - DELTA_VMG
-    '                Route.Remove(P)
-    '                GoTo LOOPSTART
-    '            Else
-    '                Return RouteOK
-    '            End If
-
-    '        Else
-    '            Return False
-    '        End If
-
-
-    '    End Function
-
-    Private Sub SendInGameMessages()
-
-        If _UserInfo.messages.Count > 0 Then
-            'Dim Mailer As New System.Net.Mail.SmtpClient()
-            Dim BodyString As String = ""
-
-            For Each msg In _UserInfo.messages
-                BodyString = BodyString & "Msg from $" & msg.sender.Value & "$ --> " & msg.text & vbCrLf
-                AddLog("Msg from $" & msg.sender.Value & "$ --> " & msg.text)
-            Next
-
-            'Mailer.Port = 465
-            'Mailer.Host = "smtp.gmail.com"
-            'Mailer.EnableSsl = True
-            'Mailer.Credentials = New NetworkCredential("sbarthes@gmail.com", "disk+bolt")
-            'Mailer.Timeout =
-
-            'Mailer.SendAsync("VR Routeur", "stephane.barthes@intest.info", "InGame Message", BodyString, Nothing)
-            'Mailer.Send("sbarthes@gmail.com", "stephane.barthes@intest.info", "InGame Message", BodyString)
-            'ad()
-
-        End If
-
-    End Sub
-
 
 
     Public Sub startGridRoute(ByVal StartRouting As Boolean)

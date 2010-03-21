@@ -42,6 +42,7 @@ Partial Public Class RouteurMain
 
         
         Dim M = CType(FindResource("RouteurModel"), RouteurModel)
+        M.Init()
         If M.The2DViewer Is Nothing Then
             M.The2DViewer = Me.VOR2DViewer
 

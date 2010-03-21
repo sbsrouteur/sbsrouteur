@@ -15,7 +15,7 @@ Module JSonParser
             Return RetValue
         End If
 
-        Dim CurDataString = Data.Substring(CurIndex + 1)
+        Dim CurDataString = Data.Substring(CurIndex)
 
         If Data(0) = "{"c Then
             'Start a new object
@@ -31,16 +31,27 @@ Module JSonParser
 
     End Function
 
-    Private Function ReadArray(ByVal CurData As String, ByVal Arr As List(Of Object)) As Integer
+    Private Function ReadArray(ByVal Data As String, ByVal Arr As List(Of Object)) As Integer
 
         Dim Complete As Boolean = False
         Dim Index As Integer = 1
         Dim RetIndex As Integer = 1
+        Dim CurData As String
+        CurData = Data.Substring(1)
         Do
             Dim ValueObj As Object = Nothing
             Index = ReadValue(CurData, ValueObj)
             RetIndex += Index
             Arr.Add(ValueObj)
+            If CurData(Index) = "," Then
+                RetIndex += 1
+                Index += 1
+            ElseIf CurData(Index) = "]"c Then
+                Complete = True
+                RetIndex += 1
+            Else
+                Throw New InvalidOperationException("invalid json data")
+            End If
             CurData = CurData.Substring(Index)
 
         Loop Until Complete
@@ -76,11 +87,16 @@ Module JSonParser
     Private Function ReadObject(ByVal Data As String, ByRef RetObj As Object) As Integer
 
         Dim CurData As String = Data
-        Dim Index As Integer = 0
+        Dim Index As Integer = 1
+        Dim CurIndex As Integer = 1
         Dim ObjectComplete As Boolean
         Dim Name As String = ""
         Dim ObjData As Object = Nothing
         RetObj = New Dictionary(Of String, Object)
+
+        If Data(0) <> "{"c Then
+            Throw New InvalidOperationException("Unsupported JSon Object string")
+        End If
 
         While Not ObjectComplete
             If CurData(Index) <> """"c Then
@@ -89,18 +105,22 @@ Module JSonParser
 
             CurData = CurData.Substring(Index)
             Index = ReadString(CurData, Name)
+            CurIndex += Index
             If CurData(Index) <> ":"c Then
                 Throw New InvalidOperationException("Unsupported JSon Object string")
             End If
 
             CurData = CurData.Substring(Index + 1)
             Index = ReadValue(CurData, ObjData)
+            CurIndex += Index + 1
             CType(RetObj, Dictionary(Of String, Object)).Add(Name, ObjData)
 
             If CurData(Index) = "}"c Then
                 ObjectComplete = True
+                CurIndex += 1
             ElseIf CurData(Index) = ","c Then
                 Index += 1
+                CurIndex += 1
             Else
                 Throw New InvalidOperationException("Unsupported JSon Object string")
             End If
@@ -108,7 +128,7 @@ Module JSonParser
         End While
 
 
-        Return Index
+        Return CurIndex
 
     End Function
 
@@ -163,7 +183,7 @@ Module JSonParser
 
     Private Function ReadValue(ByVal Data As String, ByRef Value As Object) As Integer
 
-        Dim Index As Integer
+        Dim Index As Integer = 0
 
         Select Case Data(Index)
             Case "{"c

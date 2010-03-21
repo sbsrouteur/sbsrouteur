@@ -21,9 +21,11 @@ Public Class RouteurModel
     Private Shared _NoObstacle As Boolean
     Private _ClearBoats As Boolean = False
     Private Shared _WPList As New List(Of String)
+    Private Shared _PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
+
 
     Public Shared BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
-
+    
     Private Enum RaceZoneDirs As Integer
         East = 0
         North = 1
@@ -145,6 +147,9 @@ Public Class RouteurModel
     End Sub
 
     Public Sub New()
+    End Sub
+
+    Public Sub Init()
 
         Dim frm As New frmUserPicker
         frm.DataContext = Me
@@ -153,10 +158,11 @@ Public Class RouteurModel
             End
         End If
 
-        _P_Info(0) = frm.playerinfo
+        _P_Info(0) = frm.PlayerInfo.Playerinfo
 
+        LoadRaceInfo(frm.PlayerInfo)
         LoadParams()
-        
+
         Dim C1 As New Coords(90, 180)
         Dim C2 As New Coords(-90, -180)
         Dim Offset As Double = 0.5 / 180 * Math.PI
@@ -401,11 +407,11 @@ Public Class RouteurModel
     Public ReadOnly Property RegisteredPlayers() As ObservableCollection(Of RegistryPlayerInfo)
         Get
 
-            Dim PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
 
-            LoadPlayers(PlayerList)
+            _PlayerList.Clear()
+            LoadPlayers(_PlayerList)
 
-            Return PlayerList
+            Return _PlayerList
 
         End Get
     End Property
@@ -431,6 +437,7 @@ Public Class RouteurModel
 
     Private Sub LoadParams()
 
+
         Dim S As System.IO.StreamReader = Nothing
         Try
             If Not System.IO.File.Exists(BaseFileDir & "\Routeur.ini") Then
@@ -444,7 +451,7 @@ Public Class RouteurModel
                 End
             End If
 
-            S = New System.IO.StreamReader(basefiledir & "\Routeur.ini")
+            S = New System.IO.StreamReader(BaseFileDir & "\Routeur.ini")
 
             Dim Line As String = ""
 
@@ -482,6 +489,19 @@ Public Class RouteurModel
                 S = Nothing
             End If
         End Try
+    End Sub
+
+    Private Sub LoadRaceInfo(ByVal P As RegistryPlayerInfo)
+
+        Dim RaceNum As Integer = P.RaceNum
+
+        If Not System.IO.File.Exists(BaseFileDir & "RI_" & RaceNum & ".ini") Then
+
+            'First race access download info from the WS
+            Dim RaceInfo = WS_Wrapper.GetRaceInfo(RaceNum)
+
+        End If
+
     End Sub
 
     Public Shared Property NoObstacle() As Boolean

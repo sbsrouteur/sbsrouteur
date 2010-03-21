@@ -340,6 +340,12 @@
   <ItemGroup>
     <Resource Include="Graphics\ErrorCircle-48.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\Trash_48.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\Ponton sbs.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>rem editbin /LARGEADDRESSAWARE "$(TargetPath)"</PostBuildEvent>

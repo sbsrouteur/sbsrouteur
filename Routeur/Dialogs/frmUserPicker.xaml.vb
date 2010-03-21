@@ -36,9 +36,14 @@ Partial Public Class frmUserPicker
 
     End Sub
 
-    Public ReadOnly Property PlayerInfo() As clsPlayerInfo
+    Public ReadOnly Property PlayerInfo() As RegistryPlayerInfo
         Get
-            Return _PlayerInfo
+            If lstUsers.SelectedItem Is Nothing Then
+                Return Nothing
+            Else
+                Return CType(lstUsers.SelectedItem, RegistryPlayerInfo)
+
+            End If
         End Get
     End Property
 
@@ -71,12 +76,6 @@ Partial Public Class frmUserPicker
 
     End Sub
 
-
-    Private Sub PassChanged(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
-        'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
-        Dim i As Integer = 0
-    End Sub
-
     Private Sub PassLostFocus(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
         'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
 
@@ -91,7 +90,13 @@ Partial Public Class frmUserPicker
         If Me.lstUsers.SelectedItem Is Nothing Then
             MessageBox.Show("You must select a boat to start")
         Else
-            Hide()
+            Dim P As RegistryPlayerInfo = CType(Me.lstUsers.SelectedItem, RegistryPlayerInfo)
+
+            If Not P.IsRacing Then
+                MessageBox.Show("The selected boat is not engaged in a race")
+            Else
+                Hide()
+            End If
         End If
 
     End Sub

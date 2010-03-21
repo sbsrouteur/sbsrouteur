@@ -62,7 +62,7 @@ Partial Public Class _2D_Viewer
         ' Insérez le code requis pour la création d'objet sous ce point.
 
         '_Model = CType(FindResource("2DModel"), _2DViewerModel)
-        If Not RacePolygons Is Nothing Then
+        If Not RacePolygons Is Nothing AndAlso Not RacePolygons(0) Is Nothing Then
             InitViewer()
         End If
 
