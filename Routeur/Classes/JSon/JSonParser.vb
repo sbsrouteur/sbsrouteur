@@ -21,7 +21,7 @@ Module JSonParser
             'Start a new object
             Dim ObjectName As String = ""
             NextIndex = ReadObject(CurDataString, ObjectData) + CurIndex
-            RetValue.Add("JsonData", ObjectData)
+            RetValue.Add(JSONDATA_BASE_OBJECT_NAME, ObjectData)
 
         Else
             Throw New InvalidOperationException("invalid json data")
@@ -201,6 +201,15 @@ Module JSonParser
                 Dim v As Double
                 Index = ReadDouble(Data, v)
                 Value = v
+
+            Case "n"c
+                If Data.Substring(0, 4) = "null" Then
+                    Value = Nothing
+                    Index = 4
+                Else
+                    Throw New InvalidOperationException("Unsupported JSon Value type")
+
+                End If
 
             Case Else
                 Throw New InvalidOperationException("Unsupported JSon Value type")

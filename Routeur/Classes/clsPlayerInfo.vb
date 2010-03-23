@@ -12,6 +12,7 @@ Public Class clsPlayerInfo
     Private _NumBoat As Integer
     Private _ShowAutorouting As Boolean = False
     Private _RouteWayPoints As New List(Of List(Of Coords()))
+    Private _RaceInfo As New VLMRaceInfo
 
 
     Private _Route() As Coords
@@ -44,7 +45,7 @@ Public Class clsPlayerInfo
         End Get
         Set(ByVal value As String)
             _Nick = value
-            
+
         End Set
     End Property
 
@@ -63,6 +64,15 @@ Public Class clsPlayerInfo
         End Get
         Set(ByVal value As String)
             _Password = value
+        End Set
+    End Property
+
+    Public Property RaceInfo() As VLMRaceInfo
+        Get
+            Return _RaceInfo
+        End Get
+        Set(ByVal value As VLMRaceInfo)
+            _RaceInfo = value
         End Set
     End Property
 

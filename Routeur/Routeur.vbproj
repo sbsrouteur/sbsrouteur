@@ -209,10 +209,12 @@
     <Compile Include="Classes\JSon\JSonParser.vb" />
     <Compile Include="Classes\PolyClipper\PolyClipper.vb" />
     <Compile Include="Classes\ProgressContext.vb" />
+    <Compile Include="Classes\VLM_JSon_Classes\VLMRaceInfo.vb" />
     <Compile Include="Classes\RegistryPlayerInfo.vb" />
     <Compile Include="Classes\RouteurModel.vb" />
     <Compile Include="Classes\Stats.vb" />
     <Compile Include="Classes\TravelCalculator.vb" />
+    <Compile Include="Classes\VLM_JSon_Classes\VLM_RaceWaypoint.vb" />
     <Compile Include="Classes\VOR_Router.vb" />
     <Compile Include="Classes\WS\WS_Wrapper.vb" />
     <Compile Include="Controls\WindArrow.xaml.vb">

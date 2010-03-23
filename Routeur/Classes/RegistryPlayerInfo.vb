@@ -204,12 +204,12 @@ Public Class RegistryPlayerInfo
             _IsPasswordOK = False
             _RaceInfo = "Invalid password or username"
             _IsRacing = False
-        ElseIf JSonData.ContainsKey("JsonData") Then
+        ElseIf JSonData.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
 
-            BoatNum = JSonHelper.GetJasonIntValue(JSonData("JsonData"), "IDU")
+            BoatNum = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "IDU")
             _IsPasswordOK = True
-            _RaceInfo = JSonHelper.GetJasonStringValue(JSonData("JsonData"), "RAN")
-            _RaceNum = JSonHelper.GetJasonIntValue(JSonData("JsonData"), "RAC")
+            _RaceInfo = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAN")
+            _RaceNum = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAC")
             _IsRacing = True
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))

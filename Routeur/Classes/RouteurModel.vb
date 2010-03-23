@@ -1,5 +1,6 @@
 ﻿Imports System.ComponentModel
 Imports System.Collections.ObjectModel
+Imports System.IO
 
 Public Class RouteurModel
 
@@ -25,7 +26,7 @@ Public Class RouteurModel
 
 
     Public Shared BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
-    
+
     Private Enum RaceZoneDirs As Integer
         East = 0
         North = 1
@@ -494,11 +495,28 @@ Public Class RouteurModel
     Private Sub LoadRaceInfo(ByVal P As RegistryPlayerInfo)
 
         Dim RaceNum As Integer = P.RaceNum
+        Dim RaceFileName As String = BaseFileDir & "RI_" & RaceNum & ".ini"
+        Dim RaceInfo As String
 
         If Not System.IO.File.Exists(BaseFileDir & "RI_" & RaceNum & ".ini") Then
 
             'First race access download info from the WS
-            Dim RaceInfo = WS_Wrapper.GetRaceInfo(RaceNum)
+            RaceInfo = WS_Wrapper.GetRaceInfo(RaceNum)
+
+            Dim SR As New StreamWriter(RaceFileName)
+            SR.WriteLine(RaceInfo)
+            SR.Flush()
+            SR.Close()
+        Else
+            Dim SR As New StreamReader(RaceFileName)
+            RaceInfo = SR.ReadToEnd
+            SR.Close()
+        End If
+
+        Dim Info As Dictionary(Of String, Object) = Parse(RaceInfo)
+
+        If Info IsNot Nothing AndAlso Info.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
+            LoadJSonDataToObject(_P_Info(0).RaceInfo, Info(JSONDATA_BASE_OBJECT_NAME))
 
         End If
 

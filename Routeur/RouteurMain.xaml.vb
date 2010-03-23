@@ -43,8 +43,10 @@ Partial Public Class RouteurMain
         
         Dim M = CType(FindResource("RouteurModel"), RouteurModel)
         M.Init()
+
         If M.The2DViewer Is Nothing Then
             M.The2DViewer = Me.VOR2DViewer
+            M.The2DViewer.InitViewer()
 
         End If
         Dim sApp As String = System.IO.Path.Combine(My.Application.Info.DirectoryPath, My.Application.Info.AssemblyName & ".exe")

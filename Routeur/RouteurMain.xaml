@@ -215,47 +215,7 @@
 					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="4"/>
 				</Grid>
 			</TabItem> 
- 			<TabItem Header="VOR Navigation" Visibility="Collapsed">
-				<Grid>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto" MinHeight="15.199"/>
-						<RowDefinition Height="Auto" MinHeight="17.192"/>
-						<RowDefinition Height="Auto" MinHeight="11.053"/>
-						<RowDefinition Height="Auto" MinHeight="14.646"/>
-                        <RowDefinition Height="Auto" MinHeight="8"/>
-                        <RowDefinition Height="Auto" MinHeight="8"/>
-                        <RowDefinition Height="Auto" MinHeight="8"/>
-                        <RowDefinition Height="Auto" MinHeight="8"/>
-                        <RowDefinition Height="Auto" MinHeight="8"/>
-                        <RowDefinition Height="Auto" MinHeight="8"/>
-                        <RowDefinition Height="*"/>
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="0.243*"/>
-						<ColumnDefinition Width="0.757*"/>
-					</Grid.ColumnDefinitions>
-					<TextBlock Text="{Binding VorHandler.CurrentRoute.SurfaceDistance, Mode=Default, StringFormat=\{0:F2\}}" TextWrapping="Wrap" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" Width="Auto"/>
-					<TextBlock Text="{Binding VorHandler.CurrentRoute.Cap, Mode=Default, StringFormat=\{0:F2\}}" TextWrapping="Wrap" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Width="Auto"/>
-					<TextBlock TextWrapping="Wrap"><Run Text="Distance" Language="fr-fr"/></TextBlock>
-					<TextBlock Grid.Row="1" TextWrapping="Wrap"><Run Text="Cap" Language="fr-fr"/></TextBlock>
-					<TextBlock TextWrapping="Wrap" Grid.Row="2" Text="ETA"/>
-					<TextBlock Text="{Binding VorHandler.ETA, ConverterCulture=fr-fr, Mode=Default, StringFormat=\{0:D\}}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="2"/>
-					<TextBlock TextWrapping="Wrap" Text="VMG"  Grid.Row="3"/>
-					<TextBlock Text="{Binding VorHandler.VMG, Mode=Default, StringFormat=\{0:F2\}}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="3"/>
-                    <TextBlock TextWrapping="Wrap" Text="CurTarget" Grid.Row="4" Grid.RowSpan="1"/>
-                    <TextBlock TextWrapping="Wrap" Text="CurCap" Grid.Row="5" Grid.RowSpan="1"/>
-                    <TextBlock Text="{Binding VorHandler.Pilote.CurrentPoint.P, Converter={StaticResource CoordsConverter}, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="4"/>
-                    <TextBlock Text="{Binding VorHandler.Pilote.CurrentPoint.Cap, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="5"/>
-                    <TextBlock TextWrapping="Wrap" Text="Next ETA" VerticalAlignment="Top" Height="15.96" Grid.Row="6"/>
-                    <TextBlock Text="{Binding VorHandler.Pilote.CurrentPoint.T, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="6"/>
-                    <TextBlock TextWrapping="Wrap" Text="Distance to target" Grid.Row="7" Margin="-1,1,1,-1"/>
-                    <TextBlock TextWrapping="Wrap" Text="Cap to target" Grid.Row="8" Grid.RowSpan="1"/>
-                    <TextBlock Text="{Binding VorHandler.Pilote.CurTC.SurfaceDistance, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="7"/>
-                    <TextBlock Text="{Binding VorHandler.Pilote.CurTC.Cap, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="8"/>
-                    <TextBlock TextWrapping="Wrap" Text="Next ETA" VerticalAlignment="Top" Height="15.96" Grid.Row="9"/>
-                    <TextBlock Text="{Binding VorHandler.Pilote.NextPoint.T, Mode=Default}" TextWrapping="Wrap" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="9"/>
-                </Grid>
-			</TabItem> 
+ 			 
 			<TabItem Header="2D Viewer" >
 				<Grid x:Name="grid" Background="#FFE0E0F0" >
 					<Grid.ColumnDefinitions>

@@ -33,13 +33,13 @@ Module WS_Wrapper
 
     End Function
 
-    Public Function GetRaceInfo(ByVal RAN As Integer) As Dictionary(Of String, Object)
+    Public Function GetRaceInfo(ByVal RAN As Integer) As String
 
         Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/raceinfo.php?forcefmt=json&idrace=" & RAN.ToString
         Dim Retstring As String = ""
         Try
             Retstring = RequestPage(URL)
-            Return Parse(Retstring)
+            Return Retstring
         Catch wex As WebException
             If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
                 'Login error

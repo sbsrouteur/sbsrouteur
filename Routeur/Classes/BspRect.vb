@@ -2,7 +2,6 @@
 
 Public Class BspRect
     Public Const GRID_GRAIN_OVERSAMPLE As Integer = 8
-    Private MIN_POLYGON_SPLIT As Double = 0.01
     Private Const MAX_IGNORED_COUNT As Integer = 2000
 
     Public Enum inlandstate As Byte
@@ -12,7 +11,14 @@ Public Class BspRect
         Mixed = 3
     End Enum
 
-    Shared _NoPolyGons As New List(Of Coords())
+    Public Shared BspCount As Long = 0
+    Private Shared MIN_POLYGON_SPLIT As Double = 0.01
+    Private Shared _NoPolyGons As New List(Of Coords())
+    Private Shared _HitTestCount As Long
+    Private Shared _HitTestDepth As Long
+    Private Shared GridGrainDepth As Integer = -1
+    Shared Event Log(ByVal Msg As String)
+    Private Shared CollectionCount As Long
 
     Private _p1 As Coords
     Private _p2 As Coords
@@ -20,14 +26,8 @@ Public Class BspRect
     Private _MidLon As Double
     Private _SubRects(3) As BspRect
     Private _Inland As inlandstate
-    Private Shared CollectionCount As Long
     Private _PolyGons As List(Of Coords())
 
-    Public Shared BspCount As Long = 0
-    Shared Event Log(ByVal Msg As String)
-    Private Shared _HitTestCount As Long
-    Private Shared _HitTestDepth As Long
-    Private Shared GridGrainDepth As Integer = -1
 
 
     Public Sub New(ByVal P1 As Coords, ByVal P2 As Coords)
@@ -117,311 +117,12 @@ Public Class BspRect
 
                         End If
 
-                        'Dim CurIndex As Integer = 0
-                        'Dim NewPoly() As Coords
-                        'Dim InRect As Boolean = False
-                        'Dim EntryIndex As Integer = 0
-                        'Dim ExitIndex As Integer = -1
-                        'Dim ExitSide As Integer = 0
-                        'ReDim NewPoly(P.Count - 1)
-                        'Dim Pnt As Coords
-                        'Dim Points(1000) As System.Drawing.Point
-                        'Dim EntrySide As Integer
-                        'Dim Dy As Double = 0
-                        'Dim Dx As Double = 0
-                        'Dim EntryLat As Double
-                        'Dim EntryLon As Double
-                        'Dim PIndex As Integer = 0
-                        'Dim ReversePolygon As Boolean = False
-
-                        'For Each Pnt In P
-
-                        'If Not Pnt Is Nothing Then
-                        '    With Pnt
-                        '        If (.Lon >= P2.Lon AndAlso .Lon <= P1.Lon AndAlso _
-                        '            .Lat >= P2.Lat AndAlso .Lat <= P1.Lat) Then
-
-                        '            If Not InRect Then
-                        '                EntryLat = .Lat
-                        '                EntryLon = .Lon
-                        '                EntryIndex = PIndex
-                        '                EntrySide = GetRectSide(.Lat, .Lon)
-                        '            End If
-
-                        '            If ExitIndex <> -1 AndAlso Not InRect Then
-                        '                'Coming back into the rect
-                        '                'Run Around the corner to the re-entry point
-                        '                'ExitSide = GetRectSide(P(ExitIndex).Lat, P(ExitIndex).Lon)
-
-                        '                'restart:
-                        '                'If EntrySide <> ExitSide Then
-                        '                Dx = 0
-                        '                Dy = 0
-                        '                If EntrySide = 0 OrElse EntrySide = 2 Then
-                        '                    If EntrySide = 0 Then
-                        '                        Dx = gridgrain '_p1.Lon - EntryLon
-                        '                    Else
-                        '                        Dx = -gridgrain ' _p2.Lon - EntryLon
-                        '                    End If
-                        '                End If
-
-                        '                If EntrySide = 1 OrElse EntrySide = 3 Then
-                        '                    If EntrySide = 1 Then
-                        '                        Dy = -gridgrain '_p2.Lat - EntryLat
-                        '                    Else
-                        '                        Dy = gridgrain  '_p1.Lat - EntryLat
-                        '                    End If
-                        '                End If
-                        '                'If EntrySide = ExitSide Then
-
-                        '                '    If EntrySide = 0 OrElse EntrySide = 2 Then
-                        '                '        If EntrySide = 0 AndAlso Abs(Dx) >= Abs(.Lon - EntryLon) Then
-                        '                '            Dx = (.Lon - EntryLon) / 2
-                        '                '        ElseIf EntrySide = 2 AndAlso Abs(Dx) > Abs(.Lon - EntryLon) Then
-                        '                '            Dx = (.Lon - EntryLon) / 2
-                        '                '        End If
-                        '                '    End If
-
-                        '                '    If EntrySide = 1 OrElse EntrySide = 3 Then
-                        '                '        If EntrySide = 1 AndAlso Abs(Dy) > Abs(.Lat - EntryLat) Then
-                        '                '            Dy = (.Lat - EntryLat) / 2
-                        '                '        ElseIf EntrySide = 3 AndAlso Abs(Dy) > Abs(.Lat - EntryLat) Then
-                        '                '            Dy = (.Lat - EntryLat) / 2
-                        '                '        End If
-                        '                '    End If
-
-                        '                'End If
-
-                        '                '                                        'If Abs(Dx) < RouteurModel.GridGrain / 2 AndAlso Abs(Dy) < RouteurModel.GridGrain / 2 Then
-                        '                '                                        '    'To close to the corner, change side
-                        '                '                                        '    EntrySide += 1
-                        '                '                                        '    EntrySide = EntrySide Mod 4
-                        '                '                                        '    EntryLat += Dy
-                        '                '                                        '    EntryLon += Dx
-                        '                '                                        '    GoTo restart
-                        '                '                                        'End If
-
-                        '                L.Clear()
-                        '                L.Add(P)
-                        '                If GSHHS_Reader.HitTest(New Coords() With {.Lat = EntryLat + Dy, .Lon = EntryLon + Dx}, _
-                        '                                        0, L, True, True) Then
-                        '                    ReversePolygon = False
-                        '                Else
-                        '                    ReversePolygon = True
-                        '                End If
-                        '                ' Inside, close the polygon
-                        '                '    NewPoly(CurIndex) = New Coords()
-                        '                '    NewPoly(CurIndex).Lon = .Lon
-                        '                '    NewPoly(CurIndex).Lat = .Lat
-
-                        '                '    Dim NewPoly2(CurIndex - 1) As Coords
-                        '                '    System.Array.Copy(NewPoly, NewPoly2, CurIndex)
-                        '                '    _PolyGons.Add(NewPoly2)
-                        '                '    CurIndex = 0
-                        '                '    ReDim NewPoly(P.Count - 1)
-                        '                '    ExitIndex = -1
-                        '                'Else
-                        '                'Change Side, run around the corners
-                        '                'Run Around the corner to the re-entry point
-                        '                If Not ReversePolygon Then
-                        '                    GoAroundCorners(EntrySide, ExitSide, NewPoly, CurIndex, False)
-                        '                Else
-                        '                    '************************
-                        '                    'TODO Add a polygons here
-                        '                    '************************
-                        '                    Dim NewPoly2(CurIndex - 1) As Coords
-                        '                    System.Array.Copy(NewPoly, NewPoly2, CurIndex)
-                        '                    _PolyGons.Add(NewPoly2)
-                        '                    CurIndex = 0
-                        '                    ReDim NewPoly(P.Count - 1)
-                        '                    GoAroundCorners(ExitSide, EntrySide, NewPoly, CurIndex, False)
-                        '                End If
-
-                        '                ExitIndex = -1
-                        '                'End If
-                        '                'Else
-                        '                '    'Outside, just remember so that it will eventually get closed
-                        '                '    ExitIndex = CurIndex - 1
-                        '            End If
-
-                        '            '                                        End If
-
-                        '            '                                End With
-                        '            'EntrySide = GetRectSide(.Lat, .Lon)
-                        '            'If EntrySide <> ExitSide Then
-                        '            '    GoAroundCorners(ExitSide, EntrySide, NewPoly, CurIndex)
-                        '            'End If
-                        '            'End If
-
-                        '            If CurIndex > NewPoly.GetUpperBound(0) Then
-                        '                ReDim Preserve NewPoly(CurIndex + 500)
-                        '            End If
-                        '            NewPoly(CurIndex) = New Coords()
-                        '            NewPoly(CurIndex).Lon = .Lon
-                        '            NewPoly(CurIndex).Lat = .Lat
-                        '            InRect = True
-                        '            CurIndex += 1
-
-                        '        ElseIf InRect Then
-
-                        '            'Getting out of the polygon
-                        '            ExitIndex = PIndex
-                        '            InRect = False
-
-                        '            'ExitSide = GetRectSide(P(ExitIndex).Lat, P(ExitIndex).Lon)
-
-
-                        '            'Dx = 0
-                        '            'Dy = 0
-                        '            'If EntrySide = 0 OrElse EntrySide = 2 Then
-                        '            '    If EntrySide = 0 Then
-                        '            '        Dx = gridgrain '_p1.Lon - EntryLon
-                        '            '    Else
-                        '            '        Dx = -gridgrain ' _p2.Lon - EntryLon
-                        '            '    End If
-                        '            'End If
-
-                        '            'If EntrySide = 1 OrElse EntrySide = 3 Then
-                        '            '    If EntrySide = 1 Then
-                        '            '        Dy = -gridgrain '_p2.Lat - EntryLat
-                        '            '    Else
-                        '            '        Dy = gridgrain  '_p1.Lat - EntryLat
-                        '            '    End If
-                        '            'End If
-
-                        '            'L.Clear()
-                        '            'L.Add(P)
-                        '            'If GSHHS_Reader.HitTest(New Coords() With {.Lat = EntryLat + Dy, .Lon = EntryLon + Dx}, _
-                        '            '                                0, L, True, True) Then
-                        '            '    ReversePolygon = False
-                        '            'Else
-                        '            '    ReversePolygon = True
-                        '            'End If
-
-                        '            'If Not ReversePolygon Then
-                        '            '    'Close the polygons, otherwise will handle upon rentry
-                        '            '    Dim NewPoly2(CurIndex - 1) As Coords
-                        '            '    System.Array.Copy(NewPoly, NewPoly2, CurIndex)
-                        '            '    _PolyGons.Add(NewPoly2)
-                        '            '    CurIndex = 0
-                        '            '    ExitIndex = -1
-                        '            '    ReDim NewPoly(P.Count - 1)
-                        '            '    GoAroundCorners(ExitSide, EntrySide, NewPoly, CurIndex, False)
-                        '            'End If
-
-
-                        '        End If
-
-                        '    End With
-                        'End If
-                        ''PolygonsPath.AddPolygon(Points)
-                        'PIndex += 1
-                        'Next
-
-                        'If CurIndex <> 0 AndAlso Not InRect And ExitIndex <> -1 Then
-                        '    ExitSide = GetRectSide(P(ExitIndex).Lat, P(ExitIndex).Lon)
-
-                        '    'restart:
-                        '    Dx = 0
-                        '    Dy = 0
-                        '    If EntrySide = 0 OrElse EntrySide = 2 Then
-                        '        If EntrySide = 0 Then
-                        '            Dx = gridgrain '_p1.Lon - EntryLon
-                        '        Else
-                        '            Dx = -gridgrain ' _p2.Lon - EntryLon
-                        '        End If
-                        '    End If
-
-                        '    If EntrySide = 1 OrElse EntrySide = 3 Then
-                        '        If EntrySide = 1 Then
-                        '            Dy = -gridgrain '_p2.Lat - EntryLat
-                        '        Else
-                        '            Dy = gridgrain  '_p1.Lat - EntryLat
-                        '        End If
-                        '    End If
-                        '    'If EntrySide = ExitSide Then
-
-                        '    '    If EntrySide = 0 OrElse EntrySide = 2 Then
-                        '    '        If EntrySide = 0 AndAlso Abs(Dx) >= Abs(.Lon - EntryLon) Then
-                        '    '            Dx = (.Lon - EntryLon) / 2
-                        '    '        ElseIf EntrySide = 2 AndAlso Abs(Dx) > Abs(.Lon - EntryLon) Then
-                        '    '            Dx = (.Lon - EntryLon) / 2
-                        '    '        End If
-                        '    '    End If
-
-                        '    '    If EntrySide = 1 OrElse EntrySide = 3 Then
-                        '    '        If EntrySide = 1 AndAlso Abs(Dy) > Abs(.Lat - EntryLat) Then
-                        '    '            Dy = (.Lat - EntryLat) / 2
-                        '    '        ElseIf EntrySide = 3 AndAlso Abs(Dy) > Abs(.Lat - EntryLat) Then
-                        '    '            Dy = (.Lat - EntryLat) / 2
-                        '    '        End If
-                        '    '    End If
-
-                        '    'End If
-
-                        '    '                                        'If Abs(Dx) < RouteurModel.GridGrain / 2 AndAlso Abs(Dy) < RouteurModel.GridGrain / 2 Then
-                        '    '                                        '    'To close to the corner, change side
-                        '    '                                        '    EntrySide += 1
-                        '    '                                        '    EntrySide = EntrySide Mod 4
-                        '    '                                        '    EntryLat += Dy
-                        '    '                                        '    EntryLon += Dx
-                        '    '                                        '    GoTo restart
-                        '    '                                        'End If
-
-                        '    If EntrySide <> ExitSide Then
-                        '        EntryLat = P(EntryIndex).Lat
-                        '        EntryLon = P(EntryIndex).Lon
-
-                        '        L.Add(P)
-                        '        If GSHHS_Reader.HitTest(New Coords() With {.Lat = EntryLat + Dy, .Lon = EntryLon + Dx}, _
-                        '                                0, L, True, True) Then
-                        '            ReversePolygon = False
-                        '        Else
-                        '            ReversePolygon = True
-                        '        End If
-                        '        ' Inside, close the polygon
-                        '        '    NewPoly(CurIndex) = New Coords()
-                        '        '    NewPoly(CurIndex).Lon = .Lon
-                        '        '    NewPoly(CurIndex).Lat = .Lat
-
-                        '        '    Dim NewPoly2(CurIndex - 1) As Coords
-                        '        '    System.Array.Copy(NewPoly, NewPoly2, CurIndex)
-                        '        '    _PolyGons.Add(NewPoly2)
-                        '        '    CurIndex = 0
-                        '        '    ReDim NewPoly(P.Count - 1)
-                        '        '    ExitIndex = -1
-                        '        'Else
-                        '        'Change Side, run around the corners
-                        '        'Run Around the corner to the re-entry point
-                        '        If Not ReversePolygon Then
-                        '            GoAroundCorners(EntrySide, ExitSide, NewPoly, CurIndex, False)
-                        '        Else
-                        '            GoAroundCorners(ExitSide, EntrySide, NewPoly, CurIndex, False)
-                        '        End If
-                        '        'Dim NewPoly2(CurIndex - 1) As Coords
-                        '        'System.Array.Copy(NewPoly, NewPoly2, CurIndex)
-                        '        '_PolyGons.Add(NewPoly2)
-                        '        'CurIndex = 0
-                        '        'ReDim NewPoly(P.Count - 1)
-                        '        ExitIndex = -1
-                        '    End If
-
-
-                        'End If
-
-                        'If CurIndex <> 0 Then
-                        '    ReDim Preserve NewPoly(CurIndex - 1)
-                        '    _PolyGons.Add(NewPoly)
-                        'End If
+                        
 
                     Next
 
-                    'Dim Res As New System.Drawing.Region(RectPath)
-                    'Res.Intersect(PolygonsPath)
-                    'Dim Data = Res.GetRegionData()
-
                 End If
-            Return _PolyGons
+                Return _PolyGons
             End If
         End Get
     End Property
