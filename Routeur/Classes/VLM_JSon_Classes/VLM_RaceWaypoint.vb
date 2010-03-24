@@ -1,5 +1,8 @@
 ﻿Public Class VLM_RaceWaypoint
 
+    Implements IComparable(Of VLM_RaceWaypoint)
+
+
     Private _wporder As Integer
     Private _laisser_au As Integer
     Private _wptype As String
@@ -11,7 +14,8 @@
     Private _maparea As Integer
 
 
-    Public Property Laisser_au() As Integer
+
+    Public Property laisser_au() As Integer
         Get
             Return _laisser_au
         End Get
@@ -20,7 +24,7 @@
         End Set
     End Property
 
-    Public Property Latitude1() As Integer
+    Public Property latitude1() As Integer
         Get
             Return _latitude1
         End Get
@@ -29,7 +33,7 @@
         End Set
     End Property
 
-    Public Property Latitude2() As Integer
+    Public Property latitude2() As Integer
         Get
             Return _latitude2
         End Get
@@ -38,7 +42,7 @@
         End Set
     End Property
 
-    Public Property Libelle() As String
+    Public Property libelle() As String
         Get
             Return _libelle
         End Get
@@ -47,7 +51,7 @@
         End Set
     End Property
 
-    Public Property Longitude1() As Integer
+    Public Property longitude1() As Integer
         Get
             Return _longitude1
         End Get
@@ -56,7 +60,7 @@
         End Set
     End Property
 
-    Public Property Longitude2() As Integer
+    Public Property longitude2() As Integer
         Get
             Return _longitude2
         End Get
@@ -65,7 +69,7 @@
         End Set
     End Property
 
-    Public Property Maparea() As Integer
+    Public Property maparea() As Integer
         Get
             Return _maparea
         End Get
@@ -74,7 +78,7 @@
         End Set
     End Property
 
-    Public Property Wporder() As Integer
+    Public Property wporder() As Integer
         Get
             Return _wporder
         End Get
@@ -83,7 +87,19 @@
         End Set
     End Property
 
-    Public Property Wptype() As String
+    Public ReadOnly Property WPs() As List(Of Coords())
+        Get
+            Dim WP(1) As Coords
+            Dim L As New List(Of Coords())
+            WP(0) = New Coords(latitude1 / 1000, longitude1 / 1000)
+            WP(1) = New Coords(latitude2 / 1000, longitude2 / 1000)
+            L.Add(WP)
+            Return L
+        End Get
+    End Property
+
+
+    Public Property wptype() As String
         Get
             Return _wptype
         End Get
@@ -92,4 +108,7 @@
         End Set
     End Property
 
+    Public Function CompareTo(ByVal other As VLM_RaceWaypoint) As Integer Implements System.IComparable(Of VLM_RaceWaypoint).CompareTo
+
+    End Function
 End Class

@@ -582,13 +582,13 @@ Public Class VOR_Router
                         If CurWPNUm <> -1 Then
 
 
-                            If CurWPNUm >= _PlayerInfo.RouteWayPoints.Count Then
-                                CurWPNUm = _PlayerInfo.RouteWayPoints.Count - 1
+                            If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
+                                CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
                             End If
                             'GSHHS_Reader.HitDistance(Tc.StartPoint, _PlayerInfo.RouteWayPoints(CurWPNUm), True)
                             'TODO Handle proper computation of the WP point in the WP range
 
-                            CurWPDest = _PlayerInfo.RouteWayPoints(CurWPNUm)(0)(0)
+                            CurWPDest = _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0)
                         End If
 
                         Tc.EndPoint = CurWPDest
@@ -1770,18 +1770,18 @@ Public Class VOR_Router
             WP = _CurUserWP
         End If
 
-        If WP < 0 OrElse WP >= _PlayerInfo.RouteWayPoints.Count Then
+        If WP < 0 OrElse WP >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
             Return
         End If
-        Dim D As Double = GSHHS_Reader.HitDistance(c, _PlayerInfo.RouteWayPoints(WP), False)
+        Dim D As Double = GSHHS_Reader.HitDistance(c, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs, False)
 
         If D = Double.MaxValue Then
 
             Dim TC As New TravelCalculator
             TC.StartPoint = c
-            TC.EndPoint = _PlayerInfo.RouteWayPoints(WP)(0)(0)
+            TC.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0)
             D = TC.SurfaceDistance
-            TC.EndPoint = _PlayerInfo.RouteWayPoints(WP)(0)(1)
+            TC.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1)
             Dim D1 As Double = TC.SurfaceDistance
             If D1 < D Then
                 D = D1
@@ -1806,7 +1806,7 @@ Public Class VOR_Router
 
 
 
-        If StartRouting AndAlso Now.Subtract(_LastGridRouteStart).TotalMinutes > RouteurModel.VacationMinutes Then
+        If StartRouting AndAlso Not _UserInfo Is Nothing AndAlso Now.Subtract(_LastGridRouteStart).TotalMinutes > RouteurModel.VacationMinutes Then
             _LastGridRouteStart = Now
             Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
             Dim Tc As New TravelCalculator()
@@ -1826,7 +1826,7 @@ Public Class VOR_Router
                 _gr.Start(LastDataDate) = start
             End If
 
-            _GridProgressWindow.Show(_owner, _gr.ProgressInfo)
+            _GridProgressWindow.Show(_Owner, _gr.ProgressInfo)
 
             Dim WP As Integer
 
@@ -1836,20 +1836,20 @@ Public Class VOR_Router
                 WP = _CurUserWP
             End If
 
-            If _PlayerInfo.RouteWayPoints.Count = 0 Then
-                AddLog("No WP in route, rouuting aborted!")
+            If _PlayerInfo.RaceInfo.races_waypoints.Count = 0 Then
+                AddLog("No WP in route, routing aborted!")
                 Return
             ElseIf WP < 0 Then
                 WP = 0
-            ElseIf WP >= _PlayerInfo.RouteWayPoints.Count Then
-                WP = _PlayerInfo.RouteWayPoints.Count - 1
+            ElseIf WP >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
+                WP = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
             End If
 
 
             'Trim the WP to be "in-sea"
-            Dim P0 As Coords = _PlayerInfo.RouteWayPoints(WP)(0)(0)
+            Dim P0 As Coords = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0)
             If GSHHS_Reader.HitTest(P0, 0, GSHHS_Reader.Polygons(P0), True) Then
-                Dim Tcl As New TravelCalculator With {.StartPoint = P0, .EndPoint = _PlayerInfo.RouteWayPoints(WP)(0)(1)}
+                Dim Tcl As New TravelCalculator With {.StartPoint = P0, .EndPoint = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1)}
                 Dim Cap As Double = Tcl.TrueCap
 
                 Tcl.EndPoint = Nothing
@@ -1857,12 +1857,12 @@ Public Class VOR_Router
                     P0 = Tcl.ReachDistance(RouteurModel.GridGrain, Cap)
                     Tcl.StartPoint = P0
                 End While
-                _PlayerInfo.RouteWayPoints(WP)(0)(0) = P0
+                _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0) = P0
             End If
 
-            Dim P1 As Coords = _PlayerInfo.RouteWayPoints(WP)(0)(1)
+            Dim P1 As Coords = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1)
             If GSHHS_Reader.HitTest(P1, 0, GSHHS_Reader.Polygons(P1), True) Then
-                Dim Tcl As New TravelCalculator With {.StartPoint = P1, .EndPoint = _PlayerInfo.RouteWayPoints(WP)(0)(0)}
+                Dim Tcl As New TravelCalculator With {.StartPoint = P1, .EndPoint = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0)}
                 Dim Cap As Double = Tcl.TrueCap
 
                 Tcl.EndPoint = Tc.StartPoint
@@ -1870,12 +1870,14 @@ Public Class VOR_Router
                     P1 = Tcl.ReachDistance(RouteurModel.GridGrain, Cap)
                     Tcl.StartPoint = P1
                 End While
-                _PlayerInfo.RouteWayPoints(WP)(0)(1) = P1
+                _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1) = P1
             End If
-            _gr.ComputeBestRoute(1, RouteurModel.GridGrain, BrokenSails, _PlayerInfo.RouteWayPoints(WP))
+            _gr.ComputeBestRoute(1, RouteurModel.GridGrain, BrokenSails, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs)
             'End If
         ElseIf Not StartRouting Then
-            _gr.Stop()
+            If Not _gr Is Nothing Then
+                _gr.Stop()
+            End If
             _StopRouting = True
         Else
             'Fast routing start a timer

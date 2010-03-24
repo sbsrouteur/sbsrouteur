@@ -45,13 +45,6 @@ Partial Public Class _2D_Viewer
     Public Shared RacePolygons As New List(Of Coords())
 
 
-    Shared Sub New()
-
-        If Not RacePolygons Is Nothing Then
-            RacePolygons.Add(RouteurModel._RaceRect)
-        End If
-
-    End Sub
 
 
     Public Sub New()
@@ -188,10 +181,14 @@ Render1:
 
 
         Try
+            If Not RacePolygons Is Nothing Then
+                RacePolygons.Add(RouteurModel._RaceRect)
+            End If
+
             GSHHS_Reader.Read("..\gshhs\gshhs_" & RouteurModel.MapLevel & ".b", RacePolygons, "Map")
             'GSHHS_Reader.Read("..\gshhs\gshhs_i.b", RacePolygons, "Map")
             'GSHHS_Reader.Read("..\gshhs\wdb_borders_i.b", RacePolygons, "Border")
-           
+
         Catch ex As Exception
             Debug.WriteLine(ex)
         End Try

@@ -11,11 +11,10 @@ Public Class clsPlayerInfo
     Private _Password As String
     Private _NumBoat As Integer
     Private _ShowAutorouting As Boolean = False
-    Private _RouteWayPoints As New List(Of List(Of Coords()))
     Private _RaceInfo As New VLMRaceInfo
 
 
-    Private _Route() As Coords
+    'Private _Route() As Coords
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -76,23 +75,27 @@ Public Class clsPlayerInfo
         End Set
     End Property
 
-    Public Property Route() As Coords()
+    Public ReadOnly Property Route() As Coords()
         Get
-            Return _Route
+            If RaceInfo IsNot Nothing Then
+                Return RaceInfo.Route
+            Else
+                Return Nothing
+            End If
         End Get
-        Set(ByVal value As Coords())
-            _Route = value
-        End Set
+        'Set(ByVal value As Coords())
+        '    _Route = value
+        'End Set
     End Property
 
-    Public Property RouteWayPoints() As List(Of List(Of Coords()))
-        Get
-            Return _RouteWayPoints
-        End Get
-        Set(ByVal value As List(Of List(Of Coords())))
-            _RouteWayPoints = value
-        End Set
-    End Property
+    'Public Property RouteWayPoints() As List(Of List(Of Coords()))
+    '    Get
+    '        Return _RouteWayPoints
+    '    End Get
+    '    Set(ByVal value As List(Of List(Of Coords())))
+    '        _RouteWayPoints = value
+    '    End Set
+    'End Property
 
 
     Public Property ShowAutorouting() As Boolean

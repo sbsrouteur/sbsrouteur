@@ -160,7 +160,7 @@ Public Class RouteurModel
         End If
 
         _P_Info(0) = frm.PlayerInfo.Playerinfo
-
+        CurPlayer = _P_Info(0)
         LoadRaceInfo(frm.PlayerInfo)
         LoadParams()
 
@@ -179,10 +179,13 @@ Public Class RouteurModel
             PrevLon = 0
         End If
 
-        For Each WPs In P_Info(0).RouteWayPoints
+        RouteurModel.WPList.Clear()
+        RouteurModel.WPList.Add("<Auto> ???")
+        For Each WPs In P_Info(0).RaceInfo.races_waypoints
 
-            For Each WP In WPs
-                For Each P In WP
+            RouteurModel.WPList.Add("WP" & WPs.wporder & " - " & WPs.libelle)
+            For Each wp In WPs.WPs
+                For Each P In wp
                     If P.Lat < C1.Lat Then
                         C1.Lat_Deg = P.Lat_Deg
                     End If
@@ -206,7 +209,11 @@ Public Class RouteurModel
                     PrevLon = P.Lon_Deg
                 Next
             Next
+
         Next
+
+        START_LAT = _P_Info(0).RaceInfo.Start.Lat_Deg
+        START_LON = _P_Info(0).RaceInfo.Start.Lon_Deg
 
 
         If START_LAT < C1.Lat_Deg Then
@@ -298,8 +305,6 @@ Public Class RouteurModel
             Line = S.ReadLine.Trim
         Loop Until S.EndOfStream OrElse Line = ""
 
-        ReDim P_Info(0).Route(0)
-
         RouteurModel.START_LAT = StartLat
         RouteurModel.START_LON = StartLon
         RouteurModel.ShowGrid = True
@@ -346,54 +351,54 @@ Public Class RouteurModel
 
     End Sub
 
-    Private Sub ReadRouteSection(ByVal S As System.IO.StreamReader)
-        Dim Line As String = S.ReadLine.Trim
-        Dim CurWP As Integer = 0
-        _WPList.Clear()
-        _WPList.Add("<Auto>")
+    'Private Sub ReadRouteSection(ByVal S As System.IO.StreamReader)
+    '    Dim Line As String = S.ReadLine.Trim
+    '    Dim CurWP As Integer = 0
+    '    _WPList.Clear()
+    '    _WPList.Add("<Auto>")
 
-        ReDim P_Info(0).Route(10)
-        Do
+    '    ReDim P_Info(0).Route(10)
+    '    Do
 
-            If Not Line.IndexOf(CChar(vbTab)) = -1 Then
+    '        If Not Line.IndexOf(CChar(vbTab)) = -1 Then
 
-                Dim PosEq As Integer = Line.IndexOf(CChar(vbTab))
-                If Line.ToLowerInvariant.StartsWith("wp") Then
-                    Dim Lat(1) As Double
-                    Dim Lon(1) As Double
-                    Dim i As Integer
+    '            Dim PosEq As Integer = Line.IndexOf(CChar(vbTab))
+    '            If Line.ToLowerInvariant.StartsWith("wp") Then
+    '                Dim Lat(1) As Double
+    '                Dim Lon(1) As Double
+    '                Dim i As Integer
 
-                    Dim Fields() As String = Line.Substring(PosEq + 1).Split(CChar(vbTab))
+    '                Dim Fields() As String = Line.Substring(PosEq + 1).Split(CChar(vbTab))
 
-                    For i = 0 To 1
-                        Double.TryParse(Fields(2 * i), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lat(i))
-                        Double.TryParse(Fields(2 * i + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon(i))
+    '                For i = 0 To 1
+    '                    Double.TryParse(Fields(2 * i), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lat(i))
+    '                    Double.TryParse(Fields(2 * i + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon(i))
 
-                    Next
-                    _WPList.Add(Fields(5))
-                    P_Info(0).Route(CurWP) = New Coords(Lat(0), Lon(0))
-                    Dim L As New List(Of Coords())
-                    Dim C() As Coords = New Coords() {New Coords(Lat(0), Lon(0)), New Coords(Lat(1), Lon(1))}
-                    L.Add(C)
-                    P_Info(0).RouteWayPoints.Add(L)
-                    CurWP += 1
-                    If CurWP = P_Info(0).Route.Length Then
-                        ReDim Preserve P_Info(0).Route(CurWP + 10)
-                    End If
+    '                Next
+    '                _WPList.Add(Fields(5))
+    '                P_Info(0).Route(CurWP) = New Coords(Lat(0), Lon(0))
+    '                Dim L As New List(Of Coords())
+    '                Dim C() As Coords = New Coords() {New Coords(Lat(0), Lon(0)), New Coords(Lat(1), Lon(1))}
+    '                L.Add(C)
+    '                P_Info(0).RouteWayPoints.Add(L)
+    '                CurWP += 1
+    '                If CurWP = P_Info(0).Route.Length Then
+    '                    ReDim Preserve P_Info(0).Route(CurWP + 10)
+    '                End If
 
-                End If
+    '            End If
 
-            End If
-            If Not S.EndOfStream Then
-                Line = S.ReadLine.Trim
-            Else
-                Line = ""
-            End If
-        Loop Until Line = "" 'OrElse S.EndOfStream
+    '        End If
+    '        If Not S.EndOfStream Then
+    '            Line = S.ReadLine.Trim
+    '        Else
+    '            Line = ""
+    '        End If
+    '    Loop Until Line = "" 'OrElse S.EndOfStream
 
-        ReDim Preserve P_Info(0).Route(CurWP - 1)
+    '    ReDim Preserve P_Info(0).Route(CurWP - 1)
 
-    End Sub
+    'End Sub
 
 
     Public Sub Refresh()
@@ -468,8 +473,8 @@ Public Class RouteurModel
                             Case "info"
                                 ReadInfoSection(S)
 
-                            Case "route"
-                                ReadRouteSection(S)
+                                'Case "route"
+                                '    ReadRouteSection(S)
 
                             Case "racezoneoffset"
                                 ReadRaceZoneOffsets(S)
@@ -662,6 +667,11 @@ Public Class RouteurModel
         Get
             Return _WPList
         End Get
+
     End Property
+
+    Public Sub OnWPListUpdate()
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
+    End Sub
 
 End Class

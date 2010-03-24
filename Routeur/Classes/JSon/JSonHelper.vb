@@ -71,18 +71,28 @@ Module JSonHelper
                 Else
                     Value = Nothing
                 End If
-            ElseIf T Is GetType(IList()) Then
-                Dim WPL = GetJSonObjectValue(Data, P.Name)
+            ElseIf T Is GetType(List(Of VLM_RaceWaypoint)) Then
+                Dim WPL As Dictionary(Of String, Object) = CType(GetJSonObjectValue(Data, P.Name), Dictionary(Of String, Object))
 
-                
+                If WPL IsNot Nothing Then
+                    Dim L As List(Of VLM_RaceWaypoint) = CType(P.GetValue(O, Nothing), List(Of VLM_RaceWaypoint))
+                    Dim RaceWayPoint As VLM_RaceWaypoint
+
+                    For Each Item In WPL.Values
+                        RaceWayPoint = New VLM_RaceWaypoint
+                        LoadJSonDataToObject(RaceWayPoint, Item)
+                        L.Add(RaceWayPoint)
+                    Next
+
+                End If
 
 
             Else
-                Continue For
+                        Continue For
             End If
-            If Not Value Is Nothing Then
-                P.SetValue(O, Value, Nothing)
-            End If
+                If Not Value Is Nothing Then
+                    P.SetValue(O, Value, Nothing)
+                End If
 
         Next
 

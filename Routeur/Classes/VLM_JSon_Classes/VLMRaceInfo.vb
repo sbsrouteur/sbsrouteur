@@ -25,6 +25,19 @@
         End Set
     End Property
 
+    Public ReadOnly Property Route() As Coords()
+        Get
+            Dim R(_race_waypoints.Count - 1) As Coords
+            Dim i As Integer
+            For i = 0 To _race_waypoints.Count - 1
+                R(i) = _race_waypoints(i).WPs(0)(0)
+            Next
+
+            Return R
+
+        End Get
+    End Property
+
     Public Property racename() As String
         Get
             Return _RaceName
@@ -41,6 +54,12 @@
         Set(ByVal value As DateTime)
             _StartDate = value
         End Set
+    End Property
+
+    Public ReadOnly Property Start() As Coords
+        Get
+            Return New Coords(startlat / 1000, startlong / 1000)
+        End Get
     End Property
 
     Public Property startlat() As Integer
