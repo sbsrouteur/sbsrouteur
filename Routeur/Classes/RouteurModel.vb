@@ -183,7 +183,7 @@ Public Class RouteurModel
         RouteurModel.WPList.Add("<Auto> ???")
         For Each WPs In P_Info(0).RaceInfo.races_waypoints
 
-            RouteurModel.WPList.Add("WP" & WPs.wporder & " - " & WPs.libelle)
+            RouteurModel.WPList.Add(WPs.ToString)
             For Each wp In WPs.WPs
                 For Each P In wp
                     If P.Lat < C1.Lat Then

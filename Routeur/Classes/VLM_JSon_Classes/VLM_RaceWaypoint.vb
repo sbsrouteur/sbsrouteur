@@ -110,5 +110,20 @@
 
     Public Function CompareTo(ByVal other As VLM_RaceWaypoint) As Integer Implements System.IComparable(Of VLM_RaceWaypoint).CompareTo
 
+        If wporder = other.wporder Then
+            Return 0
+        ElseIf wporder > other.wporder Then
+            Return 1
+        Else
+            Return -1
+        End If
+
     End Function
+
+    Public Overrides Function ToString() As String
+
+        Return "WP " & wporder & " - " & libelle
+
+    End Function
+
 End Class

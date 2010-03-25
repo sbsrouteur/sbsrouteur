@@ -53,7 +53,7 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <IncrementalBuild>false</IncrementalBuild>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314</NoWarn>
@@ -132,6 +132,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\WindArrow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\frmRouterConfiguration.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\frmRouterPrefs.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -220,6 +228,12 @@
     <Compile Include="Controls\WindArrow.xaml.vb">
       <DependentUpon>WindArrow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\frmRouterConfiguration.xaml.vb">
+      <DependentUpon>frmRouterConfiguration.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\frmRouterPrefs.xaml.vb">
+      <DependentUpon>frmRouterPrefs.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\frmUserPicker.xaml.vb">
       <DependentUpon>frmUserPicker.xaml</DependentUpon>
     </Compile>
@@ -287,6 +301,7 @@
     <Resource Include="xml\XMLFile1.xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="bin\Debug\Routeur.ini" />
     <None Include="bin\Release\Routeur.ini" />
     <None Include="Routeur_TemporaryKey.pfx" />
     <None Include="xml\Current.xsd" />

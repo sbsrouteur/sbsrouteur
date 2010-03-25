@@ -1,0 +1,41 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	x:Class="frmRouterPrefs"
+	x:Name="Window"
+	Title="frmRouterPrefs"
+	Width="640" Height="480">
+
+	<Grid x:Name="LayoutRoot">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" MinHeight="26.958"/>
+			<RowDefinition Height="Auto" MinHeight="102.76"/>
+			<RowDefinition/>
+			<RowDefinition Height="Auto" MinHeight="14.319"/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" MinWidth="134.537"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<GridSplitter Width="4" Grid.RowSpan="4" Margin="0,4,0,-4">
+			<GridSplitter.Effect>
+				<DropShadowEffect/>
+			</GridSplitter.Effect>
+		</GridSplitter>
+		<TextBlock TextWrapping="Wrap"><Run Text="GridGrain"/></TextBlock>
+		<TextBox Text="{Binding GridGrain, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1"/>
+		<GroupBox Header="MapLevel" Grid.Row="1" Margin="0,0,3,0" >
+		<StackPanel>
+		<RadioButton GroupName="MapLevel" Content="Crude" VerticalAlignment="Top" Margin="39,0,0,0"/>
+		<RadioButton GroupName="MapLevel" Content="Low" VerticalAlignment="Top" Margin="39,0,0,0"/>
+		<RadioButton GroupName="MapLevel" Content="Intermediate" VerticalAlignment="Top" Margin="39,0,0,0"/>
+		<RadioButton GroupName="MapLevel" Content="High" VerticalAlignment="Top" Margin="39,0,0,0"/>
+		<RadioButton GroupName="MapLevel" Content="Full" VerticalAlignment="Top" Margin="39,0,0,0"/>
+		</StackPanel>
+		</GroupBox>
+		<StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+		<Button x:Name="cmdCancel" Content="Cancel" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172"/>
+		<Button x:Name="cmdOK" Content="OK" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172"/>
+		</StackPanel>
+	</Grid>
+</Window>

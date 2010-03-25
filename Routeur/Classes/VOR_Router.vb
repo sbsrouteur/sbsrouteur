@@ -299,6 +299,16 @@ Public Class VOR_Router
         Set(ByVal value As String)
             Dim Index As Integer = 0
 
+            If value.StartsWith("<Auto>") Then
+                Index = 0
+            ElseIf value.StartsWith("WP") Then
+
+                Dim MinIndex As Integer = value.IndexOf("-"c)
+                Integer.TryParse(value.Substring(2, MinIndex - 2), Index)
+            Else
+                Return
+            End If
+
             While RouteurModel.WPList(Index) <> value
                 Index += 1
                 If Index > RouteurModel.WPList.Count Then
