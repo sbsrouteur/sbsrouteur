@@ -19,7 +19,7 @@ Public Class GridRouter
     Private _Dest As Coords
     Public Shared CoordsComparer As New CoordsComparer
     Public Shared RoutingComparer As New RoutingGridPointComparer
-    Private _GridPointsList As New Dictionary(Of Coords, RoutingGridPoint)(CoordsComparer)
+    Private _GridPointsList As New BSPList 'Dictionary(Of Coords, RoutingGridPoint)(CoordsComparer)
     'Private _ToDoList As New SortedList(Of RoutingGridPoint, RoutingGridPoint)(New RoutingGridPointComparer)
     Private _ToDoList As New Queue(Of RoutingGridPoint)
     Private WithEvents _MeteoProvider As clsMeteoOrganizer
@@ -59,7 +59,7 @@ Public Class GridRouter
     End Sub
 
 
-    Public ReadOnly Property GridPointsList() As Dictionary(Of Coords, RoutingGridPoint)
+    Public ReadOnly Property GridPointsList() As BSPList
         Get
             Return _GridPointsList
         End Get
@@ -183,12 +183,12 @@ Public Class GridRouter
     End Function
 
 
-    Public Function RouteToPoint(ByVal c As Coords) As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+    Public Function RouteToPoint(ByVal c As ICoords) As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
 
         Dim c2 As Coords = New Coords(c)
         c2.RoundTo(RouteurModel.GridGrain)
-        If _GridPointsList.ContainsKey(c2) Then
-            Return RouteToPoint(_GridPointsList(c2))
+        If _GridPointsList.Contains(c2) Then
+            Return RouteToPoint(CType(_GridPointsList(c2), RoutingGridPoint))
         Else
             Return New ObservableCollection(Of VOR_Router.clsrouteinfopoints)
         End If
@@ -374,10 +374,11 @@ Public Class GridRouter
         'tc.EndPoint.Lon_Deg += GridGrain
         TC.EndPoint.Lat_Deg -= GridGrain
         _Radius = TC.SurfaceDistance / 2
-        For Each P As RoutingGridPoint In _GridPointsList.Values
+        _GridPointsList.Clear()
+        'For Each P As RoutingGridPoint In _GridPointsList.Values
 
-            P.ClearNeighboors()
-        Next
+        '    P.ClearNeighboors()
+        'Next
         _GridPointsList.Clear()
         _ToDoList.Clear()
         _RouteStartDate = Now
@@ -541,7 +542,7 @@ Public Class GridRouter
 
                     For Each C In RG.Neighboors
                         If Not C Is Nothing Then
-                            N = _GridPointsList(C)
+                            N = CType(_GridPointsList(C), RoutingGridPoint)
 
                             eta = GetETATo(RG.P.P, N.P.P, RG.CurETA, _MeteoProvider, BoatType, brokensails, CurSail, CurSpeed)
 
@@ -654,8 +655,8 @@ Public Class RoutingGridPointComparer
         ElseIf x.Dist * x.Iteration < y.Dist * y.Iteration Then
             Return -1
         Else
-            Static CC As New CoordsComparer
-            Return CC.Compare(x.P.P, y.P.P)
+            'Static CC As New CoordsComparer
+            Return CoordsComparer.Compare(x.P.P, y.P.P)
         End If
 
     End Function

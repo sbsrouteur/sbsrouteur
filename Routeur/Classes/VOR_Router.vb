@@ -995,8 +995,8 @@ Public Class VOR_Router
             Dim C2 As New Coords(C)
             C2.RoundTo(RouteurModel.GridGrain)
 
-            If _gr.GridPointsList.ContainsKey(C2) Then
-                _MeteoUnderMouse.Add(_gr.GridPointsList(C2))
+            If _gr.GridPointsList.Contains(C2) Then
+                _MeteoUnderMouse.Add(CType(_gr.GridPointsList(C2), RoutingGridPoint))
             End If
 
         End If

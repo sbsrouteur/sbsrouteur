@@ -4,48 +4,9 @@ Imports System.Xml
 Imports System.Math
 
 
-Public Class CoordsComparer
-    Implements IComparer(Of Coords)
-    Implements IEqualityComparer(Of Coords)
-    Private COORD_COMPARE_GRAIN As Double = 1 / RouteurModel.GridGrain * 16
-
-    
-
-    Public Function Compare(ByVal x As Coords, ByVal y As Coords) As Integer Implements System.Collections.Generic.IComparer(Of Coords).Compare
-        If x.Lat > y.Lat Then
-            Return 1
-        ElseIf x.Lat < y.Lat Then
-            Return -1
-        Else
-            If x.Lon > y.Lon Then
-                Return 1
-            ElseIf x.Lon < y.Lon Then
-                Return -1
-            Else
-                Return 0
-
-            End If
-        End If
-    End Function
-
-    Public Function Equals1(ByVal x As Coords, ByVal y As Coords) As Boolean Implements System.Collections.Generic.IEqualityComparer(Of Coords).Equals
-        If Double.IsNaN(x.Lat) Or Double.IsNaN(x.Lon) Or Double.IsNaN(y.Lat) Or Double.IsNaN(y.Lon) Then
-            Return False
-        End If
-        Return GetHashCode1(x) = GetHashCode1(y)
-        'Return (CInt(x.Lat_DegCOORD_COMPARE_GRAIN * ) = CInt(COORD_COMPARE_GRAIN * y.Lat_Deg) AndAlso CInt(COORD_COMPARE_GRAIN * x.Lon_Deg) = CInt(COORD_COMPARE_GRAIN * y.Lon_Deg))
-    End Function
-
-    Public Function GetHashCode1(ByVal obj As Coords) As Integer Implements System.Collections.Generic.IEqualityComparer(Of Coords).GetHashCode
-
-        Return CInt(CInt((obj.Lat_Deg + 90) * COORD_COMPARE_GRAIN) + (CInt(COORD_COMPARE_GRAIN * (obj.Lon_Deg + 180) * 360)))
-
-    End Function
-
-End Class
 
 Public Class Coords
-
+    Implements ICoords
     Implements INotifyPropertyChanged
 
 
@@ -65,7 +26,8 @@ Public Class Coords
     Private _Lon As Double
     Private _Name As String
 
-    Public Property Lat() As Double
+
+    Public Property Lat() As Double Implements ICoords.Lat
         Get
             Return _Lat
         End Get
@@ -87,7 +49,7 @@ Public Class Coords
         End Set
     End Property
 
-    Public Property Lon() As Double
+    Public Property Lon() As Double Implements ICoords.Lon
         Get
             Return _Lon
         End Get
@@ -113,7 +75,7 @@ Public Class Coords
         End Get
         Set(ByVal value As Double)
 
-            
+
             Lon = value / 180 * Math.PI
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon_Deg"))
@@ -182,6 +144,13 @@ Public Class Coords
 
     End Sub
 
+    Public Sub New(ByVal C As ICoords)
+
+        Lat = C.Lat
+        Lon = C.Lon
+
+    End Sub
+
     Public Sub New(ByVal C As Coords)
 
         Lat = C.Lat
@@ -214,7 +183,7 @@ Public Class Coords
 
     End Sub
 
-    Public Sub New(ByVal Lat_Deg As Integer, ByVal Lat_Min As Integer, ByVal Lat_Sec As Integer, ByVal NS As North_south, ByVal Lon_Deg As Integer, ByVal Lon_Min As Integer, ByVal Lon_Sec As Integer, ByVal EW As east_west)
+    Public Sub New(ByVal Lat_Deg As Integer, ByVal Lat_Min As Integer, ByVal Lat_Sec As Integer, ByVal NS As NORTH_SOUTH, ByVal Lon_Deg As Integer, ByVal Lon_Min As Integer, ByVal Lon_Sec As Integer, ByVal EW As EAST_WEST)
 
         Me.Lat_Deg = (CInt(NS) * (Lat_Deg + Lat_Min / 60 + Lat_Sec / 3600)) Mod 180
         Me.Lon_Deg = (CInt(EW) * (Lon_Deg + Lon_Min / 60 + Lon_Sec / 3600)) Mod 180
@@ -266,7 +235,7 @@ Public Class Coords
 
     Public ReadOnly Property X() As Double
         Get
-            Return cos(_Lat) * cos(-_Lon)
+            Return Cos(_Lat) * Cos(-_Lon)
         End Get
     End Property
 
@@ -282,6 +251,10 @@ Public Class Coords
         End Get
     End Property
 
+
+    Public Function Equals1(ByVal C As ICoords) As Boolean Implements ICoords.Equals
+        Return CoordsComparer.Equals1(Me, C)
+    End Function
 
 End Class
 

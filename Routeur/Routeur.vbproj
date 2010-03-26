@@ -215,6 +215,10 @@
     <Compile Include="Classes\GribMeteo\MeteoInfo.vb" />
     <Compile Include="Classes\JSon\JSonHelper.vb" />
     <Compile Include="Classes\JSon\JSonParser.vb" />
+    <Compile Include="Classes\ListMgr\BSPList.vb" />
+    <Compile Include="Classes\ListMgr\CoordsComparer.vb" />
+    <Compile Include="Classes\ListMgr\GridList.vb" />
+    <Compile Include="Classes\ListMgr\ICoords.vb" />
     <Compile Include="Classes\PolyClipper\PolyClipper.vb" />
     <Compile Include="Classes\ProgressContext.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMRaceInfo.vb" />

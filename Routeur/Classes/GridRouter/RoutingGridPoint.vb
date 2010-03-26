@@ -2,6 +2,7 @@
 Imports System.Math
 
 Public Class RoutingGridPoint
+    Implements ICoords
     Implements INotifyPropertyChanged
     Private Const NEIGHBOORS_DIST As Integer = 5
 
@@ -171,7 +172,7 @@ Public Class RoutingGridPoint
 
 
 
-    Public Sub BuildNeighBoorsList(ByVal [Step] As Integer, ByVal AngleStep As Integer, ByVal GridGrain As Double, ByVal Dictionnary As Dictionary(Of Coords, RoutingGridPoint), ByVal Sail As clsSailManager, ByVal Start As Coords, ByVal CurBest As Coords, ByVal WP As List(Of Coords()))
+    Public Sub BuildNeighBoorsList(ByVal [Step] As Integer, ByVal AngleStep As Integer, ByVal GridGrain As Double, ByVal Dictionnary As BSPList, ByVal Sail As clsSailManager, ByVal Start As Coords, ByVal CurBest As Coords, ByVal WP As List(Of Coords()))
 
         If Not _Neighboors Is Nothing Then
             Return
@@ -263,10 +264,10 @@ Public Class RoutingGridPoint
                         If tcCheck.Cap = 180 Then
                             Dim idebug As Integer = 23
                         End If
-                        If Not Dictionnary.ContainsKey(D) Then
+                        If Not Dictionnary.Contains(D) Then
 
                             SyncLock Dictionnary
-                                If Not Dictionnary.ContainsKey(D) Then
+                                If Not Dictionnary.Contains(D) Then
                                     G = New RoutingGridPoint(D, 0, tcCheck.SurfaceDistance)
                                     'G.Dist = tc2.SurfaceDistance
                                     G.Dist = GSHHS_Reader.HitDistance(G.P.P, WP, True)
@@ -274,12 +275,12 @@ Public Class RoutingGridPoint
                                         G.Dist = Math.Min(tc2.SurfaceDistance, tc.SurfaceDistance)
                                     End If
 
-                                    Dictionnary.Add(D, G)
+                                    Dictionnary.Add(G)
                                 End If
                             End SyncLock
 
                         End If
-                        G = Dictionnary(D)
+                        G = CType(Dictionnary(D), RoutingGridPoint)
                         If CrossedLine Then
                             G.CrossedLine = True
                         Else
@@ -386,6 +387,30 @@ Public Class RoutingGridPoint
         End Set
     End Property
 
+    Public Function Equals1(ByVal C As ICoords) As Boolean Implements ICoords.Equals
+
+        Return CoordsComparer.Equals1(_P.P, C)
+    End Function
+
+    Public Property Lat() As Double Implements ICoords.Lat
+        Get
+            Return _P.P.Lat
+        End Get
+        Set(ByVal value As Double)
+            _P.P.Lat = value
+        End Set
+    End Property
+
+    Public Property Lon() As Double Implements ICoords.Lon
+        Get
+            Return _P.P.Lon
+
+        End Get
+        Set(ByVal value As Double)
+            _P.P.Lon = value
+
+        End Set
+    End Property
 End Class
 
 Public Class RoutingGridPointColorConverter
