@@ -94,46 +94,70 @@ Partial Public Class _2D_Viewer
         Dim LocalBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
         Dim RaceZone As New List(Of Coords())
         Dim polyindex As Integer = -1
+        Dim MinLon As Double = 180
+        Dim MaxLon As Double = -180
+        Dim MinLat As Double = 90
+        Dim MaxLat As Double = -90
+        Dim drawn As Boolean
+        
         RaceZone.Add(RouteurModel._RaceRect)
 
         'Dim Prevbmp As RenderTargetBitmap = Nothing
         Dim LineCount As Integer
+        Dim PrevI As Integer = -1
         Static R As New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION)
 
         If GSHHS_Reader.AllPolygons.Count = 0 Then
             Return False
         End If
         Pen.Freeze()
+
+        For Each LC In RaceZone
+            For Each C In LC
+                If C.Lat < MinLat Then
+                    MinLat = C.Lat
+                End If
+                If C.Lat > MaxLat Then
+                    MaxLat = C.Lat
+                End If
+                If C.Lon < MinLon Then
+                    MinLon = C.Lon
+                End If
+                If C.Lon > MaxLon Then
+                    MaxLon = C.Lon
+                End If
+
+            Next
+        Next
+
         For Each C_Array In GSHHS_Reader.AllPolygons
             polyindex += 1
-            'If C_Array.GetUpperBound(0) < 7 Then
-            '    Exit For
-            'End If
 
-            'If Not Prevbmp Is Nothing Then
-            'DC.DrawImage(Prevbmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
-            'End If
 
             FirstPoint = True
             For i = 1 To C_Array.GetUpperBound(0) - 1
 
 
-                'p0 = New Point(LonToCanvas(C_Array(i - 1).Lon_Deg), LatToCanvas(C_Array(i - 1).Lat_Deg))
-                'P1 = New Point(LonToCanvas(C_Array(i).Lon_Deg), LatToCanvas(C_Array(i).Lat_Deg))
-                'If GSHHS_Reader.HitTest(C_Array(i), 0, RaceZone, False) Then
                 If C_Array(i) IsNot Nothing AndAlso C_Array(i - 1) IsNot Nothing Then
-                    p0.X = LonToCanvas(C_Array(i - 1).Lon_Deg)
-                    p0.Y = LatToCanvas(C_Array(i - 1).Lat_Deg)
-                    P1.X = LonToCanvas(C_Array(i).Lon_Deg)
-                    P1.Y = LatToCanvas(C_Array(i).Lat_Deg)
-                    If Math.Abs(p0.X - P1.X) < 1000 Then
+                    'If GSHHS_Reader.HitTest(C_Array(i), 0, RaceZone, False) Then
+                    If C_Array(i).Lon >= MinLon AndAlso _
+                        C_Array(i).Lon <= MaxLon AndAlso _
+                        C_Array(i).Lat >= MinLat AndAlso _
+                        C_Array(i).Lat <= MaxLat Then
+
+                        p0.X = LonToCanvas(C_Array(i - 1).Lon_Deg)
+                        p0.Y = LatToCanvas(C_Array(i - 1).Lat_Deg)
+                        P1.X = LonToCanvas(C_Array(i).Lon_Deg)
+                        P1.Y = LatToCanvas(C_Array(i).Lat_Deg)
                         DC.DrawLine(Pen, p0, P1)
                         LineCount += 1
+                        drawn = True
                     End If
-                End If
-                'End If
 
-                If LineCount Mod 500 = 0 Then
+                End If
+                
+                If drawn AndAlso LineCount Mod 500 = 0 Then
+                    drawn = False
                     DC.Close()
 Render1:
                     Try
@@ -148,7 +172,7 @@ Render1:
                     DC.DrawImage(_BackDropBmp, R)
                     LocalBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
                     'LocalBmp.Clear()
-                    GC.Collect()
+                    'GC.Collect()
                 End If
 
             Next
@@ -170,7 +194,7 @@ Render1:
         LocalBmp.Render(D)
         LocalBmp.Freeze()
         _BackDropBmp = LocalBmp
-        GC.Collect()
+        'GC.Collect()
 
         Return True
 

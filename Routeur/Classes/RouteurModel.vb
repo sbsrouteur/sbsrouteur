@@ -47,7 +47,6 @@ Public Class RouteurModel
     Public Shared BASE_GAME_URL As String = S11_SERVER
 
     Public Shared VacationMinutes As Double = 5
-    Public Shared CurWP As Integer = 0
     Public Shared MapLevel As String = "l"
 
     Private Shared _P_Info(0) As clsPlayerInfo
@@ -109,6 +108,9 @@ Public Class RouteurModel
     '                                      67.271, -55.979}
 
 
+
+
+    Private Shared _CurWP As Integer = 0
 
 
     Private _Busy As Boolean = False
@@ -409,6 +411,21 @@ Public Class RouteurModel
 
 
     End Sub
+
+    Public Shared Property CurWP() As Integer
+        Get
+            Return _CurWP
+        End Get
+        Set(ByVal value As Integer)
+            If _CurWP <> value Then
+                _CurWP = value
+                If WPList.Count >= 1 Then
+                    _WPList(0) = _P_Info(0).RaceInfo.races_waypoints(_CurWP - 1).ToString
+                End If
+            End If
+        End Set
+
+    End Property
 
     Public ReadOnly Property RegisteredPlayers() As ObservableCollection(Of RegistryPlayerInfo)
         Get

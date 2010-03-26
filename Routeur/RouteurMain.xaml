@@ -57,7 +57,7 @@
 					<ColumnDefinition Width="Auto" MinWidth="7"/>
 					<ColumnDefinition Width="Auto" MinWidth="7"/>
 				</Grid.ColumnDefinitions>
-					<TextBlock Text="{Binding Classement, Mode=OneWay}" TextWrapping="Wrap" FontSize="21.333" FontWeight="Bold" VerticalAlignment="Center" Style="{DynamicResource MargedText}"/>		
+					<TextBlock Text="{Binding Classement, Mode=OneWay}" TextWrapping="Wrap" FontSize="21.333" FontWeight="Bold" VerticalAlignment="Center" Style="{DynamicResource MargedText}" MinWidth="40" TextAlignment="Right"/>		
 					<StackPanel Grid.Column="1" VerticalAlignment="Top" >
 					<TextBlock Text="{Binding Name, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Top" Style="{DynamicResource MargedText}"/>		
 					<TextBlock Text="{Binding CurPos, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Top" Style="{DynamicResource MargedText}" FontSize="9.333"/>		
@@ -68,7 +68,8 @@
 		
 		<DataTemplate x:Key="CoordsPresenter">
 			<Grid>
-				<TextBlock Text="{Binding ToText, Converter={StaticResource CoordsConverter}, ConverterParameter=0, Mode=OneWay}" TextWrapping="Wrap"/>
+				<TextBlock  Text="{Binding ToText, Converter={StaticResource CoordsConverter}, ConverterParameter=0, Mode=OneWay}" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1,0,0,0"/>
+				<!--<TextBlock  Text="99° 99' 99.999° N 99° 99' 99.999° W  " TextWrapping="Wrap" Margin="0,0,-85,0"/>-->
 			</Grid>
 		</DataTemplate>
         
@@ -329,9 +330,7 @@
                                 <DropShadowBitmapEffect/>
                             </GroupBox.BitmapEffect>
                             <Grid MaxHeight="Infinity">
-                                <StackPanel Width="Auto" Height="Auto" >
-                                    <ItemsControl ItemsSource="{Binding VorHandler.BruteRoute, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route" />
-                                </StackPanel>
+                                <ItemsControl ItemsSource="{Binding VorHandler.BruteRoute, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route" />
                             </Grid>
                         </GroupBox>
                     </StackPanel>

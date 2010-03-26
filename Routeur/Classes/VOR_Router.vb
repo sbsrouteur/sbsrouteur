@@ -212,7 +212,7 @@ Public Class VOR_Router
 
         Public Overrides Function ToString() As String
 
-            Return T.ToString & " ; " & Cap.ToString("f2") & " ; " & DTF.ToString & " ; " & P.ToString & " ; " & WindDir.ToString("f2") & " ; " & WindStrength.ToString("f2")
+            Return T.ToString("dd-MMM HH:mm") & " ; " & Cap.ToString("f1") & " ; " & DTF.ToString("f1") & " ; " & P.ToString & " ; " & WindDir.ToString("f2") & " ; " & WindStrength.ToString("f2")
 
         End Function
 
