@@ -27,8 +27,6 @@ Partial Public Class frmUserPicker
 
         If Not Me.lstUsers.SelectedItem Is Nothing Then
             _PlayerInfo = CType(Me.lstUsers.SelectedItem, RegistryPlayerInfo).Playerinfo
-            _PlayerInfo.Nick = "sbs"
-            _PlayerInfo.Password = "sbssbs"
             GetBoatInfo(_PlayerInfo)
         Else
             _PlayerInfo = Nothing

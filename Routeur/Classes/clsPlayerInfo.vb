@@ -10,7 +10,6 @@ Public Class clsPlayerInfo
     Private _Email As String
     Private _Password As String
     Private _NumBoat As Integer
-    Private _ShowAutorouting As Boolean = False
     Private _RaceInfo As New VLMRaceInfo
 
 

@@ -161,6 +161,11 @@
             x = 0
         End If
 
+        If Item.Lat > _Node.Lat Then
+            Return 2 + x
+        Else
+            Return x
+        End If
     End Function
 
     Public Function GetEnumerator1() As System.Collections.IEnumerator Implements System.Collections.IEnumerable.GetEnumerator

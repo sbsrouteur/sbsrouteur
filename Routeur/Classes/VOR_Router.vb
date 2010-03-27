@@ -623,6 +623,9 @@ Public Class VOR_Router
                         Next
                         CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
 
+                        P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+                        PilototoRoute.Add(P)
+
                         'Check WP completion
                         Tc.EndPoint = CurPos
                         If Tc.SurfaceDistance > WPDist Then
@@ -651,10 +654,10 @@ Public Class VOR_Router
             PrevMode = OrderType
             PrevValue = OrderValue
 
-            If Not Mi Is Nothing Then
-                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
-                PilototoRoute.Add(P)
-            End If
+            'If Not Mi Is Nothing Then
+            '    P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+            '    PilototoRoute.Add(P)
+            'End If
 
             CurIndex += 1
         End While
@@ -1260,9 +1263,6 @@ Public Class VOR_Router
                     Case "LUP="
                         Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lup)
 
-                        If Not _PlayerInfo.ShowAutorouting AndAlso (_PlayerInfo.Nick = "sbs" OrElse _PlayerInfo.Nick = "sbs_2") Then
-                            _PlayerInfo.ShowAutorouting = True
-                        End If
                     Case "PIM="
                         RetUser.position.ModePilote = CInt(Line.Substring(4))
 
