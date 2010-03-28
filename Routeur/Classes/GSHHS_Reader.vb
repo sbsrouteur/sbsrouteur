@@ -6,13 +6,13 @@ Public Class GSHHS_Reader
 
     Private Const GSHHS_FACTOR As Integer = 1000000
 
-    Private Shared _PolyGons As New List(Of Coords())
+    Private Shared _PolyGons As New LinkedList(Of Coords())
     'Private Shared _UseFullPolygon As New List(Of Coords())
     'Private Shared _usefullboxes As New List(Of Coords())
     Private Shared _P1 As New Coords(90, 180)
     Private Shared _P2 As New Coords(-90, -180)
     Public Shared WithEvents _Tree As BspRect
-    Private Shared _LakePolyGons As New List(Of Coords())
+    Private Shared _LakePolyGons As New LinkedList(Of Coords())
 
 #If HIT_STATS Then
     Private Shared _HitDistTicks As Long
@@ -41,13 +41,13 @@ Public Class GSHHS_Reader
     Shared Event BspEvt(ByVal Count As Long)
     Shared Event Log(ByVal Msg As String)
 
-    Public Shared ReadOnly Property AllPolygons() As List(Of Coords())
+    Public Shared ReadOnly Property AllPolygons() As LinkedList(Of Coords())
         Get
             Return _PolyGons
         End Get
     End Property
 
-    Public Shared ReadOnly Property Polygons(ByVal C As Coords) As List(Of Coords())
+    Public Shared ReadOnly Property Polygons(ByVal C As Coords) As LinkedList(Of Coords())
         Get
             Return _Tree.GetPolygons(C, _PolyGons, RouteurModel.GridGrain)
             'If _UseFullPolygon.Count = 0 Then
@@ -58,7 +58,7 @@ Public Class GSHHS_Reader
         End Get
     End Property
 
-    Public Shared Sub Read(ByVal f As String, ByVal LookupZone As List(Of Coords()), ByVal base As String)
+    Public Shared Sub Read(ByVal f As String, ByVal LookupZone As LinkedList(Of Coords()), ByVal base As String)
 
         Try
             Dim A() As Coords
@@ -77,9 +77,9 @@ Public Class GSHHS_Reader
                 A = ReadPoly(S, LookupZone, base, landpoly)
                 If Not A Is Nothing Then
                     If landpoly Then
-                        _PolyGons.Add(A)
+                        _PolyGons.AddLast(A)
                     Else
-                        _LakePolyGons.Add(A)
+                        _LakePolyGons.AddLast(A)
                     End If
                     PolyCount += A.GetUpperBound(0)
                 End If
@@ -94,7 +94,7 @@ Public Class GSHHS_Reader
                     A(i \ 2).Lon_Deg = excl(i)
                     A(i \ 2).Lat_Deg = excl(i + 1)
                 Next
-                _PolyGons.Add(A)
+                _PolyGons.AddLast(A)
                 '_UseFullPolygon.Add(A)
                 '_usefullboxes.Add(UpdateBox(A))
 
@@ -149,7 +149,7 @@ Public Class GSHHS_Reader
         Return BitConverter.ToInt32(V, 0)
     End Function
 
-    Private Shared Function ReadPoly(ByVal S As FileStream, ByVal lookupzone As List(Of Coords()), ByVal Base As String, ByRef LandPolygon As Boolean) As Coords()
+    Private Shared Function ReadPoly(ByVal S As FileStream, ByVal lookupzone As LinkedList(Of Coords()), ByVal Base As String, ByRef LandPolygon As Boolean) As Coords()
 
         Dim H As GSHHS_Header = ReadHeader(S)
         Dim RetPoints() As Coords
@@ -161,9 +161,6 @@ Public Class GSHHS_Reader
         Dim InZone As Boolean
         Dim HasPointsInZone As Boolean = False
         Dim Fr_map As System.IO.StreamWriter = Nothing
-        
-
-
 
 
         Static maxeast As Integer = 270
@@ -185,21 +182,6 @@ Public Class GSHHS_Reader
                     lon -= 360
                 End If
 
-                'lon = -lon
-
-                'If _P1.Lat_Deg < Lat Then
-                '    _P1.Lat_Deg = Lat
-                'End If
-                'If _P2.Lat_Deg > Lat Then
-                '    _P2.Lat_Deg = Lat
-                'End If
-
-                'If _P1.Lon_Deg < lon Then
-                '    _P1.Lon_Deg = lon
-                'End If
-                'If _P2.Lon_Deg > lon Then
-                '    _P2.Lon_Deg = lon
-                'End If
 
                 RetPoints(ActivePoints + 1) = New Coords(Lat, lon)
 
@@ -222,11 +204,11 @@ Public Class GSHHS_Reader
                             _Tree.InSert(RetPoints(ActivePoints), BspRect.inlandstate.InLand, RouteurModel.GridGrain)
                         End If
                         IgnoredPoints = 0
-                Else
-                    IgnoredPoints += 1
+                    Else
+                        IgnoredPoints += 1
+                    End If
                 End If
-                End If
-                
+
             End If
         Next
 
@@ -417,7 +399,7 @@ Public Class GSHHS_Reader
 
     End Function
 
-    Public Shared Function HitTest(ByVal P As Coords, ByVal HitDistance As Double, ByVal LookupZone As List(Of Coords()), ByVal UseBoxes As Boolean, Optional ByVal IgnoreBSP As Boolean = False) As Boolean
+    Public Shared Function HitTest(ByVal P As Coords, ByVal HitDistance As Double, ByVal LookupZone As LinkedList(Of Coords()), ByVal UseBoxes As Boolean, Optional ByVal IgnoreBSP As Boolean = False) As Boolean
 
         'Static calls As Long = 0
         Dim StartTick As DateTime = Now
@@ -456,44 +438,44 @@ Public Class GSHHS_Reader
         Try
 #End If
 
-            'Dim P As New Coords(PTest)
-            UseBoxes = False
-            Dim Poly As Coords()
-            'Dim Box As Coords() = Nothing
-            Dim x As Integer
+        'Dim P As New Coords(PTest)
+        UseBoxes = False
+        Dim Poly As Coords()
+        'Dim Box As Coords() = Nothing
+        Dim x As Integer
 
-            For x = 0 To LookupZone.Count - 1
-                Poly = LookupZone(x)
+        For x = 0 To LookupZone.Count - 1
+            Poly = LookupZone(x)
 
-                Dim MaxIndex As Integer = Poly.GetUpperBound(0)
+            Dim MaxIndex As Integer = Poly.GetUpperBound(0)
 
-                j = Poly.GetUpperBound(0)
-                While Poly(j) Is Nothing AndAlso MaxIndex >= 0
-                    j -= 1
-                End While
-                MaxIndex = j
+            j = Poly.GetUpperBound(0)
+            While Poly(j) Is Nothing AndAlso MaxIndex >= 0
+                j -= 1
+            End While
+            MaxIndex = j
 
-                For i = 0 To MaxIndex
+            For i = 0 To MaxIndex
 
 
-                    If ((Poly(i).Lat > P.Lat) <> (Poly(j).Lat > P.Lat)) AndAlso (P.Lon < (Poly(j).Lon - Poly(i).Lon) * (P.Lat - Poly(i).Lat) / (Poly(j).Lat - Poly(i).Lat) + Poly(i).Lon) Then
-                        RetVal = Not RetVal
-                    End If
-
-                    j = i
-                Next
-                NbLoops += i
-
-                If RetVal Then
-                    Return RetVal
+                If ((Poly(i).Lat > P.Lat) <> (Poly(j).Lat > P.Lat)) AndAlso (P.Lon < (Poly(j).Lon - Poly(i).Lon) * (P.Lat - Poly(i).Lat) / (Poly(j).Lat - Poly(i).Lat) + Poly(i).Lon) Then
+                    RetVal = Not RetVal
                 End If
 
-
+                j = i
             Next
+            NbLoops += i
 
-            If RetVal AndAlso RouteurModel.LAKE_RACE Then
-                Return HitTest(P, HitDistance, _LakePolyGons, False, IgnoreBSP)
+            If RetVal Then
+                Return RetVal
             End If
+
+
+        Next
+
+        If RetVal AndAlso RouteurModel.LAKE_RACE Then
+            Return HitTest(P, HitDistance, _LakePolyGons, False, IgnoreBSP)
+        End If
 
         Return RetVal
 

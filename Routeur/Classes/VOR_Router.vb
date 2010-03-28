@@ -697,26 +697,6 @@ Public Class VOR_Router
         End Get
     End Property
 
-    Private Sub dofriends(ByVal key As String, ByVal List As userBoat2())
-
-        Dim L As SortedList(Of String, String)
-
-
-        For Each boat In List
-            If Not _FriendsGraph.ContainsKey(boat.pseudo) Then
-
-                L = New SortedList(Of String, String)
-                _FriendsGraph.Add(boat.pseudo, L)
-            Else
-                L = _FriendsGraph(boat.pseudo)
-            End If
-            If Not L.ContainsKey(key) Then
-                L.Add(key, key)
-
-            End If
-        Next
-    End Sub
-
     Public Sub DrawBoatMap()
 
         Dim i As Integer
@@ -1466,7 +1446,7 @@ Public Class VOR_Router
             Return Nothing
         End If
 
-        Dim RetValue As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur\track_" & _UserInfo.RaceID & ".dat"
+        Dim RetValue As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur\track_" & _UserInfo.RaceID & "_" & _PlayerInfo.NumBoat & ".dat"
 
         If Not System.IO.Directory.Exists(Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur") Then
             System.IO.Directory.CreateDirectory(Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur")

@@ -353,56 +353,6 @@ Public Class RouteurModel
 
     End Sub
 
-    'Private Sub ReadRouteSection(ByVal S As System.IO.StreamReader)
-    '    Dim Line As String = S.ReadLine.Trim
-    '    Dim CurWP As Integer = 0
-    '    _WPList.Clear()
-    '    _WPList.Add("<Auto>")
-
-    '    ReDim P_Info(0).Route(10)
-    '    Do
-
-    '        If Not Line.IndexOf(CChar(vbTab)) = -1 Then
-
-    '            Dim PosEq As Integer = Line.IndexOf(CChar(vbTab))
-    '            If Line.ToLowerInvariant.StartsWith("wp") Then
-    '                Dim Lat(1) As Double
-    '                Dim Lon(1) As Double
-    '                Dim i As Integer
-
-    '                Dim Fields() As String = Line.Substring(PosEq + 1).Split(CChar(vbTab))
-
-    '                For i = 0 To 1
-    '                    Double.TryParse(Fields(2 * i), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lat(i))
-    '                    Double.TryParse(Fields(2 * i + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon(i))
-
-    '                Next
-    '                _WPList.Add(Fields(5))
-    '                P_Info(0).Route(CurWP) = New Coords(Lat(0), Lon(0))
-    '                Dim L As New List(Of Coords())
-    '                Dim C() As Coords = New Coords() {New Coords(Lat(0), Lon(0)), New Coords(Lat(1), Lon(1))}
-    '                L.Add(C)
-    '                P_Info(0).RouteWayPoints.Add(L)
-    '                CurWP += 1
-    '                If CurWP = P_Info(0).Route.Length Then
-    '                    ReDim Preserve P_Info(0).Route(CurWP + 10)
-    '                End If
-
-    '            End If
-
-    '        End If
-    '        If Not S.EndOfStream Then
-    '            Line = S.ReadLine.Trim
-    '        Else
-    '            Line = ""
-    '        End If
-    '    Loop Until Line = "" 'OrElse S.EndOfStream
-
-    '    ReDim Preserve P_Info(0).Route(CurWP - 1)
-
-    'End Sub
-
-
     Public Sub Refresh()
 
         If Not The2DViewer Is Nothing Then

@@ -39,6 +39,7 @@ Public Class GridRouter
     Private _BoatType As String
     Private _WP As List(Of Coords())
 
+#If GRID_STATS Then
     Private _ProcessTotalTicks As Long
     Private _ProcessCount As Long
     Private _GetETATotalTicks As Long
@@ -46,6 +47,8 @@ Public Class GridRouter
     Private _GetETACount As Long
     Private Shared _CheckTCTotalTicks As Long
     Private Shared _CheckTCCount As Long
+#End If
+
     Private _ProgressInfo As New GridProgressContext()
     Private _Owner As Window
 
@@ -101,10 +104,14 @@ Public Class GridRouter
     Private Function GetETATo(ByVal From As Coords, ByVal Dest As Coords, ByVal StartDate As DateTime, ByVal meteo As clsMeteoOrganizer, ByVal BoatType As String, _
                                 ByVal BrokenSails As Integer, _
                                 ByRef Sail As clsSailManager.EnumSail, ByRef speed As Double) As DateTime
+        Dim NbLoop As Long = 0
+
+#If GRID_STAT Then
 
         Dim StartTick As DateTime = Now
-        Dim NbLoop As Long = 0
         Try
+#End If
+
             Dim ETA As DateTime = StartDate
             Dim TC As New TravelCalculator
             Dim TC2 As New TravelCalculator
@@ -173,6 +180,8 @@ Public Class GridRouter
             TC2 = Nothing
             TC = Nothing
             Return ETA
+#If GRID_STAT Then
+
         Finally
             _GetETACount += 1
             _GetETATotalTicks += Now.Subtract(StartTick).Ticks
@@ -180,6 +189,7 @@ Public Class GridRouter
             Stats.SetStatValue(Stats.StatID.GridAvgGetETAMS) = _GetETATotalTicks / _GetETACount / TimeSpan.TicksPerMillisecond
             Stats.SetStatValue(Stats.StatID.GridAvgGetETALoops) = _GetETATotalLoops / _GetETACount
         End Try
+#End If
     End Function
 
 
@@ -341,8 +351,10 @@ Public Class GridRouter
     Public Shared Function CheckSegmentValid(ByVal TC As TravelCalculator) As Boolean
 
         Static Px As Double = RouteurModel.GridGrain / 180 / BspRect.GRID_GRAIN_OVERSAMPLE * Math.PI * 2
+#If GRID_STAT Then
         Dim StartTick As DateTime = Now
         Try
+#End If
 
             If TC.SurfaceDistance = 0 Or RouteurModel.NoObstacle Then
                 Return True
@@ -380,11 +392,14 @@ Public Class GridRouter
             Next
 
             Return True
+
+#If GRID_STAT Then
         Finally
             _CheckTCCount += 1
             _CheckTCTotalTicks += Now.Subtract(StartTick).Ticks
             Stats.SetStatValue(Stats.StatID.GridAvg_CheckSegmentMS) = _CheckTCTotalTicks / _CheckTCCount / TimeSpan.TicksPerMillisecond
         End Try
+#End If
 
     End Function
 
@@ -505,10 +520,13 @@ Public Class GridRouter
         Dim eta As DateTime
         Static Counts As Long
         Static CurWP As Long = 0
+
+#If GRID_STAT Then
+
         Dim StartTick As DateTime = Now
 
         Try
-
+#End If
             'RaiseEvent Log("Synclock todolist th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
             SyncLock _ToDoList
                 RG = Nothing
@@ -646,6 +664,9 @@ Public Class GridRouter
             Else
                 Return True
             End If
+
+#If GRID_STAT Then
+
         Finally
 
             _ProcessTotalTicks += Now.Subtract(StartTick).Ticks
@@ -653,6 +674,7 @@ Public Class GridRouter
             Stats.SetStatValue(Stats.StatID.GridAvgProcesLengthMS) = _ProcessTotalTicks / _ProcessCount / TimeSpan.TicksPerMillisecond
 
         End Try
+#End If
 
     End Function
     Public ReadOnly Property StartDate() As DateTime
