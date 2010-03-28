@@ -145,7 +145,7 @@ Public Class GridRouter
                     ETA.AddHours(0.5)
                 Else
                     NoWindCount = 0
-                    speed = _SailManager.GetBestSailSpeed(BoatType, Sail, VOR_Router.WindAngle(Cap, Mi.Dir), Mi.Strength, BrokenSails)
+                speed = _SailManager.GetBestSailSpeed(BoatType, Sail, VOR_Router.WindAngle(Cap, Mi.Dir), Mi.Strength)
                     If speed < 1 AndAlso speed < Mi.Strength / 10 Then
                         'NoSpeed()
                         Exit Do

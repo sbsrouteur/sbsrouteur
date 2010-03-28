@@ -334,6 +334,12 @@ Public Class TravelCalculator
         End Get
     End Property
 
+    ''' <summary>
+    ''' Cap ortho en °
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
     Public ReadOnly Property TrueCap() As Double
         Get
             Return (TrueCourse() / Math.PI * 180 + 360) Mod 360
@@ -341,6 +347,11 @@ Public Class TravelCalculator
         End Get
     End Property
 
+    ''' <summary>
+    ''' Cap Ortho en radians
+    ''' </summary>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
     Public Function TrueCourse() As Double
         If StartPoint Is Nothing Or EndPoint Is Nothing Then
             Return 0

@@ -86,7 +86,7 @@ Public Class clsSailManager
     End Function
 
 
-    Public Function GetBestSailSpeed(ByVal BoatType As String, ByRef RetSail As EnumSail, ByVal windangle As Double, ByVal windspeed As Double, ByVal BrokenSails As Integer) As Double
+    Public Function GetBestSailSpeed(ByVal BoatType As String, ByRef RetSail As EnumSail, ByVal windangle As Double, ByVal windspeed As Double) As Double
 
         Dim CurS As Double = 0
         Dim RetSpeed As Double = 0
@@ -96,13 +96,13 @@ Public Class clsSailManager
                 Throw New NotSupportedException("Negative wind!!")
             End If
 
-            If (S And BrokenSails) = 0 Then
-                CurS = GetSpeed(BoatType, S, windangle, windspeed, BrokenSails)
-                If CurS > RetSpeed Then
-                    RetSpeed = CurS
-                    RetSail = S
-                End If
+            'If (S And BrokenSails) = 0 Then
+            CurS = GetSpeed(BoatType, S, windangle, windspeed)
+            If CurS > RetSpeed Then
+                RetSpeed = CurS
+                RetSail = S
             End If
+            'End If
         Next
 
         Return RetSpeed
@@ -111,17 +111,18 @@ Public Class clsSailManager
     End Function
 
 
-    Public Function GetSpeed(ByVal BoatType As String, ByVal SailMode As EnumSail, ByVal WindAngle As Double, ByVal WindSpeed As Double, ByVal brokensails As Integer) As Double
+    Public Function GetSpeed(ByVal BoatType As String, ByVal SailMode As EnumSail, ByVal WindAngle As Double, ByVal WindSpeed As Double) As Double
 
         Dim SailIndex = GetSailIndex(SailMode)
         Dim CurSpeed As Integer = 0
 
+
         'WindSpeed = Math.Floor(WindSpeed)
         WindAngle = Math.Floor(WindAngle + 0.5)
 
-        If (SailMode And brokensails) <> 0 Then
-            Return 0
-        End If
+        'If (SailMode And brokensails) <> 0 Then
+        '    Return 0
+        'End If
 
         If Not _SailLoaded Then
             If Not LoadSails(BoatType) Then
