@@ -749,9 +749,14 @@ Public Class VOR_Router
         Dim Cookies As CookieContainer = Login()
 
         Do
-            Dim Page As String = GetHTTPResponse(RouteurModel.BASE_GAME_URL & "/races.php?lang=fr&type=racing&idraces=" & _UserInfo.RaceID & "&startnum=" & CurFistBoat, Cookies)
 
-            PageEmpty = ParseRanking(Page, Cookies)
+            Dim Page As String = GetHTTPResponse(RouteurModel.BASE_GAME_URL & "/races.php?lang=fr&type=arrived&idraces=" & _UserInfo.RaceID, Cookies)
+            Dim ArrivedOffset As Integer = GetArrivedCount(Page)
+
+            'Get the current positions
+            Page = GetHTTPResponse(RouteurModel.BASE_GAME_URL & "/races.php?lang=fr&type=racing&idraces=" & _UserInfo.RaceID & "&startnum=" & CurFistBoat, Cookies)
+
+            PageEmpty = ParseRanking(Page, ArrivedOffset, Cookies)
 
             CurFistBoat += 100
 
@@ -1102,7 +1107,7 @@ Public Class VOR_Router
 
     End Function
 
-    Private Function ParseRanking(ByVal Page As String, ByVal cookies As CookieContainer) As Boolean
+    Private Function ParseRanking(ByVal Page As String, ByVal ArrivedOffset As Integer, ByVal cookies As CookieContainer) As Boolean
         Dim RankingIndex As Integer
         Dim RetVal As Boolean = True
         Dim CurString As String = Page
@@ -1146,7 +1151,7 @@ Public Class VOR_Router
                     .CurPos.Lat_Deg = Lat
                     .CurPos.Lon_Deg = Lon
                     .Name = Boat
-                    .Classement = Classement
+                    .Classement = Classement + ArrivedOffset
 
                     If Not BoatInfo.ImgList.ContainsKey(ImgName) Then
                         'Console.WriteLine("Ask " & ImgName & " for " & .Name)
@@ -1157,7 +1162,7 @@ Public Class VOR_Router
 
                     End If
 
-                    .Flagname = ImgName
+                    .FlagName = ImgName
                     '.Flag = http
                     '.ProOption = B.position.option_voiles_pro = 1 Or B.position.option_program = 1 Or B.position.option_regulateur = 1 Or B.position.option_voile_auto = 1 _
                     '            Or B.option_repair_kits = 1 Or B.position.option_assistance = 1 Or B.position.option_waypoints = 1 Or B.full_option = 1
@@ -1494,6 +1499,42 @@ Public Class VOR_Router
             Return Now.Subtract(LastDataDate)
         End Get
     End Property
+
+
+    Private Function GetArrivedCount(ByVal Page As String) As Integer
+
+        Dim RetValue As Integer = 0
+        Dim ClassIndex As Integer
+        Dim CurString As String = Page
+        Dim Complete As Boolean = False
+        Const STR_TrClassranking As String = "tr class=""ranking"""
+        ClassIndex = CurString.IndexOf(STR_TrClassranking)
+        CurString = CurString.Substring(ClassIndex + 19)
+
+        While Not Complete
+
+            ClassIndex = CurString.IndexOf(STR_TrClassranking)
+            If ClassIndex = -1 Then
+                Complete = True
+            Else
+                CurString = CurString.Substring(ClassIndex + 19)
+                Dim Indextd As Integer = CurString.IndexOf("<td>")
+                Dim indexstd As Integer = CurString.IndexOf("</td>")
+                Dim CurPos As Integer
+
+                If Integer.TryParse(CurString.Substring(Indextd + 4, indexstd - 4 - Indextd), CurPos) Then
+                    If CurPos > RetValue Then
+                        RetValue = CurPos
+                    End If
+                End If
+            End If
+
+        End While
+
+
+        Return RetValue
+
+    End Function
 
     Public Sub getboatinfo()
         getboatinfo(_Meteo)
