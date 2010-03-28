@@ -11,14 +11,17 @@ Public Class BspRect
         Mixed = 3
     End Enum
 
-    Public Shared BspCount As Long = 0
     Private Shared MIN_POLYGON_SPLIT As Double = 0.01
     Private Shared _NoPolyGons As New List(Of Coords())
+#If BSP_STATS Then
+    Public Shared BspCount As Long = 0
     Private Shared _HitTestCount As Long
     Private Shared _HitTestDepth As Long
+#End If
+
     Private Shared GridGrainDepth As Integer = -1
     Shared Event Log(ByVal Msg As String)
-    Private Shared CollectionCount As Long
+    'Private Shared CollectionCount As Long
 
     Private _p1 As Coords
     Private _p2 As Coords
@@ -49,43 +52,6 @@ Public Class BspRect
 
     End Sub
 
-    'Public Sub CreateBsp(ByVal GridGrain As Double, ByVal Polygons As Generic.List(Of Coords()))
-
-    '    Dim Value As inlandstate
-
-    '    If Not Split(GridGrain) Then
-    '        If GSHHS_Reader.HitTest(New Coords((_p1.Lat_Deg + _p2.Lat_Deg) / 2, (_p1.Lon_Deg + _p2.Lon_Deg) / 2), 0, Polygons, False) Then
-    '            _Inland = inlandstate.InLand
-    '        Else
-    '            _Inland = inlandstate.InSea
-    '        End If
-    '        Return
-    '    End If
-    '    For Each Rect In _SubRects
-    '        Rect.CreateBsp(GridGrain, Polygons)
-    '    Next
-
-    '    Value = _SubRects(0).InLand
-    '    If Value <> inlandstate.Mixed Then
-    '        For i = 1 To 3
-
-    '            If Value <> _SubRects(i).InLand Then
-    '                _Inland = inlandstate.Mixed
-    '                Return
-    '            End If
-
-    '        Next
-
-    '        'All childs have the same state aggregate
-    '        _Inland = Value
-    '        For i = 0 To 3
-    '            _SubRects(i) = Nothing
-    '        Next
-    '        BspCount -= 4
-
-    '    End If
-
-    'End Sub
 
     Public ReadOnly Property GetPolygons(ByVal C As Coords, ByVal Polygons As List(Of Coords()), ByVal gridgrain As Double) As List(Of Coords())
         Get
@@ -258,13 +224,15 @@ Public Class BspRect
                 _SubRects(i).P2 = Nothing
                 _SubRects(i) = Nothing
             Next
+
+#If BSP_STATS Then
             BspCount -= 4
             Stats.SetStatValue(Stats.StatID.BSPCellCount) = CDbl(BspCount)
-
-            CollectionCount += 1
-            If CollectionCount Mod 10000 = 0 Then
-                GC.Collect()
-            End If
+#End If
+            'CollectionCount += 1
+            'If CollectionCount Mod 50000 = 0 Then
+            'GC.Collect()
+            'End If
 
 
 
@@ -304,13 +272,15 @@ Public Class BspRect
             Dim curvalue As inlandstate
             Dim i As Integer
 
-            If Abs(_MidLat / Math.PI * 180 - 31.175) <= gridgrain AndAlso Abs(_MidLon / Math.PI * 180 - 29.725) <= gridgrain Then
-                Dim ibreak As Integer = 0
-            End If
+            'If Abs(_MidLat / Math.PI * 180 - 31.175) <= gridgrain AndAlso Abs(_MidLon / Math.PI * 180 - 29.725) <= gridgrain Then
+            '    Dim ibreak As Integer = 0
+            'End If
             If _SubRects(0) Is Nothing And _Inland <> inlandstate.Unknown Then
+#If BSP_STATS Then
                 _HitTestDepth += Depth
                 _HitTestCount += 1
                 Stats.SetStatValue(Stats.StatID.BSPCellAvgDepth) = _HitTestDepth / _HitTestCount
+#End If
                 Return _Inland
             Else
                 SyncLock GSHHS_Reader._Tree
@@ -403,22 +373,6 @@ Public Class BspRect
             End If
 
 
-            ''Dim x As Integer
-            'Dim y As Integer
-
-            'If C.Lat > _MidLat Then
-            '    y = 0
-            'Else
-            '    y = 1
-            'End If
-
-            'If C.Lon > _MidLon Then
-            '    'x = 1
-            '    _SubRects(2 + y).InSert(C, State, GridGrain)
-            'Else
-            '    'x = 0
-            '    _SubRects(y).InSert(C, State, GridGrain)
-            'End If
             GetChildFromCoords(C, GridGrain).InSert(C, State, GridGrain)
 
             Return
@@ -478,8 +432,12 @@ Public Class BspRect
                 _SubRects(2 * x + y) = New BspRect(P1, P2)
             Next
         Next
+
+#If BSP_STATS Then
         BspCount += 4
         Stats.SetStatValue(Stats.StatID.BSPCellCount) = CDbl(BspCount)
+#End If
+
         Return True
     End Function
 

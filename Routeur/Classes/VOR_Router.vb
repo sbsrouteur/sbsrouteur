@@ -571,16 +571,19 @@ Public Class VOR_Router
                     Exit While
                 End If
                 Tc.StartPoint = CurPos
+                P = Nothing
                 Select Case PrevMode
                     Case 1
                         'Cap fixe
                         BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(PrevValue, Mi.Dir), Mi.Strength, 0)
                         CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, PrevValue)
+                        P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
 
                     Case 2
                         'Angle fixe
                         BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(PrevValue), Mi.Strength, 0)
                         CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + PrevValue))
+                        P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
 
                     Case 3
                         'TODO
@@ -624,7 +627,6 @@ Public Class VOR_Router
                         CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
 
                         P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
-                        PilototoRoute.Add(P)
 
                         'Check WP completion
                         Tc.EndPoint = CurPos
@@ -647,7 +649,9 @@ Public Class VOR_Router
                         Return
 
                 End Select
-
+                If Not P Is Nothing Then
+                    PilototoRoute.Add(P)
+                End If
                 CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
             End While
 
@@ -795,7 +799,7 @@ Public Class VOR_Router
 
     Public ReadOnly Property Track() As String
         Get
-            If Not _Track Is Nothing Then
+            If Not _Track Is Nothing AndAlso _Track.Length > 0 Then
                 Dim C As New Coords(UserInfo.position.latitude, UserInfo.position.longitude)
                 Dim CurPos As String = C.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "!" & C.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ";"
                 If Not _Track.EndsWith(CurPos) Then
@@ -831,7 +835,7 @@ Public Class VOR_Router
                 Trace = New System.IO.StreamWriter(GetTrackFileName, True)
                 RetString = C.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "!" & C.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ";"
                 Trace.Write(RetString)
-                _Track &= RetString
+                _Track = Track 'RetString
                 LastC.Lon = C.Lon
                 LastC.Lat = C.Lat
                 lastcap = cap
@@ -1041,6 +1045,7 @@ Public Class VOR_Router
 
     Private Function STR_GetUserInfo(Optional ByVal IsLogin As Boolean = False, Optional ByVal user As String = "", Optional ByVal password As String = "") As String
 
+        'Dim PwdString As String = urlencode(_PlayerInfo.Password)
         If IsLogin Then
             If user = "" Then
                 Return RouteurModel.BASE_GAME_URL & "/myboat.php?pseudo=" & _PlayerInfo.Nick & "&password=" & _PlayerInfo.Password & "&lang=fr&type=login"
@@ -1049,7 +1054,7 @@ Public Class VOR_Router
             End If
 
         Else
-            Return RouteurModel.BASE_GAME_URL & "/getinfo.php?idu=" & _PlayerInfo.NumBoat & "&pseudo=" & _PlayerInfo.Nick & "&password=" & _PlayerInfo.Password
+            Return RouteurModel.BASE_GAME_URL & "/getinfo.php?idu=" & _PlayerInfo.NumBoat & "&pseudo=" & System.Web.HttpUtility.UrlEncode(_PlayerInfo.Nick) & "&password=" & System.Web.HttpUtility.UrlEncode(_PlayerInfo.Password)
         End If
     End Function
 

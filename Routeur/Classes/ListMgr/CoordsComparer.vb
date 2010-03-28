@@ -27,7 +27,7 @@
         If Double.IsNaN(x.Lat) Or Double.IsNaN(x.Lon) Or Double.IsNaN(y.Lat) Or Double.IsNaN(y.Lon) Then
             Return False
         End If
-        Return GetHashCode1(x) = GetHashCode1(y)
+        Return x.GetHashCode = y.GetHashCode
         'Return (CInt(x.Lat_DegCOORD_COMPARE_GRAIN * ) = CInt(COORD_COMPARE_GRAIN * y.Lat_Deg) AndAlso CInt(COORD_COMPARE_GRAIN * x.Lon_Deg) = CInt(COORD_COMPARE_GRAIN * y.Lon_Deg))
     End Function
 

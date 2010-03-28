@@ -87,25 +87,5 @@ Public Class clsPlayerInfo
         'End Set
     End Property
 
-    'Public Property RouteWayPoints() As List(Of List(Of Coords()))
-    '    Get
-    '        Return _RouteWayPoints
-    '    End Get
-    '    Set(ByVal value As List(Of List(Of Coords())))
-    '        _RouteWayPoints = value
-    '    End Set
-    'End Property
-
-
-    Public Property ShowAutorouting() As Boolean
-        Get
-            Return _ShowAutorouting
-        End Get
-        Set(ByVal value As Boolean)
-            _ShowAutorouting = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ShowAutorouting"))
-        End Set
-
-    End Property
 
 End Class

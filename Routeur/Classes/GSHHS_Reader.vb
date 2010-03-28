@@ -14,6 +14,7 @@ Public Class GSHHS_Reader
     Public Shared WithEvents _Tree As BspRect
     Private Shared _LakePolyGons As New List(Of Coords())
 
+#If HIT_STATS Then
     Private Shared _HitDistTicks As Long
     Private Shared _HitDistCount As Long
     Private Shared _HitDistPolyCount As Long
@@ -23,6 +24,7 @@ Public Class GSHHS_Reader
     Private Shared _HitTestBspCount As Long
     Private Shared _HitTestBspTicks As Long
     Private Shared _HitTestNoBspPoly As Long
+#End If
 
 
     '{32.3833, -3.8, _
@@ -336,8 +338,10 @@ Public Class GSHHS_Reader
 
     Public Shared Function HitDistance(ByVal PTest As Coords, ByVal LookupZone As List(Of Coords()), ByVal TimeIt As Boolean) As Double
 
+#If HIT_STATS Then
         Dim StartTick As DateTime = Now
         Try
+#End If
 
             Dim i As Integer
             Dim j As Integer
@@ -375,18 +379,27 @@ Public Class GSHHS_Reader
 
                     j = i
                 Next
+
+#If HIT_STATS Then
                 If TimeIt Then
                     _HitDistLoop += NbLoops + 1
                 End If
+#End If
+
             Next
 
             P = Nothing
+
+#If HIT_STATS Then
             If TimeIt Then
                 _HitDistCount += 1
                 _HitDistPolyCount += LookupZone.Count
             End If
+#End If
+
             Return RetDistance
 
+#If HIT_STATS Then
         Finally
 
             If TimeIt Then
@@ -398,7 +411,9 @@ Public Class GSHHS_Reader
                 Stats.SetStatValue(Stats.StatID.HitDistanceAvgLoops) = _HitDistLoop / _HitDistCount
                 Stats.SetStatValue(Stats.StatID.HitDistanceAvgPolyCount) = _HitDistPolyCount / _HitDistCount
             End If
+
         End Try
+#End If
 
     End Function
 
@@ -408,12 +423,13 @@ Public Class GSHHS_Reader
         Dim StartTick As DateTime = Now
 
         If _Tree IsNot Nothing And Not IgnoreBSP Then
-            'calls += 1
-            'If calls Mod 100000 = 0 Then
-            '    RaiseEvent BspEvt(_Tree.BspCount)
-            'End If
+#If HIT_STATS Then
             Try
-                Return _Tree.InLand(P, RouteurModel.GridGrain, 0) = BspRect.inlandstate.InLand
+#End If
+
+            Return _Tree.InLand(P, RouteurModel.GridGrain, 0) = BspRect.inlandstate.InLand
+
+#If HIT_STATS Then
             Finally
                 _HitTestBspCount += 1
                 _HitTestBspTicks += Now.Subtract(StartTick).Ticks
@@ -421,6 +437,8 @@ Public Class GSHHS_Reader
                 Stats.SetStatValue(Stats.StatID.HitTestBspAvgMS) = _HitTestBspTicks / _HitTestBspCount / TimeSpan.TicksPerMillisecond
 
             End Try
+#End If
+
         End If
 
 
@@ -433,7 +451,11 @@ Public Class GSHHS_Reader
         End If
 
         Dim NbLoops As Long
+
+#If HIT_STATS Then
         Try
+#End If
+
             'Dim P As New Coords(PTest)
             UseBoxes = False
             Dim Poly As Coords()
@@ -473,7 +495,10 @@ Public Class GSHHS_Reader
                 Return HitTest(P, HitDistance, _LakePolyGons, False, IgnoreBSP)
             End If
 
-            Return RetVal
+        Return RetVal
+
+#If HIT_STATS Then
+
         Finally
             _HitTestNoBspCount += 1
             _HitTestNoBspTicks += Now.Subtract(starttick).ticks
@@ -483,6 +508,7 @@ Public Class GSHHS_Reader
             Stats.SetStatValue(Stats.StatID.HitTestNoBspAvgMS) = _HitTestNoBspTicks / _HitTestNoBspCount / TimeSpan.TicksPerMillisecond
 
         End Try
+#End If
 
     End Function
 

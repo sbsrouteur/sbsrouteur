@@ -411,6 +411,10 @@ Public Class RoutingGridPoint
 
         End Set
     End Property
+
+    Public Function GetHashCode1() As Integer Implements ICoords.GetHashCode
+        Return _P.P.GetHashCode1
+    End Function
 End Class
 
 Public Class RoutingGridPointColorConverter

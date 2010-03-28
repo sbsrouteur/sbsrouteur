@@ -25,6 +25,7 @@ Public Class Coords
     Private _Lat As Double
     Private _Lon As Double
     Private _Name As String
+    Private _HashCode As Integer = 0
 
 
     Public Property Lat() As Double Implements ICoords.Lat
@@ -256,6 +257,12 @@ Public Class Coords
         Return CoordsComparer.Equals1(Me, C)
     End Function
 
+    Public Function GetHashCode1() As Integer Implements ICoords.GetHashCode
+        If _HashCode = 0 Then
+            _HashCode = CoordsComparer.GetHashCode1(Me)
+        End If
+        Return _HashCode
+    End Function
 End Class
 
 Public Class WayPoints

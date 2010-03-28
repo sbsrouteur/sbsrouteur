@@ -244,6 +244,36 @@ Public Class GridRouter
         End Get
     End Property
 
+
+    Private Sub SeedGrid(ByVal gr As BSPList, ByVal Level As Integer)
+
+        Dim GridLevel As Integer = 1
+        Dim GRStepX As Double
+        Dim GRStepY As Double
+        Dim X As Double
+        Dim Y As Double
+
+        GRStepX = RouteurModel._RaceRect(0).Lon - RouteurModel._RaceRect(2).Lon
+        GRStepY = RouteurModel._RaceRect(0).Lat - RouteurModel._RaceRect(2).Lat
+        While GridLevel < Level
+
+
+            For X = 0 To GridLevel
+                For Y = 0 To GridLevel
+                    Dim G As New RoutingGridPoint(New Coords() With {.Lon = RouteurModel._RaceRect(2).Lon + X * GRStepX / (GridLevel + 1), .Lat = RouteurModel._RaceRect(2).Lat + Y * GRStepY / (GridLevel + 1)}, 0, 0)
+                    If Not gr.Contains(G) Then
+                        gr.Add(G)
+                    End If
+                Next
+            Next
+
+            GridLevel += 1
+
+        End While
+
+
+    End Sub
+
     Public ReadOnly Property Start() As Coords
 
         Get
@@ -380,20 +410,16 @@ Public Class GridRouter
         '    P.ClearNeighboors()
         'Next
         _GridPointsList.Clear()
+        'SeedGrid(_GridPointsList, 3)
         _ToDoList.Clear()
         _RouteStartDate = Now
         _WP = WP
 
         GC.Collect()
-        'If Not System.IO.File.Exists(RouteurModel.GRID_FILE) Then
-        '    InitGrid(GridGrain, Dest)
-        'End If
-        'InitGridFromFile(GridGrain, RouteurModel.GRID_FILE)
-
+        
         G.CurETA = _StartDate
         RaiseEvent Log("Starting from " & Start.ToString & " at " & _StartDate.ToString & " grid size " & _GridPointsList.Count)
 
-        'MI = _MeteoProvider.GetMeteoToDate(G.P.P, G.CurETA, False)
         G.BuildNeighBoorsList(1, AngleStep, GridGrain, _GridPointsList, _SailManager, Start, Start, WP)
         If Not _CurBestTarget Is Nothing Then
             SyncLock _CurBestTarget
