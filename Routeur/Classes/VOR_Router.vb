@@ -655,9 +655,10 @@ Public Class VOR_Router
                 CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
             End While
 
-            PrevMode = OrderType
-            PrevValue = OrderValue
-
+            If OrderType <> 0 Then
+                PrevMode = OrderType
+                PrevValue = OrderValue
+            End If
             'If Not Mi Is Nothing Then
             '    P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
             '    PilototoRoute.Add(P)
