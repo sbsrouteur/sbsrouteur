@@ -496,7 +496,30 @@ Public Class VOR_Router
         Dim BoatSpeed As Double
         Dim CurIndex As Integer = 1
         Dim RouteComplete As Boolean = False
-        Dim CurWPDest As Coords = New Coords(_WayPointDest)
+        Dim CurWPDest As Coords = Nothing
+
+        If _WayPointDest.Lon = 0 AndAlso _WayPointDest.Lat = 0 Then
+            'FIXME route to closest point, not the first!!!
+            Dim Retries As Integer = 0
+            While Retries < 2
+                Try
+                    CurWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(0))
+                    Retries = 3
+                Catch ex As Exception
+                    AddLog(ex.Message)
+                    Retries = Retries + 1
+                    If Retries = 3 Then
+                        Return
+                    Else
+                        System.Threading.Thread.Sleep(250)
+                    End If
+                End Try
+            End While
+
+        Else
+            CurWPDest = New Coords(_WayPointDest)
+
+        End If
 
         Dim PrevMode As Integer = _UserInfo.position.ModePilote
         Dim PrevValue As Double
@@ -588,8 +611,10 @@ Public Class VOR_Router
 
                     Case 3
                         'Ortho
-                        BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(Tc.TrueCap, Mi.Dir), Mi.Strength)
-                        CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + PrevValue))
+                        Tc.EndPoint = CurWPDest
+                        Dim CapOrtho As Double = Tc.TrueCap
+                        BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
+                        CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, CapOrtho)
                         P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
 
                     Case 4
@@ -2166,6 +2191,7 @@ Public Class VOR_Router
 
 
         If StartRouting AndAlso Not _UserInfo Is Nothing AndAlso Now.Subtract(_LastGridRouteStart).TotalMinutes > RouteurModel.VacationMinutes Then
+
             _LastGridRouteStart = Now
             Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
             Dim Tc As New TravelCalculator()
@@ -2177,12 +2203,19 @@ Public Class VOR_Router
 
             Tc.StartPoint = start
 
+            Dim StartDate As DateTime
+
+            If Now > _PlayerInfo.RaceInfo.deptime Then
+                StartDate = LastDataDate
+            Else
+                StartDate = _PlayerInfo.RaceInfo.deptime
+            End If
 
 
             If _gr Is Nothing Then
-                _gr = New GridRouter(start, LastDataDate, _Meteo, _Sails, _UserInfo.type)
+                _gr = New GridRouter(start, StartDate, _Meteo, _Sails, _UserInfo.type)
             Else
-                _gr.Start(LastDataDate) = start
+                _gr.Start(StartDate) = start
             End If
 
             _GridProgressWindow.Show(_Owner, _gr.ProgressInfo)
@@ -2231,6 +2264,7 @@ Public Class VOR_Router
                 End While
                 _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1) = P1
             End If
+            
             _gr.ComputeBestRoute(1, RouteurModel.GridGrain, BrokenSails, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs)
             'End If
         ElseIf Not StartRouting Then

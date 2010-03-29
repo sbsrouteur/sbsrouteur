@@ -431,7 +431,7 @@ Public Class GridRouter
         _WP = WP
 
         GC.Collect()
-        
+
         G.CurETA = _StartDate
         RaiseEvent Log("Starting from " & Start.ToString & " at " & _StartDate.ToString & " grid size " & _GridPointsList.Count)
 
