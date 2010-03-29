@@ -748,6 +748,7 @@ Public Class VOR_Router
         Dim SpeedBeta As Double
         Dim VMGAlpha As Double
         Dim VMGBeta As Double
+        Dim angle As Double
 
 
 
@@ -793,13 +794,20 @@ Public Class VOR_Router
         '293	         radToDeg(w_angle-wanted_heading));
         '294	#endif /* DEBUG */
         '295	
+        angle = mi.Dir - CapOrtho
+
+        If angle < -90 Then
+            angle += 360
+        ElseIf angle > 90 Then
+            angle -= 360
+        End If
         '296	  angle = w_angle - wanted_heading;
         '297	  if (angle < -PI ) {
         '298	    angle += TWO_PI;
         '299	  } else if (angle > PI) {
         '300	    angle -= TWO_PI;
         '301	  }
-        If WindAngle(CapOrtho, mi.Dir) >= 0 Then
+        If angle > 0 Then
             ISigne = -1
             '302	  if (angle < 0.0) {
             '303	    min_i = 1;
@@ -847,7 +855,7 @@ Public Class VOR_Router
                     '329	      }
                     d2 = Dist - D1
                     '330	      d2 = dist - d1; 
-                    Speedt2 = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho + j * ISigne, mi.Dir), mi.Strength)
+                    SpeedT2 = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - j * ISigne, mi.Dir), mi.Strength)
                     '331	      speed_t2 = find_speed(aboat, w_speed, angle-beta);
                     If SpeedT2 <= 0 Then
                         Continue For
@@ -856,7 +864,7 @@ Public Class VOR_Router
                     '333	        continue;
                     '334	      }
                     '335	      l2 =  d2 * hypot(1, tan(-beta));
-                    tanbeta = Tan(beta)
+                    TanBeta = Tan(-beta)
                     l2 = D2 * Sqrt(1 + tanbeta * tanbeta)
                     '336	      t2 = l2 / speed_t2;
                     t2 = L2 / SpeedT2
@@ -939,14 +947,14 @@ Public Class VOR_Router
         '399	#endif /* DEBUG */
         '400	  }
         SpeedAlpha = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - b_Alpha * ISigne, mi.Dir), mi.Strength)
-        SpeedBeta = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho + b_Beta * ISigne, mi.Dir), mi.Strength)
-        VMGAlpha = SpeedAlpha * Cos(b_Alpha / PI * 180)
-        VMGAlpha = SpeedBeta * Cos(b_Beta / PI * 180)
+        SpeedBeta = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - b_Beta * ISigne, mi.Dir), mi.Strength)
+        VMGAlpha = SpeedAlpha * Cos(b_Alpha * PI / 180)
+        VMGBeta = SpeedBeta * Cos(b_Beta * PI / 180)
 
         If VMGAlpha > VMGBeta Then
             Return CapOrtho - b_Alpha * ISigne
         Else
-            Return CapOrtho + b_Alpha * ISigne
+            Return CapOrtho - b_Beta * ISigne
         End If
         '401	  speed_alpha = find_speed(aboat, w_speed, angle-b_alpha);
         '402	  vmg_alpha = speed_alpha * cos(b_alpha);
