@@ -598,11 +598,11 @@ Public Class GribManager
         Dim Gribdata(1024) As Byte
         Dim readlen As Integer
         Try
-            If Not System.IO.Directory.Exists(System.Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur") Then
-                System.IO.Directory.CreateDirectory(System.Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur")
+            If Not System.IO.Directory.Exists(RouteurModel.BaseFileDir) Then
+                System.IO.Directory.CreateDirectory(RouteurModel.BaseFileDir)
             End If
 
-            Dim fName As String = System.Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur\fgrib" & Now.Ticks  'System.IO.Path.GetTempFileName()
+            Dim fName As String = RouteurModel.BaseFileDir & "\fgrib" & Now.Ticks  'System.IO.Path.GetTempFileName()
             Dim f As New System.IO.FileStream(fName, IO.FileMode.Create)
             Do
                 readlen = rs.Read(Gribdata, 0, 1024)

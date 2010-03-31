@@ -34,7 +34,7 @@ Partial Public Class _2D_Viewer
     'Private _gshhs As New GSHHS_Reader
     Private _CurCoords As New Coords
     Private _P As Point
-
+    Private _Progress As MapProgressContext
 
     'Private Shared _RaceRect As Coords() = New Coords() {New Coords(48, 12), New Coords(48, -13), New Coords(55, -13), New Coords(55, -2), _
     '                                                     New Coords(59, 5), New Coords(62, 20), New Coords(48.1, 12)}
@@ -42,9 +42,10 @@ Partial Public Class _2D_Viewer
     '                                                     New Coords(56 + 17 / 60, 16 + 28 / 60), New Coords(58, 14) _
     '                                                     }
 
-    Public Shared RacePolygons As New LinkedList(Of Coords())
-
-
+    Private Shared Dim _RacePolygons As New LinkedList(Of Coords())()
+    Private Shared _RacePolygonsInited As Boolean = False
+    Private _Frm As frmRoutingProgress
+    Private _MapPg As New MapProgressContext("Drawing Map...")
 
 
     Public Sub New()
@@ -83,6 +84,12 @@ Partial Public Class _2D_Viewer
 
     End Sub
 
+    Private Sub LoadPolygonComplete()
+
+        _RacePolygonsInited = True
+
+    End Sub
+
     Private Function BgBackDropDrawing(ByVal state As Object) As Boolean
 
         Dim D As New DrawingVisual
@@ -99,7 +106,12 @@ Partial Public Class _2D_Viewer
         Dim MinLat As Double = 90
         Dim MaxLat As Double = -90
         Dim drawn As Boolean
-        
+
+        While Not _RacePolygonsInited
+            System.Threading.Thread.Sleep(100)
+        End While
+
+
         RaceZone.Add(RouteurModel._RaceRect)
 
         'Dim Prevbmp As RenderTargetBitmap = Nothing
@@ -130,6 +142,7 @@ Partial Public Class _2D_Viewer
             Next
         Next
 
+        _MapPg.Start(GSHHS_Reader.AllPolygons.Count)
         For Each C_Array In GSHHS_Reader.AllPolygons
             polyindex += 1
 
@@ -155,7 +168,7 @@ Partial Public Class _2D_Viewer
                     End If
 
                 End If
-                
+
                 If drawn AndAlso LineCount Mod 500 = 0 Then
                     drawn = False
                     DC.Close()
@@ -170,9 +183,12 @@ Render1:
                     DC = D.RenderOpen
                     'Prevbmp = LocalBmp
                     DC.DrawImage(_BackDropBmp, R)
+                    'LocalBmp.Clear()
                     LocalBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
                     'LocalBmp.Clear()
-                    'GC.Collect()
+                    If LineCount Mod 2000 = 0 Then
+                        GC.Collect()
+                    End If
                 End If
 
             Next
@@ -188,6 +204,7 @@ Render1:
             '    'LocalBmp.Clear()
             '    GC.Collect()
             'End If
+            _MapPg.Progress(polyindex)
         Next
 
         DC.Close()
@@ -203,13 +220,19 @@ Render1:
     Public Sub InitViewer()
 
 
-
         Try
-            If Not RacePolygons Is Nothing Then
-                RacePolygons.AddLast(RouteurModel._RaceRect)
+            If Not _RacePolygons Is Nothing Then
+                _RacePolygons.AddLast(RouteurModel._RaceRect)
             End If
 
-            GSHHS_Reader.Read("..\gshhs\gshhs_" & RouteurModel.MapLevel & ".b", RacePolygons, "Map")
+            _Progress = New MapProgressContext("Loading Maps Data...")
+            _Frm = New frmRoutingProgress With {.DataContext = _Progress}
+            Dim TH As New System.Threading.Thread(AddressOf GSHHS_Reader.Read)
+            Dim SI As New GSHHS_StartInfo With {.PolyGons = _RacePolygons, .StartPath = "..\gshhs\gshhs_" & RouteurModel.MapLevel & ".b", _
+                                                .ProgressWindows = _Progress, .CompleteCallBack = AddressOf LoadPolygonComplete}
+            _Frm.Show()
+            TH.Start(SI)
+            'GSHHS_Reader.Read(", RacePolygons, "Map")
 
         Catch ex As Exception
             Debug.WriteLine(ex)
@@ -229,15 +252,15 @@ Render1:
                 Pint.X = LonToCanvas(179.9)
             End If
             Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
-            DC.DrawLine(pe, Prevpoint, Pint)
+            dc.DrawLine(pe, Prevpoint, Pint)
             If PrevP.Lon < 0 Then
                 Pint.X = LonToCanvas(179.9)
             Else
                 Pint.X = LonToCanvas(-179.9)
             End If
-            DC.DrawLine(pe, Pint, NewP)
+            dc.DrawLine(pe, Pint, NewP)
         Else
-            DC.DrawLine(pe, Prevpoint, NewP)
+            dc.DrawLine(pe, Prevpoint, NewP)
         End If
     End Sub
     Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VOR_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
@@ -339,8 +362,10 @@ Render1:
                 _RBmp.Clear()
 
                 If Not BgStarted AndAlso _BackDropBmp Is Nothing Then
-                    System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, D)
                     BgStarted = True 'BgBackDropDrawing(0)
+
+                    _Frm.DataContext = _MapPg
+                    System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, D)
 
                 End If
 
@@ -625,6 +650,10 @@ Render1:
 
     Private Sub MouseOverMap(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
 
+        If Not _RacePolygonsInited Then
+            Return
+        End If
+
         Static evtprops As New PropertyChangedEventArgs("CurCoords")
         Dim P As Point = e.GetPosition(CType(sender, IInputElement))
 
@@ -658,5 +687,14 @@ Render1:
             _P = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MouseP"))
         End Set
+    End Property
+
+    Public Shared ReadOnly Property RacePolygons() As LinkedList(Of Coords())
+        Get
+            If Not _RacePolygonsInited Then
+                Return Nothing
+            End If
+            Return _RacePolygons
+        End Get
     End Property
 End Class

@@ -119,4 +119,8 @@ Partial Public Class frmUserPicker
 
     End Sub
 
+    Private Sub ShowRacePrefs(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+    End Sub
+
 End Class

@@ -139,7 +139,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Dialogs\frmRouterPrefs.xaml">
+    <Page Include="Dialogs\frmRacePrefs.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -210,9 +210,11 @@
     <Compile Include="Classes\GridRouter\GridProgressContext.vb" />
     <Compile Include="Classes\GridRouter\GridRouter.vb" />
     <Compile Include="Classes\GridRouter\RoutingGridPoint.vb" />
-    <Compile Include="Classes\GSHHS_Reader.vb" />
+    <Compile Include="Classes\GSHHS\GSHHS_Reader.vb" />
     <Compile Include="Classes\GribMeteo\MeteoArray.vb" />
     <Compile Include="Classes\GribMeteo\MeteoInfo.vb" />
+    <Compile Include="Classes\GSHHS\GSHHS_StartInfo.vb" />
+    <Compile Include="Classes\GSHHS\MapProgressContext.vb" />
     <Compile Include="Classes\JSon\JSonHelper.vb" />
     <Compile Include="Classes\JSon\JSonParser.vb" />
     <Compile Include="Classes\ListMgr\BSPList.vb" />
@@ -235,8 +237,8 @@
     <Compile Include="Dialogs\frmRouterConfiguration.xaml.vb">
       <DependentUpon>frmRouterConfiguration.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\frmRouterPrefs.xaml.vb">
-      <DependentUpon>frmRouterPrefs.xaml</DependentUpon>
+    <Compile Include="Dialogs\frmRacePrefs.xaml.vb">
+      <DependentUpon>frmRacePrefs.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\frmUserPicker.xaml.vb">
       <DependentUpon>frmUserPicker.xaml</DependentUpon>
@@ -367,6 +369,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\Ponton sbs.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\maps-on-surface_64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\Earth_Map.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

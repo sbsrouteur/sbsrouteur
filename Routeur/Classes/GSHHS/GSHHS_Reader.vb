@@ -27,15 +27,6 @@ Public Class GSHHS_Reader
 #End If
 
 
-    '{32.3833, -3.8, _
-    '                                                            32.3833, -3.8833, _
-    '                                                            35.4833, -5.8333, _
-    '                                                            32.75, -3.8333, _
-    '                                                            32.416667, -3.666666 _
-    '                                                            }
-
-    'Private Shared _ExcludedID() As Integer = New Integer() {0, 9, 87, 793, 1209, 2349, 4388, 4608, 7785, 8414, 8540, 8567, 9519, 10971, 11077, 11320, 13470, 14410, 14436, 14642, 14804, _
-    '                                                         14833, 17803, 18598, 19937}
     Private Shared _ExcludedID() As Integer = New Integer() {}
 
     Shared Event BspEvt(ByVal Count As Long)
@@ -50,31 +41,28 @@ Public Class GSHHS_Reader
     Public Shared ReadOnly Property Polygons(ByVal C As Coords) As LinkedList(Of Coords())
         Get
             Return _Tree.GetPolygons(C, _PolyGons, RouteurModel.GridGrain)
-            'If _UseFullPolygon.Count = 0 Then
-            '    Return _PolyGons
-            'Else
-            '    Return _UseFullPolygon
-            'End If
         End Get
     End Property
 
-    Public Shared Sub Read(ByVal f As String, ByVal LookupZone As LinkedList(Of Coords()), ByVal base As String)
+    Public Shared Sub Read(ByVal State As Object)
 
+        Dim SI As GSHHS_StartInfo = CType(State, GSHHS_StartInfo)
         Try
             Dim A() As Coords
             Dim landpoly As Boolean
 
             Dim PolyCount As Long = 0
-            If Not File.Exists(f) Then
+            If Not File.Exists(SI.StartPath) Then
                 Return
             End If
 
             _Tree = New BspRect(_P1, _P2)
 
-            Dim S As FileStream = New FileStream(f, FileMode.Open, FileAccess.Read)
+            Dim S As FileStream = New FileStream(SI.StartPath, FileMode.Open, FileAccess.Read)
 
+            SI.ProgressWindows.Start(S.Length)
             Do
-                A = ReadPoly(S, LookupZone, base, landpoly)
+                A = ReadPoly(S, SI.PolyGons, landpoly)
                 If Not A Is Nothing Then
                     If landpoly Then
                         _PolyGons.AddLast(A)
@@ -83,6 +71,7 @@ Public Class GSHHS_Reader
                     End If
                     PolyCount += A.GetUpperBound(0)
                 End If
+                SI.ProgressWindows.Progress(S.Position)
             Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
 
             S.Close()
@@ -103,7 +92,8 @@ Public Class GSHHS_Reader
         Catch ex As Exception
 
             'MessageBox.Show(ex.Message)
-
+        Finally
+            SI.CompleteCallBack()
         End Try
     End Sub
 
@@ -149,7 +139,7 @@ Public Class GSHHS_Reader
         Return BitConverter.ToInt32(V, 0)
     End Function
 
-    Private Shared Function ReadPoly(ByVal S As FileStream, ByVal lookupzone As LinkedList(Of Coords()), ByVal Base As String, ByRef LandPolygon As Boolean) As Coords()
+    Private Shared Function ReadPoly(ByVal S As FileStream, ByVal lookupzone As LinkedList(Of Coords()), ByRef LandPolygon As Boolean) As Coords()
 
         Dim H As GSHHS_Header = ReadHeader(S)
         Dim RetPoints() As Coords
@@ -570,6 +560,7 @@ Public Class GSHHS_Reader
         Return D
     End Function
 
+    
     Private Shared Function CrossProduct(ByVal e1 As Coords, ByVal e2 As Coords) As Coords
 
         Dim x As Double

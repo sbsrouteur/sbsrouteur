@@ -31,9 +31,9 @@
         'Return (CInt(x.Lat_DegCOORD_COMPARE_GRAIN * ) = CInt(COORD_COMPARE_GRAIN * y.Lat_Deg) AndAlso CInt(COORD_COMPARE_GRAIN * x.Lon_Deg) = CInt(COORD_COMPARE_GRAIN * y.Lon_Deg))
     End Function
 
-    Public Shared Function GetHashCode1(ByVal obj As ICoords) As Integer 'Implements System.Collections.Generic.IEqualityComparer(Of Coords).GetHashCode
+    Public Shared Function GetHashCode1(ByVal obj As ICoords) As Long 'Implements System.Collections.Generic.IEqualityComparer(Of Coords).GetHashCode
 
-        Return CInt(CInt((obj.Lat / Math.PI * 180 + 90) * COORD_COMPARE_GRAIN) + (CInt(COORD_COMPARE_GRAIN * (obj.Lon / Math.PI * 180 + 180) * 360)))
+        Return CLng(CInt((obj.Lon / Math.PI * 180 + 90) * COORD_COMPARE_GRAIN) + (CLng(COORD_COMPARE_GRAIN * (obj.Lon / Math.PI * 180 + 180) * 360)))
 
     End Function
 

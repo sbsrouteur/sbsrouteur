@@ -202,6 +202,10 @@ Module JSonParser
                 Index = ReadDouble(Data, v)
                 Value = v
 
+            Case "]"c
+                Value = Nothing
+                Index = 0
+
             Case "n"c
                 If Data.Substring(0, 4) = "null" Then
                     Value = Nothing

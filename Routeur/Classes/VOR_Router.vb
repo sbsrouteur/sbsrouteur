@@ -1793,10 +1793,10 @@ Public Class VOR_Router
             Return Nothing
         End If
 
-        Dim RetValue As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur\track_" & _UserInfo.RaceID & "_" & _PlayerInfo.NumBoat & ".dat"
+        Dim RetValue As String = RouteurModel.BaseFileDir & "\track_" & _UserInfo.RaceID & "_" & _PlayerInfo.NumBoat & ".dat"
 
-        If Not System.IO.Directory.Exists(Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur") Then
-            System.IO.Directory.CreateDirectory(Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur")
+        If Not System.IO.Directory.Exists(RouteurModel.BaseFileDir) Then
+            System.IO.Directory.CreateDirectory(RouteurModel.BaseFileDir)
         End If
 
         Return RetValue
