@@ -1,6 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 Imports System.IO
+Imports Routeur.RacePrefs
 
 Public Class RouteurModel
 
@@ -27,12 +28,6 @@ Public Class RouteurModel
 
     Public Shared BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
 
-    Private Enum RaceZoneDirs As Integer
-        East = 0
-        North = 1
-        West = 2
-        South = 3
-    End Enum
 
     Public Shared SCALE As Double = 1
     Public Shared LAT_OFFSET As Double = 0
@@ -73,8 +68,8 @@ Public Class RouteurModel
     Public Shared HasCurrents As Boolean = False
 
     Public Shared GridGrain As Double = 0.02
-    Public Shared ShowGrid As Boolean = False
-
+    Public Shared EllipseFactor As Double = 1.3
+    
     Public Const InvertMeteoLon As Boolean = True
     Public Const METEO_GIRD_SIZE As Integer = 10
     Public Const METEO_GRID_STEP As Double = 1
@@ -263,96 +258,6 @@ Public Class RouteurModel
 
     End Sub
 
-    Private Sub ReadInfoSection(ByVal S As System.IO.StreamReader)
-        Dim Line As String = S.ReadLine.Trim
-        Dim StartLat As Double
-        Dim StartLon As Double
-
-        Do
-
-            If Not Line.IndexOf("=") = -1 Then
-
-                Dim PosEq As Integer = Line.IndexOf("="c)
-                Select Case Line.Substring(0, PosEq).ToLowerInvariant
-
-                    Case "gridgrain"
-                        Double.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, GridGrain)
-
-                    Case "maplevel"
-                        MapLevel = Line.Substring(PosEq + 1).ToLower
-
-                        'Case "nick"
-                        '    P_Info(0).Nick = Line.Substring(PosEq + 1)
-
-                        'Case "numboat"
-                        '    Integer.TryParse(Line.Substring(PosEq + 1), P_Info(0).NumBoat)
-
-                        'Case "showgrid"
-                        '    Dim tmpInt As Integer
-                        '    Integer.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, tmpInt)
-                        '    If tmpInt = 42 Then
-                        '        RouteurModel.ShowGrid = True
-                        '    End If
-                        'Case "startlat"
-                        '    Double.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, StartLat)
-
-                        'Case "startlon"
-                        '    Double.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, StartLon)
-
-
-                End Select
-
-            End If
-
-            Line = S.ReadLine.Trim
-        Loop Until S.EndOfStream OrElse Line = ""
-
-        RouteurModel.START_LAT = StartLat
-        RouteurModel.START_LON = StartLon
-        RouteurModel.ShowGrid = True
-
-    End Sub
-
-    Private Sub ReadRaceZoneOffsets(ByVal S As System.IO.StreamReader)
-        Dim Line As String = S.ReadLine.Trim.ToLowerInvariant
-        Dim dValue As Double
-        Dim zone As RaceZoneDirs
-
-        Do
-
-            If Not Line.IndexOf("=") = -1 Then
-
-                Dim PosEq As Integer = Line.IndexOf("="c)
-                Double.TryParse(Line.Substring(PosEq + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, dValue)
-
-                Select Case Line.Substring(0, PosEq).ToLowerInvariant
-
-                    Case "east"
-                        zone = RaceZoneDirs.East
-
-                    Case "west"
-                        zone = RaceZoneDirs.West
-
-                    Case "north"
-                        zone = RaceZoneDirs.North
-
-                    Case "south"
-                        zone = RaceZoneDirs.South
-
-                End Select
-
-            End If
-            _RaceZoneOffsets(zone) += dValue
-
-            Line = S.ReadLine
-            If Not Line Is Nothing Then
-                Line = Line.Trim
-            End If
-
-        Loop Until S.EndOfStream OrElse Line = ""
-
-    End Sub
-
     Public Sub Refresh()
 
         If Not The2DViewer Is Nothing Then
@@ -410,58 +315,17 @@ Public Class RouteurModel
 
     Private Sub LoadParams()
 
+        Dim RacePrefs As RacePrefs = RacePrefs.GetRaceInfo(_P_Info(0).RaceInfo.idraces)
+        GridGrain = RacePrefs.GridGrain
+        MapLevel = RacePrefs.MapLevel.ToString.Substring(0, 1)
+        EllipseFactor = RacePrefs.EllipseExtFactor
+        Dim i As Integer
 
-        Dim S As System.IO.StreamReader = Nothing
-        Try
-            If Not System.IO.File.Exists(BaseFileDir & "\Routeur.ini") Then
-                If Not System.IO.Directory.Exists(BaseFileDir) Then
-                    System.IO.Directory.CreateDirectory(BaseFileDir)
-                End If
+        For i = 0 To 3
+            _RaceZoneOffsets(i) = RacePrefs.RaceOffset(i)
+        Next
 
-                System.IO.File.Copy(".\Routeur.ini", BaseFileDir & "\Routeur.ini")
-                MessageBox.Show("Edit your Routeur ini file and restart Routeur")
-                Process.Start(BaseFileDir & "\Routeur.ini")
-                End
-            End If
-
-            S = New System.IO.StreamReader(BaseFileDir & "\Routeur.ini")
-
-            Dim Line As String = ""
-
-            While Not S.EndOfStream
-                Line = S.ReadLine.Trim.ToLowerInvariant
-
-                If Not Line = "" Then
-
-                    If Line(0) = "["c Then
-
-                        Select Case Line.Substring(1, Line.IndexOf("]"c) - 1)
-
-                            Case "info"
-                                ReadInfoSection(S)
-
-                                'Case "route"
-                                '    ReadRouteSection(S)
-
-                            Case "racezoneoffset"
-                                ReadRaceZoneOffsets(S)
-                        End Select
-
-                    End If
-
-
-
-                End If
-            End While
-
-        Catch ex As Exception
-            MessageBox.Show(Nothing, ex.Message, "Error reading parameters", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.None)
-        Finally
-            If Not S Is Nothing Then
-                S.Close()
-                S = Nothing
-            End If
-        End Try
+        
     End Sub
 
     Private Sub LoadRaceInfo(ByVal P As RegistryPlayerInfo)

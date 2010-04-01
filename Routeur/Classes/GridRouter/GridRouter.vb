@@ -89,11 +89,8 @@ Public Class GridRouter
     Public Property TodoList() As Queue(Of RoutingGridPoint)
         'Public Property TodoList() As SortedList(Of RoutingGridPoint, RoutingGridPoint)
         Get
-            If Not RouteurModel.ShowGrid Then
-                Return Nothing
-            Else
-                Return _ToDoList
-            End If
+            Return _ToDoList
+
         End Get
         Set(ByVal value As Queue(Of RoutingGridPoint))
             _ToDoList = value

@@ -48,7 +48,9 @@ Public Class BspRect
         _MidLat = _p2.Lat + (_p1.Lat - _p2.Lat) / 2
         _MidLon = _p2.Lon + (_p1.Lon - _p2.Lon) / 2
 
-        MIN_POLYGON_SPLIT = 16 * RouteurModel.GridGrain
+        If 16 * RouteurModel.GridGrain < MIN_POLYGON_SPLIT Then
+            MIN_POLYGON_SPLIT = 16 * RouteurModel.GridGrain
+        End If
 
     End Sub
 
@@ -419,7 +421,7 @@ Public Class BspRect
         Dim lP2Lat As Double = _p2.Lat
         Dim DeltaY As Double = lP1Lat - _MidLat '(lP1Lat - lP2Lat) / 2
 
-        If Math.Abs(DeltaX) < GridGrain / 180 * Math.PI Then
+        If Math.Abs(DeltaX) < MIN_POLYGON_SPLIT / 180 * Math.PI Then
 
             Return False
         End If

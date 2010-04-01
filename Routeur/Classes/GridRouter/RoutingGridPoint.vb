@@ -218,7 +218,7 @@ Public Class RoutingGridPoint
             IgnoreAngle = True
         Else
 
-            MaxDist *= 1.3
+            MaxDist *= RouteurModel.EllipseFactor
         End If
         tcCheck.StartPoint = P.P
         tcCheck.EndPoint = WP(0)(0)

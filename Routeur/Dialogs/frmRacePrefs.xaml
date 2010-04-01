@@ -4,11 +4,12 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	x:Class="frmRouterPrefs"
 	x:Name="Window"
-	Title="frmRouterPrefs"
-	Width="640" Height="480" mc:Ignorable="d">
+	Title="Race Preferences"
+	Width="640" Height="480" mc:Ignorable="d" Icon="/Routeur;Component/Graphics/maps-on-surface.ico">
 
 	<Grid x:Name="LayoutRoot">
 		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="*" MinHeight="24"/>
@@ -18,34 +19,39 @@
 			<ColumnDefinition Width="Auto" MinWidth="134.537"/>
 			<ColumnDefinition/>
 		</Grid.ColumnDefinitions>
-		<GridSplitter Width="4" Grid.RowSpan="4" Margin="0,4,0,-4">
+		<GridSplitter Width="4" Grid.RowSpan="5" Margin="0,4,0,-4">
 			<GridSplitter.Effect>
 				<DropShadowEffect/>
 			</GridSplitter.Effect>
 		</GridSplitter>
 		<TextBlock TextWrapping="Wrap"><Run Text="GridGrain"/></TextBlock>
-		<TextBox Text="{Binding GridGrain, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1"/>
-		<TextBlock TextWrapping="Wrap" Grid.Row="1"><Run Text="Map Level"/></TextBlock>
-		<TextBlock  Grid.Row="2" Text="Race Zone Extension"/>
-		<ComboBox ItemsSource="{Binding ListMapLevel, Mode=Default}" Grid.Column="1" Grid.Row="1" />
-		<Grid Grid.Column="1" Grid.Row="2">
+		<TextBox Text="{Binding GridGrain, Mode=TwoWay}" TextWrapping="Wrap" Grid.Column="1"/>
+		<TextBlock TextWrapping="Wrap"><Run Text="GridGrain"/></TextBlock>
+		<TextBox Text="{Binding EllipseExtFactor, Mode=TwoWay}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="2"/>
+		<TextBlock TextWrapping="Wrap" Grid.Row="2"><Run Text="Ellipse Ext. Factor"/></TextBlock>
+		<TextBlock  Grid.Row="3" Text="Race Zone Extension"/>
+		<ComboBox ItemsSource="{Binding ListMapLevels, Mode=Default}" Grid.Column="1" Grid.Row="1" SelectedValue="{Binding MapLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+		<Grid Grid.Column="1" Grid.Row="3">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="0.189*"/>
-				<ColumnDefinition Width="0.662*"/>
-				<ColumnDefinition Width="0.149*"/>
+				<ColumnDefinition Width="100"/>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="100"/>
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
-				<RowDefinition Height="24" MinHeight="24"/>
-				<RowDefinition Height="0.809*"/>
-				<RowDefinition Height="24" MinHeight="24"/>
+				<RowDefinition Height="Auto" MinHeight="24"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="Auto" MinHeight="24"/>
 			</Grid.RowDefinitions>
 			<Image VerticalAlignment="Center" Source="/Routeur;Component/Graphics/Earth_Map.jpg" Stretch="UniformToFill" Grid.Row="1" Grid.ColumnSpan="3"/>
-			<TextBox Margin="117.491,0,122.024,8" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding RaceOffset[0], Mode=TwoWay, UpdateSourceTrigger=Explicit}"></TextBox>
+			<TextBox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding NorthOffset, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ToolTip="Extension to North"/>
+			<TextBox HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding WestOffset, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.RowSpan="3" ToolTip="Extension to West"/>
+			<TextBox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding SouthOffset, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.Row="3" ToolTip="Extension to South"/>
+			<TextBox Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding EastOffset, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.RowSpan="3" ToolTip="Extension to East"/>
 			
 		</Grid>
-		<StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
-			<Button x:Name="cmdCancel" Content="Cancel" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172"/>
-			<Button x:Name="cmdOK" Content="OK" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172"/>
+		<StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+			<Button x:Name="cmdCancel" Content="Cancel" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172" Click="cmdCancelClick"/>
+			<Button x:Name="cmdOK" Content="OK" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdOKClick"/>
 		</StackPanel>
 	</Grid>
 </Window>

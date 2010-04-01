@@ -91,7 +91,7 @@ Public Class GSHHS_Reader
 
         Catch ex As Exception
 
-            'MessageBox.Show(ex.Message)
+            MessageBox.Show(ex.Message, "Error loading Map data")
         Finally
             SI.CompleteCallBack()
         End Try

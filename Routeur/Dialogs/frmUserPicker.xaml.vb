@@ -120,7 +120,12 @@ Partial Public Class frmUserPicker
     End Sub
 
     Private Sub ShowRacePrefs(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
-    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+
+        Dim PlayerInfo As RegistryPlayerInfo = CType(CType(sender, Button).DataContext, RegistryPlayerInfo)
+
+        Dim frm As New frmRouterPrefs(PlayerInfo.RaceNum)
+        frm.ShowDialog()
+
     End Sub
 
 End Class

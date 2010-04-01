@@ -273,8 +273,7 @@ Render1:
         Static Q As New Queue(Of System.Windows.Threading.DispatcherOperation)
         Static CurPos As New Coords
 
-        'GC.Collect()
-
+        
         If Not Dispatcher.Thread Is System.Threading.Thread.CurrentThread Then
             'Invoking = System.Threading.Interlocked.CompareExchange(Invoking, 1, 0)
             'If Invoking = 0 Then
@@ -295,6 +294,10 @@ Render1:
         End If
 
         Try
+
+            If Not _RacePolygonsInited Then
+                Return
+            End If
 
             'System.Threading.Interlocked.Exchange(Invoking, 1)
             Dim Coords() As String = Nothing
@@ -376,8 +379,8 @@ Render1:
                 'Dim x As Double
                 'Dim y As Double
 
-                'For y = 30.5 To 40.5 Step 0.1
-                '    For x = -7 To 48 Step 0.1
+                'For y = 19 To 23.5 Step 0.05
+                '    For x = -73.5 To -83.5 Step -0.1
                 '        P1.X = LonToCanvas(x)
                 '        P1.Y = LatToCanvas(y)
                 '        Dim c As New Coords(y, x)
@@ -385,7 +388,7 @@ Render1:
                 '            DC.DrawEllipse(Nothing, opponentPenOption, P1, 1, 1)
                 '        Else
 
-                '            DC.DrawEllipse(Nothing, PathPen, P1, 1, 1)
+                '            DC.DrawEllipse(Nothing, opponentPenNoOption, P1, 1, 1)
                 '        End If
                 '    Next
                 'Next
@@ -628,12 +631,12 @@ Render1:
 
                 'Console.WriteLine("Update path complete in " & Now.Subtract(Start).TotalMilliseconds)
             End SyncLock
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Drawn"))
         Catch ex As Exception
 
-            Debug.WriteLine("UpdatePath exception : " & ex.Message)
+            Console.WriteLine("UpdatePath exception : " & ex.Message)
         Finally
             System.Threading.Interlocked.Exchange(Invoking, 0)
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Drawn"))
         End Try
 
 

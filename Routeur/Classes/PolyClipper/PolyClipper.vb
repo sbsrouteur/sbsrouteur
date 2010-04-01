@@ -74,6 +74,10 @@
             Dim PInside As Boolean = IsInSide(P1, P2, Clip, Polygon(Index))
             Dim AddPoint As Boolean = False
 
+            If CurIndex >= RetArray.Length Then
+                ReDim Preserve RetArray(CurIndex + 10)
+            End If
+
             If PInside AndAlso PrevInRect Then
                 AddPoint = True
             ElseIf PInside Xor PrevInRect Then
@@ -86,6 +90,9 @@
             End If
 
             If AddPoint Then
+                If CurIndex >= RetArray.Length Then
+                    ReDim Preserve RetArray(CurIndex + 10)
+                End If
                 RetArray(CurIndex) = Polygon(Index)
                 CurIndex += 1
             End If

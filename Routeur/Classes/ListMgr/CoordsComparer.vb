@@ -4,7 +4,6 @@
     Private Shared COORD_COMPARE_GRAIN As Double = 1 / RouteurModel.GridGrain * 16
 
 
-
     Public Shared Function Compare(ByVal x As Coords, ByVal y As Coords) As Integer 'Implements System.Collections.Generic.IComparer(Of Coords).Compare
 
         If x.Lat > y.Lat Then
@@ -33,7 +32,7 @@
 
     Public Shared Function GetHashCode1(ByVal obj As ICoords) As Long 'Implements System.Collections.Generic.IEqualityComparer(Of Coords).GetHashCode
 
-        Return CLng(CInt((obj.Lon / Math.PI * 180 + 90) * COORD_COMPARE_GRAIN) + (CLng(COORD_COMPARE_GRAIN * (obj.Lon / Math.PI * 180 + 180) * 360)))
+        Return CLng(CInt((obj.Lon / Math.PI * 180 + 90) * COORD_COMPARE_GRAIN) + (CLng(COORD_COMPARE_GRAIN * (obj.Lat / Math.PI * 180 + 180) * 360)))
 
     End Function
 

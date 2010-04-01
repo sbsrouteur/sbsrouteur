@@ -200,6 +200,7 @@
     <Compile Include="Classes\clsMeteoOrganizer.vb" />
     <Compile Include="Classes\clsPlayerInfo.vb" />
     <Compile Include="Classes\clsSailManager.vb" />
+    <Compile Include="Classes\Configuration\RacePrefs.vb" />
     <Compile Include="Classes\Configuration\RegistryHelper.vb" />
     <Compile Include="Classes\Coords.vb" />
     <Compile Include="Classes\CoordsConverter.vb" />
@@ -375,6 +376,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\Earth_Map.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\maps-on-surface.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
