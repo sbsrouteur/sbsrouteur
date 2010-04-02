@@ -196,6 +196,11 @@ Public Class RacePrefs
 
         Dim fName As String = RouteurModel.BaseFileDir & "\ri_" & RaceID & ".xml"
         Dim Ser As New System.Xml.Serialization.XmlSerializer(Data.GetType)
+
+        If Not System.IO.Directory.Exists(RouteurModel.BaseFileDir) Then
+            System.IO.Directory.CreateDirectory(RouteurModel.BaseFileDir)
+        End If
+
         Dim SR As New System.IO.StreamWriter(fName)
         Ser.Serialize(SR, Data)
         SR.Close()
