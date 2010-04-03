@@ -58,14 +58,17 @@
     End Function
 
 
-    Private Shared Function ClipPolygonPlane(ByVal Clip As ClipPlane, ByVal P1 As Coords, ByVal P2 As Coords, ByVal Polygon As Coords()) As Coords()
+    Private Shared Function ClipPolygonPlane(ByVal Clip As ClipPlane, ByVal P1 As Coords, ByVal P2 As Coords, ByVal Polygon As Polygon) As Polygon
 
 
 
         Dim PrevIndex As Integer = Polygon.Count - 1
+        If PrevIndex = -1 Then
+            Return Nothing
+        End If
         Dim PrevInRect As Boolean = IsInSide(P1, P2, Clip, Polygon(PrevIndex))
         Dim Index As Integer
-        Dim RetArray(Polygon.Count) As Coords
+        Dim RetArray As New Polygon
         Dim CurIndex As Integer = 0
 
 
@@ -74,9 +77,9 @@
             Dim PInside As Boolean = IsInSide(P1, P2, Clip, Polygon(Index))
             Dim AddPoint As Boolean = False
 
-            If CurIndex >= RetArray.Length Then
-                ReDim Preserve RetArray(CurIndex + 10)
-            End If
+            'If CurIndex >= RetArray.Length Then
+            '    ReDim Preserve RetArray(CurIndex + 10)
+            'End If
 
             If PInside AndAlso PrevInRect Then
                 AddPoint = True
@@ -90,9 +93,9 @@
             End If
 
             If AddPoint Then
-                If CurIndex >= RetArray.Length Then
-                    ReDim Preserve RetArray(CurIndex + 10)
-                End If
+                'If CurIndex >= RetArray.Length Then
+                '    ReDim Preserve RetArray(CurIndex + 10)
+                'End If
                 RetArray(CurIndex) = Polygon(Index)
                 CurIndex += 1
             End If
@@ -109,28 +112,28 @@
             End If
         Else
 
-            ReDim Preserve RetArray(CurIndex - 1)
+            'ReDim Preserve RetArray(CurIndex - 1)
             Return RetArray
         End If
     End Function
 
-    Public Shared Function ClipPolygon(ByVal P1 As Coords, ByVal P2 As Coords, ByVal Polygon As Coords()) As Coords()
+    Public Shared Function ClipPolygon(ByVal P1 As Coords, ByVal P2 As Coords, ByVal Polygon As Polygon) As Polygon
 
-        Dim RetArray(Polygon.Count - 1) As Coords
+        Dim RetPolygon As New Polygon
         Dim clipvalue As ClipPlane
 
-        Array.Copy(Polygon, RetArray, Polygon.Count)
+        Polygon.Copy(Polygon, RetPolygon, Polygon.Count)
 
         For clipvalue = ClipPlane.North To ClipPlane.West
-            RetArray = ClipPolygonPlane(clipvalue, P1, P2, RetArray)
+            RetPolygon = ClipPolygonPlane(clipvalue, P1, P2, RetPolygon)
 
-            If RetArray Is Nothing Then
+            If RetPolygon Is Nothing Then
                 Return Nothing
             End If
 
         Next
 
-        Return RetArray
+        Return RetPolygon
     End Function
 
 End Class

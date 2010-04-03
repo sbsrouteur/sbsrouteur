@@ -42,7 +42,7 @@ Partial Public Class _2D_Viewer
     '                                                     New Coords(56 + 17 / 60, 16 + 28 / 60), New Coords(58, 14) _
     '                                                     }
 
-    Private Shared Dim _RacePolygons As New LinkedList(Of Coords())()
+    Private Shared _RacePolygons As New LinkedList(Of Polygon)()
     Private Shared _RacePolygonsInited As Boolean = False
     Private _Frm As frmRoutingProgress
     Private _MapPg As New MapProgressContext("Drawing Map...")
@@ -99,7 +99,7 @@ Partial Public Class _2D_Viewer
         Dim P1 As Point
         Dim Pen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Black), 0.3)
         Dim LocalBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
-        Dim RaceZone As New List(Of Coords())
+        Dim RaceZone As New List(Of Polygon)
         Dim polyindex As Integer = -1
         Dim MinLon As Double = 180
         Dim MaxLon As Double = -180
@@ -148,7 +148,7 @@ Partial Public Class _2D_Viewer
 
 
             FirstPoint = True
-            For i = 1 To C_Array.GetUpperBound(0) - 1
+            For i = 1 To C_Array.Count - 1
 
 
                 If C_Array(i) IsNot Nothing AndAlso C_Array(i - 1) IsNot Nothing Then
@@ -692,7 +692,7 @@ Render1:
         End Set
     End Property
 
-    Public Shared ReadOnly Property RacePolygons() As LinkedList(Of Coords())
+    Public Shared ReadOnly Property RacePolygons() As LinkedList(Of Polygon)
         Get
             If Not _RacePolygonsInited Then
                 Return Nothing

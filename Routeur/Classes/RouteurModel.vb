@@ -53,7 +53,7 @@ Public Class RouteurModel
 
     Public Shared URL_Version As Integer = 7
 
-    Public Shared _RaceRect As Coords()
+    Public Shared _RaceRect As New Polygon
 
 
     Public Shared GRID_FILE As String
@@ -242,7 +242,7 @@ Public Class RouteurModel
             C2.Lon_Deg = 179.99
         End If
 
-        ReDim RouteurModel._RaceRect(3)
+        'ReDim RouteurModel._RaceRect(3)
         RouteurModel._RaceRect(0) = New Coords(C1)
         RouteurModel._RaceRect(1) = New Coords(C1.Lat_Deg, C2.Lon_Deg)
         RouteurModel._RaceRect(2) = New Coords(C2)

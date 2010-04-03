@@ -12,7 +12,7 @@ Public Class BspRect
     End Enum
 
     Private Shared MIN_POLYGON_SPLIT As Double = 0.01
-    Private Shared _NoPolyGons As New LinkedList(Of Coords())
+    Private Shared _NoPolyGons As New LinkedList(Of Polygon)
 #If BSP_STATS Then
     Public Shared BspCount As Long = 0
     Private Shared _HitTestCount As Long
@@ -29,7 +29,7 @@ Public Class BspRect
     Private _MidLon As Double
     Private _SubRects(3) As BspRect
     Private _Inland As inlandstate
-    Private _PolyGons As LinkedList(Of Coords())
+    Private _PolyGons As LinkedList(Of Polygon)
 
 
 
@@ -55,7 +55,7 @@ Public Class BspRect
     End Sub
 
 
-    Public ReadOnly Property GetPolygons(ByVal C As Coords, ByVal Polygons As LinkedList(Of Coords()), ByVal gridgrain As Double) As LinkedList(Of Coords())
+    Public ReadOnly Property GetPolygons(ByVal C As Coords, ByVal Polygons As LinkedList(Of Polygon), ByVal gridgrain As Double) As LinkedList(Of Polygon)
         Get
             If _PolyGons Is Nothing AndAlso Abs((P2.Lat - P1.Lat)) > MIN_POLYGON_SPLIT Then
 
@@ -68,17 +68,17 @@ Public Class BspRect
             Else
                 If _PolyGons Is Nothing Then
 
-                    Dim P() As Coords
+                    Dim P As Polygon
                     Dim Corner As New Coords
                     'Build the polygons list using the proper "trimmed " polygons
-                    _PolyGons = New LinkedList(Of Coords())
+                    _PolyGons = New LinkedList(Of Polygon)
 
 
                     For Each P In GSHHS_Reader.AllPolygons
 
                         If P(0) IsNot Nothing Then
 
-                            Dim PRet() As Coords = PolyClipper.ClipPolygon(P1, P2, P)
+                            Dim PRet As Polygon = PolyClipper.ClipPolygon(P1, P2, P)
                             If Not PRet Is Nothing Then
                                 _PolyGons.AddLast(PRet)
                             End If

@@ -223,6 +223,8 @@
     <Compile Include="Classes\ListMgr\GridList.vb" />
     <Compile Include="Classes\ListMgr\ICoords.vb" />
     <Compile Include="Classes\PolyClipper\PolyClipper.vb" />
+    <Compile Include="Classes\Polygon\Polygon.vb" />
+    <Compile Include="Classes\Polygon\PolygonEnumerator.vb" />
     <Compile Include="Classes\ProgressContext.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMBoatInfo.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMRaceInfo.vb" />

@@ -3,7 +3,7 @@
     Public Delegate Sub LoadCompleteDelegate()
 
     Public StartPath As String
-    Public PolyGons As LinkedList(Of Coords())
+    Public PolyGons As LinkedList(Of Polygon)
     Public ProgressWindows As MapProgressContext
     Public CompleteCallBack As LoadCompleteDelegate
 

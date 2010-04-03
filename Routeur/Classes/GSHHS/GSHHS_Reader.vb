@@ -6,13 +6,13 @@ Public Class GSHHS_Reader
 
     Private Const GSHHS_FACTOR As Integer = 1000000
 
-    Private Shared _PolyGons As New LinkedList(Of Coords())
+    Private Shared _PolyGons As New LinkedList(Of Polygon)
     'Private Shared _UseFullPolygon As New List(Of Coords())
     'Private Shared _usefullboxes As New List(Of Coords())
     Private Shared _P1 As New Coords(90, 180)
     Private Shared _P2 As New Coords(-90, -180)
     Public Shared WithEvents _Tree As BspRect
-    Private Shared _LakePolyGons As New LinkedList(Of Coords())
+    Private Shared _LakePolyGons As New LinkedList(Of Polygon)
 
 #If HIT_STATS Then
     Private Shared _HitDistTicks As Long
@@ -32,13 +32,13 @@ Public Class GSHHS_Reader
     Shared Event BspEvt(ByVal Count As Long)
     Shared Event Log(ByVal Msg As String)
 
-    Public Shared ReadOnly Property AllPolygons() As LinkedList(Of Coords())
+    Public Shared ReadOnly Property AllPolygons() As LinkedList(Of Polygon)
         Get
             Return _PolyGons
         End Get
     End Property
 
-    Public Shared ReadOnly Property Polygons(ByVal C As Coords) As LinkedList(Of Coords())
+    Public Shared ReadOnly Property Polygons(ByVal C As Coords) As LinkedList(Of Polygon)
         Get
             Return _Tree.GetPolygons(C, _PolyGons, RouteurModel.GridGrain)
         End Get
@@ -48,7 +48,7 @@ Public Class GSHHS_Reader
 
         Dim SI As GSHHS_StartInfo = CType(State, GSHHS_StartInfo)
         Try
-            Dim A() As Coords
+            Dim A As Polygon
             Dim landpoly As Boolean
 
             Dim PolyCount As Long = 0
@@ -69,7 +69,7 @@ Public Class GSHHS_Reader
                     Else
                         _LakePolyGons.AddLast(A)
                     End If
-                    PolyCount += A.GetUpperBound(0)
+                    PolyCount += A.Count
                 End If
                 SI.ProgressWindows.Progress(S.Position)
             Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
@@ -77,7 +77,7 @@ Public Class GSHHS_Reader
             S.Close()
 
             For Each excl In RouteurModel.Exclusions
-                ReDim A(CInt(excl.Count / 2) - 1)
+                'ReDim A(CInt(excl.Count / 2) - 1)
                 For i = 0 To excl.Count - 1 Step 2
                     A(i \ 2) = New Coords
                     A(i \ 2).Lon_Deg = excl(i)
@@ -139,10 +139,10 @@ Public Class GSHHS_Reader
         Return BitConverter.ToInt32(V, 0)
     End Function
 
-    Private Shared Function ReadPoly(ByVal S As FileStream, ByVal lookupzone As LinkedList(Of Coords()), ByRef LandPolygon As Boolean) As Coords()
+    Private Shared Function ReadPoly(ByVal S As FileStream, ByVal lookupzone As LinkedList(Of Polygon), ByRef LandPolygon As Boolean) As Polygon
 
         Dim H As GSHHS_Header = ReadHeader(S)
-        Dim RetPoints() As Coords
+        Dim RetPoints As New Polygon
         Dim Lat As Double
         Dim lon As Double
         Dim i As Integer
@@ -158,7 +158,7 @@ Public Class GSHHS_Reader
             Return Nothing
         End If
 
-        ReDim RetPoints(CInt(H.n - 1))
+        'ReDim RetPoints(CInt(H.n - 1))
         Dim IgnoredPoints As Long = 0
         ActivePoints = -1
         LandPolygon = H.level = 1 OrElse H.level = 3
@@ -207,7 +207,7 @@ Public Class GSHHS_Reader
         End If
 
         If ActivePoints > 0 AndAlso ActivePoints + 1 < RetPoints.Length Then
-            ReDim Preserve RetPoints(ActivePoints)
+            'ReDim Preserve RetPoints(ActivePoints)
         ElseIf ActivePoints = 0 Then
             Return Nothing
         End If
@@ -389,7 +389,7 @@ Public Class GSHHS_Reader
 
     End Function
 
-    Public Shared Function HitTest(ByVal P As Coords, ByVal HitDistance As Double, ByVal LookupZone As LinkedList(Of Coords()), ByVal UseBoxes As Boolean, Optional ByVal IgnoreBSP As Boolean = False) As Boolean
+    Public Shared Function HitTest(ByVal P As Coords, ByVal HitDistance As Double, ByVal LookupZone As LinkedList(Of Polygon), ByVal UseBoxes As Boolean, Optional ByVal IgnoreBSP As Boolean = False) As Boolean
 
         'Static calls As Long = 0
         Dim StartTick As DateTime = Now
@@ -430,16 +430,16 @@ Public Class GSHHS_Reader
 
         'Dim P As New Coords(PTest)
         UseBoxes = False
-        Dim Poly As Coords()
+        Dim Poly As Polygon
         'Dim Box As Coords() = Nothing
         Dim x As Integer
 
         For x = 0 To LookupZone.Count - 1
             Poly = LookupZone(x)
 
-            Dim MaxIndex As Integer = Poly.GetUpperBound(0)
+            Dim MaxIndex As Integer = Poly.Count
 
-            j = Poly.GetUpperBound(0)
+            j = Poly.Count
             While Poly(j) Is Nothing AndAlso MaxIndex >= 0
                 j -= 1
             End While
