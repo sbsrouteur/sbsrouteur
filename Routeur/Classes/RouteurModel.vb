@@ -157,9 +157,9 @@ Public Class RouteurModel
         End If
 
         _P_Info(0) = frm.PlayerInfo.Playerinfo
-        CurPlayer = _P_Info(0)
         LoadRaceInfo(frm.PlayerInfo)
         LoadParams()
+        CurPlayer = _P_Info(0)
 
         Dim C1 As New Coords(90, 180)
         Dim C2 As New Coords(-90, -180)

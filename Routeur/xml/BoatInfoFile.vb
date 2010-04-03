@@ -58,8 +58,6 @@ Partial Public Class user
     
     Private pict_sponsorField As Object
     
-    Private RaceIDField As String
-
     Private DateOffsetField As String
 
     Private LochField As Double
@@ -252,17 +250,6 @@ Partial Public Class user
         Set(ByVal value As Object)
             Me.pict_sponsorField = value
             Me.RaisePropertyChanged("pict_sponsor")
-        End Set
-    End Property
-
-    '''<remarks/>
-    Public Property RaceID() As String
-        Get
-            Return Me.RaceIDField
-        End Get
-        Set(ByVal value As String)
-            Me.RaceIDField = value
-            Me.RaisePropertyChanged("RaceID")
         End Set
     End Property
 
@@ -466,7 +453,7 @@ Partial Public Class userPosition
     
     Private voiles_casseesField As Byte
     
-    Private vitesseField As Decimal
+    Private vitesseField As Double
     
     Private wind_speedField As Decimal
     
@@ -584,22 +571,22 @@ Partial Public Class userPosition
     End Property
 
     '''<remarks/>
-    Public Property vitesse() As Decimal
+    Public Property vitesse() As Double
         Get
             Return Me.vitesseField
         End Get
-        Set(ByVal value As Decimal)
+        Set(ByVal value As Double)
             Me.vitesseField = value
             Me.RaisePropertyChanged("vitesse")
         End Set
     End Property
 
     '''<remarks/>
-    Public Property wind_speed() As Decimal
+    Public Property wind_speed() As Double
         Get
             Return Me.wind_speedField
         End Get
-        Set(ByVal value As Decimal)
+        Set(ByVal value As Double)
             Me.wind_speedField = value
             Me.RaisePropertyChanged("wind_speed")
         End Set

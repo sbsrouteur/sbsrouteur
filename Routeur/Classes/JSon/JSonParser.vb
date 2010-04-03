@@ -63,7 +63,7 @@ Module JSonParser
     Private Function ReadDouble(ByVal Data As String, ByRef dblValue As Double) As Integer
         Dim SB As New StringBuilder
         Dim Complete As Boolean = False
-        Dim CurIndex As Integer = 1
+        Dim CurIndex As Integer = 0
 
         SB.Length = 0
         While Not Complete

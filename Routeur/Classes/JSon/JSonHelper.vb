@@ -31,6 +31,23 @@ Module JSonHelper
 
     End Function
 
+    Public Function GetJSonDoubleValue(ByVal JSon As Object, ByVal ValueKey As String) As Double
+
+        Dim O As Object = GetJSonObjectValue(JSon, ValueKey)
+        Dim tmpdbl As Double = 0
+        If O Is Nothing Then
+            Return 0
+        ElseIf TypeOf O Is Double Then
+            Return CDbl(O)
+        ElseIf Double.TryParse(O.ToString, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, tmpdbl) Then
+            Return tmpdbl
+        Else
+            Return 0
+        End If
+        
+
+    End Function
+
     Public Function GetJSonIntValue(ByVal JSon As Object, ByVal ValueKey As String) As Integer
 
         Dim O As Object = GetJSonObjectValue(JSon, ValueKey)
@@ -54,6 +71,9 @@ Module JSonHelper
             Dim Value As Object = Nothing
             If T Is GetType(Integer) Then
                 Value = GetJSonIntValue(Data, P.Name)
+            ElseIf T Is GetType(Double) Then
+                Value = GetJSonDoubleValue(Data, P.Name)
+                LoadJSonDataToObject(Value, Data)
             ElseIf T Is GetType(Object) Then
                 Value = GetJSonObjectValue(Data, P.Name)
                 LoadJSonDataToObject(Value, Data)
@@ -88,7 +108,7 @@ Module JSonHelper
 
 
             Else
-                        Continue For
+                Continue For
             End If
                 If Not Value Is Nothing Then
                     P.SetValue(O, Value, Nothing)
