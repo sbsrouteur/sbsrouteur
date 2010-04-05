@@ -494,7 +494,7 @@ Public Class VOR_Router
         Dim Tc As New TravelCalculator
         Dim Mi As MeteoInfo = Nothing
         Dim BoatSpeed As Double
-        Dim CurIndex As Integer = 1
+        Dim CurIndex As Integer = 0
         Dim RouteComplete As Boolean = False
         Dim CurWPDest As Coords = Nothing
 
@@ -577,16 +577,16 @@ Public Class VOR_Router
 
                     Case 3, 4, 5
 
-                        Dim Lon As Double
-                        Dim Lat As Double
-                        If Not Double.TryParse(Fields(3), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lat) OrElse _
-                            Not Double.TryParse(Fields(3), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon) Then
-                            If Lat = 0 And Lon = 0 Then
-                                CurWPNUm = RouteurModel.CurWP
-                            Else
-                                CurWPNUm = -1
-                                CurWPDest = New Coords(Lat, Lon)
-                            End If
+                        Dim Lon As Double = 0
+                        Dim Lat As Double = 0
+                        Double.TryParse(Fields(3), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lat)
+                        Double.TryParse(Fields(3), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon)
+                        If Lat = 0 And Lon = 0 Then
+                            CurWPNUm = RouteurModel.CurWP
+                            CurWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(CurWPNUm - 1).WPs(0)(0))
+                        Else
+                            CurWPNUm = -1
+                            CurWPDest = New Coords(Lat, Lon)
                         End If
 
                 End Select
@@ -1584,7 +1584,8 @@ Public Class VOR_Router
         Lup = BoatInfo.LUP
         RetUser.position.ModePilote = BoatInfo.PIM
         If BoatInfo.PIM = 2 Then
-            Double.TryParse(BoatInfo.PIP, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.AngleAllure)
+            RetUser.position.AngleAllure = CDbl(BoatInfo.PIP)
+            'Double.TryParse(BoatInfo.PIP, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.AngleAllure)
         End If
         RetUser.type = BoatInfo.POL
 

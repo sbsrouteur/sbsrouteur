@@ -61,6 +61,15 @@ Public Class GridRouter
         _BoatType = BoatType
     End Sub
 
+    Public Shared ReadOnly Property GridPointsEstimate(ByVal Dist As Double, ByVal k As Double) As Long
+        Get
+            Dim S As Double = Math.PI * Math.Sqrt((0.5 * Dist) ^ 2 + (0.5 * k * Dist) ^ 2) * 0.5 * k * Dist
+            Dim Gl = RouteurModel.GridGrain * 60
+            Return CLng(S / (Gl ^ 2) / 15)
+
+        End Get
+    End Property
+
 
     Public ReadOnly Property GridPointsList() As BSPList
         Get
@@ -443,7 +452,7 @@ Public Class GridRouter
         _BrokenSails = BrokenSails
         _ToDoList.Enqueue(G)
         G.Dist = TC.WPDistance(WP)
-        _ProgressInfo.Start(G.Dist)
+        _ProgressInfo.Start(G.Dist, RouteurModel.EllipseFactor)
 
         If Not WorkersStarted Then
             WorkersStarted = True
@@ -580,84 +589,92 @@ Public Class GridRouter
                     'Dim SR As New System.IO.StreamWriter(Log)
                     'SR.WriteLine("routing points from " & RG.P.P.ToString & " cureta " & RG.CurETA)
 
+                Dim FromAngle As Double = -1
+                If Not RG.From Is Nothing Then
+                    TC.EndPoint = RG.From.P.P
+                    FromAngle = TC.Cap
+                End If
 
-                    For Each C In RG.Neighboors
-                        If Not C Is Nothing Then
-                            N = CType(_GridPointsList(C), RoutingGridPoint)
+                For Each C In RG.Neighboors
+                    If Not C Is Nothing Then
+                        N = CType(_GridPointsList(C), RoutingGridPoint)
+                        TC.EndPoint = N.P.P
+                        If FromAngle <> -1 AndAlso VOR_Router.WindAngle(TC.Cap, FromAngle) <= 60 Then
+                            Continue For
+                        End If
 
-                            eta = GetETATo(RG.P.P, N.P.P, RG.CurETA, _MeteoProvider, BoatType, brokensails, CurSail, CurSpeed)
+                        eta = GetETATo(RG.P.P, N.P.P, RG.CurETA, _MeteoProvider, BoatType, brokensails, CurSail, CurSpeed)
 
-                            If eta < N.CurETA Then 'AndAlso (_CurBestTarget Is Nothing OrElse N.CurETA.Ticks - StartDate.Ticks < 1.3 * (_CurBestTarget.CurETA.Ticks - StartDate.Ticks)) Then
-                                TC.EndPoint = N.P.P
+                        If eta < N.CurETA Then 'AndAlso (_CurBestTarget Is Nothing OrElse N.CurETA.Ticks - StartDate.Ticks < 1.3 * (_CurBestTarget.CurETA.Ticks - StartDate.Ticks)) Then
 
-                                N.CurETA = eta
-                                N.From = RG
-                                N.P.Cap = (TC.TrueCap + 360) Mod 360
-                                N.P.WindDir = mi.Dir
-                                N.P.WindStrength = mi.Strength
-                                N.P.Speed = CurSpeed
-                                N.P.Sail = CurSail
-                                N.P.T = eta
-                                N.P.DTF = N.Dist
+                            N.CurETA = eta
+                            N.From = RG
+                            N.P.Cap = (TC.TrueCap + 360) Mod 360
+                            N.P.WindDir = mi.Dir
+                            N.P.WindStrength = mi.Strength
+                            N.P.Speed = CurSpeed
+                            N.P.Sail = CurSail
+                            N.P.T = eta
+                            N.P.DTF = N.Dist
 
-                                N.Iteration = RG.Iteration + 1
-                                N.Loch = RG.Loch + TC.SurfaceDistance
+                            N.Iteration = RG.Iteration + 1
+                            N.Loch = RG.Loch + TC.SurfaceDistance
 
-                                'RaiseEvent Log("Synclock todolist (dans RG) th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
-                                SyncLock _ToDoList
+                            'RaiseEvent Log("Synclock todolist (dans RG) th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
+                            SyncLock _ToDoList
 
-                                    _ToDoList.Enqueue(N)
+                                _ToDoList.Enqueue(N)
 
-                                End SyncLock
+                            End SyncLock
 
-                                'If _CurBestTarget Is Nothing OrElse _CurBestTarget.Score > N.Score Then
+                            'If _CurBestTarget Is Nothing OrElse _CurBestTarget.Score > N.Score Then
 
-                                '    'SR.WriteLine("Changed Target " & N.P.P.ToString & " " & N.CurETA & " " & N.CrossedLine & " " & N.Dist & " " & N.P.Cap)
-                                '    _CurBestTarget = N
-                                '    RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
-                                'End If
+                            '    'SR.WriteLine("Changed Target " & N.P.P.ToString & " " & N.CurETA & " " & N.CrossedLine & " " & N.Dist & " " & N.P.Cap)
+                            '    _CurBestTarget = N
+                            '    RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
+                            'End If
 
-                                If N.Improve(_CurBestTarget, CurSpeed, _WP) Then
-                                    'SR.WriteLine("Changed Target " & N.P.P.ToString & " " & N.CurETA & " " & N.CrossedLine & " " & N.Dist & " " & N.P.Cap)
-                                    _CurBestTarget = N
-                                    RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
-                                    'ElseIf Math.Abs(N.Dist - _CurBestTarget.Dist) <= RouteurModel.GridGrain Then
-                                    '    Dim i As Integer = 0
-                                    '    'SR.WriteLine("Ignored Target " & N.P.P.ToString & " " & N.CurETA & " " & N.CrossedLine & " " & N.Dist & " " & N.P.Cap)
-                                    _ProgressInfo.Progress(_GridPointsList.Count, _ToDoList.Count, _CurBestTarget.Dist)
+                            If N.Improve(_CurBestTarget, CurSpeed, _WP) Then
+                                'SR.WriteLine("Changed Target " & N.P.P.ToString & " " & N.CurETA & " " & N.CrossedLine & " " & N.Dist & " " & N.P.Cap)
+                                _CurBestTarget = N
+                                RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
+                                'ElseIf Math.Abs(N.Dist - _CurBestTarget.Dist) <= RouteurModel.GridGrain Then
+                                '    Dim i As Integer = 0
+                                '    'SR.WriteLine("Ignored Target " & N.P.P.ToString & " " & N.CurETA & " " & N.CrossedLine & " " & N.Dist & " " & N.P.Cap)
 
-
-                                End If
 
                             End If
+                            _ProgressInfo.Progress(_GridPointsList.Count, _ToDoList.Count, _CurBestTarget.Dist)
 
                         End If
 
-
-
-                    Next
-
-                    'SR.Flush()
-                    'log.Close()
-
-                    If Counts Mod 20000 = 0 Then
-                        GC.Collect()
                     End If
-                    Counts += 1
 
-                    RG.UpToDate = True
-                    TC.StartPoint = Nothing
-                    TC.EndPoint = Nothing
-                    TC = Nothing
-                    Return True
-                Catch ex As Exception
 
-                    MessageBox.Show(ex.Message & " " & ex.StackTrace)
 
-                Finally
+                Next
 
-                    System.Threading.Monitor.Exit(RG)
-                End Try
+                'SR.Flush()
+                'log.Close()
+
+                If Counts Mod 10000 = 0 Then
+                    GC.Collect()
+                End If
+                Counts += 1
+
+                RG.UpToDate = True
+                TC.StartPoint = Nothing
+                TC.EndPoint = Nothing
+                TC = Nothing
+                Return True
+            Catch ex As Exception
+
+                MessageBox.Show(ex.Message & " " & ex.StackTrace)
+
+            Finally
+
+                System.Threading.Monitor.Exit(RG)
+            End Try
             Else
                 Return True
             End If

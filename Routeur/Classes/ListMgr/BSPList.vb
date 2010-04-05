@@ -66,7 +66,7 @@
             Dim CurCount As Integer = 0
 
             If _Node IsNot Nothing Then
-
+                CurCount = 1
                 For Each node In _SubNodes
                     If node IsNot Nothing Then
                         CurCount += node.Count

@@ -264,6 +264,7 @@ Public Class RouteurModel
             The2DViewer.RedrawCanvas()
         End If
 
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoValidSpan"))
 
     End Sub
 
@@ -274,7 +275,7 @@ Public Class RouteurModel
         Set(ByVal value As Integer)
             If _CurWP <> value Then
                 _CurWP = value
-                If WPList.Count >= 1 Then
+                If WPList.Count >= 1 AndAlso _CurWP > 0 AndAlso _CurWP < WPList.Count Then
                     _WPList(0) = _P_Info(0).RaceInfo.races_waypoints(_CurWP - 1).ToString
                 End If
             End If
@@ -357,6 +358,12 @@ Public Class RouteurModel
         End If
 
     End Sub
+
+    Public ReadOnly Property MeteoValidSpan() As TimeSpan
+        Get
+            Return GribManager.GetCurGribDate(Now).AddHours(9.5).AddHours(System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours).Subtract(Now)
+        End Get
+    End Property
 
     Public Shared Property NoObstacle() As Boolean
         Get

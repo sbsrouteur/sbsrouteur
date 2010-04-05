@@ -2,7 +2,7 @@
 
     Implements IList(Of Coords)
 
-    Private Const BASE_ARRAY_SIZE As Integer = 1000
+    Private Const BASE_ARRAY_SIZE As Integer = 500
     Private Const BASE_ARRAY_EXTENSION As Integer = 100
 
     Private Structure CoordsArray

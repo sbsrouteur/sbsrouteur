@@ -217,7 +217,7 @@ Render1:
 
     End Function
 
-    Public Sub InitViewer()
+    Public Sub InitViewer(ByVal owner As System.Windows.Window)
 
 
         Try
@@ -226,11 +226,11 @@ Render1:
             End If
 
             _Progress = New MapProgressContext("Loading Maps Data...")
-            _Frm = New frmRoutingProgress With {.DataContext = _Progress}
+            _Frm = New frmRoutingProgress(100) With {.DataContext = _Progress}
             Dim TH As New System.Threading.Thread(AddressOf GSHHS_Reader.Read)
             Dim SI As New GSHHS_StartInfo With {.PolyGons = _RacePolygons, .StartPath = "..\gshhs\gshhs_" & RouteurModel.MapLevel & ".b", _
                                                 .ProgressWindows = _Progress, .CompleteCallBack = AddressOf LoadPolygonComplete}
-            _Frm.Show()
+            _Frm.Show(owner, _Progress)
             TH.Start(SI)
             'GSHHS_Reader.Read(", RacePolygons, "Map")
 
@@ -454,7 +454,7 @@ Render1:
                         For Each R As RoutingGridPoint In Grid.ToArray
 
 
-                            If R.Drawn = False Then
+                            If Not R Is Nothing AndAlso R.Drawn = False Then
                                 'If CInt(R.CurETA.Subtract(Now).TotalHours) Mod 6 = 0 AndAlso Math.Abs(CInt(R.CurETA.Subtract(Now).TotalHours) - R.CurETA.Subtract(Now).TotalHours) < 0.1 Then
                                 'If (R.CurETA.Hour Mod 12) = (8 + RouteurModel.GribOffset) AndAlso R.CurETA.Minute <= 20 Then
                                 If R.CurETA.Subtract(Now).TotalMinutes Mod GridSize < SelectionOffset Then

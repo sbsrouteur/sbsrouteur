@@ -46,7 +46,7 @@ Partial Public Class RouteurMain
 
         If M.The2DViewer Is Nothing Then
             M.The2DViewer = Me.VOR2DViewer
-            M.The2DViewer.InitViewer()
+            M.The2DViewer.InitViewer(Me)
 
         End If
         Dim sApp As String = System.IO.Path.Combine(My.Application.Info.DirectoryPath, My.Application.Info.AssemblyName & ".exe")

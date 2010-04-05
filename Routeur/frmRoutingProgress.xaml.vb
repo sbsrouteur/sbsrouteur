@@ -10,13 +10,18 @@ Imports System.Windows.Navigation
 
 Partial Public Class frmRoutingProgress
 
-    Private WithEvents _RefreshTimer As New Timers.Timer(5000) With {.Enabled = True}
+    Private WithEvents _RefreshTimer As New Timers.Timer(500) With {.Enabled = True}
     Public Sub New()
         MyBase.New()
 
         Me.InitializeComponent()
 
         ' Insérez le code requis pour la création d’objet sous ce point.
+    End Sub
+
+    Public Sub New(ByVal TimerPeriodms As Integer)
+        Me.New()
+        _RefreshTimer.Interval = TimerPeriodms
     End Sub
 
     Public Overloads Sub Show(ByVal owner As Window, ByVal Data As Object)
@@ -53,6 +58,7 @@ Partial Public Class frmRoutingProgress
         e.Cancel = True
         Hide()
 
-
     End Sub
+
+
 End Class

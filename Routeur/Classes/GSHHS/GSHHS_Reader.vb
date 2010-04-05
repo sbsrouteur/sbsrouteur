@@ -62,7 +62,7 @@ Public Class GSHHS_Reader
 
             SI.ProgressWindows.Start(S.Length)
             Do
-                A = ReadPoly(S, SI.PolyGons, landpoly)
+                A = ReadPoly(S, SI, landpoly)
                 If Not A Is Nothing Then
                     If landpoly Then
                         _PolyGons.AddLast(A)
@@ -139,7 +139,7 @@ Public Class GSHHS_Reader
         Return BitConverter.ToInt32(V, 0)
     End Function
 
-    Private Shared Function ReadPoly(ByVal S As FileStream, ByVal lookupzone As LinkedList(Of Polygon), ByRef LandPolygon As Boolean) As Polygon
+    Private Shared Function ReadPoly(ByVal S As FileStream, ByVal SI As GSHHS_StartInfo, ByRef LandPolygon As Boolean) As Polygon
 
         Dim H As GSHHS_Header = ReadHeader(S)
         Dim RetPoints As New Polygon
@@ -151,6 +151,7 @@ Public Class GSHHS_Reader
         Dim InZone As Boolean
         Dim HasPointsInZone As Boolean = False
         Dim Fr_map As System.IO.StreamWriter = Nothing
+        Dim lookupzone As LinkedList(Of Polygon) = SI.PolyGons
 
 
         Static maxeast As Integer = 270
@@ -200,6 +201,7 @@ Public Class GSHHS_Reader
                 End If
 
             End If
+            SI.ProgressWindows.Progress(S.Position)
         Next
 
         If maxeast = 270 Then

@@ -2,10 +2,10 @@
 
 Public Class MeteoInfo
 
-    Implements INotifyPropertyChanged
+    'Implements INotifyPropertyChanged
 
 
-    Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
+    'Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
     Public Const NO_VALUE As Integer = -100
 
@@ -14,9 +14,9 @@ Public Class MeteoInfo
     Private _UGRD As Double
     Private _VGRD As Double
     Private _DataOK As Boolean = False
-    Private Shared DirProp As New PropertyChangedEventArgs("Dir")
-    Private Shared StrengthProp As New PropertyChangedEventArgs("Strength")
-    Private Shared DateProp As New PropertyChangedEventArgs("GribDate")
+    'Private Shared DirProp As New PropertyChangedEventArgs("Dir")
+    'Private Shared StrengthProp As New PropertyChangedEventArgs("Strength")
+    'Private Shared DateProp As New PropertyChangedEventArgs("GribDate")
     Private _GribDate As DateTime
 
 
@@ -33,7 +33,7 @@ Public Class MeteoInfo
         End Get
         Set(ByVal value As Double)
             _Dir = value
-            RaiseEvent PropertyChanged(Me, DirProp)
+            '       RaiseEvent PropertyChanged(Me, DirProp)
         End Set
     End Property
 
@@ -43,7 +43,7 @@ Public Class MeteoInfo
         End Get
         Set(ByVal value As DateTime)
             _GribDate = value
-            RaiseEvent PropertyChanged(Me, DateProp)
+            '      RaiseEvent PropertyChanged(Me, DateProp)
         End Set
     End Property
 
@@ -59,7 +59,7 @@ Public Class MeteoInfo
                 Dim i As Integer = 0
             End If
             _Strength = value
-            RaiseEvent PropertyChanged(Me, StrengthProp)
+            '     RaiseEvent PropertyChanged(Me, StrengthProp)
         End Set
     End Property
 
@@ -107,8 +107,8 @@ Public Class MeteoInfo
             _Strength = GetStrength()
             _Dir = GetDir()
             _DataOK = True
-            RaiseEvent PropertyChanged(Me, StrengthProp)
-            RaiseEvent PropertyChanged(Me, DirProp)
+            '    RaiseEvent PropertyChanged(Me, StrengthProp)
+            '   RaiseEvent PropertyChanged(Me, DirProp)
         End Set
     End Property
 
@@ -121,8 +121,8 @@ Public Class MeteoInfo
             _Strength = GetStrength()
             _Dir = GetDir()
             _DataOK = True
-            RaiseEvent PropertyChanged(Me, StrengthProp)
-            RaiseEvent PropertyChanged(Me, DirProp)
+            '           RaiseEvent PropertyChanged(Me, StrengthProp)
+            '            RaiseEvent PropertyChanged(Me, DirProp)
         End Set
     End Property
 

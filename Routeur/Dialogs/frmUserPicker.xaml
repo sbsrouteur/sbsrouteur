@@ -99,7 +99,7 @@
 			<RowDefinition/>
 			<RowDefinition Height="Auto" MinHeight="49.96"/>
 		</Grid.RowDefinitions>
-		<Button x:Name="cmdCancel" Content="Annuler" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="-3.136,0.62"/>
+		<Button x:Name="cmdCancel" Content="Cancel" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="-3.136,0.62"/>
 		<Button x:Name="cmdOK" Content="OK" Grid.Column="3" Grid.Row="1"/>
 		<ListBox x:Name="lstUsers" Margin="8" Grid.ColumnSpan="4" ItemsSource="{Binding RegisteredPlayers, Mode=Default}" SelectionChanged="SelectedItemChanged" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top"/>
 		<Button x:Name="cmdAddNew" Content="Add New..." Grid.Row="1" RenderTransformOrigin="-3.136,0.62" Click="AddUser"/>

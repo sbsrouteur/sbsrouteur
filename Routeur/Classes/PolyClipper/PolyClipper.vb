@@ -121,6 +121,19 @@
 
         Dim RetPolygon As New Polygon
         Dim clipvalue As ClipPlane
+        Dim HasPointIn As Boolean = False
+
+        For Each P In Polygon
+
+            If P.Lat <= P2.Lat OrElse P.Lat >= P1.Lat OrElse P.Lon <= P1.Lon OrElse P.Lon >= P2.Lon Then
+                HasPointIn = True
+                Exit For
+            End If
+        Next
+
+        If Not HasPointIn Then
+            Return Nothing
+        End If
 
         Polygon.Copy(Polygon, RetPolygon, Polygon.Count)
 

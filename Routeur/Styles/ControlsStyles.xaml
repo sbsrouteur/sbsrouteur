@@ -24,6 +24,10 @@
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 	</Style>
 
+	<Style TargetType ="{x:Type Slider}" >
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+	</Style>
+
 	<Style TargetType ="{x:Type Image}" >
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 	</Style>

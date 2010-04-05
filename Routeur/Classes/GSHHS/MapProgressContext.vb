@@ -22,9 +22,10 @@
     Public Sub Progress(ByVal CurVal As Long)
 
         Dim TotalSeconds As Double = Now.Subtract(_StartTime).TotalSeconds
-        ProgressValue = 100 * CurVal / _NbToProcess
-        If CurVal / _NbToProcess <> 1 Then
-            ProgressETA = TimeSpan.FromSeconds(Now.Subtract(_StartTime).TotalSeconds - TotalSeconds / (1 - (CurVal / _NbToProcess)))
+        Dim Pct As Double = CurVal / _NbToProcess
+        ProgressValue = 100 * Pct
+        If Pct <> 0 Then
+            ProgressETA = TimeSpan.FromSeconds(TotalSeconds / Pct * (1 - Pct))
         Else
             ProgressETA = Now.Subtract(Now)
 
