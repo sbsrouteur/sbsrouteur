@@ -1563,7 +1563,6 @@ Public Class VOR_Router
         Dim RetUser As New user
         Dim Lup As Double
         Dim Nup As Double
-        Dim Loch As Double
         Static NbSwitch As Integer = 0
 
         RetUser.position = New userPosition
@@ -1590,7 +1589,7 @@ Public Class VOR_Router
         RetUser.type = BoatInfo.POL
 
         Nup = BoatInfo.NUP
-        If Nup < -10 AndAlso Loch > 0 Then
+        If Nup < -10 AndAlso RetUser.Loch > 0 Then
             If RouteurModel.BASE_GAME_URL = RouteurModel.S10_SERVER Then
                 RouteurModel.BASE_GAME_URL = RouteurModel.S11_SERVER
                 AddLog(TmpDbl & "NUP Wrong switch to S11 : " & Nup)
@@ -1737,7 +1736,7 @@ Public Class VOR_Router
         '    End If
         'Next
 
-        If Loch = 0 Then
+        If RetUser.Loch = 0 Then
             RetUser.date = Now
         End If
 
