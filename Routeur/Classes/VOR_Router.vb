@@ -325,6 +325,55 @@ Public Class VOR_Router
         End Set
     End Property
 
+    Public ReadOnly Property CurVMGEnveloppe() As String
+        Get
+            If _UserInfo Is Nothing OrElse _UserInfo.position Is Nothing Then
+                Return ""
+            End If
+
+            Dim RetString As String = ""
+
+            Dim Tc As New TravelCalculator With {.StartPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)}
+            Dim Mi As MeteoInfo = _Meteo.GetMeteoToDate(Tc.StartPoint, _UserInfo.date, True)
+            If Mi Is Nothing Then
+                Return Nothing
+            End If
+            If _CurUserWP = 0 Then
+                Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP - 1).WPs(0)(0)
+            Else
+                Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(0)
+            End If
+            Dim CapOrtho As Double = Tc.TrueCap
+            Dim Speed As Double
+            'RetString = "M 0,0 "
+
+            For i = 0 To 360
+                Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), Mi.Dir), Mi.Strength)
+                Speed = Speed * Cos(i / 180 * PI)
+                If Speed < 0 Then
+                    Speed = -50 * Speed / Mi.Strength
+                Else
+                    Speed = 50 * Speed / Mi.Strength
+                End If
+                If i = 0 Then
+                    RetString &= " M "
+                Else
+                    RetString &= " L "
+                End If
+                RetString &= (Speed * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & (Speed * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+                If i Mod 5 = 0 And i <> 0 Then
+
+                    RetString &= " L " & ((2 + Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((2 + Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+
+                End If
+            Next
+
+            Return RetString
+
+        End Get
+    End Property
+
+
     Public Property DrawOpponnents() As Boolean
         Get
             Return _DrawOpponnents
@@ -1353,17 +1402,29 @@ Public Class VOR_Router
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatInfo"))
         End If
 
-        'If GSHHS_Reader.HitTest(C, 0, GSHHS_Reader.Polygons(C), True) Then
-        '    AddLog(C.ToString & " is inland")
-        'Else
-        '    AddLog(C.ToString & " is in sea")
-        'End If
-
     End Sub
 
     Public ReadOnly Property BoatInfoVisible() As Boolean
         Get
             Return _BoatUnderMouse.Count > 0
+        End Get
+    End Property
+
+    Public ReadOnly Property BoatCanvasX() As Double
+        Get
+            If _UserInfo Is Nothing OrElse _UserInfo.position Is Nothing Then
+                Return 0
+            End If
+            Return _2D_Viewer.LonToCanvas(_UserInfo.position.longitude)
+        End Get
+    End Property
+
+    Public ReadOnly Property BoatCanvasY() As Double
+        Get
+            If _UserInfo Is Nothing OrElse _UserInfo.position Is Nothing Then
+                Return 0
+            End If
+            Return _2D_Viewer.LonToCanvas(_UserInfo.position.latitude)
         End Get
     End Property
 
@@ -2151,6 +2212,9 @@ Public Class VOR_Router
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RefreshCanvas"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("DiffEvolution"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Log"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurVMGEnveloppe"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatCanvasX"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatCanvasY"))
             bInvoking = False
             End If
     End Sub

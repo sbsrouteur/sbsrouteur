@@ -1,28 +1,26 @@
-﻿Public Class TextToColorConverter
+﻿Imports System.Windows.Media
+
+Public Class TextToColorConverter
 
     Implements IValueConverter
     Private Const VALUE_OK_COLOR As Long = &HFF7AFFAE
     Private Const VALUE_NOK_COLOR As Long = &HFFFF7A7A
+    Private Shared BrushOK As New SolidColorBrush(New Color() With {.A = &HFF, .R = &H7A, .G = &HFF, .B = &HAE})
+    Private Shared BrushNOK As New SolidColorBrush(New Color() With {.A = &HFF, .R = &HFF, .G = &H7A, .B = &H7A})
 
     Public Function Convert(ByVal value As Object, ByVal targetType As System.Type, ByVal parameter As Object, ByVal culture As System.Globalization.CultureInfo) As Object Implements System.Windows.Data.IValueConverter.Convert
 
-        If TypeOf value Is String And targetType Is GetType(Double) Then
+        'Return System.Drawing.Color.Pink
 
-            Dim v As Double
-            If Double.TryParse(CStr(value), v) Then
-                'Convertback and compare
-                If v.ToString = CStr(value).Trim Then
-                    Return System.Drawing.Color.FromArgb(VALUE_OK_COLOR)
-                Else
-                    Return System.Drawing.Color.FromArgb(VALUE_NOK_COLOR)
-                End If
-            Else
-                'Does not parse as double
-                Return System.Drawing.Color.FromArgb(VALUE_NOK_COLOR)
+        Dim v As Double
+        If Double.TryParse(CStr(value), v) Then
+            'Convertback and compare
+            If v.ToString = CStr(value).Trim Then
+                Return BrushOK
             End If
         End If
-
-        Return Nothing
+        'Does not parse as double
+        Return BrushNOK
 
     End Function
 

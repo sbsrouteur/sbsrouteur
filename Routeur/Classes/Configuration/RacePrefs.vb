@@ -96,6 +96,7 @@ Public Class RacePrefs
         End Set
     End Property
 
+
     Public Property MapLevel() As EnumMapLevels
         Get
             Return _MapLevel

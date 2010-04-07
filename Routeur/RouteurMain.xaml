@@ -155,18 +155,20 @@
     		<ColumnDefinition Width="0.53*"/>
     		<ColumnDefinition Width="0.128*"/>
     	</Grid.ColumnDefinitions>
-    	<Menu HorizontalAlignment="Stretch" Width="Auto" Grid.RowSpan="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}">
+    	<Menu HorizontalAlignment="Stretch" Width="Auto" Grid.RowSpan="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}">			
     		<ComboBox HorizontalAlignment="Right" IsSynchronizedWithCurrentItem="True" x:Name="comboBox" 
                       ItemsSource="{Binding P_Info, Mode=OneWay}" SelectedItem="{Binding CurPlayer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Nick"/>
             <!--<CheckBox Content="Autorouting" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=comboBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding AutoRouting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ShowAutorouting, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" VerticalAlignment="Center"/>-->
-            <CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}"/>
-            <CheckBox x:Name="chkGridRoute" Content="Grid Route" Checked="CheckGridRoute" Unchecked="CheckGridRoute" VerticalAlignment="Center"/>
+			<MenuItem Header="Actions" VerticalAlignment="Center">
+				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}"/>
+	            <CheckBox x:Name="chkGridRoute" Content="Grid Route" Checked="CheckGridRoute" Unchecked="CheckGridRoute" VerticalAlignment="Center"/>
+	            <CheckBox x:Name="chkNoObstacle" Content="Ignore Obstacles" VerticalAlignment="Center" IsChecked="{Binding NoObstacle, Mode=Default}"/>
+			</MenuItem>
             <ComboBox     Height="26.92" ItemsSource="{Binding WPList, Mode=Default}" ToolTip="Route to this WP" SelectedItem="{Binding VorHandler.CurUserWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"     />
             <CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center" d:IsChecked="True"/>
             <Button Width="Auto" Height="Auto" Content="Redraw" Click="RedrawClick"/>
-            <CheckBox x:Name="chkNoObstacle" Content="Ignore Obstacles" VerticalAlignment="Center" IsChecked="{Binding NoObstacle, Mode=Default}"/>
-            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure "/>
-            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureDuration, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Durée de la trajectoire"/>
+            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureDuration, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Durée de la trajectoire" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
 			<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Collapsed"></Button>
 			<CheckBox Content="Hide Boat &amp; Wind Arrow" IsChecked="{Binding VorHandler.HideWindArrow, Mode=Default}" VerticalAlignment="Center" />
 			<TextBlock Text="{Binding MeteoValidSpan, StringFormat={} Meteo update in {0:HH:mm:ss}, Mode=Default}" VerticalAlignment="Center"></TextBlock>
@@ -238,9 +240,20 @@
 					</Grid.RowDefinitions>
 					<GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
+					<Canvas VerticalAlignment="Stretch" Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
+						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Left" VerticalAlignment="Top" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute">
+							<Routeur:_2D_Viewer.RenderTransform>
+								<TransformGroup>
+									<ScaleTransform ScaleX="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ScaleY="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+									<TranslateTransform X="{Binding Value, ElementName=SldLon, Mode=Default}" Y="{Binding Value, ElementName=SldLat}"/>
+								</TransformGroup>
+							</Routeur:_2D_Viewer.RenderTransform>
+						</Routeur:_2D_Viewer>
+						
+					</Canvas>
 					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left">
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
-								<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
+							<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
 						</Grid>
 						<GroupBox  x:Name="BoatInfoGroupBox"  Header="" Background="#6DFFFFFF" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" Visibility="{Binding VorHandler.BoatInfoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" RenderTransformOrigin="0.5,0.5" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
 							<GroupBox.BitmapEffect>
@@ -252,16 +265,9 @@
 								</StackPanel>
 							</Grid>
 						</GroupBox>
-					</Canvas>
-					<Canvas VerticalAlignment="Stretch" Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
-						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Left" VerticalAlignment="Top" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute">
-							<Routeur:_2D_Viewer.RenderTransform>
-								<TransformGroup>
-									<ScaleTransform ScaleX="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ScaleY="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-									<TranslateTransform X="{Binding Value, ElementName=SldLon, Mode=Default}" Y="{Binding Value, ElementName=SldLat}"/>
-								</TransformGroup>
-							</Routeur:_2D_Viewer.RenderTransform>
-						</Routeur:_2D_Viewer>
+						<Grid MinWidth="150" MinHeight="150" Canvas.Left="253" Canvas.Top="0">
+							<Path Data="{Binding VorHandler.CurVMGEnveloppe, Mode=Default}" Stroke="#FF2B14E5" Stretch="Fill" Margin="0,0,-143,-103" />
+						</Grid>
 						
 					</Canvas>
 					
