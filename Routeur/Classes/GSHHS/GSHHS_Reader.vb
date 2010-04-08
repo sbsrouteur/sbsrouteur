@@ -79,6 +79,7 @@ Public Class GSHHS_Reader
             For Each excl In RouteurModel.Exclusions
                 'ReDim A(CInt(excl.Count / 2) - 1)
                 For i = 0 To excl.Count - 1 Step 2
+                    A = New Polygon
                     A(i \ 2) = New Coords
                     A(i \ 2).Lon_Deg = excl(i)
                     A(i \ 2).Lat_Deg = excl(i + 1)

@@ -104,8 +104,8 @@ Public Class RacePrefs
         Set(ByVal value As EnumMapLevels)
             If _MapLevel <> value Then
                 _MapLevel = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MapLevel"))
             End If
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MapLevel"))
 
         End Set
     End Property

@@ -347,7 +347,7 @@ Public Class VOR_Router
             Dim Speed As Double
             'RetString = "M 0,0 "
 
-            For i = 0 To 360
+            For i As Double = 0 To 360 Step 2.5
                 Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), Mi.Dir), Mi.Strength)
                 Speed = Speed * Cos(i / 180 * PI)
                 If Speed < 0 Then
@@ -364,6 +364,7 @@ Public Class VOR_Router
                 If i Mod 5 = 0 And i <> 0 Then
 
                     RetString &= " L " & ((2 + Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((2 + Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+                    RetString &= " L " & ((Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
 
                 End If
             Next

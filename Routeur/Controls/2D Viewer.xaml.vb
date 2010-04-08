@@ -162,6 +162,7 @@ Partial Public Class _2D_Viewer
                         p0.Y = LatToCanvas(C_Array(i - 1).Lat_Deg)
                         P1.X = LonToCanvas(C_Array(i).Lon_Deg)
                         P1.Y = LatToCanvas(C_Array(i).Lat_Deg)
+                        SafeDrawLine(DC, C_Array(i - 1), C_Array(i), Pen, p0, P1)
                         DC.DrawLine(Pen, p0, P1)
                         LineCount += 1
                         drawn = True
@@ -247,16 +248,16 @@ Render1:
         If PrevP.Lon * P.Lon < 0 AndAlso Math.Abs(P.Lon - PrevP.Lon) >= Math.PI Then
             Dim Pint As Point
             If PrevP.Lon < 0 Then
-                Pint.X = LonToCanvas(-179.9)
+                Pint.X = LonToCanvas(-179.99)
             Else
-                Pint.X = LonToCanvas(179.9)
+                Pint.X = LonToCanvas(179.99)
             End If
             Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
             dc.DrawLine(pe, Prevpoint, Pint)
-            If PrevP.Lon < 0 Then
-                Pint.X = LonToCanvas(179.9)
+            If P.Lon < 0 Then
+                Pint.X = LonToCanvas(-179.99)
             Else
-                Pint.X = LonToCanvas(-179.9)
+                Pint.X = LonToCanvas(179.99)
             End If
             dc.DrawLine(pe, Pint, NewP)
         Else
