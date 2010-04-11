@@ -525,12 +525,16 @@ Public Class VOR_Router
         _AllureRoute.Clear()
         For i = 0 To AllureDuration Step RouteurModel.VacationMinutes
             Mi = _Meteo.GetMeteoToDate(C, Dte, False)
+            If Mi Is Nothing Then
+                Exit For
+            End If
             Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(AllureAngle), Mi.Strength)
             TC.StartPoint = C
             C = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + AllureAngle))
             Dte.AddMinutes(RouteurModel.VacationMinutes)
             Dim NewP As New clsrouteinfopoints With {.P = New Coords(C)}
             _AllureRoute.Add(NewP)
+
         Next
         TC.StartPoint = Nothing
         TC = Nothing
@@ -780,6 +784,16 @@ Public Class VOR_Router
 
         End Set
     End Property
+
+    Public Sub DebugBSP(ByVal p As Point)
+
+        Dim C As New Coords
+        C.Lon_Deg = _2D_Viewer.CanvasToLon(p.X)
+        C.Lat_Deg = _2D_Viewer.CanvasToLat(p.X)
+
+        AddLog(GSHHS_Reader._Tree.DebugInfo(C))
+
+    End Sub
 
     Public ReadOnly Property DiffEvolution() As ObservableCollection(Of Decimal)
         Get

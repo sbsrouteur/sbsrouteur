@@ -24,14 +24,14 @@ Public Class TravelCalculator
 
     Private Const PRECISION As Integer = 100000
 
-    Private _CapCached As Boolean = False
-    Private _DistanceCached As Boolean = False
+    'Private _CapCached As Boolean = False
+    'Private _DistanceCached As Boolean = False
 
     Public ReadOnly Property Cap() As Double
         Get
-            If _CapCached AndAlso Not Double.IsNaN(_Cap) Then
-                Return _Cap
-            End If
+            'If _CapCached AndAlso Not Double.IsNaN(_Cap) Then
+            '    Return _Cap
+            'End If
             If StartPoint Is Nothing Or EndPoint Is Nothing Then
                 _Cap = 0
             Else
@@ -47,7 +47,7 @@ Public Class TravelCalculator
                 Else
                     _Cap = (2 * Math.PI - A) / Math.PI * 180
                 End If
-                _CapCached = True
+                '_CapCached = True
             End If
             Return _Cap
             
@@ -61,9 +61,9 @@ Public Class TravelCalculator
 
     Public ReadOnly Property DistanceAngle() As Double
         Get
-            If _DistanceCached AndAlso Not Double.IsNaN(_DistanceAngle) Then
-                Return _DistanceAngle
-            End If
+            'If _DistanceCached AndAlso Not Double.IsNaN(_DistanceAngle) Then
+            '    Return _DistanceAngle
+            'End If
             If StartPoint Is Nothing Or EndPoint Is Nothing Then
                 _DistanceAngle = 0
             Else
@@ -87,7 +87,7 @@ Public Class TravelCalculator
 
                 End If
                 _DistanceAngle = Math.Acos(dValue)
-                _DistanceCached = True
+                '_DistanceCached = True
             End If
 
             Return _DistanceAngle
@@ -238,8 +238,8 @@ Public Class TravelCalculator
             _EndPoint = value
             'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("EndPoint"))
             'RefreshCalculatorProps(Me, Nothing)
-            _CapCached = False
-            _DistanceCached = False
+            '_CapCached = False
+            '_DistanceCached = False
         End Set
     End Property
 
@@ -313,8 +313,8 @@ Public Class TravelCalculator
             _StartPoint = value
             'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("StartPoint"))
             'RefreshCalculatorProps(Nothing, Nothing)
-            _CapCached = False
-            _DistanceCached = False
+            '_CapCached = False
+            '_DistanceCached = False
         End Set
     End Property
 
@@ -360,12 +360,12 @@ Public Class TravelCalculator
     End Function
 
 
-    Private Sub _EndPoint_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _EndPoint.PropertyChanged, _StartPoint.PropertyChanged
+    'Private Sub _EndPoint_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _EndPoint.PropertyChanged, _StartPoint.PropertyChanged
 
-        _CapCached = False
-        _DistanceCached = False
+    '    _CapCached = False
+    '    _DistanceCached = False
 
-    End Sub
+    'End Sub
 
     ''' <summary>
     ''' Return the shortest distance to the WP segment

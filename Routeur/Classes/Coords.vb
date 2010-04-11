@@ -7,10 +7,10 @@ Imports System.Math
 
 Public Class Coords
     Implements ICoords
-    Implements INotifyPropertyChanged
+    'Implements INotifyPropertyChanged
 
 
-    Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
+    'Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
     Public Enum NORTH_SOUTH As Integer
         N = 1
@@ -24,7 +24,7 @@ Public Class Coords
 
     Private _Lat As Double
     Private _Lon As Double
-    Private _Name As String
+    'Private _Name As String
     Private _HashCode As Long = 0
 
 
@@ -34,8 +34,8 @@ Public Class Coords
         End Get
         Set(ByVal value As Double)
             _Lat = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat_Deg"))
+            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat"))
+            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat_Deg"))
         End Set
     End Property
 
@@ -45,8 +45,8 @@ Public Class Coords
         End Get
         Set(ByVal value As Double)
             _Lat = value / 180 * Math.PI
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat_Deg"))
+            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat"))
+            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat_Deg"))
         End Set
     End Property
 
@@ -65,8 +65,8 @@ Public Class Coords
 
             End While
             _Lon = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon_Deg"))
+            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon"))
+            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon_Deg"))
         End Set
     End Property
 
@@ -78,20 +78,20 @@ Public Class Coords
 
 
             Lon = value / 180 * Math.PI
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon_Deg"))
+            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon"))
+            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon_Deg"))
         End Set
     End Property
 
-    Public Property Name() As String
-        Get
-            Return _Name
-        End Get
-        Set(ByVal value As String)
-            _Name = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Name"))
-        End Set
-    End Property
+    'Public Property Name() As String
+    '    Get
+    '        Return _Name
+    '    End Get
+    '    Set(ByVal value As String)
+    '        _Name = value
+    '        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Name"))
+    '    End Set
+    'End Property
 
     Public Shared Operator =(ByVal v1 As Coords, ByVal v2 As Coords) As Boolean
 
@@ -198,21 +198,21 @@ Public Class Coords
 
     End Sub
 
-    Public Sub New(ByVal P As XmlElement)
+    'Public Sub New(ByVal P As XmlElement)
 
-        For Each A As XmlAttribute In P.Attributes
+    '    For Each A As XmlAttribute In P.Attributes
 
-            Select Case A.Name
-                Case "Lat"
-                    Lat = Val(A.Value)
-                Case "Lon"
-                    Lon = Val(A.Value)
+    '        Select Case A.Name
+    '            Case "Lat"
+    '                Lat = Val(A.Value)
+    '            Case "Lon"
+    '                Lon = Val(A.Value)
 
-                Case "Name"
-                    Name = CStr(A.Value)
-            End Select
-        Next
-    End Sub
+    '            Case "Name"
+    '                Name = CStr(A.Value)
+    '        End Select
+    '    Next
+    'End Sub
 
     Public Sub Normalize()
 
@@ -265,43 +265,43 @@ Public Class Coords
     End Function
 End Class
 
-Public Class WayPoints
+'Public Class WayPoints
 
-    Public Points As New ObservableCollection(Of Coords)
+'    Public Points As New ObservableCollection(Of Coords)
 
-    Private Sub LoadPointList(ByVal Points As XmlElement)
+'    Private Sub LoadPointList(ByVal Points As XmlElement)
 
-        For Each P In Points.ChildNodes
+'        For Each P In Points.ChildNodes
 
-            If TypeOf P Is XmlElement AndAlso CType(P, XmlElement).Name = "Point" Then
-                Dim NewP As New Coords(CType(P, XmlElement))
-                Me.Points.Add(NewP)
-            End If
+'            If TypeOf P Is XmlElement AndAlso CType(P, XmlElement).Name = "Point" Then
+'                Dim NewP As New Coords(CType(P, XmlElement))
+'                Me.Points.Add(NewP)
+'            End If
 
-        Next
+'        Next
 
-    End Sub
-
-    
-    Public Sub New(ByVal Doc As XmlDataProvider)
-
-        Doc.Refresh()
-        Points.Clear()
-
-        For Each node In Doc.Document.ChildNodes
+'    End Sub
 
 
-            If TypeOf node Is XmlElement Then
-                If CType(node, XmlElement).Name = "Points" Then
-                    LoadPointList(CType(node, XmlElement))
-                End If
-            End If
+'    Public Sub New(ByVal Doc As XmlDataProvider)
+
+'        Doc.Refresh()
+'        Points.Clear()
+
+'        For Each node In Doc.Document.ChildNodes
 
 
-        Next
+'            If TypeOf node Is XmlElement Then
+'                If CType(node, XmlElement).Name = "Points" Then
+'                    LoadPointList(CType(node, XmlElement))
+'                End If
+'            End If
 
-    End Sub
 
-End Class
+'        Next
+
+'    End Sub
+
+'End Class
 
 
