@@ -11,6 +11,10 @@
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 	</Style>
 	
+	<Style TargetType="{x:Type GroupBox}" >
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+	</Style>
+	
 	<Style TargetType ="{x:Type TextBox}" >
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 	</Style>

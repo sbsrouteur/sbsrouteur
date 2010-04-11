@@ -1,10 +1,10 @@
 ﻿Public Class MeteoArray
 
     Public Const GRID_GRAIN As Double = 0.5
-    Public Data(,) As MeteoInfo
+    Private _LonData()() As MeteoInfo
 
     Public Sub New()
-        ReDim Data(CInt(360 / GRID_GRAIN) - 1, CInt(180 / GRID_GRAIN) - 1)
+        'ReDim Data(CInt(360 / GRID_GRAIN) - 1, CInt(180 / GRID_GRAIN) - 1)
     End Sub
 
 
@@ -42,5 +42,42 @@
         Return GRID_GRAIN * Lat - 90
 
     End Function
+
+    Public Shared Function GetMaxLatindex() As Integer
+        Return GetLatArrayIndex(90 - GRID_GRAIN)
+    End Function
+
+    Public Shared Function GetMaxLonindex() As Integer
+        Return GetLonArrayIndex(180 - GRID_GRAIN)
+    End Function
+
+
+    Public ReadOnly Property Data(ByVal LonIndex As Integer, ByVal LatIndex As Integer) As MeteoInfo
+        Get
+            If LatIndex < 0 OrElse LonIndex < 0 Then
+                Throw New InvalidOperationException("NegLat index or neglon index <0")
+            End If
+
+            If LatIndex > GetMaxLatindex() OrElse LonIndex > GetMaxLonindex() Then
+                Throw New InvalidOperationException("NegLat index or neglon index out of bound")
+            End If
+
+            If _LonData Is Nothing OrElse LonIndex > UBound(_LonData) Then
+                ReDim Preserve _LonData(LonIndex)
+            End If
+
+            If _LonData(LonIndex) Is Nothing OrElse LatIndex > UBound(_LonData(LonIndex)) Then
+                ReDim Preserve _LonData(LonIndex)(LatIndex)
+            End If
+
+            If _LonData(LonIndex)(LatIndex) Is Nothing Then
+                _LonData(LonIndex)(LatIndex) = New MeteoInfo
+            End If
+
+            Return _LonData(LonIndex)(LatIndex)
+
+
+        End Get
+    End Property
 
 End Class

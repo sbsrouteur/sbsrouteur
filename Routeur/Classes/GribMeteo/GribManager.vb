@@ -362,8 +362,8 @@ Public Class GribManager
 
 
 
-        Dim Lon1 As Integer = (Lon0 + _MeteoArrays(MeteoIndex).Data.GetUpperBound(0) + 1) Mod (_MeteoArrays(MeteoIndex).Data.GetUpperBound(0))
-        Dim Lat1 As Integer = (Lat0 + _MeteoArrays(MeteoIndex).Data.GetUpperBound(1) + 1) Mod (_MeteoArrays(MeteoIndex).Data.GetUpperBound(1))
+        Dim Lon1 As Integer = (Lon0 + MeteoArray.GetMaxLonindex + 1) Mod (MeteoArray.GetMaxLonindex)
+        Dim Lat1 As Integer = (Lat0 + MeteoArray.GetMaxLatindex + 1) Mod (MeteoArray.GetMaxLatindex)
 
         If Not CheckGribData(MeteoIndex, Lon0, Lat1, NoLock) OrElse _
             Not CheckGribData(MeteoIndex, Lon1, Lat0, NoLock) OrElse _
@@ -537,9 +537,9 @@ Public Class GribManager
                 If Math.Abs(lon - CurLon) < 5 AndAlso Math.Abs(lat - CurLat) < 5 Then
 
 
-                    If _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat)) Is Nothing Then
-                        _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat)) = New MeteoInfo
-                    End If
+                    'If _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat)) Is Nothing Then
+                    '    _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat)) = New MeteoInfo
+                    'End If
 
                     Dim Data As MeteoInfo = _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat))
 
@@ -717,9 +717,9 @@ Public Class GribManager
                     'Grib lon are inverted
                     'lLon = -lLon
 
-                    If _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(lLon), MeteoArray.GetLatArrayIndex(lLat)) Is Nothing Then
-                        _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(lLon), MeteoArray.GetLatArrayIndex(lLat)) = New MeteoInfo
-                    End If
+                    'If _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(lLon), MeteoArray.GetLatArrayIndex(lLat)) Is Nothing Then
+                    '    _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(lLon), MeteoArray.GetLatArrayIndex(lLat)) = New MeteoInfo
+                    'End If
 
                     Dim Data As MeteoInfo = _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(lLon), MeteoArray.GetLatArrayIndex(lLat))
 

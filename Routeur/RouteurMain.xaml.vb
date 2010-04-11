@@ -86,6 +86,12 @@ Partial Public Class RouteurMain
     Private Sub MouseEndDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
         _DragCanvas = False
         'Console.WriteLine("dragged to " & Me.SldLon.Value & " " & Me.SldLat.Value)
+        'If e.ClickCount > 1 Then
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+        Dim P As New Point
+        M.VorHandler.DebugBSP(e.GetPosition(Me.VOR2DViewer))
+        'End If
+
     End Sub
 
     Private Sub MouseMoveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
@@ -252,5 +258,5 @@ Partial Public Class RouteurMain
     	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
     End Sub
 
- 
+
 End Class

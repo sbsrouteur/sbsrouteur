@@ -59,11 +59,11 @@ Partial Public Class _2D_Viewer
 
     End Sub
 
-    Public Function CanvasToLat(ByVal C As Double) As Double
+    Public Shared Function CanvasToLat(ByVal C As Double) As Double
         Return (90 * DEFINITION - C) / RouteurModel.SCALE + RouteurModel.LAT_OFFSET '90 / RouteurModel.SCALE - C / DEFINITION / RouteurModel.SCALE + RouteurModel.LAT_OFFSET
     End Function
 
-    Public Function CanvasToLon(ByVal V As Double) As Double
+    Public Shared Function CanvasToLon(ByVal V As Double) As Double
         Return (V - 180 * DEFINITION) / RouteurModel.SCALE + RouteurModel.LON_OFFSET '(V - 180 * DEFINITION) / DEFINITION / RouteurModel.SCALE
     End Function
 

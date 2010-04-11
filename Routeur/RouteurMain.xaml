@@ -240,17 +240,6 @@
 					</Grid.RowDefinitions>
 					<GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
-					<Canvas VerticalAlignment="Stretch" Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
-						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Left" VerticalAlignment="Top" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute">
-							<Routeur:_2D_Viewer.RenderTransform>
-								<TransformGroup>
-									<ScaleTransform ScaleX="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ScaleY="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-									<TranslateTransform X="{Binding Value, ElementName=SldLon, Mode=Default}" Y="{Binding Value, ElementName=SldLat}"/>
-								</TransformGroup>
-							</Routeur:_2D_Viewer.RenderTransform>
-						</Routeur:_2D_Viewer>
-						
-					</Canvas>
 					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left">
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
 							<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
@@ -268,6 +257,17 @@
 						<Grid MinWidth="150" MinHeight="150" Canvas.Left="253" Canvas.Top="0">
 							<Path Data="{Binding VorHandler.CurVMGEnveloppe, Mode=Default}" Stroke="#FF2B14E5" Stretch="Fill" Margin="0,0,-143,-103" />
 						</Grid>
+						
+					</Canvas>
+					<Canvas VerticalAlignment="Stretch" Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
+						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Left" VerticalAlignment="Top" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute">
+							<Routeur:_2D_Viewer.RenderTransform>
+								<TransformGroup>
+									<ScaleTransform ScaleX="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ScaleY="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+									<TranslateTransform X="{Binding Value, ElementName=SldLon, Mode=Default}" Y="{Binding Value, ElementName=SldLat}"/>
+								</TransformGroup>
+							</Routeur:_2D_Viewer.RenderTransform>
+						</Routeur:_2D_Viewer>
 						
 					</Canvas>
 					

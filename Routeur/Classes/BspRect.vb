@@ -1,7 +1,7 @@
 ﻿Imports System.Math
 
 Public Class BspRect
-    Public Const GRID_GRAIN_OVERSAMPLE As Integer = 8
+    Public Const GRID_GRAIN_OVERSAMPLE As Integer = 1
     Private Const MAX_IGNORED_COUNT As Integer = 2000
 
     Public Enum inlandstate As Byte
@@ -50,6 +50,8 @@ Public Class BspRect
 
         If 16 * RouteurModel.GridGrain < MIN_POLYGON_SPLIT Then
             MIN_POLYGON_SPLIT = 16 * RouteurModel.GridGrain
+        Else
+            MIN_POLYGON_SPLIT = RouteurModel.GridGrain
         End If
 
     End Sub
@@ -95,96 +97,6 @@ Public Class BspRect
         End Get
     End Property
 
-    Private ReadOnly Property GetRectSide(ByVal Lat As Double, ByVal Lon As Double) As Integer
-        Get
-            Dim RCosAlpha = (Lon - _MidLon) / 2
-            Dim RSinAlpha = (Lat - _MidLat)
-            Dim Side As Integer
-
-            If RCosAlpha = 0 OrElse Abs(RSinAlpha / RCosAlpha) > 1 Then
-                'Top/Bottom
-                If RSinAlpha > 0 Then
-                    Side = 0
-                Else
-                    Side = 2
-                End If
-            Else
-                'Left Right
-                If RCosAlpha > 0 Then
-                    Side = 1
-                Else
-                    Side = 3
-                End If
-            End If
-
-            Return Side
-        End Get
-    End Property
-
-    Private Sub GoAroundCorners(ByVal EntrySide As Integer, ByVal exitside As Integer, ByVal Polygon As Coords(), ByRef CurIndex As Integer, ByVal TurnCCW As Boolean)
-
-        Dim CurSide As Integer = EntrySide
-        Dim Corner As New Coords
-
-        Do
-            If TurnCCW Then
-                Select CurSide
-                    Case 0
-                        'Add NE Corner
-                        Corner.Lat = _p1.Lat
-                        Corner.Lon = _p2.Lon
-
-                    Case 1
-                        'Add SE Corner
-                        Corner.Lat = _p1.Lat
-                        Corner.Lon = _p1.Lon
-
-                    Case 2
-                        'Add SW Corner
-                        Corner.Lat = _p2.Lat
-                        Corner.Lon = _p1.Lon
-
-                    Case 3
-                        'Add NW Corner
-                        Corner.Lat = _p2.Lat
-                        Corner.Lon = _p2.Lon
-
-                End Select
-
-                CurSide += 3
-            Else
-                Select Case CurSide
-                    Case 0
-                        'Add NE Corner
-                        Corner.Lat = _p1.Lat
-                        Corner.Lon = _p1.Lon
-
-                    Case 1
-                        'Add SE Corner
-                        Corner.Lat = _p2.Lat
-                        Corner.Lon = _p1.Lon
-
-                    Case 2
-                        'Add SW Corner
-                        Corner.Lat = _p2.Lat
-                        Corner.Lon = _p2.Lon
-
-                    Case 3
-                        'Add NW Corner
-                        Corner.Lat = _p1.Lat
-                        Corner.Lon = _p2.Lon
-
-                End Select
-
-                CurSide += 1
-            End If
-            CurSide = CurSide Mod 4
-
-            Polygon(CurIndex) = New Coords(Corner)
-            CurIndex += 1
-
-        Loop Until CurSide = exitside
-    End Sub
 
 
     Public ReadOnly Property InLand() As inlandstate
@@ -202,9 +114,9 @@ Public Class BspRect
             For i = 0 To 3
 
                 curvalue = _SubRects(i).InLand
-                If _SubRects(i).PolygonCount <> 0 Then
-                    Return retvalue
-                End If
+                'If _SubRects(i).PolygonCount <> 0 Then
+                '    Return retvalue
+                'End If
                 If curvalue = inlandstate.Unknown Then
                     shouldReturn = True
                     Return retvalue
@@ -220,8 +132,16 @@ Public Class BspRect
 
 
             _Inland = retvalue
-            _PolyGons = _NoPolyGons
+            If _PolyGons Is Nothing OrElse _PolyGons Is _NoPolyGons Then
+                _PolyGons = New LinkedList(Of Polygon)
+            End If
+
             For i = 0 To 3
+                If Not _SubRects(i).polygons Is Nothing Then
+                    For Each p In _SubRects(i).polygons
+                        _PolyGons.AddLast(p)
+                    Next
+                End If
                 _SubRects(i).P1 = Nothing
                 _SubRects(i).P2 = Nothing
                 _SubRects(i) = Nothing
@@ -236,11 +156,23 @@ Public Class BspRect
             'GC.Collect()
             'End If
 
-
-
         End If
 
         Return inlandstate.Unknown
+
+    End Function
+
+    Public Function DebugInfo(ByVal c As Coords) As String
+        Dim RetString As String = ""
+        Dim Child As BspRect = GetChildFromCoords(c, RouteurModel.GridGrain)
+
+        If child Is Nothing Then
+            RetString = c.ToString & " in " & _Inland.ToString & "dx " & (_p1.Lon_Deg - _p2.Lon_Deg).ToString("f2") & " and " & (_p1.Lat_Deg - _p2.Lat_Deg).ToString("f2")
+        Else
+            RetString = child.DebugInfo(c)
+        End If
+
+        Return RetString
 
     End Function
 
@@ -411,6 +343,14 @@ Public Class BspRect
             End If
         End Get
     End Property
+
+    Private ReadOnly Property Polygons() As LinkedList(Of Polygon)
+        Get
+            Return _PolyGons
+        End Get
+    End Property
+
+
     Public Function Split(ByVal GridGrain As Double) As Boolean
 
 
@@ -421,7 +361,7 @@ Public Class BspRect
         Dim lP2Lat As Double = _p2.Lat
         Dim DeltaY As Double = lP1Lat - _MidLat '(lP1Lat - lP2Lat) / 2
 
-        If Math.Abs(DeltaX) < MIN_POLYGON_SPLIT / 180 * Math.PI Then
+        If Math.Abs(2 * DeltaX) < MIN_POLYGON_SPLIT / 180 * Math.PI Then
 
             Return False
         End If
