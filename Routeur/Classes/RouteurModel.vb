@@ -14,6 +14,7 @@ Public Class RouteurModel
 
     Private WithEvents _VorHandler As VOR_Router
     Private WithEvents _2DViewer As _2D_Viewer
+    Private _Prefs As RacePrefs
 
     Private WithEvents _CurPlayer As clsPlayerInfo
     Public Shared PropTmpRoute As New PropertyChangedEventArgs("TmpRoute")
@@ -258,6 +259,17 @@ Public Class RouteurModel
 
     End Sub
 
+    Public ReadOnly Property RacePrefs() As RacePrefs
+        Get
+            If _Prefs Is Nothing Then
+                _Prefs = RacePrefs.GetRaceInfo(_P_Info(0).RaceInfo.idraces)
+            End If
+
+            Return _Prefs
+        End Get
+    End Property
+
+
     Public Sub Refresh()
 
         If Not The2DViewer Is Nothing Then
@@ -316,7 +328,6 @@ Public Class RouteurModel
 
     Private Sub LoadParams()
 
-        Dim RacePrefs As RacePrefs = RacePrefs.GetRaceInfo(_P_Info(0).RaceInfo.idraces)
         GridGrain = RacePrefs.GridGrain
         MapLevel = RacePrefs.MapLevel.ToString.Substring(0, 1)
         EllipseFactor = RacePrefs.EllipseExtFactor

@@ -27,7 +27,7 @@ Public Class RacePrefs
     Private _RaceOffset(3) As Double
     Private _Levels As List(Of EnumMapLevels)
     Private _RaceID As Integer
-    Private _EllipseExtFactor As Double 
+    Private _EllipseExtFactor As Double
 
     Public Shared Function GetRaceInfo(ByVal RaceID As Integer) As RacePrefs
 

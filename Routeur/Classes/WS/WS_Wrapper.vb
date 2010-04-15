@@ -19,7 +19,7 @@ Module WS_Wrapper
             Retstring = RequestPage(URL)
             Return Parse(Retstring)
         Catch wex As WebException
-            If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+            If wex.Response Is Nothing OrElse CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
                 'Login error
                 Return Nothing
             Else
