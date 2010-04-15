@@ -1,5 +1,6 @@
 ﻿Imports System.ComponentModel
 Imports System.Net
+Imports System.Threading
 
 
 Public Class GribManager
@@ -28,6 +29,9 @@ Public Class GribManager
     Private _AnglePointer As Integer = 0
     Private _WindPointer As Integer = 0
     Private Shared _GribMonitor As New Object
+    Private WithEvents _Process As New Process
+    Private _Evt As New AutoResetEvent(False)
+
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -119,7 +123,7 @@ Public Class GribManager
             Dim rs As System.IO.Stream
             Dim WaitStart As DateTime = Now
 
-            
+
             While Not FileOK
                 Dim GribURL As String = GetGribURL(MeteoIndex * GRIB_GRAIN + RouteurModel.GribOffset, retries * GRIB_PERIOD, WLon, ELon, NLat, SLat, False)
                 'Dim Http As HttpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), HttpWebRequest)
@@ -201,7 +205,7 @@ Public Class GribManager
                     Return ""
                 End If
 
-               Dim foutput As New System.IO.StreamWriter(System.IO.Path.Combine(".\GribData", GribDataFileName))
+                Dim foutput As New System.IO.StreamWriter(System.IO.Path.Combine(".\GribData", GribDataFileName))
                 foutput.Write(f2.ReadToEnd)
                 foutput.Close()
                 f2.Close()
@@ -287,7 +291,7 @@ Public Class GribManager
     Private Function SimpleAverage(ByVal V00 As Double, ByVal V01 As Double, ByVal dX As Double) As Double
 
         Return V00 + dX * (V01 - V00)
-        
+
     End Function
 
     Private Function QuadraticAverageAngle(ByVal V00 As Double, ByVal V01 As Double, ByVal v10 As Double, ByVal V11 As Double, ByVal dX As Double, ByVal dY As Double, Optional ByRef Dir As DirInterpolation = 0) As Double
@@ -314,7 +318,7 @@ Public Class GribManager
 
         V1 = v10 + dY * (V11 - v10)
 
-        
+
         Return V0 + dX * (V1 - V0)
 
     End Function
@@ -346,7 +350,7 @@ Public Class GribManager
         Dim Lat0 As Integer = MeteoArray.GetLatArrayIndex(Lat)
         Dim dX As Double = ((Lon - MeteoArray.GetArrayIndexLon(Lon0)) Mod 360) / MeteoArray.GRID_GRAIN
         Dim dY As Double = (Lat - MeteoArray.GetArrayIndexLat(Lat0)) / MeteoArray.GRID_GRAIN
-        
+
 
         If Not CheckGribData(MeteoIndex, Lon0, Lat0, NoLock) Then
             Return Nothing
@@ -564,7 +568,7 @@ Public Class GribManager
     End Function
     Private Function LoadGribData(ByVal MeteoIndex As Integer, ByVal lon As Double, ByVal lat As Double) As Boolean
 
-        Const SquareWidth As Integer = 20
+        Const SquareWidth As Integer = 5
         Dim WLon As Integer = CInt(lon - SquareWidth / 2) 'revert grib lon for request!!!
         Dim ELon As Integer = WLon + SquareWidth
         Dim NLat As Integer = CInt(lat + SquareWidth / 2)
@@ -617,7 +621,6 @@ Public Class GribManager
 
             f.Close()
 
-            Dim App As New Process
             Dim Si As New System.Diagnostics.ProcessStartInfo
 
             With Si
@@ -627,8 +630,11 @@ Public Class GribManager
                 .CreateNoWindow = True
             End With
 
-            App.StartInfo = Si
-            App.Start()
+            _Process.StartInfo = Si
+            _Process.EnableRaisingEvents = True
+            _Process.Start()
+
+            _Evt.WaitOne()
 
             'App.WaitForExit(0)
             WaitStart = Now
@@ -653,7 +659,9 @@ Public Class GribManager
                     If Now.Subtract(WaitStart).TotalSeconds > 15 Then
                         Exit While
                     End If
-                    System.Threading.Thread.Sleep(500)
+                    If f2 Is Nothing Then
+                        System.Threading.Thread.Sleep(500)
+                    End If
                 Catch ex As Exception
                     System.Threading.Thread.Sleep(100)
                 End Try
@@ -665,7 +673,7 @@ Public Class GribManager
 
             Dim S As String = f2.ReadToEnd
             f2.Close()
-            App.Dispose()
+            '_Process.Dispose()
 
             Dim lines() As String = S.Split(CChar(vbLf))
 
@@ -786,4 +794,8 @@ Public Class GribManager
 
     End Sub
 
+    Private Sub _Process_Exited(ByVal sender As Object, ByVal e As System.EventArgs) Handles _Process.Exited
+
+        _Evt.Set()
+    End Sub
 End Class
