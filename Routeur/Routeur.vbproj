@@ -208,6 +208,7 @@
     <Compile Include="Classes\GribMeteo\GribManager.vb" />
     <Compile Include="Classes\GridRouter\GridProgressContext.vb" />
     <Compile Include="Classes\GridRouter\GridRouter.vb" />
+    <Compile Include="Classes\GridRouter\RouterPrefs.vb" />
     <Compile Include="Classes\GridRouter\RoutingGridPoint.vb" />
     <Compile Include="Classes\GSHHS\GSHHS_Reader.vb" />
     <Compile Include="Classes\GribMeteo\MeteoArray.vb" />
