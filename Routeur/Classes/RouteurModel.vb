@@ -261,7 +261,7 @@ Public Class RouteurModel
 
     Public ReadOnly Property RacePrefs() As RacePrefs
         Get
-            If _Prefs Is Nothing Then
+            If _Prefs Is Nothing AndAlso _P_Info(0) IsNot Nothing Then
                 _Prefs = RacePrefs.GetRaceInfo(_P_Info(0).RaceInfo.idraces)
             End If
 
@@ -336,6 +336,8 @@ Public Class RouteurModel
         For i = 0 To 3
             _RaceZoneOffsets(i) = RacePrefs.RaceOffset(i)
         Next
+
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RacePrefs"))
 
         
     End Sub

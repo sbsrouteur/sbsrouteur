@@ -164,16 +164,16 @@
 	            <Button Width="Auto" Height="26.92" Content="Redraw" Click="RedrawClick" Margin="4,0"/>
 			</MenuItem>
 			<MenuItem Header="Information" VerticalAlignment="Center">
-				<TextBlock Text="{Binding MeteoValidSpan, Mode=Default, StringFormat='Meteo update in \{0:HH\}'}" VerticalAlignment="Center"/>
+				<TextBlock Text="{Binding MeteoValidSpan, Mode=Default, StringFormat={} Meteo update in {0:HH}}" VerticalAlignment="Center"/>
 				<Separator />
-				<ComboBox HorizontalAlignment="Right" IsSynchronizedWithCurrentItem="True" x:Name="comboBox" 
-					ItemsSource="{Binding P_Info, Mode=OneWay}" SelectedItem="{Binding CurPlayer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Nick" Margin="4,0" Height="26.92"/>
+				<ComboBox IsSynchronizedWithCurrentItem="True" x:Name="comboBox" 
+					ItemsSource="{Binding P_Info, Mode=OneWay}" SelectedItem="{Binding CurPlayer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Nick"/>
 				<Separator />
-				<TextBlock Text="{Binding CurPlayer.RacePrefs.MapLevel, StringFormat=' MapLevel \{0\}', Mode=Default}" />					
-				<TextBlock Text="{Binding CurPlayer.RacePrefs.GridGrain, StringFormat=' MapLevel \{0\}', Mode=Default}" />					
+				<TextBlock Text="{Binding RacePrefs.MapLevel, StringFormat=MapLevel {0}, Mode=Default}" />					
+				<TextBlock Text="{Binding RacePrefs.GridGrain, StringFormat=GridGrain {0:F2}, Mode=Default}" />					
 			</MenuItem>
 			<MenuItem Header="Display" VerticalAlignment="Center">
-				<CheckBox Content="Show Stats" VerticalAlignment="Center"/>
+				<CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center"/>
 				<CheckBox Content="Hide Boat &amp; Wind Arrow" IsChecked="{Binding VorHandler.HideWindArrow, Mode=Default}" VerticalAlignment="Center" />
 				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="False"/>
 			
@@ -359,7 +359,7 @@
 						<TextBlock Width="Auto" Text="{Binding VorHandler.PositionDataAge, Converter={StaticResource CoordsConverter}, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom"/>
 						<TextBlock Width="Auto" Text="{Binding VorHandler.UserInfo.position.classement, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom" FontSize="24"/>
 					</DockPanel>
-					<GroupBox Margin="0,0,0,8" Header="Stats" Grid.Column="3" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
+					<GroupBox x:Name="groupBox1" Margin="0,0,0,8" Header="Stats" Grid.Column="3" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
 					</GroupBox>
 				</Grid>
