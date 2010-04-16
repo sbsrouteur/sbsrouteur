@@ -59,7 +59,7 @@ Public Class RacePrefs
                 .MapLevel = EnumMapLevels.intermediate
                 .GridGrain = 0.01
                 For i As Integer = 0 To 3
-                    .RaceOffset(i) = 0
+                    .RaceOffset(i) = 0.5
                 Next
                 .EllipseExtFactor = 1.3
             End With

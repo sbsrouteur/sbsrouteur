@@ -307,6 +307,10 @@ Public Class RouteurModel
         End Get
     End Property
 
+    Public Sub RegisteredPlayersUpdated()
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RegisteredPlayers"))
+    End Sub
+
     Public ReadOnly Property AppString() As String
         Get
             Return "Routeur " & My.Application.Info.Version.ToString

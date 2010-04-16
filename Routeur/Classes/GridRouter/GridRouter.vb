@@ -242,6 +242,8 @@ Public Class GridRouter
                     End If
                     P = P.From
                 End While
+                'Add route 1st point
+                RetRoute.Insert(0, P.P)
             End SyncLock
         Catch ex As Exception
 
