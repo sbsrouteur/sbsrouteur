@@ -68,7 +68,7 @@ Partial Public Class frmUserPicker
 
             P = New RegistryPlayerInfo(PName)
             SaveUserInfo(P)
-            R.RegisteredPlayers.Add(P)
+            R.RegisteredPlayersUpdated()
 
         End If
 

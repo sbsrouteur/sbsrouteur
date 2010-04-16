@@ -21,8 +21,12 @@ Public Class RoutingGridPoint
     Private _Iteration As Integer = 0
     Private _Loch As Double = 0
     Private _CrossedLine As Boolean
+    Private _Ortho As Double
+
+#If GRID_STATS Then
     Shared _BuildNeighboorsTicks As Long
     Shared _BuildNeighboorsCount As Long
+#End If
 
 
     Public Sub New(ByVal P As VOR_Router.clsrouteinfopoints, ByVal Iteration As Integer, ByVal loch As Double)
@@ -116,6 +120,15 @@ Public Class RoutingGridPoint
         End Get
         Set(ByVal value As Double)
             _Loch = value
+        End Set
+    End Property
+
+    Public Property Ortho() As Double
+        Get
+            Return _Ortho
+        End Get
+        Set(ByVal value As Double)
+            _Ortho = value
         End Set
     End Property
 
@@ -269,7 +282,7 @@ Public Class RoutingGridPoint
                             SyncLock Dictionnary
                                 If Not Dictionnary.Contains(D) Then
                                     G = New RoutingGridPoint(D, 0, tcCheck.SurfaceDistance)
-                                    'G.Dist = tc2.SurfaceDistance
+                                    G.Ortho = tcCheck.TrueCap
                                     G.Dist = GSHHS_Reader.HitDistance(G.P.P, WP, True)
                                     If G.Dist = Double.MaxValue Then
                                         G.Dist = Math.Min(tc2.SurfaceDistance, tc.SurfaceDistance)
@@ -342,9 +355,11 @@ Public Class RoutingGridPoint
         'SR.Flush()
         'log.Close()
 
+#If GRID_STATS Then
         _BuildNeighboorsTicks += Now.Subtract(StartList).Ticks
         _BuildNeighboorsCount += 1
         Stats.SetStatValue(Stats.StatID.GridAvgBuildListMS) = _BuildNeighboorsTicks / _BuildNeighboorsCount / TimeSpan.TicksPerMillisecond
+#End If
         Return
 
     End Sub

@@ -588,13 +588,13 @@ Render1:
                                         P1.Y = LatToCanvas(P.P.Lat_Deg)
                                         If FirstPoint Then
 
-                                            'If RouteIsWP Then 'Continue WP route from the last path point
-                                            PrevP.Lon = CurPos.Lon
-                                            PrevP.Lat = CurPos.Lat
-                                            PrevPoint.X = LonToCanvas(CurPos.Lon_Deg)
-                                            PrevPoint.Y = LatToCanvas(CurPos.Lat_Deg)
-                                            SafeDrawLine(DC, PrevP, P.P, routePen(PenNumber), PrevPoint, P1)
-                                            'End If
+                                            If RouteIsWP Then 'Continue WP route from the last path point
+                                                PrevP.Lon = CurPos.Lon
+                                                PrevP.Lat = CurPos.Lat
+                                                PrevPoint.X = LonToCanvas(CurPos.Lon_Deg)
+                                                PrevPoint.Y = LatToCanvas(CurPos.Lat_Deg)
+                                                SafeDrawLine(DC, PrevP, P.P, routePen(PenNumber), PrevPoint, P1)
+                                            End If
 
                                             FirstPoint = False
                                         Else
