@@ -33,12 +33,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3F20AFFD1444BBB42177BAB07002CFC6"
-        "OwnerKey" = "8:_AAFD4F7710CE4170974E9E184F5DBF5B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_47B2FCEFC59444A897C86EBFEE9F8841"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -47,18 +41,6 @@
         {
         "MsmKey" = "8:_9FD30967320E4E19B14F5101D3D84EC2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A64A8DE49C3718E1B7F98B1F99F9657C"
-        "OwnerKey" = "8:_3F20AFFD1444BBB42177BAB07002CFC6"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A64A8DE49C3718E1B7F98B1F99F9657C"
-        "OwnerKey" = "8:_AAFD4F7710CE4170974E9E184F5DBF5B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -88,12 +70,6 @@
         "Entry"
         {
         "MsmKey" = "8:_DDE03F4DA402F95D680B034BAAC219BC"
-        "OwnerKey" = "8:_3F20AFFD1444BBB42177BAB07002CFC6"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DDE03F4DA402F95D680B034BAAC219BC"
         "OwnerKey" = "8:_AAFD4F7710CE4170974E9E184F5DBF5B"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -118,19 +94,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3F20AFFD1444BBB42177BAB07002CFC6"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_DDE03F4DA402F95D680B034BAAC219BC"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A64A8DE49C3718E1B7F98B1F99F9657C"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -288,37 +252,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_3F20AFFD1444BBB42177BAB07002CFC6"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Microsoft.Expression.Interactions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_3F20AFFD1444BBB42177BAB07002CFC6"
-                    {
-                    "Name" = "8:Microsoft.Expression.Interactions.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Microsoft.Expression.Interactions.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_AE3B60F23EAA4A4D98127D1BD90E3D0A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_47B2FCEFC59444A897C86EBFEE9F8841"
             {
             "SourcePath" = "8:..\\Routeur\\bin\\Grib2\\cygz.dll"
@@ -357,37 +290,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A64A8DE49C3718E1B7F98B1F99F9657C"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:System.Windows.Interactivity, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_A64A8DE49C3718E1B7F98B1F99F9657C"
-                    {
-                    "Name" = "8:System.Windows.Interactivity.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:System.Windows.Interactivity.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_AE3B60F23EAA4A4D98127D1BD90E3D0A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A796B91DA5BE40E8AF72D4E650B45982"
@@ -632,14 +534,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Routeur"
-        "ProductCode" = "8:{B7B5C56E-76AF-49BA-956D-FD2F6E31138B}"
-        "PackageCode" = "8:{EC61E3EC-828C-4F6D-AA14-96638857E4DD}"
+        "ProductCode" = "8:{C5E1B2E9-AF76-441F-8CFA-C4FB2FF2F7FA}"
+        "PackageCode" = "8:{474A536D-EE2E-4DFD-B7A0-191940FD8111}"
         "UpgradeCode" = "8:{AB55297F-8D40-4FA0-8773-32E1C48C358D}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.16.0"
+        "ProductVersion" = "8:1.17.0"
         "Manufacturer" = "8:sbs"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

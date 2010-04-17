@@ -150,6 +150,7 @@ Public Class RouteurModel
 
     Public Sub Init()
 
+
         Dim frm As New frmUserPicker
         frm.DataContext = Me
         frm.ShowDialog()
@@ -161,6 +162,7 @@ Public Class RouteurModel
         LoadRaceInfo(frm.PlayerInfo)
         LoadParams()
         CurPlayer = _P_Info(0)
+        OnWPListUpdate()
 
         Dim C1 As New Coords(90, 180)
         Dim C2 As New Coords(-90, -180)
@@ -178,8 +180,13 @@ Public Class RouteurModel
         End If
 
         RouteurModel.WPList.Clear()
-        RouteurModel.WPList.Add("<Auto> ???")
+
         For Each WPs In P_Info(0).RaceInfo.races_waypoints
+
+            If RouteurModel.WPList.Count = 0 Then
+                RouteurModel.WPList.Add("<Auto> " & WPs.ToString)
+                VorHandler.CurUserWP = "<Auto> " & WPs.ToString
+            End If
 
             RouteurModel.WPList.Add(WPs.ToString)
             For Each wp In WPs.WPs
@@ -288,7 +295,8 @@ Public Class RouteurModel
             If _CurWP <> value Then
                 _CurWP = value
                 If WPList.Count >= 1 AndAlso _CurWP > 0 AndAlso _CurWP < WPList.Count Then
-                    _WPList(0) = _P_Info(0).RaceInfo.races_waypoints(_CurWP - 1).ToString
+                    _WPList(0) = "<Auto> " & _P_Info(0).RaceInfo.races_waypoints(_CurWP - 1).ToString
+
                 End If
             End If
         End Set

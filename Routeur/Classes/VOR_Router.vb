@@ -285,12 +285,12 @@ Public Class VOR_Router
             If _CurUserWP <> 0 AndAlso _CurUserWP < RouteurModel.WPList.Count Then
 
                 Return RouteurModel.WPList(_CurUserWP)
-            ElseIf _CurUserWP = 0 AndAlso RouteurModel.CurWP < RouteurModel.WPList.Count Then
-                If RouteurModel.WPList(RouteurModel.CurWP) Is Nothing Then
-                    RouteurModel.WPList(0) = "<Auto> ??"
-                Else
-                    RouteurModel.WPList(0) = "<Auto> " & RouteurModel.WPList(RouteurModel.CurWP)
-                End If
+            ElseIf _CurUserWP = 0 AndAlso RouteurModel.WPList.Count > 0 Then 'AndAlso RouteurModel.CurWP > 0 AndAlso RouteurModel.CurWP <= RouteurModel.WPList.Count Then
+                'If RouteurModel.WPList(RouteurModel.CurWP) Is Nothing Then
+                '    RouteurModel.WPList(0) = "<Auto> ??"
+                'Else
+                '    RouteurModel.WPList(0) = "<Auto> " & RouteurModel.WPList(RouteurModel.CurWP)
+                'End If
 
                 Return RouteurModel.WPList(0)
             Else
@@ -318,10 +318,11 @@ Public Class VOR_Router
             End While
 
             If _CurUserWP <> Index Then
+                'Reset the router last start when changing dest
                 _CurUserWP = Index - 1
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurUserWP"))
                 _LastGridRouteStart = New DateTime(0)
             End If
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurUserWP"))
         End Set
     End Property
 
@@ -1707,6 +1708,7 @@ Public Class VOR_Router
         End If
         RetUser.date = Now.AddSeconds(+Nup - RouteurModel.VacationMinutes * 60)
         RouteurModel.CurWP = BoatInfo.NWP
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
         If BoatInfo.POS.IndexOf("/"c) >= 0 Then
             RetUser.position.classement = CInt(BoatInfo.POS.Substring(0, BoatInfo.POS.IndexOf("/"c)))
         End If
@@ -1721,114 +1723,6 @@ Public Class VOR_Router
         _WayPointDest.Lat_Deg = BoatInfo.WPLAT
         _WayPointDest.Lon_Deg = BoatInfo.WPLON
 
-        'For Each Line In lines
-
-        '    '    Line = Line.Trim
-        '    '    Dim EqualPos As Integer = Line.Trim.IndexOf("="c)
-
-        '    '    If Line.Trim.Length > 0 AndAlso EqualPos = 3 Then
-        '    '        'Line = Line.Replace(".", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)
-        '    Select Case Line.Substring(0, 4)
-
-        '        '            Case "BSP="
-        '        '                Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, TmpDbl)
-        '        '                RetUser.position.vitesse = CType(TmpDbl, Decimal)
-
-        '        '            Case "DNM="
-        '        '                Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, TmpDbl)
-        '        '                If TmpDbl <= 0.25 Then
-        '        '                    RouteurModel.CurWP += 1
-        '        '                End If
-
-        '        Case "HDG="
-        '            Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.cap)
-
-        '        Case "LAT="
-        '            Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.latitude)
-        '            RetUser.position.latitude /= 1000
-
-        '        Case "LOC="
-        '            Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Loch)
-        '            RetUser.Loch = Loch
-
-        '        Case "LON="
-        '            Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.longitude)
-        '            RetUser.position.longitude = RetUser.position.longitude / 1000
-
-        '        Case "LUP="
-        '            Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lup)
-
-        '        Case "PIM="
-        '            RetUser.position.ModePilote = CInt(Line.Substring(4))
-
-        '        Case "PIP="
-        '            If Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, TmpDbl) Then
-        '                If RetUser.position.ModePilote = 2 Then
-        '                    RetUser.position.AngleAllure = TmpDbl
-        '                End If
-        '            End If
-
-        '        Case "POL="
-        '            RetUser.type = Line.Substring(4)
-
-        '        Case "NUP="
-
-        '            Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Nup)
-
-        '        Case "NWP="
-        '            Integer.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, TmpInt)
-        '            RouteurModel.CurWP = TmpInt
-
-        '        Case "POS="
-        '            Double.TryParse(Line.Substring(4, Line.IndexOf("/"c) - 4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, TmpDbl)
-        '            RetUser.position.classement = CInt(TmpDbl)
-
-        '        Case "TWD="
-        '            Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.wind_angle)
-
-        '        Case "RAC="
-        '            If RouteurModel.GRID_FILE = "" Then
-        '                RouteurModel.GRID_FILE = "VLM-" & Line.Substring(4) & ".csv"
-        '            End If
-
-        '            RetUser.RaceID = Line.Substring(4)
-
-        '        Case "TWS="
-        '            Double.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, TmpDbl)
-        '            RetUser.position.wind_speed = CType(TmpDbl, Decimal)
-
-        '        Case "VAC="
-        '            Integer.TryParse(Line.Substring(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, TmpInt)
-        '            RouteurModel.VacationMinutes = TmpInt / 60
-
-        '        Case "no-d" 'no-data:not engaged on any race
-        '            RetUser.position.latitude = RouteurModel.START_LAT
-        '            RetUser.position.longitude = RouteurModel.START_LON
-
-
-        '    End Select
-        '    ElseIf EqualPos = 4 AndAlso Line.Substring(0, 3) = "PIL" Then
-
-        '    Dim PilIndex As Integer = CInt(Line.Substring(3, 1))
-        '    _Pilototo(PilIndex) = Line.Substring(5)
-
-        '    ElseIf EqualPos = 5 AndAlso Line.StartsWith("WPL") Then
-
-        '    Select Case Line.Substring(0, 5)
-        '        Case "WPLAT"
-        '            If Double.TryParse(Line.Substring(6), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, TmpDbl) Then
-        '                _WayPointDest.Lat_Deg = TmpDbl
-        '            End If
-
-        '        Case "WPLON"
-        '            If Double.TryParse(Line.Substring(6), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, TmpDbl) Then
-        '                _WayPointDest.Lon_Deg = TmpDbl
-        '            End If
-
-        '    End Select
-
-        '    End If
-        'Next
 
         If RetUser.Loch = 0 Then
             RetUser.date = Now
