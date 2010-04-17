@@ -7,6 +7,9 @@
 	x:Name="Window"
 	Title="Race Preferences"
 	Width="640" Height="480" Icon="/Routeur;Component/Graphics/maps-on-surface.ico">
+	<Window.Resources>
+		<local:TextToNumberConverter x:Key="TextToNumberConverter"/>
+	</Window.Resources>
 
 
 	<Grid x:Name="LayoutRoot">
@@ -28,10 +31,10 @@
 			</GridSplitter.Effect>
 		</GridSplitter>
 		<TextBlock x:Name="textBlock" TextWrapping="Wrap"><Run Text="GridGrain"/></TextBlock>
-		<TextBox Text="{Binding GridGrain, Mode=TwoWay, UpdateSourceTrigger=Default}" TextWrapping="Wrap" Grid.Column="1"  TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}" Grid.ColumnSpan="2"/>
+		<TextBox Text="{Binding GridGrain, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" TextWrapping="Wrap" Grid.Column="1"  TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}" Grid.ColumnSpan="2"/>
 		<TextBlock Text="Map Level	" Grid.Row="1" />
 		<TextBlock TextWrapping="Wrap"><Run Text="GridGrain"/></TextBlock>
-		<TextBox Text="{Binding EllipseExtFactor, Mode=TwoWay}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+		<TextBox Text="{Binding EllipseExtFactor, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
 		<TextBlock Grid.Row="2" TextWrapping="Wrap"><Run Text="Ellipse Ext. Factor"/></TextBlock>
 		<TextBlock  Grid.Row="3" Text="Race Zone Extension"/>
 		<ComboBox ItemsSource="{Binding ListMapLevels, Mode=Default}" Grid.Column="1" Grid.Row="1" SelectedValue="{Binding MapLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" />
@@ -47,10 +50,10 @@
 				<RowDefinition Height="Auto" MinHeight="24"/>
 			</Grid.RowDefinitions>
 			<Image VerticalAlignment="Center" Source="/Routeur;Component/Graphics/Earth_Map.jpg" Stretch="UniformToFill" Grid.Row="1" Grid.ColumnSpan="3"/>
-			<TextBox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding NorthOffset, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ToolTip="Extension to North" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
-			<TextBox HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding WestOffset, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.RowSpan="3" ToolTip="Extension to West" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
-			<TextBox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding SouthOffset, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.Row="3" ToolTip="Extension to South" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
-			<TextBox Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding EastOffset, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.RowSpan="3" ToolTip="Extension to East" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+			<TextBox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding NorthOffset, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ToolTip="Extension to North" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+			<TextBox HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding WestOffset, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.RowSpan="3" ToolTip="Extension to West" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+			<TextBox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding SouthOffset, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.Row="3" ToolTip="Extension to South" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+			<TextBox Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding EastOffset, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.RowSpan="3" ToolTip="Extension to East" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
 			
 		</Grid>
 		<StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" Margin="24,0,0,0" d:LayoutOverrides="Width, GridBox">

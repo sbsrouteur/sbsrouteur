@@ -200,6 +200,7 @@
     <Compile Include="Classes\Configuration\RacePrefs.vb" />
     <Compile Include="Classes\Configuration\RegistryHelper.vb" />
     <Compile Include="Classes\Configuration\TextToColorConverter.vb" />
+    <Compile Include="Classes\Configuration\TextToNumberConverter.vb" />
     <Compile Include="Classes\Coords.vb" />
     <Compile Include="Classes\CoordsConverter.vb" />
     <Compile Include="Classes\CurrentMgr.vb" />

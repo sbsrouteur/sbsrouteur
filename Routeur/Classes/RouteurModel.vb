@@ -405,6 +405,25 @@ Public Class RouteurModel
         End Set
     End Property
 
+    Public Property PrevSelectedPlayer() As RegistryPlayerInfo
+        Get
+            Dim LB As String = RegistryHelper.GetLastPlayer
+            If LB <> "" Then
+                For Each Item In RegisteredPlayers
+
+                    If Item.Nick = LB Then
+                        Return Item
+                    End If
+                Next
+            End If
+            Return Nothing
+        End Get
+
+        Set(ByVal value As RegistryPlayerInfo)
+
+        End Set
+    End Property
+
     Public ReadOnly Property Stats() As ObservableCollection(Of StatInfo)
         Get
             Return Routeur.Stats.Stats
