@@ -87,9 +87,8 @@ Partial Public Class RouteurMain
         _DragCanvas = False
         'Console.WriteLine("dragged to " & Me.SldLon.Value & " " & Me.SldLat.Value)
         'If e.ClickCount > 1 Then
-        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
-        Dim P As New Point
-        M.VorHandler.DebugBSP(e.GetPosition(Me.VOR2DViewer))
+        'Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+        'M.VorHandler.DebugBSP(e.GetPosition(Me.VOR2DViewer))
         'End If
 
     End Sub

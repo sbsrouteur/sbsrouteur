@@ -8,6 +8,7 @@ Module RegistryHelper
     Private Const USER_NUM As String = "NumBoat"
     Private Const USER_PASSWORD As String = "Password"
     Private Const USER_MINE As String = "ISMINE"
+    Private Const KEY_LAST_BOAT As String = "LastBoat"
 
 
     Public Sub DeleteUser(ByVal P As RegistryPlayerInfo)
@@ -22,6 +23,25 @@ Module RegistryHelper
 
     End Sub
 
+    Public Function GetLastPlayer() As String
+        Dim Reg As RegistryKey = Registry.CurrentUser.OpenSubKey(BASE_REG_PATH, False)
+
+        If Not Reg Is Nothing Then
+            Return CStr(Reg.GetValue(KEY_LAST_BOAT))
+        End If
+
+        Return ""
+    End Function
+
+    Public Sub SetLastPlayer(ByVal BoatName As String)
+        Dim Reg As RegistryKey = Registry.CurrentUser.OpenSubKey(BASE_REG_PATH, True)
+
+        If Not Reg Is Nothing Then
+            Reg.SetValue(KEY_LAST_BOAT, BoatName)
+        End If
+
+        Return
+    End Sub
 
     Public Function GetUserPassword(ByVal UserName As String) As String
 

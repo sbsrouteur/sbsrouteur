@@ -93,6 +93,7 @@ Partial Public Class frmUserPicker
             If Not P.IsRacing Then
                 MessageBox.Show("The selected boat is not engaged in a race")
             Else
+                RegistryHelper.SetLastPlayer(P.Nick)
                 Hide()
             End If
         End If
@@ -127,5 +128,6 @@ Partial Public Class frmUserPicker
         frm.ShowDialog()
 
     End Sub
+
 
 End Class
