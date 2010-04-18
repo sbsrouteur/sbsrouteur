@@ -25,6 +25,7 @@ Public Class RouteurModel
     Private _ClearBoats As Boolean = False
     Private Shared _WPList As New List(Of String)
     Private Shared _PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
+    Private Shared _RouteExtensionHours As Double = RacePrefs.RACE_COURSE_EXTENSION_HOURS
 
 
     Public Shared BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
@@ -256,9 +257,9 @@ Public Class RouteurModel
         RouteurModel._RaceRect(2) = New Coords(C2)
         RouteurModel._RaceRect(3) = New Coords(C2.Lat_Deg, C1.Lon_Deg)
         LON_OFFSET = (C1.Lon_Deg + C2.Lon_Deg) / 2
-        LAT_OFFSET = (C1.Lat_Deg + C2.Lat_Deg) / 2
+        LAT_OFFSET = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
         SCALE = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
-        Dim Scale2 As Double = 180 / Math.Abs(C1.Lat_Deg - C2.Lat_Deg)
+        Dim Scale2 As Double = 180 / 1.1 / Math.Abs(C1.Mercator_Y_Deg - C2.Mercator_Y_Deg)
         If Scale2 < SCALE Then
             SCALE = Scale2
         End If
@@ -343,6 +344,7 @@ Public Class RouteurModel
         GridGrain = RacePrefs.GridGrain
         MapLevel = RacePrefs.MapLevel.ToString.Substring(0, 1)
         EllipseFactor = RacePrefs.EllipseExtFactor
+        CourseExtensionHours = RacePrefs.CourseExtensionHours
         Dim i As Integer
 
         For i = 0 To 3
@@ -351,7 +353,7 @@ Public Class RouteurModel
 
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RacePrefs"))
 
-        
+
     End Sub
 
     Private Sub LoadRaceInfo(ByVal P As RegistryPlayerInfo)
@@ -429,6 +431,15 @@ Public Class RouteurModel
 
         Set(ByVal value As RegistryPlayerInfo)
 
+        End Set
+    End Property
+
+    Public Shared Property CourseExtensionHours() As Double
+        Get
+            Return _RouteExtensionHours
+        End Get
+        Set(ByVal value As Double)
+            _RouteExtensionHours = value
         End Set
     End Property
 

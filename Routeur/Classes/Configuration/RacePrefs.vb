@@ -4,7 +4,10 @@ Imports System.Xml.Serialization
 Public Class RacePrefs
 
     Implements INotifyPropertyChanged
+
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
+
+    Public Const RACE_COURSE_EXTENSION_HOURS As Integer = 10
 
     Public Enum EnumMapLevels As Integer
         crude = 0
@@ -28,6 +31,8 @@ Public Class RacePrefs
     Private _Levels As List(Of EnumMapLevels)
     Private _RaceID As Integer
     Private _EllipseExtFactor As Double
+    Private _CourseExtensionHours As Double
+
 
     Public Shared Function GetRaceInfo(ByVal RaceID As Integer) As RacePrefs
 
@@ -62,6 +67,7 @@ Public Class RacePrefs
                     .RaceOffset(i) = 0.5
                 Next
                 .EllipseExtFactor = 1.3
+                .CourseExtensionHours = RACE_COURSE_EXTENSION_HOURS
             End With
 
         End If
@@ -69,6 +75,19 @@ Public Class RacePrefs
         Return RetValue
 
     End Function
+
+    Public Property CourseExtensionHours() As Double
+        Get
+            Return _CourseExtensionHours
+        End Get
+        Set(ByVal value As Double)
+
+            If _CourseExtensionHours <> value Then
+                _CourseExtensionHours = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CourseExtensionHours"))
+            End If
+        End Set
+    End Property
 
     Public Property EllipseExtFactor() As Double
         Get

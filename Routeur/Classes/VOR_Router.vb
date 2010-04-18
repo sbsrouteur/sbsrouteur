@@ -25,8 +25,7 @@ Public Class VOR_Router
     Private _WindCoords As New Coords
 
     Private _Meteo As New clsMeteoOrganizer
-    Private _Sails As New clsSailManager
-
+    
     Private _CurrentRoute As New TravelCalculator
     Private _RouteToGoal As New TravelCalculator
 
@@ -85,7 +84,6 @@ Public Class VOR_Router
     Private _PilototoRoute As New ObservableCollection(Of clsrouteinfopoints)
     Private _LastGridRouteStart As New DateTime(0)
 
-    Public Shared BrokenSails As Integer
 
     Private _BoatUnderMouse As New ObservableCollection(Of BoatInfo)
     Private _MeteoUnderMouse As New ObservableCollection(Of RoutingGridPoint)
@@ -95,7 +93,10 @@ Public Class VOR_Router
     Private _WayPointDest As New Coords
     Private _GridProgressWindow As New frmRoutingProgress
     Private _Owner As Window
+
     Private Shared _PosValide As Boolean = False
+    Private Shared _Sails As New clsSailManager
+    Public Shared BoatType As String
 
 
     Public Class Route
@@ -326,63 +327,85 @@ Public Class VOR_Router
         End Set
     End Property
 
-    'Public ReadOnly Property CurVMGEnveloppe() As String
-    '    Get
-    '        Dim Mi As MeteoInfo = _Meteo.GetMeteoToDate(Tc.StartPoint, _UserInfo.date, True)
-    '        If Mi Is Nothing Then
-    '            Return Nothing
-    '        End If
-    '        If _UserInfo Is Nothing OrElse _UserInfo.position Is Nothing Then
-    '            Return ""
-    '        End If
+    Public ReadOnly Property CurVMGEnveloppe() As String
+        Get
+            If _UserInfo Is Nothing OrElse _UserInfo.position Is Nothing Then
+                Return ""
+            End If
 
-    '        Return CurVMGEnveloppe(Mi, New Coords(_UserInfo.position.longitude, _UserInfo.position.latitude))
-    '    End Get
-    'End Property
+            Dim P As New Coords(_UserInfo.position.longitude, _UserInfo.position.latitude)
+            Dim Tc As New TravelCalculator With {.StartPoint = New Coords(P)}
+
+            Try
+                Dim Mi As MeteoInfo = _Meteo.GetMeteoToDate(Tc.StartPoint, _UserInfo.date, True)
+                If Mi Is Nothing Then
+                    Return Nothing
+                End If
+                If _UserInfo Is Nothing OrElse _UserInfo.position Is Nothing Then
+                    Return ""
+                End If
+
+                If _CurUserWP = 0 Then
+                    Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP - 1).WPs(0)(0)
+                Else
+                    Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(0)
+                End If
+
+                Dim CapOrtho As Double = Tc.TrueCap
 
 
-    'Public ReadOnly Property CurVMGEnveloppe(ByVal MI As MeteoInfo, ByVal P As Coords) As String
-    '    Get
+                Return CurVMGEnveloppe(Mi, P, CapOrtho, UserInfo.type)
+            Finally
+                Tc.StartPoint = Nothing
+                Tc.EndPoint = Nothing
+                Tc = Nothing
+            End Try
 
-    '        Dim RetString As String = ""
+        End Get
+    End Property
 
-    '        Dim Tc As New TravelCalculator With {.StartPoint = New Coords(P)}
-    '        Dim Mi As MeteoInfo = _Meteo.GetMeteoToDate(Tc.StartPoint, _UserInfo.date, True)
-    '        If _CurUserWP = 0 Then
-    '            Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP - 1).WPs(0)(0)
-    '        Else
-    '            Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(0)
-    '        End If
-    '        Dim CapOrtho As Double = Tc.TrueCap
-    '        Dim Speed As Double
-    '        'RetString = "M 0,0 "
 
-    '        For i As Double = 0 To 360 Step 2.5
-    '            Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), Mi.Dir), Mi.Strength)
-    '            Speed = Speed * Cos(i / 180 * PI)
-    '            If Speed < 0 Then
-    '                Speed = -50 * Speed / Mi.Strength
-    '            Else
-    '                Speed = 50 * Speed / Mi.Strength
-    '            End If
-    '            If i = 0 Then
-    '                RetString &= " M "
-    '            Else
-    '                RetString &= " L "
-    '            End If
-    '            RetString &= (Speed * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & (Speed * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
-    '            If i Mod 5 = 0 And i <> 0 Then
+    Public Shared ReadOnly Property CurVMGEnveloppe(ByVal MI As MeteoInfo, ByVal P As Coords, ByVal CapOrtho As Double, ByVal BoatType As String) As String
+        Get
 
-    '                RetString &= " L " & ((2 + Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((2 + Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
-    '                RetString &= " L " & ((Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+            Dim RetString As String = ""
+            Dim X As Double
+            Dim Y As Double
 
-    '            End If
-    '        Next
 
-    '        Return RetString
+            Dim Tc As New TravelCalculator With {.StartPoint = New Coords(P)}
 
-    '    End Get
-    'End Property
+            Dim Speed As Double
+            'RetString = "M 0,0 "
+
+            For i As Double = 0 To 360 Step 2.5
+                Speed = _Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), MI.Dir), MI.Strength)
+                Speed = Speed * Cos(i / 180 * PI)
+                If Speed < 0 Then
+                    Speed = -50 * Speed / MI.Strength
+                Else
+                    Speed = 50 * Speed / MI.Strength
+                End If
+                If i = 0 Then
+                    RetString &= " M "
+                Else
+                    RetString &= " L "
+                End If
+                X = Speed * Cos((CapOrtho + i - 90) / 180 * PI) - 150
+                Y = Speed * Sin((CapOrtho + i - 90) / 180 * PI) - 150
+                RetString &= (X).ToString("f2").Replace(",", ".") & "," & (Y).ToString("f2").Replace(",", ".")
+                'If i Mod 5 = 0 And i <> 0 Then
+
+                '    RetString &= " L " & ((2 + Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((2 + Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+                '    RetString &= " L " & ((Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+
+                'End If
+            Next
+
+            Return RetString
+
+        End Get
+    End Property
 
 
     Public Property DrawOpponnents() As Boolean
@@ -600,7 +623,9 @@ Public Class VOR_Router
         Dim Fields() As String
         Dim CurWPNUm As Integer = -1
         Dim CapAtWP As Double = 0
-        Dim ModeAtWP As Integer = 1
+        Dim ModeAtWP As Integer = PrevMode
+        Dim WPDist As Double
+        Dim RouteToEnd As Boolean = False
 
         PilototoRoute.Clear()
         Select Case PrevMode
@@ -619,10 +644,18 @@ Public Class VOR_Router
 
             If CurIndex <= 5 AndAlso _Pilototo(CurIndex) IsNot Nothing Then
                 Fields = _Pilototo(CurIndex).Split(","c)
+            ElseIf OrderDate.Ticks = 0 Then
+                ReDim Fields(0)
+                If PrevMode < 4 Then
+                    OrderDate = Now.AddHours(RouteurModel.CourseExtensionHours)
+                Else
+                    RouteToEnd = True
+                End If
             Else
+
                 ReDim Fields(0)
                 RouteComplete = True
-                OrderDate = OrderDate.AddHours(10)
+                OrderDate = OrderDate.AddHours(RacePrefs.RACE_COURSE_EXTENSION_HOURS)
             End If
 
             If Fields.Count >= 5 AndAlso _Pilototo(CurIndex).ToLowerInvariant.Contains("pending") Then
@@ -664,10 +697,11 @@ Public Class VOR_Router
 
                 End Select
 
+
                 OrderDate = New Date(1970, 1, 1).AddSeconds(OrderDateSecs).AddHours(System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
             End If
 
-            While CurDate < OrderDate
+            While CurDate < OrderDate OrElse RouteToEnd
                 Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
                 If Mi Is Nothing Then
                     Exit While
@@ -717,7 +751,7 @@ Public Class VOR_Router
                         Dim MaxSpeed As Double
                         Dim BestAngle As Double
                         Dim dir As Integer
-                        Dim WPDist As Double = Tc.SurfaceDistance
+                        WPDist = Tc.SurfaceDistance
 
                         For Angle = 0 To 90 Step 0.5
 
@@ -735,23 +769,12 @@ Public Class VOR_Router
 
                         P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
 
-                        'Check WP completion
-                        Tc.EndPoint = CurPos
-                        If Tc.SurfaceDistance > WPDist Then
-                            'WP Reached change for next WP
-                            If CurWPNUm = -1 Then
-                                CurWPNUm = RouteurModel.CurWP
-                            Else
-                                CurWPNUm += 1
-                                If CurWPNUm >= RouteurModel.WPList.Count Then
-                                    Return
-                                End If
 
-                            End If
-                        End If
 
                     Case 5
                         Dim angle As Double = do_vbvmg(CurPos, CurWPDest, Mi)
+                        Tc.EndPoint = CurWPDest
+                        WPDist = Tc.SurfaceDistance
 
                         BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(angle, Mi.Dir), Mi.Strength)
                         CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, angle)
@@ -762,6 +785,28 @@ Public Class VOR_Router
                         Return
 
                 End Select
+
+                If PrevMode = 4 Or PrevMode = 5 Then
+                    'Check WP completion
+                    Tc.EndPoint = CurPos
+                    If Tc.SurfaceDistance > WPDist Then
+                        'WP Reached change for next WP
+                        If ModeAtWP <> 1 Then
+                            If CurWPNUm = -1 Then
+                                CurWPNUm = RouteurModel.CurWP
+                            Else
+                                CurWPNUm += 1
+                                If CurWPNUm >= RouteurModel.WPList.Count Then
+                                    RouteComplete = True
+                                End If
+
+                            End If
+                        Else
+                            PrevMode = 1
+                            PrevValue = CapAtWP
+                        End If
+                    End If
+                End If
                 If Not P Is Nothing Then
                     PilototoRoute.Add(P)
                 End If
@@ -1682,6 +1727,7 @@ Public Class VOR_Router
             'Double.TryParse(BoatInfo.PIP, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.AngleAllure)
         End If
         RetUser.type = BoatInfo.POL
+        BoatType = BoatInfo.POL
 
         Nup = BoatInfo.NUP
         If Nup < -10 AndAlso RetUser.Loch > 0 Then
@@ -2104,13 +2150,6 @@ Public Class VOR_Router
                 ETA = Now
             End If
 
-            If UserInfo.full_option = 0 And UserInfo.position.option_voiles_pro = 0 Then
-                BrokenSails = &HFFFFFFF And Not clsSailManager.EnumSail.SPI And Not clsSailManager.EnumSail.JIB
-            Else
-                BrokenSails = _UserInfo.position.voiles_cassees
-            End If
-
-
             P = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
             'If _UserInfo.trajectoire Is Nothing Then
             '    _UserInfo.trajectoire = ""
@@ -2291,7 +2330,7 @@ Public Class VOR_Router
                 _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1) = P1
             End If
 
-            _gr.ComputeBestRoute(1, RouteurModel.GridGrain, BrokenSails, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs)
+            _gr.ComputeBestRoute(1, RouteurModel.GridGrain, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs)
             'End If
         ElseIf Not StartRouting Then
             If Not _gr Is Nothing Then

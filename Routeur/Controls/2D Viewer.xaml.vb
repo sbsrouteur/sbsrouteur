@@ -9,6 +9,7 @@ Imports System.Windows.Media.Animation
 Imports System.Windows.Media.Imaging
 Imports System.Windows.Navigation
 Imports System.Windows.Shapes
+Imports System.Math
 
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
@@ -60,7 +61,9 @@ Partial Public Class _2D_Viewer
     End Sub
 
     Public Shared Function CanvasToLat(ByVal C As Double) As Double
-        Return (90 * DEFINITION - C) / RouteurModel.SCALE + RouteurModel.LAT_OFFSET '90 / RouteurModel.SCALE - C / DEFINITION / RouteurModel.SCALE + RouteurModel.LAT_OFFSET
+        Dim Ret As Double = (90 * DEFINITION - C) / RouteurModel.SCALE + RouteurModel.LAT_OFFSET '90 / RouteurModel.SCALE - C / DEFINITION / RouteurModel.SCALE + RouteurModel.LAT_OFFSET
+        Ret = Ret / 180 * PI
+        Return Math.Atan(Math.Sinh(Ret)) / PI * 180
     End Function
 
     Public Shared Function CanvasToLon(ByVal V As Double) As Double
@@ -70,6 +73,9 @@ Partial Public Class _2D_Viewer
 
     Public Shared Function LatToCanvas(ByVal V As Double) As Double
 
+        V = V / 180 * pi
+        V = Log(Tan(V) + 1 / Cos(V))
+        V = V / PI * 180
         Return 90 * DEFINITION - (V - RouteurModel.LAT_OFFSET) * RouteurModel.SCALE
 
     End Function
