@@ -12,6 +12,8 @@
 
 	<Window.Resources>
         		
+		<Routeur:TextToNumberConverter x:Key="TextToNumberConverter"/>
+        		
 		<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         		
 		<Routeur:SailConverter x:Key="SailConverter"/>
@@ -46,6 +48,17 @@
 						</TransformGroup>
 					</Routeur:WindArrow.RenderTransform>
 				</Routeur:WindArrow>
+				<Path Data="{Binding CurVMGEnveloppe, Mode=Default}" Stroke="#FF2B14E5" Stretch="Fill" Margin="0,0,-10,-2" />
+				<Grid MinWidth="150" MinHeight="150"  RenderTransformOrigin="0.5,0.5">
+					<Grid.RenderTransform>
+						<TransformGroup>
+							<ScaleTransform/>
+							<SkewTransform/>
+							<RotateTransform/>
+							<TranslateTransform X="-75" Y="-75"/>
+						</TransformGroup>
+					</Grid.RenderTransform>
+				</Grid>
 			</Grid>
 		</DataTemplate>
 		
@@ -128,13 +141,13 @@
 		</Style>
 		
 		<Storyboard x:Key="OnMouseMove1">
-			<ThicknessAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="groupBox" Storyboard.TargetProperty="(FrameworkElement.Margin)">
+			<ThicknessAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="GrpLog" Storyboard.TargetProperty="(FrameworkElement.Margin)">
 				<SplineThicknessKeyFrame KeyTime="00:00:00.5000000" Value="0,-150,0,0"/>
 			</ThicknessAnimationUsingKeyFrames>
 		</Storyboard>
 		
 		<Storyboard x:Key="OnMouseExit">
-			<ThicknessAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="groupBox" Storyboard.TargetProperty="(FrameworkElement.Margin)">
+			<ThicknessAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="GrpLog" Storyboard.TargetProperty="(FrameworkElement.Margin)">
 				<SplineThicknessKeyFrame KeyTime="00:00:00" Value="0,-150,0,0"/>
 				<SplineThicknessKeyFrame KeyTime="00:00:00.5000000" Value="0,0,0,0"/>
 			</ThicknessAnimationUsingKeyFrames>
@@ -179,8 +192,8 @@
 			
 			</MenuItem>
             <ComboBox     Height="26.92" ItemsSource="{Binding WPList, Mode=Default}" ToolTip="Route to this WP" SelectedItem="{Binding VorHandler.CurUserWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"     />
-            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
-            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureDuration, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Durée de la trajectoire" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureDuration, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Durée de la trajectoire" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
         </Menu>
    	<TabControl IsSynchronizedWithCurrentItem="True" Grid.Column="0" Grid.RowSpan="2" Grid.Row="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="1,-2,-1,2">
  			 <TabItem Header="Position / Vitesse" >
@@ -350,7 +363,7 @@
                             </Grid>
                         </GroupBox>
                     </StackPanel>
-					<GroupBox Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="3" Header="Journal" x:Name="groupBox" Background="#6DFFFFFF">
+					<GroupBox Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="3" Header="Journal" x:Name="GrpLog" Background="#6DFFFFFF">
 						<Grid Width="Auto" Height="Auto">
 							<ListBox ItemsSource="{Binding VorHandler.Log, Mode=Default}"/>
 						</Grid>
@@ -359,7 +372,7 @@
 						<TextBlock Width="Auto" Text="{Binding VorHandler.PositionDataAge, Converter={StaticResource CoordsConverter}, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom"/>
 						<TextBlock Width="Auto" Text="{Binding VorHandler.UserInfo.position.classement, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom" FontSize="24"/>
 					</DockPanel>
-					<GroupBox x:Name="groupBox1" Margin="0,0,0,8" Header="Stats" Grid.Column="3" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
+					<GroupBox x:Name="GrpStats" Margin="0,0,0,8" Header="Stats" Grid.Column="3" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
 					</GroupBox>
 				</Grid>

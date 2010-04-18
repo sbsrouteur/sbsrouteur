@@ -122,15 +122,15 @@ Public Class Coords
 
     End Sub
 
-    Public ReadOnly Property Mercator_X() As Double
+    Public ReadOnly Property Mercator_X_Deg() As Double
         Get
-            Return Lon
+            Return Lon_Deg
         End Get
     End Property
 
-    Public ReadOnly Property Mercator_Y() As Double
+    Public ReadOnly Property Mercator_Y_Deg() As Double
         Get
-            Return Log(Tan(Lat) + 1 / Cos(Lat))
+            Return Log(Tan(Lat) + 1 / Cos(Lat)) / PI * 180
         End Get
     End Property
 

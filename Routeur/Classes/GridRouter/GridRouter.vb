@@ -29,7 +29,6 @@ Public Class GridRouter
     Private _AngleStep As Integer
     Private _GridGrain As Double
     Private _StepEvent As New System.Threading.AutoResetEvent(False)
-    Private _BrokenSails As Integer
     Public Event StepComputed(ByVal GridListSize As Long, ByVal TodoListSize As Integer)
     Private _StartDate As DateTime
     Private _RouteStartDate As DateTime
@@ -108,7 +107,6 @@ Public Class GridRouter
 
 
     Private Function GetETATo(ByVal From As Coords, ByVal Dest As Coords, ByVal StartDate As DateTime, ByVal meteo As clsMeteoOrganizer, ByVal BoatType As String, _
-                                ByVal BrokenSails As Integer, _
                                 ByRef Sail As clsSailManager.EnumSail, ByRef speed As Double) As DateTime
         Dim NbLoop As Long = 0
 
@@ -118,74 +116,74 @@ Public Class GridRouter
         Try
 #End If
 
-            Dim ETA As DateTime = StartDate
-            Dim TC As New TravelCalculator
-            Dim TC2 As New TravelCalculator
+        Dim ETA As DateTime = StartDate
+        Dim TC As New TravelCalculator
+        Dim TC2 As New TravelCalculator
 
-            TC.StartPoint = From
-            TC.EndPoint = Dest
+        TC.StartPoint = From
+        TC.EndPoint = Dest
 
-            Dim Cap As Double = TC.TrueCap
-            Dim ReachDist As Double = TC.SurfaceDistance
-            Dim Mi As MeteoInfo
-            Dim NoWindCount As Integer = 0
-            Dim NoSpeedCound As Integer = 0
-            Dim Start As DateTime = ETA
-            Dim STepTime As Double = RouteurModel.VacationMinutes
-            Static NbCall As Long = 0
+        Dim Cap As Double = TC.TrueCap
+        Dim ReachDist As Double = TC.SurfaceDistance
+        Dim Mi As MeteoInfo
+        Dim NoWindCount As Integer = 0
+        Dim NoSpeedCound As Integer = 0
+        Dim Start As DateTime = ETA
+        Dim STepTime As Double = RouteurModel.VacationMinutes
+        Static NbCall As Long = 0
 
-            NbCall += 1
-            TC.EndPoint = From
+        NbCall += 1
+        TC.EndPoint = From
+        Do
+            NbLoop += 1
             Do
-                NbLoop += 1
-                Do
-                    Mi = meteo.GetMeteoToDate(TC.EndPoint, ETA, True)
-                    If Mi Is Nothing Then
-                        System.Threading.Thread.Sleep(20)
-                    End If
-                Loop Until Mi IsNot Nothing
+                Mi = meteo.GetMeteoToDate(TC.EndPoint, ETA, True)
+                If Mi Is Nothing Then
+                    System.Threading.Thread.Sleep(20)
+                End If
+            Loop Until Mi IsNot Nothing
 
-                If Mi.Strength = 0 Then
-                    'No wind
-                    NoWindCount += 1
+            If Mi.Strength = 0 Then
+                'No wind
+                NoWindCount += 1
+                ETA.AddHours(0.5)
+            Else
+                NoWindCount = 0
+                speed = _SailManager.GetBestSailSpeed(BoatType, Sail, VOR_Router.WindAngle(Cap, Mi.Dir), Mi.Strength)
+                If speed < 1 AndAlso speed < Mi.Strength / 10 Then
+                    'NoSpeed()
+                    Exit Do
+                    NoSpeedCound += 1
                     ETA.AddHours(0.5)
                 Else
-                    NoWindCount = 0
-                speed = _SailManager.GetBestSailSpeed(BoatType, Sail, VOR_Router.WindAngle(Cap, Mi.Dir), Mi.Strength)
-                    If speed < 1 AndAlso speed < Mi.Strength / 10 Then
-                        'NoSpeed()
-                        Exit Do
-                        NoSpeedCound += 1
-                        ETA.AddHours(0.5)
+                    NoSpeedCound = 0
+                    TC2.StartPoint = TC.EndPoint
+                    If ReachDist - TC.SurfaceDistance >= speed / 60 * STepTime Then
+                        TC.EndPoint = TC2.ReachDistance(speed / 60 * STepTime, Cap) ' RouteurModel.VacationMinutes, Cap)
+                        ETA = ETA.AddMinutes(STepTime)
+                    ElseIf NbLoop > 1 Then
+                        ETA = ETA.AddHours((ReachDist - TC.SurfaceDistance) / speed)
+                        TC.EndPoint = TC2.ReachDistance(ReachDist - TC.SurfaceDistance, Cap)
                     Else
-                        NoSpeedCound = 0
-                        TC2.StartPoint = TC.EndPoint
-                        If ReachDist - TC.SurfaceDistance >= speed / 60 * STepTime Then
-                            TC.EndPoint = TC2.ReachDistance(speed / 60 * STepTime, Cap) ' RouteurModel.VacationMinutes, Cap)
-                            ETA = ETA.AddMinutes(STepTime)
-                        ElseIf NbLoop > 1 Then
-                            ETA = ETA.AddHours((ReachDist - TC.SurfaceDistance) / speed)
-                            TC.EndPoint = TC2.ReachDistance(ReachDist - TC.SurfaceDistance, Cap)
-                        Else
-                            Dim i As Integer = 0
-                            Exit Do
-                        End If
+                        Dim i As Integer = 0
+                        Exit Do
                     End If
                 End If
-            Loop Until ReachDist < TC.SurfaceDistance OrElse ReachDist - TC.SurfaceDistance < RouteurModel.GridGrain OrElse NoWindCount > 10 OrElse NoSpeedCound > 20 OrElse ETA.Subtract(Start).TotalDays > 1
-
-
-            If Double.IsNaN(TC.SurfaceDistance) OrElse ReachDist - TC.SurfaceDistance > RouteurModel.GridGrain Then 'OrElse ETA.Subtract(Start).TotalMinutes * 0.9 < RouteurModel.VacationMinutes Then
-                ETA = New DateTime(3000, 12, 12)
             End If
+        Loop Until ReachDist < TC.SurfaceDistance OrElse ReachDist - TC.SurfaceDistance < RouteurModel.GridGrain OrElse NoWindCount > 10 OrElse NoSpeedCound > 20 OrElse ETA.Subtract(Start).TotalDays > 1
 
-            TC.StartPoint = Nothing
-            TC.EndPoint = Nothing
-            TC2.StartPoint = Nothing
-            TC2.EndPoint = Nothing
-            TC2 = Nothing
-            TC = Nothing
-            Return ETA
+
+        If Double.IsNaN(TC.SurfaceDistance) OrElse ReachDist - TC.SurfaceDistance > RouteurModel.GridGrain Then 'OrElse ETA.Subtract(Start).TotalMinutes * 0.9 < RouteurModel.VacationMinutes Then
+            ETA = New DateTime(3000, 12, 12)
+        End If
+
+        TC.StartPoint = Nothing
+        TC.EndPoint = Nothing
+        TC2.StartPoint = Nothing
+        TC2.EndPoint = Nothing
+        TC2 = Nothing
+        TC = Nothing
+        Return ETA
 #If GRID_STAT Then
 
         Finally
@@ -413,7 +411,7 @@ Public Class GridRouter
 
 
 
-    Public Sub ComputeBestRoute(ByVal AngleStep As Integer, ByVal GridGrain As Double, ByVal BrokenSails As Integer, ByVal WP As List(Of Coords()))
+    Public Sub ComputeBestRoute(ByVal AngleStep As Integer, ByVal GridGrain As Double, ByVal WP As List(Of Coords()))
 
         Dim G As New RoutingGridPoint(Start, 0, 0)
         Dim i As Integer
@@ -451,7 +449,6 @@ Public Class GridRouter
         End If
         _GridGrain = GridGrain
         _AngleStep = AngleStep
-        _BrokenSails = BrokenSails
         _ToDoList.Enqueue(G)
         G.Dist = TC.WPDistance(WP)
         _ProgressInfo.Start(G.Dist, RouteurModel.EllipseFactor)
@@ -482,7 +479,7 @@ Public Class GridRouter
         While True
 
             Try
-                While ProcessNextPoint(_BoatType, _BrokenSails)
+                While ProcessNextPoint(_BoatType)
 
                     System.Threading.Interlocked.Increment(_LoopCount)
                     If Now.Subtract(LastRefresh).TotalSeconds > 60 Then
@@ -518,7 +515,7 @@ Public Class GridRouter
         _StepEvent.Set()
     End Sub
 
-    Private Function ProcessNextPoint(ByVal BoatType As String, ByVal brokensails As Integer) As Boolean
+    Private Function ProcessNextPoint(ByVal BoatType As String) As Boolean
 
         Dim RG As RoutingGridPoint
         Dim N As RoutingGridPoint
@@ -535,61 +532,61 @@ Public Class GridRouter
 
         Try
 #End If
-            'RaiseEvent Log("Synclock todolist th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
-            SyncLock _ToDoList
-                RG = Nothing
+        'RaiseEvent Log("Synclock todolist th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
+        SyncLock _ToDoList
+            RG = Nothing
+            Do
+                If _ToDoList.Count <> 0 Then
+
+                    RG = _ToDoList.Dequeue
+
+                Else
+                    Return False
+                End If
+            Loop Until _ToDoList.Count = 0 Or (RG IsNot Nothing AndAlso Not RG.UpToDate)
+        End SyncLock
+
+        If RG Is Nothing Then
+            Return True
+        End If
+
+
+        'RaiseEvent Log("Synclock RG th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
+        If System.Threading.Monitor.TryEnter(RG) Then
+            Try
+
+                If RG.UpToDate Then
+                    Return True
+                End If
+
+                If Double.IsNaN(RG.P.P.Lat) Or Double.IsNaN(RG.P.P.Lon) Then
+                    Return True
+                End If
+
+
                 Do
-                    If _ToDoList.Count <> 0 Then
-
-                        RG = _ToDoList.Dequeue
-
-                    Else
-                        Return False
-                    End If
-                Loop Until _ToDoList.Count = 0 Or (RG IsNot Nothing AndAlso Not RG.UpToDate)
-            End SyncLock
-
-            If RG Is Nothing Then
-                Return True
-            End If
-
-
-            'RaiseEvent Log("Synclock RG th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
-            If System.Threading.Monitor.TryEnter(RG) Then
-                Try
-
-                    If RG.UpToDate Then
+                    mi = _MeteoProvider.GetMeteoToDate(RG.P.P, RG.CurETA, True)
+                    If mi Is Nothing Then
+                        System.Threading.Thread.Sleep(100)
+                    ElseIf mi.Strength <= 0 Then
+                        Dim i As Integer = 0
                         Return True
                     End If
+                Loop Until mi IsNot Nothing
+                Dim TC As New TravelCalculator
+                TC.StartPoint = RG.P.P
+                Dim GridStep As Integer = CInt(Math.Floor(RG.CurETA.Subtract(_StartDate).TotalHours / 24)) + 1
 
-                    If Double.IsNaN(RG.P.P.Lat) Or Double.IsNaN(RG.P.P.Lon) Then
-                        Return True
-                    End If
+                If _CurBestTarget Is Nothing OrElse RouteurModel.CurWP <> CurWP Then
+                    RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, Start, _WP)
+                    CurWP = RouteurModel.CurWP
+                Else
+                    RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, _CurBestTarget.P.P, _WP)
+                End If
 
-
-                    Do
-                        mi = _MeteoProvider.GetMeteoToDate(RG.P.P, RG.CurETA, True)
-                        If mi Is Nothing Then
-                            System.Threading.Thread.Sleep(100)
-                        ElseIf mi.Strength <= 0 Then
-                            Dim i As Integer = 0
-                            Return True
-                        End If
-                    Loop Until mi IsNot Nothing
-                    Dim TC As New TravelCalculator
-                    TC.StartPoint = RG.P.P
-                    Dim GridStep As Integer = CInt(Math.Floor(RG.CurETA.Subtract(_StartDate).TotalHours / 24)) + 1
-
-                    If _CurBestTarget Is Nothing OrElse RouteurModel.CurWP <> CurWP Then
-                        RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, Start, _WP)
-                        CurWP = RouteurModel.CurWP
-                    Else
-                        RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, _CurBestTarget.P.P, _WP)
-                    End If
-
-                    'Dim log As New System.IO.FileStream("log.log", IO.FileMode.Append)
-                    'Dim SR As New System.IO.StreamWriter(Log)
-                    'SR.WriteLine("routing points from " & RG.P.P.ToString & " cureta " & RG.CurETA)
+                'Dim log As New System.IO.FileStream("log.log", IO.FileMode.Append)
+                'Dim SR As New System.IO.StreamWriter(Log)
+                'SR.WriteLine("routing points from " & RG.P.P.ToString & " cureta " & RG.CurETA)
 
                 Dim FromAngle As Double = -1
                 If Not RG.From Is Nothing Then
@@ -605,7 +602,7 @@ Public Class GridRouter
                             Continue For
                         End If
 
-                        eta = GetETATo(RG.P.P, N.P.P, RG.CurETA, _MeteoProvider, BoatType, brokensails, CurSail, CurSpeed)
+                        eta = GetETATo(RG.P.P, N.P.P, RG.CurETA, _MeteoProvider, BoatType, CurSail, CurSpeed)
 
                         If eta < N.CurETA Then 'AndAlso (_CurBestTarget Is Nothing OrElse N.CurETA.Ticks - StartDate.Ticks < 1.3 * (_CurBestTarget.CurETA.Ticks - StartDate.Ticks)) Then
 
@@ -677,9 +674,9 @@ Public Class GridRouter
 
                 System.Threading.Monitor.Exit(RG)
             End Try
-            Else
-                Return True
-            End If
+        Else
+            Return True
+        End If
 
 #If GRID_STAT Then
 

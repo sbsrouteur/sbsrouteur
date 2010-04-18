@@ -64,6 +64,14 @@ Public Class RoutingGridPoint
         End Set
     End Property
 
+    Public ReadOnly Property CurVMGEnveloppe() As String
+        Get
+            Dim mi As New MeteoInfo With {.Dir = Me.P.WindDir, .Strength = P.WindStrength}
+
+            Return VOR_Router.CurVMGEnveloppe(mi, P.P, Ortho, VOR_Router.BoatType)
+        End Get
+    End Property
+
     Public ReadOnly Property Improve(ByVal C As RoutingGridPoint, ByVal speed As Double, ByVal WP As List(Of Coords())) As Boolean
         Get
             If C Is Nothing Then
@@ -75,30 +83,6 @@ Public Class RoutingGridPoint
 
                 Return Score < C.Score
             End If
-
-            'ElseIf (Dist < speed / 60 * RouteurModel.VacationMinutes) _
-            '                AndAlso CurETA < C.CurETA Then 'OrElse (N.crossedLine AndAlso _CurBestTarget.CurETA > N.CurETA) Then ' And (N.Dist > 50 OrElse CheckSegmentValid(TC2))) Then
-            '    '    'AndAlso (Math.Abs(Dist - C.Dist) <= RouteurModel.GridGrain * 3 _
-            '    '    Return True
-            '    'ElseIf CrossedLine Then
-            '    Dim D As Double = GSHHS_Reader.HitDistance(From.P.P, WP, True)
-            '    If D = Double.MaxValue Then
-            '        'HACK to avoid an exception. How do we fall here?
-            '        Return False
-            '    End If
-            '    Dim tc As New TravelCalculator With {.StartPoint = WP(0)(0), .EndPoint = WP(0)(1)}
-            '    Dim A = GribManager.CheckAngleInterp(tc.Cap - P.Cap)
-
-            '    If CurGoal > CurETA.AddHours(D / speed * Cos(A)) Then
-            '        CurGoal = CurETA.AddHours(D / speed * Cos(A))
-            '    End If
-            '    Return CurGoal < C.CurGoal
-
-            'ElseIf (C.Dist > Dist) Then
-
-            '    Return True
-
-            'End If
 
             Return False
         End Get
@@ -282,7 +266,7 @@ Public Class RoutingGridPoint
                             SyncLock Dictionnary
                                 If Not Dictionnary.Contains(D) Then
                                     G = New RoutingGridPoint(D, 0, tcCheck.SurfaceDistance)
-                                    G.Ortho = tcCheck.TrueCap
+                                    G.Ortho = ((tc.TrueCap + GribManager.CheckAngleInterp(tc2.TrueCap - tc.TrueCap) / 2) + 180) Mod 360
                                     G.Dist = GSHHS_Reader.HitDistance(G.P.P, WP, True)
                                     If G.Dist = Double.MaxValue Then
                                         G.Dist = Math.Min(tc2.SurfaceDistance, tc.SurfaceDistance)
