@@ -574,257 +574,276 @@ Public Class VOR_Router
     End Sub
 
     Private Sub ComputePilototo()
+        Static Computing As Boolean = False
+        If Not Computing Then
+            Try
+                Computing = True
+            
+                Dim CurDate As DateTime = Now
+                Dim CurPos As Coords = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+                Dim P As clsrouteinfopoints
+                Dim Tc As New TravelCalculator
+                Dim Mi As MeteoInfo = Nothing
+                Dim BoatSpeed As Double
+                Dim CurIndex As Integer = 0
+                Dim RouteComplete As Boolean = False
+                Dim CurWPDest As Coords = Nothing
 
-        Dim CurDate As DateTime = Now
-        Dim CurPos As Coords = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
-        Dim P As clsrouteinfopoints
-        Dim Tc As New TravelCalculator
-        Dim Mi As MeteoInfo = Nothing
-        Dim BoatSpeed As Double
-        Dim CurIndex As Integer = 0
-        Dim RouteComplete As Boolean = False
-        Dim CurWPDest As Coords = Nothing
+                If _PlayerInfo.RaceInfo.deptime > CurDate Then
+                    'Race has not started, start route from race start time
+                    CurDate = _PlayerInfo.RaceInfo.deptime
+                End If
 
-        If _PlayerInfo.RaceInfo.deptime > CurDate Then
-            'Race has not started, start route from race start time
-            CurDate = _PlayerInfo.RaceInfo.deptime
-        End If
+                If _WayPointDest.Lon = 0 AndAlso _WayPointDest.Lat = 0 Then
 
-        If _WayPointDest.Lon = 0 AndAlso _WayPointDest.Lat = 0 Then
-            'FIXME route to closest point, not the first!!!
-            Dim Retries As Integer = 0
-            While Retries < 2
-                Try
-                    CurWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(0))
-                    Retries = 3
-                Catch ex As Exception
-                    AddLog(ex.Message)
-                    Retries = Retries + 1
-                    If Retries = 3 Then
-                        Return
-                    Else
-                        System.Threading.Thread.Sleep(250)
-                    End If
-                End Try
-            End While
+                    Dim Retries As Integer = 0
+                    While Retries < 2
+                        Try
+                            CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(1))
+                            Retries = 3
+                        Catch ex As Exception
+                            AddLog(ex.Message)
+                            Retries = Retries + 1
+                            If Retries = 3 Then
+                                Return
+                            Else
+                                System.Threading.Thread.Sleep(250)
+                            End If
+                        End Try
+                    End While
 
-        Else
-            CurWPDest = New Coords(_WayPointDest)
-
-        End If
-
-        Dim PrevMode As Integer = _UserInfo.position.ModePilote
-        Dim PrevValue As Double
-
-        Dim OrderDateSecs As Long
-        Dim OrderDate As Date
-        Dim OrderType As Integer
-        Dim OrderValue As Double
-        Dim Fields() As String
-        Dim CurWPNUm As Integer = -1
-        Dim CapAtWP As Double = 0
-        Dim ModeAtWP As Integer = PrevMode
-        Dim WPDist As Double
-        Dim RouteToEnd As Boolean = False
-
-        PilototoRoute.Clear()
-        Select Case PrevMode
-
-            Case 1
-                'Cap fixe
-                PrevValue = _UserInfo.position.cap
-
-            Case 2
-                'Allure fixe
-                PrevValue = _UserInfo.position.AngleAllure
-
-        End Select
-
-        While Not RouteComplete
-
-            If CurIndex <= 5 AndAlso _Pilototo(CurIndex) IsNot Nothing Then
-                Fields = _Pilototo(CurIndex).Split(","c)
-            ElseIf OrderDate.Ticks = 0 Then
-                ReDim Fields(0)
-                If PrevMode < 4 Then
-                    OrderDate = Now.AddHours(RouteurModel.CourseExtensionHours)
                 Else
-                    RouteToEnd = True
-                End If
-            Else
+                    CurWPDest = New Coords(_WayPointDest)
 
-                ReDim Fields(0)
-                RouteComplete = True
-                OrderDate = OrderDate.AddHours(RacePrefs.RACE_COURSE_EXTENSION_HOURS)
-            End If
-
-            If Fields.Count >= 5 AndAlso _Pilototo(CurIndex).ToLowerInvariant.Contains("pending") Then
-
-
-
-                If Not Long.TryParse(Fields(1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderDateSecs) _
-                   OrElse Not Integer.TryParse(Fields(2), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderType) Then
-
-                    Continue While
                 End If
 
-                Select Case OrderType
-                    Case 1, 2
-                        If Not Double.TryParse(Fields(3), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderValue) Then
+                Dim PrevMode As Integer = _UserInfo.position.ModePilote
+                Dim PrevValue As Double
+
+                Dim OrderDateSecs As Long
+                Dim OrderDate As Date
+                Dim OrderType As Integer
+                Dim OrderValue As Double
+                Dim Fields() As String
+                Dim CurWPNUm As Integer = -1
+                Dim CapAtWP As Double = 0
+                Dim ModeAtWP As Integer = PrevMode
+                Dim WPDist As Double
+                Dim RouteToEnd As Boolean = False
+
+                PilototoRoute.Clear()
+                Select Case PrevMode
+
+                    Case 1
+                        'Cap fixe
+                        PrevValue = _UserInfo.position.cap
+
+                    Case 2
+                        'Allure fixe
+                        PrevValue = _UserInfo.position.AngleAllure
+
+                End Select
+
+                While Not RouteComplete
+
+                    If CurIndex <= 5 AndAlso _Pilototo(CurIndex) IsNot Nothing Then
+                        Fields = _Pilototo(CurIndex).Split(","c)
+                    ElseIf OrderDate.Ticks = 0 Then
+                        ReDim Fields(0)
+                        If PrevMode < 4 Then
+                            OrderDate = Now.AddHours(RouteurModel.CourseExtensionHours)
+                        Else
+                            RouteToEnd = True
+                        End If
+                    Else
+
+                        ReDim Fields(0)
+                        RouteComplete = True
+                        OrderDate = OrderDate.AddHours(RacePrefs.RACE_COURSE_EXTENSION_HOURS)
+                    End If
+
+                    If Fields.Count >= 5 AndAlso _Pilototo(CurIndex).ToLowerInvariant.Contains("pending") Then
+
+
+
+                        If Not Long.TryParse(Fields(1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderDateSecs) _
+                           OrElse Not Integer.TryParse(Fields(2), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderType) Then
+
                             Continue While
                         End If
 
-                    Case 3, 4, 5
-
-                        Dim Lon As Double = 0
-                        Dim Lat As Double = 0
-                        Double.TryParse(Fields(3), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lat)
-                        If Fields(4).Contains("@") Then
-                            Double.TryParse(Fields(4).Substring(0, Fields(4).IndexOf("@"c)), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon)
-                            Double.TryParse(Fields(4).Substring(Fields(4).IndexOf("@"c)), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, CapAtWP)
-                            ModeAtWP = 1
-                        Else
-                            Double.TryParse(Fields(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon)
-                            ModeAtWP = OrderType
-                        End If
-                        If Lat = 0 And Lon = 0 Then
-                            CurWPNUm = RouteurModel.CurWP
-                            CurWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(CurWPNUm - 1).WPs(0)(0))
-                        Else
-                            CurWPNUm = -1
-                            CurWPDest = New Coords(Lat, Lon)
-                        End If
-
-                End Select
-
-
-                OrderDate = New Date(1970, 1, 1).AddSeconds(OrderDateSecs).AddHours(System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
-            End If
-
-            While CurDate < OrderDate OrElse RouteToEnd
-                Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
-                If Mi Is Nothing Then
-                    Exit While
-                End If
-                Tc.StartPoint = CurPos
-                P = Nothing
-                Select Case PrevMode
-                    Case 1
-                        'Cap fixe
-                        BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(PrevValue, Mi.Dir), Mi.Strength)
-                        CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, PrevValue)
-                        P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
-
-                    Case 2
-                        'Angle fixe
-                        BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(PrevValue), Mi.Strength)
-                        CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + PrevValue))
-                        P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
-
-                    Case 3
-                        'Ortho
-                        Tc.EndPoint = CurWPDest
-                        Dim CapOrtho As Double = Tc.TrueCap
-                        BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
-                        CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, CapOrtho)
-                        P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
-
-                    Case 4
-
-                        'BVMG
-
-                        If CurWPNUm <> -1 Then
-
-
-                            If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
-                                CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
-                            End If
-                            'GSHHS_Reader.HitDistance(Tc.StartPoint, _PlayerInfo.RouteWayPoints(CurWPNUm), True)
-                            'TODO Handle proper computation of the WP point in the WP range
-
-                            CurWPDest = _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0)
-                        End If
-
-                        Tc.EndPoint = CurWPDest
-                        Dim CapOrtho As Double = Tc.TrueCap
-                        Dim Angle As Double
-                        Dim MaxSpeed As Double
-                        Dim BestAngle As Double
-                        Dim dir As Integer
-                        WPDist = Tc.SurfaceDistance
-
-                        For Angle = 0 To 90 Step 0.5
-
-                            For dir = -1 To 1 Step 2
-                                BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho + Angle * dir, Mi.Dir), Mi.Strength)
-
-                                If BoatSpeed * Math.Cos(Angle / 180 * Math.PI) > MaxSpeed Then
-                                    MaxSpeed = BoatSpeed * Math.Cos(Angle / 180 * Math.PI)
-                                    BestAngle = CapOrtho + Angle * dir
-                                End If
-                            Next
-
-                        Next
-                        CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
-
-                        P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
-
-
-
-                    Case 5
-                        Dim angle As Double = do_vbvmg(CurPos, CurWPDest, Mi)
-                        Tc.EndPoint = CurWPDest
-                        WPDist = Tc.SurfaceDistance
-
-                        BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(angle, Mi.Dir), Mi.Strength)
-                        CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, angle)
-                        P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
-
-
-                    Case Else
-                        Return
-
-                End Select
-
-                If PrevMode = 4 Or PrevMode = 5 Then
-                    'Check WP completion
-                    Tc.EndPoint = CurPos
-                    If Tc.SurfaceDistance > WPDist Then
-                        'WP Reached change for next WP
-                        If ModeAtWP <> 1 Then
-                            If CurWPNUm = -1 Then
-                                CurWPNUm = RouteurModel.CurWP
-                            Else
-                                CurWPNUm += 1
-                                If CurWPNUm >= RouteurModel.WPList.Count Then
-                                    RouteComplete = True
+                        Select Case OrderType
+                            Case 1, 2
+                                If Not Double.TryParse(Fields(3), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderValue) Then
+                                    Continue While
                                 End If
 
-                            End If
-                        Else
-                            PrevMode = 1
-                            PrevValue = CapAtWP
-                        End If
+                            Case 3, 4, 5
+
+                                Dim Lon As Double = 0
+                                Dim Lat As Double = 0
+                                Double.TryParse(Fields(3), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lat)
+                                If Fields(4).Contains("@") Then
+                                    Double.TryParse(Fields(4).Substring(0, Fields(4).IndexOf("@"c)), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon)
+                                    Double.TryParse(Fields(4).Substring(Fields(4).IndexOf("@"c)), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, CapAtWP)
+                                    ModeAtWP = 1
+                                Else
+                                    Double.TryParse(Fields(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon)
+                                    ModeAtWP = OrderType
+                                End If
+                                If Lat = 0 And Lon = 0 Then
+                                    CurWPNUm = RouteurModel.CurWP
+                                    CurWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(CurWPNUm - 1).WPs(0)(0))
+                                Else
+                                    CurWPNUm = -1
+                                    CurWPDest = New Coords(Lat, Lon)
+                                End If
+
+                        End Select
+
+
+                        OrderDate = New Date(1970, 1, 1).AddSeconds(OrderDateSecs).AddHours(System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
                     End If
-                End If
-                If Not P Is Nothing Then
-                    PilototoRoute.Add(P)
-                End If
-                CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
-            End While
 
-            If OrderType <> 0 Then
-                PrevMode = OrderType
-                PrevValue = OrderValue
-            End If
-            'If Not Mi Is Nothing Then
-            '    P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
-            '    PilototoRoute.Add(P)
-            'End If
+                    While CurDate < OrderDate OrElse RouteToEnd
+                        Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
+                        If Mi Is Nothing Then
+                            Exit While
+                        End If
+                        Tc.StartPoint = CurPos
+                        P = Nothing
 
-            CurIndex += 1
-        End While
+                        Select Case PrevMode
+                            Case 1
+                                'Cap fixe
+                                BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(PrevValue, Mi.Dir), Mi.Strength)
+                                CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, PrevValue)
+                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
 
+                            Case 2
+                                'Angle fixe
+                                BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(PrevValue), Mi.Strength)
+                                CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + PrevValue))
+                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+
+                            Case 3
+                                'Ortho
+                                Tc.EndPoint = CurWPDest
+                                Dim CapOrtho As Double = Tc.TrueCap
+                                BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
+                                CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, CapOrtho)
+                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+
+                            Case 4
+
+                                'BVMG
+
+                                If CurWPNUm <> -1 Then
+
+
+                                    If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
+                                        CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
+                                    End If
+                                    CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(1))
+
+                                End If
+
+                                Tc.EndPoint = CurWPDest
+                                Dim CapOrtho As Double = Tc.TrueCap
+                                Dim Angle As Double
+                                Dim MaxSpeed As Double
+                                Dim BestAngle As Double
+                                Dim dir As Integer
+                                WPDist = Tc.SurfaceDistance
+
+                                For Angle = 0 To 90 Step 0.5
+
+                                    For dir = -1 To 1 Step 2
+                                        BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho + Angle * dir, Mi.Dir), Mi.Strength)
+
+                                        If BoatSpeed * Math.Cos(Angle / 180 * Math.PI) > MaxSpeed Then
+                                            MaxSpeed = BoatSpeed * Math.Cos(Angle / 180 * Math.PI)
+                                            BestAngle = CapOrtho + Angle * dir
+                                        End If
+                                    Next
+
+                                Next
+                                CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
+
+                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+
+
+
+                            Case 5
+
+                                If CurWPNUm <> -1 Then
+
+
+                                    If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
+                                        CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
+                                    End If
+                                    CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(1))
+
+                                End If
+                                Dim angle As Double = do_vbvmg(CurPos, CurWPDest, Mi)
+                                Tc.EndPoint = CurWPDest
+                                WPDist = Tc.SurfaceDistance
+
+                                BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(angle, Mi.Dir), Mi.Strength)
+                                CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, angle)
+                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+
+
+                            Case Else
+                                Return
+
+                        End Select
+
+                        If PrevMode = 4 Or PrevMode = 5 Then
+                            'Check WP completion
+                            Tc.EndPoint = CurPos
+                            If Tc.SurfaceDistance > WPDist Then
+                                'WP Reached change for next WP
+                                If ModeAtWP <> 1 Then
+                                    If CurWPNUm = -1 Then
+                                        CurWPNUm = RouteurModel.CurWP
+                                    Else
+                                        CurWPNUm += 1
+                                        If CurWPNUm >= RouteurModel.WPList.Count Then
+                                            RouteComplete = True
+                                        End If
+
+                                    End If
+                                Else
+                                    PrevMode = 1
+                                    PrevValue = CapAtWP
+                                End If
+                            End If
+                        End If
+                        If Not P Is Nothing Then
+                            PilototoRoute.Add(P)
+                        End If
+                        CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
+                    End While
+
+                    If OrderType <> 0 Then
+                        PrevMode = OrderType
+                        PrevValue = OrderValue
+                    End If
+                    'If Not Mi Is Nothing Then
+                    '    P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+                    '    PilototoRoute.Add(P)
+                    'End If
+
+                    CurIndex += 1
+                End While
+
+            Finally
+                Computing = False
+
+            End Try
+
+        End If
     End Sub
 
 

@@ -783,6 +783,48 @@ Public Class GSHHS_Reader
     End Function
 
 
+    Public Shared Function PointToSegmentIntersect(ByVal P As Coords, ByVal p1 As Coords, ByVal p2 As Coords) As Coords
+        ' px,py is the point to test.
+        ' x1,y1,x2,y2 is the line to check distance.
+        '
+        ' Returns distance from the line, or if the intersecting point on the line nearest
+        ' the point tested is outside the endpoints of the line, the distance to the
+        ' nearest endpoint.
+        '
+        ' Returns 9999 on 0 denominator conditions.
+
+        Dim tcSeg As New TravelCalculator With {.StartPoint = p1, .EndPoint = p2}
+        Dim tcPoint As New TravelCalculator With {.StartPoint = p1, .EndPoint = P}
+        Dim RetCoords As Coords
+        Dim Angle As Double = Abs(GribManager.CheckAngleInterp(tcSeg.Cap - tcPoint.Cap))
+
+        If Angle >= 90 Then
+            'ClosestPoint Is p1
+            RetCoords = New Coords(p1)
+        Else
+            If tcPoint.SurfaceDistance * Cos(Angle / 180 * PI) <= tcSeg.SurfaceDistance Then
+                'Point is in segment
+                With tcSeg
+                    .EndPoint = tcSeg.ReachDistance(tcPoint.SurfaceDistance * Cos(Angle / 180 * PI), tcSeg.Cap)
+                    RetCoords = New Coords(.EndPoint)
+                    .StartPoint = Nothing
+                    .EndPoint = Nothing
+                End With
+            Else
+                'Closest point is P2
+                RetCoords = New Coords(p2)
+            End If
+        End If
+        tcSeg = Nothing
+        tcPoint.StartPoint = Nothing
+        tcPoint.EndPoint = Nothing
+        tcPoint = Nothing
+
+        Return RetCoords
+
+
+    End Function
+
     Private Shared Sub _Tree_Log(ByVal Msg As String) Handles _Tree.Log
         RaiseEvent Log(Msg)
     End Sub
