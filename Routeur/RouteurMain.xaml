@@ -28,6 +28,21 @@
 			</Grid>
 		</DataTemplate>
 		
+		<DataTemplate DataType="{x:Type Routeur:RoutePointInfo}">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" MinHeight="24"/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" MinWidth="24"/>
+					<ColumnDefinition Width="Auto" MinWidth="24"/>
+				</Grid.ColumnDefinitions>
+				<TextBlock HorizontalAlignment="Stretch"  Text="{Binding RouteName, Mode=Default}" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}"/>
+				<TextBlock HorizontalAlignment="Stretch"  Text="{Binding P.T, Mode=Default}" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}" Grid.Column="1"/>
+				<TextBlock HorizontalAlignment="Right" Margin="0,-9.5,-190.54,0" VerticalAlignment="Top" Width="2" Height="0" Text="TextBlock" TextWrapping="Wrap" Grid.Column="1"/>
+			</Grid>
+		</DataTemplate>
+		
 		<DataTemplate DataType="{x:Type Routeur:RoutingGridPoint}">
 			<Grid d:DesignWidth="140" d:DesignHeight="148" RenderTransformOrigin="0,0" >
 				<Grid.RenderTransform>
@@ -374,6 +389,12 @@
 					</DockPanel>
 					<GroupBox x:Name="GrpStats" Margin="0,0,0,8" Header="Stats" Grid.Column="3" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
+					</GroupBox>
+					<GroupBox Margin="38.22,26.548,-34.239,-41.692" Header="GroupBox" Grid.Column="2" Grid.Row="1" Grid.RowSpan="5">
+						<Grid>
+							<ItemsControl ItemsSource="{Binding VorHandler.RoutesUnderMouse, Mode=Default}">
+							</ItemsControl>
+						</Grid>
 					</GroupBox>
 				</Grid>
 			</TabItem> 
