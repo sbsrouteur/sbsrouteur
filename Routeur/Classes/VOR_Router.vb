@@ -87,6 +87,7 @@ Public Class VOR_Router
 
     Private _BoatUnderMouse As New ObservableCollection(Of BoatInfo)
     Private _MeteoUnderMouse As New ObservableCollection(Of RoutingGridPoint)
+    Private _RoutesUnderMouse As New ObservableCollection(Of RoutePointInfo)
     Private _Pilototo(5) As String
     Private _HideWindArrow As Boolean = True
 
@@ -471,6 +472,12 @@ Public Class VOR_Router
         End Set
     End Property
 
+    Public ReadOnly Property RoutesUnderMouse() As ObservableCollection(Of RoutePointInfo)
+        Get
+            Return _RoutesUnderMouse
+        End Get
+    End Property
+
     Public Property TempVMGRoute() As ObservableCollection(Of clsrouteinfopoints)
         Get
             Return _TempVMGRoute
@@ -565,7 +572,7 @@ Public Class VOR_Router
             TC.StartPoint = C
             C = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + AllureAngle))
             Dte.AddMinutes(RouteurModel.VacationMinutes)
-            Dim NewP As New clsrouteinfopoints With {.P = New Coords(C)}
+            Dim NewP As New clsrouteinfopoints With {.P = New Coords(C), .T = Dte}
             _AllureRoute.Add(NewP)
 
         Next
@@ -821,6 +828,7 @@ Public Class VOR_Router
                             End If
                         End If
                         If Not P Is Nothing Then
+                            P.T = CurDate
                             PilototoRoute.Add(P)
                         End If
                         CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
@@ -1493,6 +1501,8 @@ Public Class VOR_Router
 
         End If
 
+        System.Threading.ThreadPool.QueueUserWorkItem(AddressOf GetRoutesUnderMouse, C)
+
         TC.StartPoint = Nothing
         TC.EndPoint = Nothing
         If StartCount <> _BoatUnderMouse.Count Then
@@ -1890,6 +1900,81 @@ Public Class VOR_Router
         Return RetValue
 
     End Function
+
+    Private Function GetRoutePointAtCoords(ByVal Points As ObservableCollection(Of clsrouteinfopoints), ByVal TargetC As Coords, ByRef RetC As clsrouteinfopoints) As Boolean
+
+        Dim TC As New TravelCalculator() With {.StartPoint = TargetC}
+        Dim CurDist As Double = Double.MaxValue
+        Dim BestP As clsrouteinfopoints = Nothing
+
+        Try
+            For Each P In Points
+
+                TC.EndPoint = P.P
+                If CurDist > TC.SurfaceDistance Then
+                    CurDist = TC.SurfaceDistance
+                    BestP = P
+                ElseIf CurDist <> Double.MaxValue AndAlso 3 * CurDist > TC.SurfaceDistance Then
+                    Exit For
+                End If
+
+
+            Next
+            TC.StartPoint = Nothing
+            TC.EndPoint = Nothing
+            TC = Nothing
+
+            If CurDist < 10 Then
+                RetC = BestP
+                Return True
+            Else
+                Return False
+            End If
+        Catch
+            'inore exception, will try later
+            Return False
+        End Try
+
+    End Function
+
+    Private Sub GetRoutesUnderMouse(ByVal O As Object)
+
+        Dim RoutePoints As New ObservableCollection(Of RoutePointInfo)
+        Dim C As Coords = CType(O, Coords)
+        Dim RetC As clsrouteinfopoints
+        Dim P As RoutePointInfo
+
+        If GetRoutePointAtCoords(PlannedRoute, C, RetC) Then
+            P = New RoutePointInfo("Planned", RetC)
+            RoutePoints.Add(P)
+        End If
+
+        If GetRoutePointAtCoords(BruteRoute, C, RetC) Then
+            P = New RoutePointInfo("Best Route", RetC)
+            RoutePoints.Add(P)
+        End If
+
+        If GetRoutePointAtCoords(TempRoute, C, RetC) Then
+            P = New RoutePointInfo("Temp Route", RetC)
+            RoutePoints.Add(P)
+        End If
+
+
+        If GetRoutePointAtCoords(AllureRoute, C, RetC) Then
+            P = New RoutePointInfo("Allure Route", RetC)
+            RoutePoints.Add(P)
+        End If
+
+
+        If GetRoutePointAtCoords(PilototoRoute, C, RetC) Then
+            P = New RoutePointInfo("Pilototo Route", RetC)
+            RoutePoints.Add(P)
+        End If
+
+        _RoutesUnderMouse = RoutePoints
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RoutesUnderMouse"))
+
+    End Sub
 
     Private Sub OnBoatWorkerComplete()
 
