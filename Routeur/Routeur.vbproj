@@ -226,6 +226,7 @@
     <Compile Include="Classes\Polygon\Polygon.vb" />
     <Compile Include="Classes\Polygon\PolygonEnumerator.vb" />
     <Compile Include="Classes\ProgressContext.vb" />
+    <Compile Include="Classes\RoutePointInfo.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMBoatInfo.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMRaceInfo.vb" />
     <Compile Include="Classes\RegistryPlayerInfo.vb" />
