@@ -12,6 +12,8 @@
 
 	<Window.Resources>
         		
+		<Routeur:CountToVisibilityConverter x:Key="NumberVisibilityConverter"/>
+        		
 		<Routeur:TextToNumberConverter x:Key="TextToNumberConverter"/>
         		
 		<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -291,9 +293,11 @@
 								</StackPanel>
 							</Grid>
 						</GroupBox>
-						<Grid MinWidth="150" MinHeight="150" Canvas.Left="253" Canvas.Top="0">
-							<Path Data="{Binding VorHandler.CurVMGEnveloppe, Mode=Default}" Stroke="#FF2B14E5" Stretch="Fill" Margin="0,0,-143,-103" />
-						</Grid>
+						<GroupBox x:Name="grpRoutesUnderMouse" Margin="0" Header="" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" Visibility="{Binding VorHandler.RoutesUnderMouse, Converter={StaticResource NumberVisibilityConverter}, Mode=Default}" Background="#70FFFFFF">
+							<Grid>
+								<ItemsControl ItemsSource="{Binding VorHandler.RoutesUnderMouse, Mode=Default}"/>
+							</Grid>
+						</GroupBox>
 						
 					</Canvas>
 					<Canvas VerticalAlignment="Stretch" Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
@@ -389,12 +393,6 @@
 					</DockPanel>
 					<GroupBox x:Name="GrpStats" Margin="0,0,0,8" Header="Stats" Grid.Column="3" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
-					</GroupBox>
-					<GroupBox Margin="38.22,26.548,-34.239,-41.692" Header="GroupBox" Grid.Column="2" Grid.Row="1" Grid.RowSpan="5">
-						<Grid>
-							<ItemsControl ItemsSource="{Binding VorHandler.RoutesUnderMouse, Mode=Default}">
-							</ItemsControl>
-						</Grid>
 					</GroupBox>
 				</Grid>
 			</TabItem> 

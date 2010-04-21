@@ -19,7 +19,7 @@
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 	</Style>
 	
-	<Style TargetType ="{x:Type Button}" >
+	<Style x:Key="DefaultButton" TargetType ="{x:Type Button}" >
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 	</Style>
 
