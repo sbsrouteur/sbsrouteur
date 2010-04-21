@@ -57,8 +57,8 @@
 			
 		</Grid>
 		<StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" Margin="24,0,0,0" d:LayoutOverrides="Width, GridBox">
-			<Button x:Name="cmdCancel" Content="Cancel" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172" Click="cmdCancelClick"/>
-			<Button x:Name="cmdOK" Content="OK" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdOKClick"/>
+			<Button x:Name="cmdCancel" Content="Cancel" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172" Click="cmdCancelClick" Style="{DynamicResource DefaultButton}"/>
+			<Button x:Name="cmdOK" Content="OK" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdOKClick" Style="{DynamicResource DefaultButton}"/>
 		</StackPanel>
 	</Grid>
 </Window>
