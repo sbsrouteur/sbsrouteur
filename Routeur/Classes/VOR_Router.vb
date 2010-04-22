@@ -571,7 +571,7 @@ Public Class VOR_Router
             Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(AllureAngle), Mi.Strength)
             TC.StartPoint = C
             C = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + AllureAngle))
-            Dte.AddMinutes(RouteurModel.VacationMinutes)
+            Dte = Dte.AddMinutes(RouteurModel.VacationMinutes)
             Dim NewP As New clsrouteinfopoints With {.P = New Coords(C), .T = Dte}
             _AllureRoute.Add(NewP)
 
