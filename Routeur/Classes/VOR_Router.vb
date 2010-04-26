@@ -95,6 +95,11 @@ Public Class VOR_Router
     Private _GridProgressWindow As New frmRoutingProgress
     Private _Owner As Window
 
+    Private _MeteoArrowSize As Double = 50
+    Private _MeteoArrowDate As Date
+
+
+
     Private Shared _PosValide As Boolean = False
     Private Shared _Sails As New clsSailManager
     Public Shared BoatType As String
@@ -445,6 +450,78 @@ Public Class VOR_Router
         End Set
     End Property
 
+    Public Property MeteoArrowDate() As Date
+        Get
+            Return _MeteoArrowDate
+        End Get
+        Set(ByVal value As Date)
+            If value <> _MeteoArrowDate Then
+                _MeteoArrowDate = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDate"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+            End If
+        End Set
+    End Property
+    Public Property MeteoArrowDateTicks() As Long
+        Get
+            Return _MeteoArrowDate.Ticks
+        End Get
+        Set(ByVal value As Long)
+            If value <> _MeteoArrowDate.Ticks Then
+                _MeteoArrowDate = New Date(value)
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDate"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+            End If
+        End Set
+    End Property
+
+    Public ReadOnly Property MeteoArrowDateStart() As Long
+        Get
+            If UserInfo Is Nothing Then
+                Return Now.Ticks
+            End If
+
+            Return _UserInfo.date.Ticks
+        End Get
+    End Property
+
+    Public ReadOnly Property MeteoArrowDateEnd() As Long
+        Get
+            'FIXME Use meteo span const from grib manager!!
+            Return MeteoArrowDateStart + TimeSpan.TicksPerDay * 7
+        End Get
+    End Property
+
+    Public Property MeteoArrowSize() As Double
+        Get
+            Return _MeteoArrowSize
+        End Get
+        Set(ByVal value As Double)
+            If _MeteoArrowSize <> value Then
+                _MeteoArrowSize = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowSize"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+            End If
+        End Set
+
+    End Property
+
+
+    Public Shared ReadOnly Property TimeArrowDateSmallTick() As Long
+        Get
+            Return TimeSpan.TicksPerMinute * 5
+        End Get
+    End Property
+
+
+    Public Shared ReadOnly Property TimeArrowDateLargeTick() As Long
+        Get
+            Return TimeSpan.TicksPerHour
+        End Get
+    End Property
+
+
+
     Public Property Owner() As Window
         Get
             Return _Owner
@@ -583,13 +660,13 @@ Public Class VOR_Router
     Private Sub ComputePilototo()
         Static Computing As Boolean = False
         If Not Computing Then
+            Dim Tc As New TravelCalculator
             Try
                 Computing = True
-            
+
                 Dim CurDate As DateTime = Now
                 Dim CurPos As Coords = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
                 Dim P As clsrouteinfopoints
-                Dim Tc As New TravelCalculator
                 Dim Mi As MeteoInfo = Nothing
                 Dim BoatSpeed As Double
                 Dim CurIndex As Integer = 0
@@ -848,6 +925,9 @@ Public Class VOR_Router
 
             Finally
                 Computing = False
+                Tc.StartPoint = Nothing
+                Tc.EndPoint = Nothing
+                Tc = Nothing
 
             End Try
 
@@ -1462,6 +1542,42 @@ Public Class VOR_Router
         End Get
     End Property
 
+    Public ReadOnly Property MeteoArrow() As String
+        Get
+            Dim x As Double
+            Dim y As Double
+            Dim retstring As String = ""
+            Dim C As New Coords
+            Dim Mi As MeteoInfo
+            Dim Scale As Double = MeteoArrowSize
+            Dim Dte As Date = MeteoArrowDate
+
+
+            If _UserInfo Is Nothing OrElse Dte.Ticks = 0 Then
+                Return ""
+            End If
+
+            Dim MeteoRange As Double = 1
+
+            For x = -5 To 5 Step 0.5
+                For y = -5 To 5 Step 0.5
+                    C.Lat_Deg = _UserInfo.position.latitude + y * MeteoRange / 20
+                    C.Lon_Deg = _UserInfo.position.longitude + x * MeteoRange / 20
+                    Mi = _Meteo.GetMeteoToDate(C, Dte, True)
+                    'If x = 0 And y = 0 Then
+                    '    Console.WriteLine("Meteo at " & Dte.ToString & " Dir : " & Mi.Dir.ToString("F2") & " S: " & Mi.Strength.ToString("F2"))
+
+                    'End If
+                    If Not Mi Is Nothing Then
+                        retstring &= GetMeteoArrowString(300 + 100 * (x + 5), 100 * (y + 5), Scale, Mi)
+                    End If
+                Next
+            Next
+
+            Return retstring
+        End Get
+    End Property
+
     Public Property MeteoInfoList() As ObservableCollection(Of RoutingGridPoint)
         Get
             Return _MeteoUnderMouse
@@ -1941,7 +2057,7 @@ Public Class VOR_Router
 
         Dim RoutePoints As New ObservableCollection(Of RoutePointInfo)
         Dim C As Coords = CType(O, Coords)
-        Dim RetC As clsrouteinfopoints
+        Dim RetC As clsrouteinfopoints = Nothing
         Dim P As RoutePointInfo
 
         If GetRoutePointAtCoords(PlannedRoute, C, RetC) Then
@@ -2038,6 +2154,7 @@ Public Class VOR_Router
 
     Public Sub getboatinfo()
         getboatinfo(_Meteo)
+
     End Sub
 
     Public Sub GetBoatInfo(ByVal meteo As clsMeteoOrganizer, Optional ByVal force As Boolean = False)
@@ -2087,6 +2204,12 @@ Public Class VOR_Router
                     VLMInfoMessage &= " (exp: " & V.ToString("f2") & ")"
                 End If
                 AddLog(VLMInfoMessage)
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateStart"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateEnd"))
+                If _MeteoArrowDate < _UserInfo.date Then
+                    MeteoArrowDate = _UserInfo.date
+                End If
             Else
                 AddLog("No Meteo data !!")
             End If

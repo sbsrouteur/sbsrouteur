@@ -208,12 +208,17 @@
 				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="False"/>
 			
 			</MenuItem>
+			<MenuItem Header="Meteo" VerticalAlignment="Center">
+				<Slider Maximum="100" Minimum="5" Width="129" Value="{Binding VorHandler.MeteoArrowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" TickFrequency="10" ></Slider>
+				<Slider x:Name="slider" Maximum="{Binding VorHandler.MeteoArrowDateEnd, Mode=Default}" Minimum="{Binding VorHandler.MeteoArrowDateStart, Mode=Default}" Width="129" Value="{Binding VorHandler.MeteoArrowDateTicks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding LargeChange, ElementName=slider, Mode=Default}" TickPlacement="BottomRight" />
+				<TextBlock Text="{Binding VorHandler.MeteoArrowDate, Mode=Default}" />
+			</MenuItem>
             <ComboBox     Height="26.92" ItemsSource="{Binding WPList, Mode=Default}" ToolTip="Route to this WP" SelectedItem="{Binding VorHandler.CurUserWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"     />
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureDuration, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Durée de la trajectoire" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
         </Menu>
    	<TabControl IsSynchronizedWithCurrentItem="True" Grid.Column="0" Grid.RowSpan="2" Grid.Row="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="1,-2,-1,2">
- 			 <TabItem Header="Position / Vitesse" >
+ 			 <TabItem Header="Speed / Position" >
 				<Grid>
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto" />
@@ -280,6 +285,10 @@
 					<GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left">
+						<Grid x:Name="Weather_Map" >
+							<Path Data="{Binding VorHandler.MeteoArrow, Mode=Default}" Stroke="Black">
+							</Path>
+						</Grid>
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
 							<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
 						</Grid>
@@ -396,7 +405,7 @@
 					</GroupBox>
 				</Grid>
 			</TabItem> 
-			<TabItem Header="Auto Routeur">
+			<TabItem Header="Route Tables">
 				<Grid>
 					<Grid.RowDefinitions>
 						<RowDefinition Height="0.512*"/>

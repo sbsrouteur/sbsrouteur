@@ -93,19 +93,6 @@ Public Class RouteurModel
                                             0.01, -60, _
                                             179.99, -60}
 
-    'Public Shared SouthLeewin() As Double = {-115, -59, _
-    '                                           -115.264, -59, _
-    '                                            -115.264, -70, _
-    '                                            -115, -70, _
-    '                                            -115, -59}
-
-    'Public Shared CapeHorn() As Double = {67.271, -55.979, _
-    '                                      69, -55, _
-    '                                      67, -55, _
-    '                                      67.271, -55.979}
-
-
-
 
     Private Shared _CurWP As Integer = 0
 
@@ -386,11 +373,17 @@ Public Class RouteurModel
 
     End Sub
 
+
+    Public Shared Function MeteoHeight() As Double
+
+    End Function
+
     Public ReadOnly Property MeteoValidSpan() As TimeSpan
         Get
             Return GribManager.GetCurGribDate(Now).AddHours(9.5).AddHours(System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours).Subtract(Now)
         End Get
     End Property
+
 
     Public Shared Property NoObstacle() As Boolean
         Get
