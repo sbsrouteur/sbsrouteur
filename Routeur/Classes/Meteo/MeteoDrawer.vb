@@ -66,7 +66,7 @@ Module MeteoDrawer
         If S > 0 Then
             While S > 0
 
-                L = 0.5 - CurDecade / 10
+                L = 0.5 - CurDecade / 8
 
                 Theta = (180 + 90 + mi.Dir) / 180 * PI
                 X = xOffset + L * Scale * Cos(Theta)
@@ -87,7 +87,7 @@ Module MeteoDrawer
 
                 RetString &= "L " & GetCoordsString(X, Y)
 
-                S = Floor(S / 10)
+                S -= 10
                 CurDecade += 1
                 
             End While
