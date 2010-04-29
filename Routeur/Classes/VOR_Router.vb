@@ -513,6 +513,11 @@ Public Class VOR_Router
         End Get
     End Property
 
+    Public ReadOnly Property TickFreq() As Double
+        Get
+            Return TimeSpan.TicksPerDay / 2
+        End Get
+    End Property
 
     Public Shared ReadOnly Property TimeArrowDateLargeTick() As Long
         Get
@@ -659,8 +664,12 @@ Public Class VOR_Router
 
     Private Sub ComputePilototo()
         Static Computing As Boolean = False
+
         If Not Computing Then
             Dim Tc As New TravelCalculator
+
+            Dim LastPTick As Long = 0
+
             Try
                 Computing = True
 
@@ -905,8 +914,14 @@ Public Class VOR_Router
                             End If
                         End If
                         If Not P Is Nothing Then
-                            P.T = CurDate
-                            PilototoRoute.Add(P)
+                            If PilototoRoute.Count = 0 OrElse ((CurDate.Ticks - LastPTick > TimeSpan.TicksPerMinute * 5 AndAlso _
+                                CurDate.Ticks - PilototoRoute(0).T.Ticks < TimeSpan.TicksPerHour * 24) OrElse _
+                                CurDate.Ticks - LastPTick > TimeSpan.TicksPerHour * 3) Then
+
+                                P.T = CurDate
+                                PilototoRoute.Add(P)
+                                LastPTick = Now.Ticks
+                            End If
                         End If
                         CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
                     End While
@@ -1561,8 +1576,8 @@ Public Class VOR_Router
 
             For x = -5 To 5 Step 0.5
                 For y = -5 To 5 Step 0.5
-                    C.Lat_Deg = _UserInfo.position.latitude + y * MeteoRange / 20
-                    C.Lon_Deg = _UserInfo.position.longitude + x * MeteoRange / 20
+                    C.Lat_Deg = _UserInfo.position.latitude + y * MeteoRange
+                    C.Lon_Deg = _UserInfo.position.longitude + x * MeteoRange
                     Mi = _Meteo.GetMeteoToDate(C, Dte, True)
                     'If x = 0 And y = 0 Then
                     '    Console.WriteLine("Meteo at " & Dte.ToString & " Dir : " & Mi.Dir.ToString("F2") & " S: " & Mi.Strength.ToString("F2"))

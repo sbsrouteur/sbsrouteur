@@ -17,7 +17,7 @@ Public Class GribManager
     Private Const GRIB_OFFSET As Integer = -3
     Private Const GRIB_GRAIN As Integer = 3
     Private Const GRIB_PERIOD As Integer = 6
-    Private Const NBJOURS As Integer = 4
+    Private Const NBJOURS As Integer = 7
     Private Const MAX_INDEX As Integer = CInt(24 / GRIB_GRAIN * NBJOURS - 1)
     Private Shared ZULU_OFFSET As Integer = -CInt(TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
 
@@ -39,7 +39,7 @@ Public Class GribManager
 
     Private Function CheckGribData(ByVal MeteoIndex As Integer, ByVal LonIndex As Integer, ByVal latIndex As Integer, ByVal NoLock As Boolean) As Boolean
 
-        Static NextTick As Long = 0
+        'Static NextTick As Long = 0
         Dim bLoad As Boolean = False
         Dim retval As Boolean = False
         Dim NbRetries As Integer = 0
@@ -48,7 +48,7 @@ Public Class GribManager
         bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex) Is Nothing
         bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex).GribDate < GetCurGribDate(Now)
         bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex).Dir = MeteoInfo.NO_VALUE
-        bLoad = bLoad OrElse Now.Ticks > NextTick
+        'bLoad = bLoad OrElse Now.Ticks > NextTick
 
         If bLoad Then
             'RaiseEvent log("Synclock grib monitor th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
@@ -70,7 +70,7 @@ Public Class GribManager
                 bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex) Is Nothing
                 bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex).GribDate < GetCurGribDate(Now)
                 bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex).Dir = MeteoInfo.NO_VALUE
-                bLoad = bLoad OrElse Now.Ticks > NextTick
+                'bLoad = bLoad OrElse Now.Ticks > NextTick
                 If bLoad Then
                     'System.Threading.Monitor.Enter(_GribMonitor)
                     retval = LoadGribData(MeteoIndex, MeteoArray.GetArrayIndexLon(LonIndex), MeteoArray.GetArrayIndexLat(latIndex))
@@ -84,7 +84,7 @@ Public Class GribManager
                 System.Threading.Monitor.Exit(_GribMonitor)
 
             End Try
-            NextTick = Now.AddMinutes(30).Ticks
+            'NextTick = Now.AddMinutes(30).Ticks
             Return retval
             'End SyncLock
 
@@ -639,7 +639,9 @@ Public Class GribManager
             _Process.EnableRaisingEvents = True
             _Process.Start()
 
-            _Evt.WaitOne()
+            If Not _Evt.WaitOne(10000, Nothing) Then
+                Return False
+            End If
 
             'App.WaitForExit(0)
             WaitStart = Now
@@ -799,8 +801,10 @@ Public Class GribManager
 
     End Sub
 
+
     Private Sub _Process_Exited(ByVal sender As Object, ByVal e As System.EventArgs) Handles _Process.Exited
 
         _Evt.Set()
+
     End Sub
 End Class
