@@ -258,5 +258,12 @@ Partial Public Class RouteurMain
     	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
     End Sub
 
+    Private Sub Refresh(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+
+        M.Refresh()
+
+    End Sub
+
 
 End Class

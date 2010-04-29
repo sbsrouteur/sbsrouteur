@@ -280,13 +280,11 @@ Public Class RouteurModel
             Return _CurWP
         End Get
         Set(ByVal value As Integer)
-            If _CurWP <> value Then
                 _CurWP = value
-                If WPList.Count >= 1 AndAlso _CurWP > 0 AndAlso _CurWP < WPList.Count Then
-                    _WPList(0) = "<Auto> " & _P_Info(0).RaceInfo.races_waypoints(_CurWP - 1).ToString
-
-                End If
+            If WPList.Count >= 1 AndAlso _CurWP > 0 AndAlso _CurWP < WPList.Count Then
+                _WPList(0) = "<Auto> " & _P_Info(0).RaceInfo.races_waypoints(_CurWP - 1).ToString
             End If
+
         End Set
 
     End Property
@@ -500,6 +498,10 @@ Public Class RouteurModel
                     _ClearGrid = True
                 End If
                 tmrRefresh.Enabled = True
+
+            Case "WPList"
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
+
             Case Else
                 'Debug.WriteLine("UnHandled propertychange : " & e.PropertyName)
         End Select
