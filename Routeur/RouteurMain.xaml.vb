@@ -211,6 +211,13 @@ Partial Public Class RouteurMain
 
     End Sub
 
+    Private Sub CheckIsoRoute(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+
+        M.VorHandler.startIsoRoute(CBool(chkGridRoute.IsChecked))
+    End Sub
+
+
     Private Sub RedrawClick(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
@@ -264,6 +271,7 @@ Partial Public Class RouteurMain
         M.Refresh()
 
     End Sub
+
 
 
 End Class

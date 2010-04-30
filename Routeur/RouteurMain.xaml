@@ -190,6 +190,7 @@
 			<MenuItem Header="Actions" VerticalAlignment="Center">
 				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}"/>
 	            <CheckBox x:Name="chkGridRoute" Content="Grid Route" Checked="CheckGridRoute" Unchecked="CheckGridRoute" VerticalAlignment="Center"/>
+	            <CheckBox x:Name="chkIsoRoute" Content="Isochrone Route" Checked="CheckIsoRoute" Unchecked="CheckIsoRoute" VerticalAlignment="Center"/>
 	            <CheckBox x:Name="chkNoObstacle" Content="Ignore Obstacles" VerticalAlignment="Center" IsChecked="{Binding NoObstacle, Mode=Default}"/>
 	            <Button Width="Auto" Height="26.92" Content="Redraw" Click="RedrawClick" Margin="4,0"/>
 				<MenuItem Header="Redraw" Click="RedrawClick" />

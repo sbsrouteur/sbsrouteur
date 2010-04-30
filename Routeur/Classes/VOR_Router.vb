@@ -51,6 +51,7 @@ Public Class VOR_Router
     Private _U As String
 
     Private WithEvents _gr As GridRouter
+    Private WithEvents _iso As IsoRouter
 
 
     Private _StopBruteForcing As Boolean = False
@@ -125,6 +126,7 @@ Public Class VOR_Router
         Private _DTF As New Double
         Private _CapFromPos As Double
         Private _DistFromPos As Double
+        Private _From As clsrouteinfopoints
 
         Public Shared PProps As New PropertyChangedEventArgs("P")
         Public Shared CapProps As New PropertyChangedEventArgs("Cap")
@@ -180,6 +182,18 @@ Public Class VOR_Router
                 RaiseEvent PropertyChanged(Me, CurDTFProps)
             End Set
         End Property
+
+        
+        Public Property From() As clsrouteinfopoints
+            Get
+                Return _From
+            End Get
+            Set(ByVal value As clsrouteinfopoints)
+                _From = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("From"))
+            End Set
+        End Property
+
         Public Property P() As Coords
             Get
                 Return _P
@@ -1560,41 +1574,42 @@ Public Class VOR_Router
         End Get
     End Property
 
-    Public ReadOnly Property MeteoArrow() As String
-        Get
-            Dim x As Double
-            Dim y As Double
-            Dim retstring As String = ""
-            Dim C As New Coords
-            Dim Mi As MeteoInfo
-            Dim Scale As Double = MeteoArrowSize
-            Dim Dte As Date = MeteoArrowDate
+    'Public ReadOnly Property MeteoArrow() As String
+    '    Get
+
+    '        Dim x As Double
+    '        Dim y As Double
+    '        Dim retstring As String = ""
+    '        Dim C As New Coords
+    '        Dim Mi As MeteoInfo
+    '        Dim Scale As Double = MeteoArrowSize
+    '        Dim Dte As Date = MeteoArrowDate
 
 
-            If _UserInfo Is Nothing OrElse Dte.Ticks = 0 Then
-                Return ""
-            End If
+    '        If _UserInfo Is Nothing OrElse Dte.Ticks = 0 Then
+    '            Return ""
+    '        End If
 
-            Dim MeteoRange As Double = 1
+    '        Dim MeteoRange As Double = 1
 
-            For x = -5 To 5 Step 0.5
-                For y = -5 To 5 Step 0.5
-                    C.Lat_Deg = _UserInfo.position.latitude + y * MeteoRange
-                    C.Lon_Deg = _UserInfo.position.longitude + x * MeteoRange
-                    Mi = _Meteo.GetMeteoToDate(C, Dte, True)
-                    'If x = 0 And y = 0 Then
-                    '    Console.WriteLine("Meteo at " & Dte.ToString & " Dir : " & Mi.Dir.ToString("F2") & " S: " & Mi.Strength.ToString("F2"))
+    '        For x = -5 To 5 Step 0.5
+    '            For y = -5 To 5 Step 0.5
+    '                C.Lat_Deg = _UserInfo.position.latitude + y * MeteoRange
+    '                C.Lon_Deg = _UserInfo.position.longitude + x * MeteoRange
+    '                Mi = _Meteo.GetMeteoToDate(C, Dte, True)
+    '                'If x = 0 And y = 0 Then
+    '                '    Console.WriteLine("Meteo at " & Dte.ToString & " Dir : " & Mi.Dir.ToString("F2") & " S: " & Mi.Strength.ToString("F2"))
 
-                    'End If
-                    If Not Mi Is Nothing Then
-                        retstring &= GetMeteoArrowString(300 + 100 * (x + 5), 100 * (y + 5), Scale, Mi)
-                    End If
-                Next
-            Next
+    '                'End If
+    '                If Not Mi Is Nothing Then
+    '                    retstring &= GetMeteoArrowString(300 + 100 * (x + 5), 100 * (y + 5), Scale, Mi)
+    '                End If
+    '            Next
+    '        Next
 
-            Return retstring
-        End Get
-    End Property
+    '        Return retstring
+    '    End Get
+    'End Property
 
     Public Property MeteoInfoList() As ObservableCollection(Of RoutingGridPoint)
         Get
@@ -2590,6 +2605,21 @@ Public Class VOR_Router
 
     End Sub
 
+    Public Sub StartIsoRoute(ByVal StartRouting As Boolean)
+
+        _iso = New IsoRouter(_UserInfo.type, _Sails, _Meteo.GribMeteo, 3, New TimeSpan(3, 0, 0))
+        Dim WP As Integer
+
+        If _CurUserWP = 0 Then
+            WP = RouteurModel.CurWP - 1
+        Else
+            WP = _CurUserWP
+        End If
+
+        Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
+        _Iso.StartIsoRoute(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0), Now)
+    End Sub
+
     Private Sub AddLog(ByVal Log As String)
 
         SyncLock _LogQueue
@@ -2755,6 +2785,17 @@ Public Class VOR_Router
 
     End Sub
 
+    Private Sub _iso_Log(ByVal msg As String) Handles _iso.Log
+        AddLog(msg)
+    End Sub
+
+    Private Sub _iso_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _iso.PropertyChanged
+        If e.PropertyName = "TmpRoute" Then 'And Now.Subtract(lastchange).TotalSeconds > 1 Then
+            'lastchange = Now
+            TempRoute(_Meteo) = _iso.Route
+        End If
+
+    End Sub
 End Class
 
 Public Class BoatInfo
