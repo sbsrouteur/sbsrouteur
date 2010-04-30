@@ -798,7 +798,7 @@ Public Class VOR_Router
                         OrderDate = New Date(1970, 1, 1).AddSeconds(OrderDateSecs).AddHours(System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
                     End If
 
-                    While CurDate < OrderDate OrElse RouteToEnd
+                    While Not RouteComplete AndAlso (CurDate < OrderDate OrElse RouteToEnd)
                         Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
                         If Mi Is Nothing Then
                             Exit While
@@ -921,6 +921,9 @@ Public Class VOR_Router
                                 P.T = CurDate
                                 PilototoRoute.Add(P)
                                 LastPTick = Now.Ticks
+                                If PilototoRoute.Count > 600 Then
+                                    RouteComplete = True
+                                End If
                             End If
                         End If
                         CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
