@@ -539,7 +539,7 @@ Public Class RouteurModel
 
                 End If
                 _Busy = True
-                The2DViewer.UpdatePath(Traj, routes, VorHandler.Opponents, VorHandler.GridRoute, _ClearGrid, _ClearBoats)
+                The2DViewer.UpdatePath(Traj, routes, VorHandler.Opponents, VorHandler.GridRoute, _ClearGrid, _ClearBoats, VorHandler.IsoChrones)
                 _ClearGrid = False
                 _ClearBoats = False
             End If

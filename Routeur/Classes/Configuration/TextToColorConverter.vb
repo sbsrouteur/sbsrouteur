@@ -3,8 +3,7 @@
 Public Class TextToColorConverter
 
     Implements IValueConverter
-    Private Const VALUE_OK_COLOR As Long = &HFF7AFFAE
-    Private Const VALUE_NOK_COLOR As Long = &HFFFF7A7A
+
     Private Shared BrushOK As New SolidColorBrush(New Color() With {.A = &HFF, .R = &H7A, .G = &HFF, .B = &HAE})
     Private Shared BrushNOK As New SolidColorBrush(New Color() With {.A = &HFF, .R = &HFF, .G = &H7A, .B = &H7A})
 

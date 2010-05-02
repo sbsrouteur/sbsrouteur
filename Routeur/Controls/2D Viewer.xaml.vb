@@ -247,7 +247,7 @@ Render1:
     End Sub
 
     Private Delegate Sub UpdatePathDelegate(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VOR_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
-                                                ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean)
+                                                ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone))
 
 
     Private Sub SafeDrawLine(ByVal dc As DrawingContext, ByVal PrevP As Coords, ByVal P As Coords, ByVal pe As Pen, ByVal Prevpoint As Point, ByVal NewP As Point)
@@ -271,7 +271,7 @@ Render1:
         End If
     End Sub
     Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VOR_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
-                          ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean)
+                          ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone))
 
         Static Invoking As Integer = 0
         Static lastinvoke As DateTime = New DateTime(0)
@@ -280,7 +280,7 @@ Render1:
         Static Q As New Queue(Of System.Windows.Threading.DispatcherOperation)
         Static CurPos As New Coords
 
-        
+
         If Not Dispatcher.Thread Is System.Threading.Thread.CurrentThread Then
             'Invoking = System.Threading.Interlocked.CompareExchange(Invoking, 1, 0)
             'If Invoking = 0 Then
@@ -289,7 +289,7 @@ Render1:
             '        Return
             '    End If
             '    lastinvoke = Now
-            Dim R As System.Windows.Threading.DispatcherOperation = Dispatcher.BeginInvoke(dlg, New Object() {PathString, Routes, Opponents, Grid, ClearGrid, ClearBoats})
+            Dim R As System.Windows.Threading.DispatcherOperation = Dispatcher.BeginInvoke(dlg, New Object() {PathString, Routes, Opponents, Grid, ClearGrid, ClearBoats, IsoChrones})
 
             While Q.Count > 0
                 Dim R2 As System.Windows.Threading.DispatcherOperation = CType(Q.Dequeue, System.Windows.Threading.DispatcherOperation)
@@ -322,6 +322,7 @@ Render1:
             Static opponentPenOption As New Pen(New SolidColorBrush(System.Windows.Media.Colors.DarkRed), RouteurModel.PenWidth)
             Static BlackBrush As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Black), RouteurModel.PenWidth / 2)
             Static GridBrushes() As Pen
+            Static WindBrushes() As Pen
 
             Static LocalDash As New DashStyle(New Double() {0, 2}, 0)
             Static routePen() As Pen = New Pen() {New Pen(New SolidColorBrush(System.Windows.Media.Colors.Blue), RouteurModel.PenWidth) With {.LineJoin = PenLineJoin.Round}, _
@@ -433,6 +434,58 @@ Render1:
                     DC = D.RenderOpen
 
                 End If
+
+                '
+                ' Draw IsoChrones
+                '
+                Try
+                    If WindBrushes Is Nothing Then
+                        ReDim WindBrushes(70)
+
+                        For i = 0 To 69
+                            WindBrushes(i) = New Pen(New SolidColorBrush(WindColors.GetColor(i)), 0.5)
+                            WindBrushes(i).Freeze()
+                        Next
+
+
+                    End If
+                    For Each iso As IsoChrone In IsoChrones
+                        If Not iso.Drawn Then
+                            Dim MaxIndex As Integer = iso.MaxIndex
+                            Dim index As Integer
+                            Dim CurP As Coords
+                            FirstPoint = True
+                            For index = 0 To MaxIndex
+                                If Not iso.Data(index) Is Nothing Then
+                                    CurP = iso.Data(index).P
+                                    P1.X = LonToCanvas(CurP.Lon_Deg)
+                                    P1.Y = LatToCanvas(CurP.Lat_Deg)
+
+                                    If Not FirstPoint Then
+                                        SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
+                                    Else
+                                        FirstPoint = False
+                                    End If
+                                    PrevP.Lon = CurP.Lon
+                                    PrevP.Lat = CurP.Lat
+                                    PrevPoint = P1
+
+                                Else
+                                    FirstPoint = True
+                                End If
+                            Next
+                            iso.Drawn = True
+                        End If
+
+                    Next
+
+                Catch ex As Exception
+                Finally
+                    DC.Close()
+                    _GridBmp.Render(D)
+                    DC = D.RenderOpen
+
+                End Try
 
                 '
                 ' Draw routing grid

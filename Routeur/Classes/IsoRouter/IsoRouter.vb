@@ -9,10 +9,10 @@ Public Class IsoRouter
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
     Public Event Log(ByVal msg As String)
 
-    Public Event IsoRouted()
-
     Private _AngleStep As Double
     Private _IsoStep As TimeSpan
+    Private _IsoStep_24 As TimeSpan
+    Private _IsoStep_48 As TimeSpan
     Private _IsoChrones As New LinkedList(Of IsoChrone)
 
     Private _IsoRouteThread As Thread
@@ -27,37 +27,38 @@ Public Class IsoRouter
     Private _CurBest As clsrouteinfopoints
 
 
-    Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal IsoStep As TimeSpan)
+    Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan)
         _AngleStep = AngleStep
         _IsoStep = IsoStep
+        _IsoStep_24 = IsoStep_24
+        _IsoStep_48 = IsoStep_48
+
         _Meteo = Meteo
         _SailManager = SailManager
         _BoatType = BoatType
     End Sub
 
-    Private Function CheckCompletion(ByVal Iso As IsoChrone) As Boolean
-
-        Return True
-
-    End Function
 
     Private Function ComputeNextIsoChrone(ByVal Iso As IsoChrone) As IsoChrone
 
-        Dim RetIsoChrone As New IsoChrone(_AngleStep)
+        Dim RetIsoChrone As IsoChrone = Nothing
         Dim alpha As Double
         Dim P As clsrouteinfopoints
         Dim Index As Integer
         Dim OldP As clsrouteinfopoints
+        Dim AStep As Double
 
         If Iso Is Nothing Then
             'Special Case for startpoint
-
+            RetIsoChrone = New IsoChrone(_AngleStep)
             For alpha = 0 To 360 - _AngleStep Step _AngleStep
                 P = ReachPoint(_StartPoint, alpha, _IsoStep)
-                Index = RetIsoChrone.IndexFromAngle(alpha)
-                OldP = RetIsoChrone.Data(Index)
-                If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
-                    RetIsoChrone.Data(Index) = P
+                If Not P Is Nothing Then
+                    Index = RetIsoChrone.IndexFromAngle(alpha)
+                    OldP = RetIsoChrone.Data(Index)
+                    If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
+                        RetIsoChrone.Data(Index) = P
+                    End If
                 End If
             Next
 
@@ -69,10 +70,19 @@ Public Class IsoRouter
 
             For Each rp In Iso.Data
                 If Not rp Is Nothing Then
-                    If rp.T.Subtract(_StartPoint.T).Ticks > TimeSpan.TicksPerHour * 24 Then
-                        CurStep = New TimeSpan(4 * _IsoStep.Ticks)
+                    Dim Ticks As Long = rp.T.Subtract(_StartPoint.T).Ticks
+                    If Ticks > TimeSpan.TicksPerHour * 48 Then
+                        CurStep = _IsoStep_48
+                        AStep = _AngleStep / 4
+                    ElseIf Ticks > TimeSpan.TicksPerHour * 24 Then
+                        CurStep = _IsoStep_24
+                        AStep = _AngleStep / 2
                     Else
+                        AStep = _AngleStep
                         CurStep = _IsoStep
+                    End If
+                    If RetIsoChrone Is Nothing Then
+                        RetIsoChrone = New IsoChrone(AStep)
                     End If
                     Dim Ortho As Double
                     tc.StartPoint = rp.P
@@ -81,15 +91,17 @@ Public Class IsoRouter
                     tc.StartPoint = _StartPoint.P
                     For alpha = 0 To 360 - _AngleStep Step _AngleStep
 
-                        If WindAngle(Ortho, alpha) < 120 Then
+                        If WindAngle(Ortho, alpha) < 180 - 120 Then
                             P = ReachPoint(rp, alpha, CurStep)
-                            tc.EndPoint = P.P
-                            alpha2 = tc.Cap
+                            If Not P Is Nothing Then
+                                tc.EndPoint = P.P
+                                alpha2 = tc.Cap
 
-                            Index = RetIsoChrone.IndexFromAngle(alpha2)
-                            OldP = RetIsoChrone.Data(Index)
-                            If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
-                                RetIsoChrone.Data(Index) = P
+                                Index = RetIsoChrone.IndexFromAngle(alpha2)
+                                OldP = RetIsoChrone.Data(Index)
+                                If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
+                                    RetIsoChrone.Data(Index) = P
+                                End If
                             End If
                         End If
 
@@ -112,30 +124,40 @@ Public Class IsoRouter
         Dim CurIsoChrone As IsoChrone = Nothing
         Dim Start As DateTime = Now
         Dim P As clsrouteinfopoints = Nothing
+        Dim TC As New TravelCalculator
+        TC.StartPoint = _StartPoint.P
+        TC.EndPoint = _DestPoint
 
-        Console.WriteLine(Start)
+        Dim Loxo As Double = TC.Cap
+        Dim Dist As Double = TC.SurfaceDistance
+
+        RaiseEvent Log("Isochrone router started at " & Start)
         While Not RouteComplete AndAlso Not _CancelRequested
             CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
             'RouteComplete = CheckCompletion(CurIsoChrone)
             _IsoChrones.AddLast(CurIsoChrone)
             For Each rp As clsrouteinfopoints In CurIsoChrone.Data
                 If Not rp Is Nothing Then
-                    If P Is Nothing OrElse P.DTF > rp.DTF Then
+                    If P Is Nothing OrElse (P.DTF > rp.DTF) Then
                         P = rp
                     End If
                 End If
             Next
-            If P Is Nothing Then
-                RouteComplete = True
-            Else
+
+            If Not P Is Nothing Then
                 _CurBest = P
             End If
 
+            If Not CurIsoChrone.Data(Loxo) Is Nothing Then
+                TC.EndPoint = CurIsoChrone.Data(Loxo).P
+                If TC.SurfaceDistance >= Dist Then
+                    RouteComplete = True
+                End If
+            End If
             RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
 
-            RaiseEvent IsoRouted()
         End While
-        Console.WriteLine(Now & " :" & Now.Subtract(Start).ToString)
+        RaiseEvent Log("Isochrone routing completed in  " & Now.Subtract(Start).ToString)
 
     End Sub
 
@@ -227,6 +249,11 @@ Public Class IsoRouter
         Return RetRoute
     End Function
 
+    Public ReadOnly Property IsoChrones() As LinkedList(Of IsoChrone)
+        Get
+            Return _IsoChrones
+        End Get
+    End Property
     Public ReadOnly Property Route() As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
         Get
 
@@ -262,6 +289,10 @@ Public Class IsoRouter
             _CancelRequested = True
         End If
 
+    End Sub
+
+    Public Sub StopRoute()
+        _CancelRequested = True
     End Sub
 
     Public ReadOnly Property CurBest() As clsrouteinfopoints

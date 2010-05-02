@@ -5,7 +5,7 @@
 	x:Class="frmRouterConfiguration"
 	x:Name="Window"
 	Title="Grid Route Setup"
-	Width="640" Height="480" mc:Ignorable="d">
+	Width="640" Height="480" mc:Ignorable="d" Icon="/Routeur;Component/Graphics/System-Preferences.ico">
 
 	<Window.Resources>
 		<ResourceDictionary>
@@ -22,31 +22,35 @@
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" MinHeight="24"/>
-			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto" MinHeight="24"/>
+			<RowDefinition Height="Auto" MinHeight="24"/>
+			<RowDefinition Height="Auto" MinHeight="24"/>
+			<RowDefinition Height="Auto" MinHeight="24"/>
+			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="0.89*"/>
 			<RowDefinition Height="Auto" MinHeight="36	"/>
 		</Grid.RowDefinitions>
-		<StackPanel Grid.Column="2" Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+		<StackPanel Grid.Column="2" Grid.Row="7	" Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button x:Name="cmdCancel" Content="Cancel" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172" HorizontalAlignment="Left" Margin="4,0,0,0" d:LayoutOverrides="Height" Style="{DynamicResource DefaultButton}"/>
 			<Button x:Name="cmdOK" Content="OK" Width="100" Height="42.172" HorizontalAlignment="Left" Margin="4,0,0,0" d:LayoutOverrides="Height" Style="{DynamicResource DefaultButton}"/>
 		</StackPanel>
-		<Grid Grid.Column="1" >
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="0.09*"/>
-				<ColumnDefinition Width="0.91*"/>
-			</Grid.ColumnDefinitions>
-			<TextBox Text="180" Grid.ColumnSpan="2" />
-			<Slider VerticalAlignment="Center" Grid.Column="1"/>
-		</Grid>
-		<TextBlock Text="Track back exclusion angle:" TextWrapping="Wrap" VerticalAlignment="Center"/>
 		<TextBlock Text="Track forward Angle:" TextWrapping="Wrap" Grid.Row="1"/>
+		<TextBlock Text="Isochrones Step 1st 24h:" TextWrapping="Wrap" Grid.Row="2"/>
+		<TextBlock Text="Isochrones Step 24h-48h:" TextWrapping="Wrap" Grid.Row="3"/>
+		<TextBlock Text="Isochrones Step >48h:" TextWrapping="Wrap" Grid.Row="4"/>
+		<TextBlock Text="Angle Step:" TextWrapping="Wrap" Grid.Row="5"/>
+		<TextBox Text="{Binding IsoStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="2" />
+		<TextBox Text="{Binding IsoStep_24, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="3" />
+		<TextBox Text="{Binding IsoStep_48, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="4" />
+		<TextBox Text="{Binding IsoAngleStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="5" Style="{DynamicResource DoubleFormatCheckTextBox}" />
 		<Grid Grid.Column="1" Grid.Row="1	">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="0.09*"/>
 				<ColumnDefinition Width="0.91*"/>
 			</Grid.ColumnDefinitions>
-			<TextBox Text="180" Grid.ColumnSpan="2" />
-			<Slider VerticalAlignment="Center" Grid.Column="1"/>
+			<TextBox Text="{Binding IsoLookupAngle, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.ColumnSpan="2" />
+			<Slider VerticalAlignment="Center" Grid.Column="1" Maximum="180" SmallChange="1" TickFrequency="10" TickPlacement="BottomRight" LargeChange="10" Value="{Binding IsoLookupAngle, Mode=TwoWay, UpdateSourceTrigger=Default}"/>
 		</Grid>
+		
 	</Grid>
 </Window>

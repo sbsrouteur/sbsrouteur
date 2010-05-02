@@ -33,6 +33,13 @@ Public Class RacePrefs
     Private _EllipseExtFactor As Double
     Private _CourseExtensionHours As Double
 
+    'IsoChrones Prefs
+    Private _IsoLookupAngle As Double
+    Private _IsoStep As TimeSpan
+    Private _IsoStep_24 As TimeSpan
+    Private _IsoStep_48 As TimeSpan
+    Private _IsoAngleStep As Double
+
 
     Public Shared Function GetRaceInfo(ByVal RaceID As Integer) As RacePrefs
 
@@ -68,6 +75,10 @@ Public Class RacePrefs
                 Next
                 .EllipseExtFactor = 1.3
                 .CourseExtensionHours = RACE_COURSE_EXTENSION_HOURS
+                .IsoLookupAngle = 120
+                .IsoStep = New TimeSpan(1, 0, 0)
+                .IsoStep_24 = New TimeSpan(3, 0, 0)
+                .IsoStep_48 = New TimeSpan(12, 0, 0)
             End With
 
         End If
@@ -115,6 +126,67 @@ Public Class RacePrefs
         End Set
     End Property
 
+
+    Public Property IsoAngleStep() As Double
+        Get
+            Return _IsoAngleStep
+        End Get
+        Set(ByVal value As Double)
+            If value <> _IsoAngleStep Then
+                _IsoAngleStep = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoAngleStep"))
+            End If
+
+        End Set
+    End Property
+
+    Public Property IsoLookupAngle() As Double
+        Get
+            Return _IsoLookupAngle
+        End Get
+        Set(ByVal value As Double)
+            If value <> _IsoLookupAngle Then
+                _IsoLookupAngle = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoLookupAngle"))
+            End If
+        End Set
+    End Property
+
+    Public Property IsoStep() As TimeSpan
+        Get
+            Return _IsoStep
+        End Get
+        Set(ByVal value As TimeSpan)
+            If value <> _IsoStep Then
+                _IsoStep = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoStep"))
+            End If
+        End Set
+    End Property
+
+    Public Property IsoStep_24() As TimeSpan
+        Get
+            Return _IsoStep_24
+        End Get
+        Set(ByVal value As TimeSpan)
+            If value <> _IsoStep_24 Then
+                _IsoStep_24 = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoStep_24"))
+            End If
+        End Set
+    End Property
+
+    Public Property IsoStep_48() As TimeSpan
+        Get
+            Return _IsoStep_48
+        End Get
+        Set(ByVal value As TimeSpan)
+            If value <> _IsoStep_48 Then
+                _IsoStep_48 = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoStep_48"))
+            End If
+        End Set
+    End Property
 
     Public Property MapLevel() As EnumMapLevels
         Get

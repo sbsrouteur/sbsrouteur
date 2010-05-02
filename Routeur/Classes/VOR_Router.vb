@@ -464,6 +464,15 @@ Public Class VOR_Router
         End Set
     End Property
 
+    Public ReadOnly Property IsoChrones() As LinkedList(Of IsoChrone)
+        Get
+            If _iso Is Nothing Then
+                Return Nothing
+            End If
+            Return _iso.IsoChrones
+        End Get
+    End Property
+
     Public Property MeteoArrowDate() As Date
         Get
             Return _MeteoArrowDate
@@ -2607,17 +2616,29 @@ Public Class VOR_Router
 
     Public Sub StartIsoRoute(ByVal StartRouting As Boolean)
 
-        _iso = New IsoRouter(_UserInfo.type, _Sails, _Meteo.GribMeteo, 3, New TimeSpan(3, 0, 0))
-        Dim WP As Integer
+        If StartRouting Then
 
-        If _CurUserWP = 0 Then
-            WP = RouteurModel.CurWP - 1
-        Else
-            WP = _CurUserWP
+            'Dim frm As New frmRouterPrefs(
+
+            'frm.DataContext = RacePrefs
+
+            'If frm.ShowDialog() Then
+
+            _iso = New IsoRouter(_UserInfo.type, _Sails, _Meteo.GribMeteo, 3, New TimeSpan(1, 0, 0), New TimeSpan(1, 0, 0), New TimeSpan(3, 0, 0))
+            Dim WP As Integer
+
+            If _CurUserWP = 0 Then
+                WP = RouteurModel.CurWP - 1
+            Else
+                WP = _CurUserWP
+            End If
+
+            Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
+            _iso.StartIsoRoute(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0), Now)
+            'End If
+        ElseIf Not _iso Is Nothing Then
+            _iso.StopRoute()
         End If
-
-        Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
-        _Iso.StartIsoRoute(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0), Now)
     End Sub
 
     Private Sub AddLog(ByVal Log As String)

@@ -53,7 +53,7 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <IncrementalBuild>false</IncrementalBuild>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314</NoWarn>
@@ -208,6 +208,7 @@
     <Compile Include="Classes\DateConverter.vb" />
     <Compile Include="Classes\eHashTable.vb" />
     <Compile Include="Classes\GribMeteo\GribManager.vb" />
+    <Compile Include="Classes\GribMeteo\WindColors.vb" />
     <Compile Include="Classes\GridRouter\GridProgressContext.vb" />
     <Compile Include="Classes\GridRouter\GridRouter.vb" />
     <Compile Include="Classes\GridRouter\RouterPrefs.vb" />
@@ -218,6 +219,7 @@
     <Compile Include="Classes\GSHHS\GSHHS_StartInfo.vb" />
     <Compile Include="Classes\GSHHS\MapProgressContext.vb" />
     <Compile Include="Classes\IsoRouter\IsoChrone.vb" />
+    <Compile Include="Classes\IsoRouter\IsoRouteProgressContext.vb" />
     <Compile Include="Classes\IsoRouter\IsoRouter.vb" />
     <Compile Include="Classes\JSon\JSonHelper.vb" />
     <Compile Include="Classes\JSon\JSonParser.vb" />
@@ -393,6 +395,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\Globe.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\System-Preferences.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\Layers.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
