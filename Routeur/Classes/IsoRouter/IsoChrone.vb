@@ -3,6 +3,8 @@
 Public Class IsoChrone
 
     Private _Data() As clsrouteinfopoints
+    Private _Drawn As Boolean=False 
+
 
     Private _AngleStep As Double
 
@@ -23,16 +25,39 @@ Public Class IsoChrone
 
     Public Property Data(ByVal Angle As Double) As clsrouteinfopoints
         Get
-            Return _Data(CInt((Angle Mod 360) / _AngleStep))
+            Return _Data(IndexFromAngle(Angle))
         End Get
         Set(ByVal value As clsrouteinfopoints)
-            _Data(CInt((Angle Mod 360) / _AngleStep)) = value
+            _Data(IndexFromAngle(Angle)) = value
+        End Set
+    End Property
+
+    Public Property Data(ByVal index As Integer) As clsrouteinfopoints
+        Get
+            Return _Data(index)
+        End Get
+        Set(ByVal value As clsrouteinfopoints)
+            _Data(index) = value
+        End Set
+    End Property
+    Public Property Drawn() As Boolean
+        Get
+            Return _Drawn
+        End Get
+        Set(ByVal value As Boolean)
+            _Drawn = value
         End Set
     End Property
 
     Public ReadOnly Property IndexFromAngle(ByVal Angle As Double) As Integer
         Get
             Return CInt((Angle Mod 360) / _AngleStep)
+        End Get
+    End Property
+
+    Public ReadOnly Property MaxIndex() As Integer
+        Get
+            Return CInt((360 - _AngleStep) / _AngleStep)
         End Get
     End Property
 

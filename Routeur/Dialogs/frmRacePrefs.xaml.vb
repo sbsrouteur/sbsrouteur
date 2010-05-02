@@ -29,8 +29,6 @@ Partial Public Class frmRouterPrefs
         _Context = RacePrefs.GetRaceInfo(_ID)
         DataContext = _Context
 
-
-
     End Sub
 
     Private Sub cmdOKClick(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)

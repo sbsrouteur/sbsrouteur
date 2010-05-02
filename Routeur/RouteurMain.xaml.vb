@@ -214,7 +214,7 @@ Partial Public Class RouteurMain
     Private Sub CheckIsoRoute(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
-        M.VorHandler.startIsoRoute(CBool(chkGridRoute.IsChecked))
+        M.VorHandler.StartIsoRoute(CBool(chkIsoRoute.IsChecked))
     End Sub
 
 
@@ -251,7 +251,6 @@ Partial Public Class RouteurMain
     End Function
 
     Private Sub _2D_Renderer_MouseMoveHandler(ByVal sender as Object, ByVal e as System.Windows.Input.MouseEventArgs)
-        'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
         Dim P As New Point
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
         P.X = e.GetPosition(Me._2D_Renderer_NOZoom).X + 1
@@ -270,6 +269,10 @@ Partial Public Class RouteurMain
 
         M.Refresh()
 
+    End Sub
+
+    Private Sub AppQuit(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+        Close()
     End Sub
 
 

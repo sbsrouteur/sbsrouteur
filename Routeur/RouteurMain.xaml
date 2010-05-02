@@ -188,14 +188,15 @@
     	<Menu HorizontalAlignment="Stretch" Width="Auto" Grid.RowSpan="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="1,0,-1,0">
             <!--<CheckBox Content="Autorouting" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=comboBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding AutoRouting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ShowAutorouting, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" VerticalAlignment="Center"/>-->
 			<MenuItem Header="Actions" VerticalAlignment="Center">
-				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}"/>
 	            <CheckBox x:Name="chkGridRoute" Content="Grid Route" Checked="CheckGridRoute" Unchecked="CheckGridRoute" VerticalAlignment="Center"/>
-	            <CheckBox x:Name="chkIsoRoute" Content="Isochrone Route" Checked="CheckIsoRoute" Unchecked="CheckIsoRoute" VerticalAlignment="Center"/>
 	            <CheckBox x:Name="chkNoObstacle" Content="Ignore Obstacles" VerticalAlignment="Center" IsChecked="{Binding NoObstacle, Mode=Default}"/>
+				<Separator></Separator>
+	            <CheckBox x:Name="chkIsoRoute" Content="Isochrone Route" Checked="CheckIsoRoute" Unchecked="CheckIsoRoute" VerticalAlignment="Center"/>
+	            <Separator></Separator>
 	            <Button Width="Auto" Height="26.92" Content="Redraw" Click="RedrawClick" Margin="4,0"/>
-				<MenuItem Header="Redraw" Click="RedrawClick" />
-				<MenuItem Header="Refresh From VLM" Click="Refresh"></MenuItem>
-				
+				<MenuItem Header="Refresh From VLM" Click="Refresh" Visibility="Collapsed"></MenuItem>
+				<Separator></Separator>
+	            <MenuItem Header="Quit" Click="AppQuit" ></MenuItem>
 			</MenuItem>
 			<MenuItem Header="Information" VerticalAlignment="Center">
 				<TextBlock Text="{Binding MeteoValidSpan, Mode=Default, StringFormat={} Meteo update in {0:HH}}" VerticalAlignment="Center"/>
@@ -207,12 +208,13 @@
 				<TextBlock Text="{Binding RacePrefs.GridGrain, StringFormat=GridGrain {0:F2}, Mode=Default}" />					
 			</MenuItem>
 			<MenuItem Header="Display" VerticalAlignment="Center">
+				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}" HorizontalAlignment="Left"/>
 				<CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center"/>
 				<CheckBox Content="Hide Boat &amp; Wind Arrow" IsChecked="{Binding VorHandler.HideWindArrow, Mode=Default}" VerticalAlignment="Center" />
 				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="False"/>
 			
 			</MenuItem>
-			<MenuItem Header="Meteo" VerticalAlignment="Center">
+			<MenuItem Header="Meteo" VerticalAlignment="Center" Visibility="Collapsed">
 				<Slider Maximum="100" Minimum="5" Value="{Binding VorHandler.MeteoArrowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" TickFrequency="25" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" />
 				<Slider x:Name="slider" Maximum="{Binding VorHandler.MeteoArrowDateEnd, Mode=Default}" Minimum="{Binding VorHandler.MeteoArrowDateStart, Mode=Default}" Width="129" Value="{Binding VorHandler.MeteoArrowDateTicks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding VorHandler.TickFreq, Mode=Default}" TickPlacement="BottomRight" />
 				<TextBlock Text="{Binding VorHandler.MeteoArrowDate, Mode=Default}" />
