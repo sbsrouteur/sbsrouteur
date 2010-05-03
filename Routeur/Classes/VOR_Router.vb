@@ -1400,15 +1400,17 @@ Public Class VOR_Router
             _ThreadSetterCurPos.Lon_Deg = _UserInfo.position.longitude
             _ThreadSetterCurPos.Lat_Deg = _UserInfo.position.latitude
             Pv.Clear()
-            For Each V In Value
-                Pv.Add(V)
-                '    V.RefreshTC(_ThreadSetterCurPos)
-            Next
+            If Not Value Is Nothing Then
+                For Each V In Value
+                    Pv.Add(V)
+                    '    V.RefreshTC(_ThreadSetterCurPos)
+                Next
+            End If
 
             RaiseEvent PropertyChanged(Me, e)
 
 
-        End If
+            End If
     End Sub
 
     Public ReadOnly Property Track() As String
@@ -2477,6 +2479,10 @@ Public Class VOR_Router
 
         If Not _gr Is Nothing Then
             BestRouteAtPoint = _gr.RouteToPoint(c)
+        End If
+
+        If Not _iso Is Nothing Then
+            BestRouteAtPoint = _iso.RouteToPoint(c)
         End If
 
         'todo make this safe

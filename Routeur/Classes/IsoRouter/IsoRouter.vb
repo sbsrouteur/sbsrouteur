@@ -205,6 +205,33 @@ Public Class IsoRouter
         Return RetPoint
     End Function
 
+    Public Function RouteToPoint(ByVal C As Coords) As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+
+        Dim TC As New TravelCalculator
+        TC.StartPoint = _StartPoint.P
+        TC.EndPoint = C
+        Dim Loxo As Double = TC.Cap
+        Dim RP As clsrouteinfopoints = Nothing
+
+        For Each iso As IsoChrone In _IsoChrones
+            Dim index As Integer = iso.IndexFromAngle(Loxo)
+
+            If Not iso.Data(index) Is Nothing Then
+                TC.StartPoint = iso.Data(index).P
+                If TC.SurfaceDistance < 1 Then
+                    RP = iso.Data(index)
+                    Exit For
+                End If
+            End If
+        Next
+
+        If RP Is Nothing Then
+            Return Nothing
+        Else
+            Return RouteToPoint(RP)
+        End If
+    End Function
+
     Public Function RouteToPoint(ByVal c As clsrouteinfopoints) As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
 
         Dim RetRoute As New ObservableCollection(Of VOR_Router.clsrouteinfopoints)
