@@ -1,5 +1,6 @@
 ﻿Imports System.ComponentModel
 Imports System.Xml.Serialization
+Imports System.Xml
 
 Public Class RacePrefs
 
@@ -152,36 +153,69 @@ Public Class RacePrefs
         End Set
     End Property
 
+    <XmlAttribute("IsoStep")> _
+    Public Property IsoStepString() As String
+        Get
+            Return XmlConvert.ToString(_IsoStep)
+        End Get
+        Set(ByVal value As String)
+            _IsoStep = XmlConvert.ToTimeSpan(value)
+        End Set
+    End Property
+
+    <XmlAttribute("IsoStep_24")> _
+Public Property IsoStep24String() As String
+        Get
+            Return XmlConvert.ToString(_IsoStep_24)
+        End Get
+        Set(ByVal value As String)
+            _IsoStep_24 = XmlConvert.ToTimeSpan(value)
+        End Set
+    End Property
+
+    <XmlAttribute("IsoStep_48")> _
+Public Property IsoStep48String() As String
+        Get
+            Return XmlConvert.ToString(_IsoStep_48)
+        End Get
+        Set(ByVal value As String)
+            _IsoStep_48 = XmlConvert.ToTimeSpan(value)
+        End Set
+    End Property
+
+    <XmlIgnore()> _
     Public Property IsoStep() As TimeSpan
         Get
             Return _IsoStep
         End Get
         Set(ByVal value As TimeSpan)
-            If value <> _IsoStep Then
+            If value.Ticks <> _IsoStep.Ticks Then
                 _IsoStep = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoStep"))
             End If
         End Set
     End Property
 
+    <XmlIgnore()> _
     Public Property IsoStep_24() As TimeSpan
         Get
             Return _IsoStep_24
         End Get
         Set(ByVal value As TimeSpan)
-            If value <> _IsoStep_24 Then
+            If value.Ticks <> _IsoStep_24.Ticks Then
                 _IsoStep_24 = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoStep_24"))
             End If
         End Set
     End Property
 
+    <XmlIgnore()> _
     Public Property IsoStep_48() As TimeSpan
         Get
             Return _IsoStep_48
         End Get
         Set(ByVal value As TimeSpan)
-            If value <> _IsoStep_48 Then
+            If value.Ticks <> _IsoStep_48.Ticks Then
                 _IsoStep_48 = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoStep_48"))
             End If

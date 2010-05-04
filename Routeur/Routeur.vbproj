@@ -201,6 +201,7 @@
     <Compile Include="Classes\Configuration\RegistryHelper.vb" />
     <Compile Include="Classes\Configuration\TextToColorConverter.vb" />
     <Compile Include="Classes\Configuration\TextToNumberConverter.vb" />
+    <Compile Include="Classes\Configuration\TimeSpanColorConverter.vb" />
     <Compile Include="Classes\Coords.vb" />
     <Compile Include="Classes\CoordsConverter.vb" />
     <Compile Include="Classes\CountToVisibilityConverter.vb" />

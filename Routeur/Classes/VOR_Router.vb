@@ -101,7 +101,6 @@ Public Class VOR_Router
     Private _MeteoArrowDate As Date
 
 
-
     Private Shared _PosValide As Boolean = False
     Private Shared _Sails As New clsSailManager
     Public Shared BoatType As String
@@ -307,13 +306,7 @@ Public Class VOR_Router
             If _CurUserWP <> 0 AndAlso _CurUserWP < RouteurModel.WPList.Count Then
 
                 Return RouteurModel.WPList(_CurUserWP)
-            ElseIf _CurUserWP = 0 AndAlso RouteurModel.WPList.Count > 0 Then 'AndAlso RouteurModel.CurWP > 0 AndAlso RouteurModel.CurWP <= RouteurModel.WPList.Count Then
-                'If RouteurModel.WPList(RouteurModel.CurWP) Is Nothing Then
-                '    RouteurModel.WPList(0) = "<Auto> ??"
-                'Else
-                '    RouteurModel.WPList(0) = "<Auto> " & RouteurModel.WPList(RouteurModel.CurWP)
-                'End If
-
+            ElseIf _CurUserWP = 0 AndAlso RouteurModel.WPList.Count > 0 Then 
                 Return RouteurModel.WPList(0)
             Else
                 Return "??"
@@ -2625,14 +2618,15 @@ Public Class VOR_Router
     Public Sub StartIsoRoute(ByVal StartRouting As Boolean)
 
         If StartRouting Then
+            Dim frm As New frmRouterConfiguration(_PlayerInfo.RaceInfo.idraces)
 
-            'Dim frm As New frmRouterPrefs(
+            If Not frm.ShowDialog() Then
+                Return
+            End If
+            Dim prefs As RacePrefs = CType(frm.DataContext, RacePrefs)
 
-            'frm.DataContext = RacePrefs
-
-            'If frm.ShowDialog() Then
-
-            _iso = New IsoRouter(_UserInfo.type, _Sails, _Meteo.GribMeteo, 3, New TimeSpan(1, 0, 0), New TimeSpan(1, 0, 0), New TimeSpan(3, 0, 0))
+            _iso = New IsoRouter(_UserInfo.type, _Sails, _Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoStep, _
+                                 prefs.IsoStep_24, prefs.IsoStep_48)
             Dim WP As Integer
 
             If _CurUserWP = 0 Then
@@ -2647,6 +2641,7 @@ Public Class VOR_Router
             'End If
         ElseIf Not _iso Is Nothing Then
             _iso.StopRoute()
+
         End If
     End Sub
 
@@ -2794,6 +2789,7 @@ Public Class VOR_Router
     End Sub
 
     Public Sub New()
+
         AddHandler GSHHS_Reader.BspEvt, AddressOf OnBspEvt
         AddHandler GSHHS_Reader.Log, AddressOf OnGsHHSLog
 
