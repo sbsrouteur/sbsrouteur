@@ -99,6 +99,7 @@ Public Class RouteurModel
 
     Private _Busy As Boolean = False
     Private _ClearGrid As Boolean
+    Private _IsoRouterActive As Boolean
 
 
     Private Sub CheckPassword()
@@ -253,6 +254,19 @@ Public Class RouteurModel
         SCALE *= _2D_Viewer.DEFINITION
 
     End Sub
+
+    Public Property IsoRouterActive() As Boolean
+        Get
+            Return _IsoRouterActive
+        End Get
+        Set(ByVal value As Boolean)
+            If value <> _IsoRouterActive Then
+                _IsoRouterActive = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoRouterActive"))
+            End If
+
+        End Set
+    End Property
 
     Public ReadOnly Property RacePrefs() As RacePrefs
         Get
@@ -485,6 +499,10 @@ Public Class RouteurModel
 
         RaiseEvent BoatsDrawn()
 
+    End Sub
+
+    Private Sub _VorHandler_IsoComplete() Handles _VorHandler.IsoComplete
+        IsoRouterActive = False
     End Sub
 
 
