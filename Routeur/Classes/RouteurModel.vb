@@ -174,7 +174,7 @@ Public Class RouteurModel
 
             If RouteurModel.WPList.Count = 0 Then
                 RouteurModel.WPList.Add("<Auto> " & WPs.ToString)
-                VorHandler.CurUserWP = "<Auto> " & WPs.ToString
+
             End If
 
             RouteurModel.WPList.Add(WPs.ToString)
@@ -205,6 +205,11 @@ Public Class RouteurModel
             Next
 
         Next
+
+        'Hack to force refreshing the WP
+        CurWP = CurWP
+        VorHandler.CurUserWP = "<Auto> " & RouteurModel.WPList(CurWP).ToString
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
 
         START_LAT = _P_Info(0).RaceInfo.Start.Lat_Deg
         START_LON = _P_Info(0).RaceInfo.Start.Lon_Deg
