@@ -191,7 +191,7 @@
 	            <CheckBox x:Name="chkGridRoute" Content="Grid Route" Checked="CheckGridRoute" Unchecked="CheckGridRoute" VerticalAlignment="Center"/>
 	            <CheckBox x:Name="chkNoObstacle" Content="Ignore Obstacles" VerticalAlignment="Center" IsChecked="{Binding NoObstacle, Mode=Default}"/>
 				<Separator></Separator>
-	            <CheckBox x:Name="chkIsoRoute" Content="Isochrone Route" Checked="CheckIsoRoute" Unchecked="CheckIsoRoute" VerticalAlignment="Center"/>
+	            <CheckBox x:Name="chkIsoRoute" Content="Isochrone Route" Checked="CheckIsoRoute" Unchecked="CheckIsoRoute" VerticalAlignment="Center" IsChecked="{Binding IsoRouterActive, Mode=Default}"/>
 	            <Separator></Separator>
 	            <Button Width="Auto" Height="26.92" Content="Redraw" Click="RedrawClick" Margin="4,0"/>
 				<MenuItem Header="Refresh From VLM" Click="Refresh" Visibility="Collapsed"></MenuItem>

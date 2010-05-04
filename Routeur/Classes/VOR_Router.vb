@@ -13,6 +13,7 @@ Public Class VOR_Router
     Public Event bruted()
     Public Event BoatShown()
     Public Event BoatClear()
+    Public Event IsoComplete()
 
     Private _UserInfo As user
     Private _WebClient As New WebClient()
@@ -2066,16 +2067,17 @@ Public Class VOR_Router
         Dim TC As New TravelCalculator() With {.StartPoint = TargetC}
         Dim CurDist As Double = Double.MaxValue
         Dim BestP As clsrouteinfopoints = Nothing
-
+        Dim CurT As DateTime = New DateTime(3000, 1, 1)
         Try
             For Each P In Points
 
                 TC.EndPoint = P.P
-                If CurDist > TC.SurfaceDistance Then
+                If CurDist > TC.SurfaceDistance OrElse (Abs(CurDist - TC.SurfaceDistance) < 5 AndAlso CurT > P.T) Then
                     CurDist = TC.SurfaceDistance
+                    CurT = P.T
                     BestP = P
-                ElseIf CurDist <> Double.MaxValue AndAlso 3 * CurDist > TC.SurfaceDistance Then
-                    Exit For
+                    'ElseIf CurDist <> Double.MaxValue AndAlso 3 * CurDist > TC.SurfaceDistance Then
+                    '    Exit For
                 End If
 
 
@@ -2639,6 +2641,7 @@ Public Class VOR_Router
                 WP = _CurUserWP
             End If
 
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ClearGrid"))
             Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
             _iso.StartIsoRoute(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0), Now)
             'End If
@@ -2822,6 +2825,10 @@ Public Class VOR_Router
             TempRoute(_Meteo) = _iso.Route
         End If
 
+    End Sub
+
+    Private Sub _iso_RouteComplete() Handles _iso.RouteComplete
+        RaiseEvent IsoComplete()
     End Sub
 End Class
 

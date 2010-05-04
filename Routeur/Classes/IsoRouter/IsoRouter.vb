@@ -8,6 +8,7 @@ Public Class IsoRouter
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
     Public Event Log(ByVal msg As String)
+    Public Event RouteComplete()
 
     Private _AngleStep As Double
     Private _IsoStep As TimeSpan

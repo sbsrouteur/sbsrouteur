@@ -449,6 +449,11 @@ Render1:
 
 
                     End If
+
+                    If ClearGrid Then
+                        _GridBmp.Clear()
+                    End If
+
                     For Each iso As IsoChrone In IsoChrones
                         If Not iso.Drawn Then
                             Dim MaxIndex As Integer = iso.MaxIndex
