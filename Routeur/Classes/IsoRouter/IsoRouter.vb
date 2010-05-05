@@ -159,7 +159,7 @@ Public Class IsoRouter
 
         End While
         RaiseEvent Log("Isochrone routing completed in  " & Now.Subtract(Start).ToString)
-
+        RaiseEvent RouteComplete()
     End Sub
 
     Private Function ReachPoint(ByVal Start As clsrouteinfopoints, ByVal Cap As Double, ByVal Duration As TimeSpan) As clsrouteinfopoints

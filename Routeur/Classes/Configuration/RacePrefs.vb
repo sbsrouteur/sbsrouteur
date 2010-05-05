@@ -76,7 +76,8 @@ Public Class RacePrefs
                 Next
                 .EllipseExtFactor = 1.3
                 .CourseExtensionHours = RACE_COURSE_EXTENSION_HOURS
-                .IsoLookupAngle = 120
+                .IsoLookupAngle = 60
+                .IsoAngleStep = 3
                 .IsoStep = New TimeSpan(1, 0, 0)
                 .IsoStep_24 = New TimeSpan(3, 0, 0)
                 .IsoStep_48 = New TimeSpan(12, 0, 0)
