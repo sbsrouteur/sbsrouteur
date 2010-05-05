@@ -2824,6 +2824,7 @@ Public Class VOR_Router
     End Sub
 
     Private Sub _iso_RouteComplete() Handles _iso.RouteComplete
+        BruteRoute(_Meteo) = _iso.Route
         RaiseEvent IsoComplete()
     End Sub
 End Class
