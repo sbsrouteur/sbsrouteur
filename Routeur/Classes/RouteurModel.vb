@@ -28,7 +28,7 @@ Public Class RouteurModel
     Private Shared _RouteExtensionHours As Double = RacePrefs.RACE_COURSE_EXTENSION_HOURS
 
 
-    Public Shared BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
+    Private Shared _BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
 
 
     Public Shared SCALE As Double = 1
@@ -260,6 +260,20 @@ Public Class RouteurModel
 
     End Sub
 
+    Public Shared ReadOnly Property BaseFileDir() As String
+        Get
+            If Not System.IO.Directory.Exists(_BaseFileDir) Then
+                Try
+                    System.IO.Directory.CreateDirectory(_BaseFileDir)
+                Catch ex As Exception
+                    MessageBox.Show(ex.Message, "Error creating the application data folder", MessageBoxButton.OK, MessageBoxImage.Error)
+                    Throw ex
+                End Try
+            End If
+            Return _BaseFileDir
+        End Get
+    End Property
+
     Public Property IsoRouterActive() As Boolean
         Get
             Return _IsoRouterActive
@@ -363,10 +377,10 @@ Public Class RouteurModel
     Private Sub LoadRaceInfo(ByVal P As RegistryPlayerInfo)
 
         Dim RaceNum As Integer = P.RaceNum
-        Dim RaceFileName As String = BaseFileDir & "RI_" & RaceNum & ".ini"
+        Dim RaceFileName As String = BaseFileDir & "\RI_" & RaceNum & ".ini"
         Dim RaceInfo As String
 
-        If Not System.IO.File.Exists(BaseFileDir & "RI_" & RaceNum & ".ini") Then
+        If Not System.IO.File.Exists(RaceFileName) Then
 
             'First race access download info from the WS
             RaceInfo = WS_Wrapper.GetRaceInfo(RaceNum)
