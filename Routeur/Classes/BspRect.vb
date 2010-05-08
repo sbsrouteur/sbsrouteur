@@ -61,10 +61,11 @@ Public Class BspRect
         Get
             If _PolyGons Is Nothing AndAlso Abs((P2.Lat - P1.Lat)) > MIN_POLYGON_SPLIT Then
 
-                If SubRects(0) Is Nothing Then
-                    Split(gridgrain)
+                If _SubRects(0) Is Nothing Then
+                    If Not Split(gridgrain) Then
+                        Return Nothing
+                    End If
                 End If
-
                 Return GetChildFromCoords(C, gridgrain).GetPolygons(C, Polygons, gridgrain)
 
             Else
@@ -364,7 +365,9 @@ Public Class BspRect
         If Math.Abs(2 * DeltaX) < MIN_POLYGON_SPLIT / 180 * Math.PI Then
 
             Return False
+
         End If
+
         For x As Integer = 0 To 1
             For y As Integer = 0 To 1
 
