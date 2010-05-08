@@ -709,7 +709,11 @@ Public Class VOR_Router
                     Dim Retries As Integer = 0
                     While Retries < 2
                         Try
-                            CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(1))
+                            If _CurUserWP = 0 Then
+                                CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
+                            Else
+                                CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(1))
+                            End If
                             Retries = 3
                         Catch ex As Exception
                             AddLog(ex.Message)
