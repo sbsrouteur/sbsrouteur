@@ -40,12 +40,13 @@ Public Class IsoRouter
     End Sub
 
 
-    Private Function ComputeNextIsoChrone(ByVal Iso As IsoChrone) As IsoChrone
+    Private Function ComputeNextIsoChrone(ByVal Iso As IsoChrone, ByVal PrevIso As IsoChrone) As IsoChrone
 
         Dim RetIsoChrone As IsoChrone = Nothing
         Dim alpha As Double
         Dim P As clsrouteinfopoints
         Dim Index As Integer
+        Dim PrevIndex As Integer
         Dim OldP As clsrouteinfopoints
         Dim AStep As Double
 
@@ -58,7 +59,9 @@ Public Class IsoRouter
                     Index = RetIsoChrone.IndexFromAngle(alpha)
                     OldP = RetIsoChrone.Data(Index)
                     If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
+                        'If PrevIso Is Nothing OrElse (Not PrevIso.Data(Index) Is Nothing AndAlso P.DTF <= PrevIso.Data(Index).DTF) Then
                         RetIsoChrone.Data(Index) = P
+                        'End If
                     End If
                 End If
             Next
@@ -99,9 +102,14 @@ Public Class IsoRouter
                                 alpha2 = tc.Cap
 
                                 Index = RetIsoChrone.IndexFromAngle(alpha2)
+                                If Not PrevIso Is Nothing Then
+                                    PrevIndex = PrevIso.IndexFromAngle(alpha2)
+                                End If
                                 OldP = RetIsoChrone.Data(Index)
                                 If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
-                                    RetIsoChrone.Data(Index) = P
+                                    If PrevIso Is Nothing OrElse (Not PrevIso.Data(PrevIndex) Is Nothing AndAlso P.DTF <= PrevIso.Data(PrevIndex).DTF) Then
+                                        RetIsoChrone.Data(Index) = P
+                                    End If
                                 End If
                             End If
                         End If
@@ -123,6 +131,7 @@ Public Class IsoRouter
 
         Dim RouteComplete As Boolean = False
         Dim CurIsoChrone As IsoChrone = Nothing
+        Dim PrevIsoChrone As IsoChrone = Nothing
         Dim Start As DateTime = Now
         Dim P As clsrouteinfopoints = Nothing
         Dim TC As New TravelCalculator
@@ -134,29 +143,35 @@ Public Class IsoRouter
 
         RaiseEvent Log("Isochrone router started at " & Start)
         While Not RouteComplete AndAlso Not _CancelRequested
-            CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
+            P = Nothing
+            CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone, PrevIsoChrone)
             'RouteComplete = CheckCompletion(CurIsoChrone)
-            _IsoChrones.AddLast(CurIsoChrone)
-            For Each rp As clsrouteinfopoints In CurIsoChrone.Data
-                If Not rp Is Nothing Then
-                    If P Is Nothing OrElse (P.DTF > rp.DTF) Then
-                        P = rp
+            If Not CurIsoChrone Is Nothing Then
+                _IsoChrones.AddLast(CurIsoChrone)
+                For Each rp As clsrouteinfopoints In CurIsoChrone.Data
+                    If Not rp Is Nothing Then
+                        If P Is Nothing OrElse (P.DTF > rp.DTF) Then
+                            P = rp
+                        End If
                     End If
-                End If
-            Next
+                Next
+            End If
+
 
             If Not P Is Nothing Then
                 _CurBest = P
             End If
 
-            If Not CurIsoChrone.Data(Loxo) Is Nothing Then
+            If CurIsoChrone Is Nothing Then
+                RouteComplete = True
+            ElseIf Not CurIsoChrone.Data(Loxo) Is Nothing Then
                 TC.EndPoint = CurIsoChrone.Data(Loxo).P
                 If TC.SurfaceDistance >= Dist Then
                     RouteComplete = True
                 End If
             End If
             RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
-
+            PrevIsoChrone = CurIsoChrone
         End While
         RaiseEvent Log("Isochrone routing completed in  " & Now.Subtract(Start).ToString)
         RaiseEvent RouteComplete()
