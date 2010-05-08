@@ -9,8 +9,8 @@ Public Class GSHHS_Reader
     Private Shared _PolyGons As New LinkedList(Of Polygon)
     'Private Shared _UseFullPolygon As New List(Of Coords())
     'Private Shared _usefullboxes As New List(Of Coords())
-    Private Shared _P1 As New Coords(90, 180)
-    Private Shared _P2 As New Coords(-90, -180)
+    Private Shared _P1 As New Coords(90, 179.999999)
+    Private Shared _P2 As New Coords(-90, -179.99999)
     Public Shared WithEvents _Tree As BspRect
     Private Shared _LakePolyGons As New LinkedList(Of Polygon)
 
@@ -191,6 +191,7 @@ Public Class GSHHS_Reader
 
                     'If (InZone And TC.SurfaceDistance > 3) OrElse TC.SurfaceDistance > 25 Then
                     If ((HasPointsInZone AndAlso TC.SurfaceDistance > RouteurModel.GridGrain / 2)) OrElse IgnoredPoints > 2000 Then
+
                         ActivePoints += 1
                         If InZone Then
                             _Tree.InSert(RetPoints(ActivePoints), BspRect.inlandstate.InLand, RouteurModel.GridGrain)
@@ -318,15 +319,15 @@ Public Class GSHHS_Reader
         Try
 #End If
 
-            Dim i As Integer
-            Dim j As Integer
-            Dim P As Coords = New Coords() With {.Lat = PTest.Lat, .Lon = PTest.Lon}
-            Dim RetDistance As Double = Double.MaxValue
-            Dim NbLoops As Integer
+        Dim i As Integer
+        Dim j As Integer
+        Dim P As Coords = New Coords() With {.Lat = PTest.Lat, .Lon = PTest.Lon}
+        Dim RetDistance As Double = Double.MaxValue
+        Dim NbLoops As Integer
 
-            If Polygons(PTest).Count = 0 Then
-                Return RetDistance
-            End If
+        If Polygons(PTest) Is Nothing OrElse Polygons(PTest).Count = 0 Then
+            Return RetDistance
+        End If
 
             'P.Lon = -P.Lon
             For Each Poly In LookupZone
