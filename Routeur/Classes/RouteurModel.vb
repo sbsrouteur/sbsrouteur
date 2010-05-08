@@ -230,18 +230,18 @@ Public Class RouteurModel
         End If
 
         C1.Lat_Deg -= _RaceZoneOffsets(RaceZoneDirs.South)
-        If C1.Lon_Deg - _RaceZoneOffsets(RaceZoneDirs.West) > -179.99 Then
+        If C1.Lon_Deg - _RaceZoneOffsets(RaceZoneDirs.West) > -180 Then
             C1.Lon_Deg -= _RaceZoneOffsets(RaceZoneDirs.West)
         Else
-            C1.Lon_Deg = -179.99
+            C1.Lon_Deg = -180
         End If
 
 
         C2.Lat_Deg += _RaceZoneOffsets(RaceZoneDirs.North)
-        If C2.Lon_Deg + _RaceZoneOffsets(RaceZoneDirs.East) < 179.99 Then
+        If C2.Lon_Deg + _RaceZoneOffsets(RaceZoneDirs.East) < 180 Then
             C2.Lon_Deg += _RaceZoneOffsets(RaceZoneDirs.East)
         Else
-            C2.Lon_Deg = 179.99
+            C2.Lon_Deg = 180
         End If
 
         'ReDim RouteurModel._RaceRect(3)

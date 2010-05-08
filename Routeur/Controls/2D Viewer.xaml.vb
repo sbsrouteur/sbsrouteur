@@ -81,7 +81,6 @@ Partial Public Class _2D_Viewer
     End Function
 
     Public Shared Function LonToCanvas(ByVal V As Double) As Double
-
         Return 180 * DEFINITION + (V - RouteurModel.LON_OFFSET) * RouteurModel.SCALE
 
     End Function
@@ -168,8 +167,9 @@ Partial Public Class _2D_Viewer
                         p0.Y = LatToCanvas(C_Array(i - 1).Lat_Deg)
                         P1.X = LonToCanvas(C_Array(i).Lon_Deg)
                         P1.Y = LatToCanvas(C_Array(i).Lat_Deg)
+
                         SafeDrawLine(DC, C_Array(i - 1), C_Array(i), Pen, p0, P1)
-                        DC.DrawLine(Pen, p0, P1)
+
                         LineCount += 1
                         drawn = True
                     End If
@@ -251,23 +251,29 @@ Render1:
 
 
     Private Sub SafeDrawLine(ByVal dc As DrawingContext, ByVal PrevP As Coords, ByVal P As Coords, ByVal pe As Pen, ByVal Prevpoint As Point, ByVal NewP As Point)
-        If PrevP.Lon * P.Lon < 0 AndAlso Math.Abs(P.Lon - PrevP.Lon) >= Math.PI Then
+        If (PrevP.Lon * P.Lon < 0 AndAlso Math.Abs(P.Lon - PrevP.Lon) >= Math.PI)  Then
             Dim Pint As Point
+
             If PrevP.Lon < 0 Then
                 Pint.X = LonToCanvas(-179.99)
             Else
                 Pint.X = LonToCanvas(179.99)
             End If
+
             Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
             dc.DrawLine(pe, Prevpoint, Pint)
+
             If P.Lon < 0 Then
                 Pint.X = LonToCanvas(-179.99)
             Else
                 Pint.X = LonToCanvas(179.99)
             End If
+
             dc.DrawLine(pe, Pint, NewP)
         Else
+
             dc.DrawLine(pe, Prevpoint, NewP)
+
         End If
     End Sub
     Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VOR_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
