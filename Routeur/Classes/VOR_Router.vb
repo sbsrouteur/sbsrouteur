@@ -385,36 +385,46 @@ Public Class VOR_Router
             Dim RetString As String = ""
             Dim X As Double
             Dim Y As Double
-
-
             Dim Tc As New TravelCalculator With {.StartPoint = New Coords(P)}
 
-            Dim Speed As Double
-            'RetString = "M 0,0 "
+            Try
 
-            For i As Double = 0 To 360 Step 2.5
-                Speed = _Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), MI.Dir), MI.Strength)
-                Speed = Speed * Cos(i / 180 * PI)
-                If Speed < 0 Then
-                    Speed = -50 * Speed / MI.Strength
-                Else
-                    Speed = 50 * Speed / MI.Strength
-                End If
-                If i = 0 Then
-                    RetString &= " M "
-                Else
-                    RetString &= " L "
-                End If
-                X = Speed * Cos((CapOrtho + i - 90) / 180 * PI) - 150
-                Y = Speed * Sin((CapOrtho + i - 90) / 180 * PI) - 150
-                RetString &= (X).ToString("f2").Replace(",", ".") & "," & (Y).ToString("f2").Replace(",", ".")
-                'If i Mod 5 = 0 And i <> 0 Then
+                Dim Speed As Double
+                'RetString = "M 0,0 "
 
-                '    RetString &= " L " & ((2 + Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((2 + Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
-                '    RetString &= " L " & ((Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+                For i As Double = 0 To 360 Step 2.5
+                    If MI.Strength > 0 Then
+                        Speed = _Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), MI.Dir), MI.Strength)
+                        Speed = Speed * Cos(i / 180 * PI)
+                        If Speed < 0 Then
+                            Speed = -50 * Speed / MI.Strength
+                        Else
+                            Speed = 50 * Speed / MI.Strength
+                        End If
+                    Else
+                        Speed = 0
+                    End If
+                    If i = 0 Then
+                        RetString &= " M "
+                    Else
+                        RetString &= " L "
+                    End If
+                    X = Speed * Cos((CapOrtho + i - 90) / 180 * PI) - 150
+                    Y = Speed * Sin((CapOrtho + i - 90) / 180 * PI) - 150
+                    RetString &= (X).ToString("f2").Replace(",", ".") & "," & (Y).ToString("f2").Replace(",", ".")
+                    'If i Mod 5 = 0 And i <> 0 Then
 
-                'End If
-            Next
+                    '    RetString &= " L " & ((2 + Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((2 + Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+                    '    RetString &= " L " & ((Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+
+                    'End If
+                Next
+            Finally
+                Tc.StartPoint = Nothing
+                Tc.EndPoint = Nothing
+                Tc = Nothing
+
+            End Try
 
             Return RetString
 
@@ -656,27 +666,31 @@ Public Class VOR_Router
 
     Private Sub ComputeAllure()
 
-        Dim C As New Coords With {.Lat_deg = _UserInfo.position.latitude, .Lon_Deg = _UserInfo.position.longitude}
-        Dim Mi As MeteoInfo
-        Dim Dte As DateTime = Now
-        Dim Speed As Double = 0
-        Dim TC As New TravelCalculator
-        _AllureRoute.Clear()
-        For i = 0 To AllureDuration Step RouteurModel.VacationMinutes
-            Mi = _Meteo.GetMeteoToDate(C, Dte, False)
-            If Mi Is Nothing Then
-                Exit For
-            End If
-            Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(AllureAngle), Mi.Strength)
-            TC.StartPoint = C
-            C = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + AllureAngle))
-            Dte = Dte.AddMinutes(RouteurModel.VacationMinutes)
-            Dim NewP As New clsrouteinfopoints With {.P = New Coords(C), .T = Dte}
-            _AllureRoute.Add(NewP)
+        Try
+            Dim C As New Coords With {.Lat_deg = _UserInfo.position.latitude, .Lon_Deg = _UserInfo.position.longitude}
+            Dim Mi As MeteoInfo
+            Dim Dte As DateTime = Now
+            Dim Speed As Double = 0
+            Dim TC As New TravelCalculator
+            _AllureRoute.Clear()
+            For i = 0 To AllureDuration Step RouteurModel.VacationMinutes
+                Mi = _Meteo.GetMeteoToDate(C, Dte, False)
+                If Mi Is Nothing Then
+                    Exit For
+                End If
+                Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(AllureAngle), Mi.Strength)
+                TC.StartPoint = C
+                C = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + AllureAngle))
+                Dte = Dte.AddMinutes(RouteurModel.VacationMinutes)
+                Dim NewP As New clsrouteinfopoints With {.P = New Coords(C), .T = Dte}
+                _AllureRoute.Add(NewP)
 
-        Next
-        TC.StartPoint = Nothing
-        TC = Nothing
+            Next
+            TC.StartPoint = Nothing
+            TC = Nothing
+        Catch ex As Exception
+            AddLog("Compute allure exception" & ex.Message)
+        End Try
     End Sub
 
     Private Sub ComputePilototo()

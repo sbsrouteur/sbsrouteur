@@ -107,7 +107,7 @@ Public Class IsoRouter
                                 End If
                                 OldP = RetIsoChrone.Data(Index)
                                 If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
-                                    If PrevIso Is Nothing OrElse (Not PrevIso.Data(PrevIndex) Is Nothing AndAlso P.DTF <= PrevIso.Data(PrevIndex).DTF) Then
+                                    If PrevIso Is Nothing OrElse PrevIso.Data(PrevIndex) Is Nothing OrElse (Not PrevIso.Data(PrevIndex) Is Nothing AndAlso P.DTF <= PrevIso.Data(PrevIndex).DTF) Then
                                         RetIsoChrone.Data(Index) = P
                                     End If
                                 End If

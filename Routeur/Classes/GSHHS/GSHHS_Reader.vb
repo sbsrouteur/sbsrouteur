@@ -58,6 +58,7 @@ Public Class GSHHS_Reader
 
             _Tree = New BspRect(_P1, _P2)
 
+#If NO_MAP = 0 Then
             Dim S As FileStream = New FileStream(SI.StartPath, FileMode.Open, FileAccess.Read)
 
             SI.ProgressWindows.Start(S.Length)
@@ -89,6 +90,8 @@ Public Class GSHHS_Reader
                 '_usefullboxes.Add(UpdateBox(A))
 
             Next
+
+#End If
 
         Catch ex As Exception
 
