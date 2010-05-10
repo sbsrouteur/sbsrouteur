@@ -53,12 +53,12 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <IncrementalBuild>false</IncrementalBuild>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314</NoWarn>
     <DebugType>Full</DebugType>
-    <DefineConstants>BSP_STATS=0 , GRID_STATS=0</DefineConstants>
+    <DefineConstants>BSP_STATS=0 , GRID_STATS=0, NO_MAP=0</DefineConstants>
     <PlatformTarget>x86</PlatformTarget>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
