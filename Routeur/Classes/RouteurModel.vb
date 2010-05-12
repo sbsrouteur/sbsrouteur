@@ -394,7 +394,7 @@ Public Class RouteurModel
             RaceInfo = SR.ReadToEnd
             SR.Close()
         End If
-        Dim Info As Dictionary(Of String, Object)
+        Dim Info As Dictionary(Of String, Object) = Nothing
         Try
             info = Parse(RaceInfo)
         Catch ex As Exception
