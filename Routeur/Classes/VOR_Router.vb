@@ -100,10 +100,14 @@ Public Class VOR_Router
     Private _MeteoArrowSize As Double = 50
     Private _MeteoArrowDate As Date
 
+    Private _CurMousePos As Coords
+
 
     Private Shared _PosValide As Boolean = False
     Private Shared _Sails As New clsSailManager
+
     Public Shared BoatType As String
+
 
 
     Public Class Route
@@ -348,7 +352,7 @@ Public Class VOR_Router
             End If
 
             Dim P As New Coords(_UserInfo.position.longitude, _UserInfo.position.latitude)
-            Dim Tc As New TravelCalculator With {.StartPoint = New Coords(P)}
+            Dim Tc As New TravelCalculator With {.StartPoint = _CurMousePos}
 
             Try
                 Dim Mi As MeteoInfo = _Meteo.GetMeteoToDate(Tc.StartPoint, _UserInfo.date, True)
@@ -385,46 +389,36 @@ Public Class VOR_Router
             Dim RetString As String = ""
             Dim X As Double
             Dim Y As Double
-            Dim Tc As New TravelCalculator With {.StartPoint = New Coords(P)}
 
-            Try
-
-                Dim Speed As Double
-                'RetString = "M 0,0 "
-
-                For i As Double = 0 To 360 Step 2.5
-                    If MI.Strength > 0 Then
-                        Speed = _Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), MI.Dir), MI.Strength)
-                        Speed = Speed * Cos(i / 180 * PI)
-                        If Speed < 0 Then
-                            Speed = -50 * Speed / MI.Strength
-                        Else
-                            Speed = 50 * Speed / MI.Strength
-                        End If
+            Dim Speed As Double
+            
+            For i As Double = 0 To 360 Step 2.5
+                If MI.Strength > 0 Then
+                    Speed = _Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), MI.Dir), MI.Strength)
+                    Speed = Speed * Cos(i / 180 * PI)
+                    If Speed < 0 Then
+                        Speed = -50 * Speed / MI.Strength
                     Else
-                        Speed = 0
+                        Speed = 50 * Speed / MI.Strength
                     End If
-                    If i = 0 Then
-                        RetString &= " M "
-                    Else
-                        RetString &= " L "
-                    End If
-                    X = Speed * Cos((CapOrtho + i - 90) / 180 * PI) - 150
-                    Y = Speed * Sin((CapOrtho + i - 90) / 180 * PI) - 150
-                    RetString &= (X).ToString("f2").Replace(",", ".") & "," & (Y).ToString("f2").Replace(",", ".")
-                    'If i Mod 5 = 0 And i <> 0 Then
+                Else
+                    Speed = 0
+                End If
+                If i = 0 Then
+                    RetString &= " M "
+                Else
+                    RetString &= " L "
+                End If
+                X = Speed * Cos((CapOrtho + i - 90) / 180 * PI) '- 150
+                Y = Speed * Sin((CapOrtho + i - 90) / 180 * PI) '- 150
+                RetString &= (X).ToString("f2").Replace(",", ".") & "," & (Y).ToString("f2").Replace(",", ".")
+                'If i Mod 5 = 0 And i <> 0 Then
 
-                    '    RetString &= " L " & ((2 + Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((2 + Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
-                    '    RetString &= " L " & ((Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+                '    RetString &= " L " & ((2 + Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((2 + Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
+                '    RetString &= " L " & ((Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
 
-                    'End If
-                Next
-            Finally
-                Tc.StartPoint = Nothing
-                Tc.EndPoint = Nothing
-                Tc = Nothing
-
-            End Try
+                'End If
+            Next
 
             Return RetString
 
@@ -1647,6 +1641,7 @@ Public Class VOR_Router
 
         Dim TC As New TravelCalculator
         Dim StartCount As Integer = _BoatUnderMouse.Count
+        _CurMousePos = C
         TC.StartPoint = C
         SyncLock _BoatUnderMouse
             _BoatUnderMouse.Clear()
