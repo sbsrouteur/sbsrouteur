@@ -2643,7 +2643,7 @@ Public Class VOR_Router
             End If
             Dim prefs As RacePrefs = CType(frm.DataContext, RacePrefs)
 
-            _iso = New IsoRouter(_UserInfo.type, _Sails, _Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoStep, _
+            _iso = New IsoRouter(_UserInfo.type, _Sails, _Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, prefs.IsoStep, _
                                  prefs.IsoStep_24, prefs.IsoStep_48)
             Dim WP As Integer
 

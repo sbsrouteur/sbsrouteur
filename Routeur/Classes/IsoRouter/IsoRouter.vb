@@ -10,6 +10,7 @@ Public Class IsoRouter
     Public Event Log(ByVal msg As String)
     Public Event RouteComplete()
 
+    Private _SearchAngle As Double
     Private _AngleStep As Double
     Private _IsoStep As TimeSpan
     Private _IsoStep_24 As TimeSpan
@@ -28,12 +29,12 @@ Public Class IsoRouter
     Private _CurBest As clsrouteinfopoints
 
 
-    Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan)
+    Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan)
         _AngleStep = AngleStep
         _IsoStep = IsoStep
         _IsoStep_24 = IsoStep_24
         _IsoStep_48 = IsoStep_48
-
+        _SearchAngle = SearchAngle
         _Meteo = Meteo
         _SailManager = SailManager
         _BoatType = BoatType
@@ -95,7 +96,7 @@ Public Class IsoRouter
                     tc.StartPoint = _StartPoint.P
                     For alpha = 0 To 360 - _AngleStep Step _AngleStep
 
-                        If WindAngle(Ortho, alpha) < 180 - 120 Then
+                        If WindAngle(Ortho, alpha) < _SearchAngle Then
                             P = ReachPoint(rp, alpha, CurStep)
                             If Not P Is Nothing Then
                                 tc.EndPoint = P.P
@@ -188,7 +189,7 @@ Public Class IsoRouter
         TC.StartPoint = Start.P
 
 
-        For i = 0 To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
+        For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
             CurDate = Start.T.AddTicks(i)
             MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.Lon_Deg, TC.StartPoint.Lat_Deg, True)
             Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
