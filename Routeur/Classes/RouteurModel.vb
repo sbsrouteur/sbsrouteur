@@ -394,8 +394,13 @@ Public Class RouteurModel
             RaceInfo = SR.ReadToEnd
             SR.Close()
         End If
+        Dim Info As Dictionary(Of String, Object)
+        Try
+            info = Parse(RaceInfo)
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, "Exception loading Json formatted race info!!")
+        End Try
 
-        Dim Info As Dictionary(Of String, Object) = Parse(RaceInfo)
 
         If Info IsNot Nothing AndAlso Info.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
             LoadJSonDataToObject(_P_Info(0).RaceInfo, Info(JSONDATA_BASE_OBJECT_NAME))
