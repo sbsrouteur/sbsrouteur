@@ -55,7 +55,7 @@
 						<TranslateTransform X="-35" Y="-37"/>
 					</TransformGroup>
 				</Grid.RenderTransform>
-				<Routeur:WindArrow  DataContext="{Binding P, Mode=Default}" RenderTransformOrigin="0.5,0" Height="Auto">
+				<Routeur:WindArrow  DataContext="{Binding P, Mode=Default}" RenderTransformOrigin="0.5,0" Height="Auto" Margin="5,0,0,0">
 					<Routeur:WindArrow.RenderTransform>
 						<TransformGroup>
 							<ScaleTransform/>
@@ -65,7 +65,7 @@
 						</TransformGroup>
 					</Routeur:WindArrow.RenderTransform>
 				</Routeur:WindArrow>
-				<Path Data="{Binding CurVMGEnveloppe, Mode=Default}" Stroke="#FF2B14E5" Stretch="Fill" Margin="0,0,-10,-2" />
+				<Path Data="{Binding CurVMGEnveloppe, Mode=Default}" Stroke="#FF2B14E5" Stretch="Fill" Margin="-64,-39,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="150" />
 				<Grid MinWidth="150" MinHeight="150"  RenderTransformOrigin="0.5,0.5">
 					<Grid.RenderTransform>
 						<TransformGroup>
@@ -212,9 +212,10 @@
 				<CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center"/>
 				<CheckBox Content="Hide Boat &amp; Wind Arrow" IsChecked="{Binding VorHandler.HideWindArrow, Mode=Default}" VerticalAlignment="Center" />
 				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="False"/>
-			
+				<MenuItem Header="Center on Boat!" Click="CenterOnBoat"></MenuItem>
 			</MenuItem>
-			<MenuItem Header="Meteo" VerticalAlignment="Center" Visibility="Collapsed">
+			<MenuItem Header="Meteo" VerticalAlignment="Center">
+				<CheckBox IsChecked="{Binding VorHandler.MeteoVisible, Mode=Default}" Content="Meteo Data Visible" ></CheckBox>
 				<Slider Maximum="100" Minimum="5" Value="{Binding VorHandler.MeteoArrowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" TickFrequency="25" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" />
 				<Slider x:Name="slider" Maximum="{Binding VorHandler.MeteoArrowDateEnd, Mode=Default}" Minimum="{Binding VorHandler.MeteoArrowDateStart, Mode=Default}" Width="129" Value="{Binding VorHandler.MeteoArrowDateTicks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding VorHandler.TickFreq, Mode=Default}" TickPlacement="BottomRight" />
 				<TextBlock Text="{Binding VorHandler.MeteoArrowDate, Mode=Default}" />
@@ -271,7 +272,7 @@
 			</TabItem> 
  			 
 			<TabItem Header="2D Viewer" >
-				<Grid x:Name="grid" Background="#FFE0E0F0" >
+				<Grid x:Name="_2DGrid" Background="#FFE0E0F0" >
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="121.39"/>
                         <ColumnDefinition Width="121.39"/>
@@ -292,7 +293,7 @@
 					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left">
 						<Grid x:Name="Weather_Map" >
-							<Path Data="{Binding VorHandler.MeteoArrow, Mode=Default}" Stroke="Black">
+							<Path Data="{Binding VorHandler.MeteoArrow, Mode=Default, IsAsync=True}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}">
 							</Path>
 						</Grid>
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
@@ -315,8 +316,8 @@
 						</GroupBox>
 						
 					</Canvas>
-					<Canvas VerticalAlignment="Stretch" Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
-						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Left" VerticalAlignment="Top" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute">
+					<Canvas Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
+						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Center" VerticalAlignment="Center" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" Canvas.Top="0">
 							<Routeur:_2D_Viewer.RenderTransform>
 								<TransformGroup>
 									<ScaleTransform ScaleX="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ScaleY="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

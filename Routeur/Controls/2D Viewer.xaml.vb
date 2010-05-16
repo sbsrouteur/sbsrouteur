@@ -460,35 +460,37 @@ Render1:
                         _GridBmp.Clear()
                     End If
 
-                    For Each iso As IsoChrone In IsoChrones
-                        If Not iso.Drawn Then
-                            Dim MaxIndex As Integer = iso.MaxIndex
-                            Dim index As Integer
-                            Dim CurP As Coords
-                            FirstPoint = True
-                            For index = 0 To MaxIndex
-                                If Not iso.Data(index) Is Nothing Then
-                                    CurP = iso.Data(index).P
-                                    P1.X = LonToCanvas(CurP.Lon_Deg)
-                                    P1.Y = LatToCanvas(CurP.Lat_Deg)
+                    If Not IsoChrones Is Nothing Then
+                        For Each iso As IsoChrone In IsoChrones
+                            If Not iso.Drawn Then
+                                Dim MaxIndex As Integer = iso.MaxIndex
+                                Dim index As Integer
+                                Dim CurP As Coords
+                                FirstPoint = True
+                                For index = 0 To MaxIndex
+                                    If Not iso.Data(index) Is Nothing Then
+                                        CurP = iso.Data(index).P
+                                        P1.X = LonToCanvas(CurP.Lon_Deg)
+                                        P1.Y = LatToCanvas(CurP.Lat_Deg)
 
-                                    If Not FirstPoint Then
-                                        SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
+                                        If Not FirstPoint Then
+                                            SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
+                                        Else
+                                            FirstPoint = False
+                                        End If
+                                        PrevP.Lon = CurP.Lon
+                                        PrevP.Lat = CurP.Lat
+                                        PrevPoint = P1
+
                                     Else
-                                        FirstPoint = False
+                                        FirstPoint = True
                                     End If
-                                    PrevP.Lon = CurP.Lon
-                                    PrevP.Lat = CurP.Lat
-                                    PrevPoint = P1
+                                Next
+                                iso.Drawn = True
+                            End If
 
-                                Else
-                                    FirstPoint = True
-                                End If
-                            Next
-                            iso.Drawn = True
-                        End If
-
-                    Next
+                        Next
+                    End If
 
                 Catch ex As Exception
                 Finally

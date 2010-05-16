@@ -20,6 +20,7 @@ Partial Public Class RouteurMain
 
     Private _DragCanvas As Boolean = False
     Private _DragStartPoint As Point
+    Private _ZoomIn As Boolean = False
 
     Public Shared ReadOnly TravelCalculatorProperty As DependencyProperty = _
                            DependencyProperty.Register("TravelCalculator", _
@@ -55,7 +56,7 @@ Partial Public Class RouteurMain
 
         _WallTimer.Start()
         M.VorHandler.Owner = Me
-        
+        UpdateCoordsExtent(M)
 
     End Sub
 
@@ -76,6 +77,24 @@ Partial Public Class RouteurMain
 
     End Sub
 
+    Private Sub UpdateCoordsExtent(ByVal M As RouteurModel)
+
+        Dim Pos1 As New Point(0, 0)
+        Dim Pos2 As New Point(_2DGrid.ActualWidth, _2DGrid.ActualHeight)
+        Dim C1 As New Coords
+        Dim C2 As New Coords
+        Pos1 = VOR2DViewer.TranslatePoint(Pos1, Nothing)
+        Pos2 = VOR2DViewer.TranslatePoint(Pos2, Nothing)
+
+        C1.Lon_Deg = _2D_Viewer.CanvasToLon(Pos1.X)
+        C1.Lat_Deg = _2D_Viewer.CanvasToLat(Pos1.Y)
+        C2.Lon_Deg = _2D_Viewer.CanvasToLon(Pos2.X)
+        C2.Lat_Deg = _2D_Viewer.CanvasToLat(Pos2.Y)
+
+
+        'M.VorHandler.CoordsExtent(C1, C2)
+    End Sub
+
 
     Private Sub MouseStartDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
 
@@ -86,7 +105,7 @@ Partial Public Class RouteurMain
 
     Private Sub MouseEndDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
         _DragCanvas = False
-        'Console.WriteLine("dragged to " & Me.SldLon.Value & " " & Me.SldLat.Value)
+        Console.WriteLine("dragged to " & Me.SldLon.Value & " " & Me.SldLat.Value & " Z " & Me.SldZoom.Value)
         'If e.ClickCount > 1 Then
         'Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
         'M.VorHandler.DebugBSP(e.GetPosition(Me.VOR2DViewer))
@@ -103,6 +122,7 @@ Partial Public Class RouteurMain
 
             _DragStartPoint = e.GetPosition(Me.VOR2DViewer)
         End If
+
     End Sub
 
     Private Sub _WallTimer_Tick(ByVal sender As Object, ByVal e As System.EventArgs) Handles _WallTimer.Tick
@@ -110,9 +130,16 @@ Partial Public Class RouteurMain
         Static DlgRefresh As Action
         Static LastSec As Integer
 
+        If _ZoomIn Then
+            _ZoomIn = False
+            SldZoom.Value *= 2
+
+        End If
+
         If Now.Second = LastSec Then
             Return
         End If
+
         LastSec = Now.Second
 
         If Dlg Is Nothing Then
@@ -153,7 +180,8 @@ Partial Public Class RouteurMain
         Else
             Zoom(1 / 1.2, e.GetPosition(Me.VOR2DViewer))
         End If
-
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+        UpdateCoordsExtent(M)
     End Sub
 
     Private Sub Zoom(ByVal Factor As Double, ByVal CenterPosition As Point)
@@ -176,8 +204,8 @@ Partial Public Class RouteurMain
         SldZoom.Value *= Factor
         'SldLon.Value = CenterPosition.X * SldZoom.Value
         'SldLat.Value = CenterPosition.Y * SldZoom.Value
-        'Console.WriteLine("Zoom to " & SldLon.Value & " " & SldLat.Value)
-
+        Console.WriteLine("Zoom to " & SldLon.Value & " " & SldLat.Value)
+        'Debug.WriteLine(CenterPosition.X & " " & CenterPosition.Y)
     End Sub
 
 
@@ -273,6 +301,24 @@ Partial Public Class RouteurMain
 
     Private Sub AppQuit(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
         Close()
+    End Sub
+
+    Private Sub CenterOnBoat(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+
+        Dim V As VOR_Router = M.VorHandler
+        Dim P As New Point
+        P.X = (VOR2DViewer.Width / 2 - V.BoatCanvasX) / VOR2DViewer.Width / SldZoom.Value
+        P.Y = (V.BoatCanvasY - VOR2DViewer.Height / 2) / VOR2DViewer.Height / SldZoom.Value
+        VOR2DViewer.RenderTransformOrigin = New Point(V.BoatCanvasX / VOR2DViewer.Width, V.BoatCanvasY / VOR2DViewer.Height)
+
+
+        SldLat.Value = P.Y * _2DGrid.ActualHeight
+        SldLon.Value = _2DGrid.ActualWidth * (P.X)
+        SldZoom.Value *= 0.5
+
+        _ZoomIn = True
     End Sub
 
 
