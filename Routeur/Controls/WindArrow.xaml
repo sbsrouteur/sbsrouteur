@@ -46,7 +46,7 @@
 			</Rectangle>
 		</Canvas>
 		<Canvas HorizontalAlignment="Left" Width="37">
-			<Image Source="/Routeur;Component/Graphics/Boat_Top.png" RenderTransformOrigin="0.5,0.5" Stretch="UniformToFill" Width="36.72" Height="98.265">
+			<Image Source="/Routeur;Component/Graphics/Boat_Top.png" RenderTransformOrigin="0.5,0.5" Stretch="UniformToFill" Width="36.72" Height="98.265" Margin="0" Canvas.Left="1">
 				<Image.RenderTransform>
 					<TransformGroup>
 						<ScaleTransform/>

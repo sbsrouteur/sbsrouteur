@@ -99,6 +99,7 @@ Public Class VOR_Router
 
     Private _MeteoArrowSize As Double = 50
     Private _MeteoArrowDate As Date
+    Private _MeteoVisible As Boolean
 
     Private _CurMousePos As Coords
 
@@ -528,6 +529,17 @@ Public Class VOR_Router
     End Property
 
 
+    Public Property MeteoVisible() As Boolean
+        Get
+            Return _MeteoVisible
+        End Get
+        Set(ByVal value As Boolean)
+            If _MeteoVisible <> value Then
+                _MeteoVisible = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoVisible"))
+            End If
+        End Set
+    End Property
     Public Shared ReadOnly Property TimeArrowDateSmallTick() As Long
         Get
             Return TimeSpan.TicksPerMinute * 5
@@ -718,9 +730,9 @@ Public Class VOR_Router
                     While Retries < 2
                         Try
                             If _CurUserWP = 0 Then
-                                CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
+                                CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP - 1).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP - 1).WPs(0)(1))
                             Else
-                                CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(1))
+                                CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP - 1).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP - 1).WPs(0)(1))
                             End If
                             Retries = 3
                         Catch ex As Exception
@@ -1591,42 +1603,38 @@ Public Class VOR_Router
         End Get
     End Property
 
-    'Public ReadOnly Property MeteoArrow() As String
-    '    Get
+    Public ReadOnly Property MeteoArrow() As String
+        Get
 
-    '        Dim x As Double
-    '        Dim y As Double
-    '        Dim retstring As String = ""
-    '        Dim C As New Coords
-    '        Dim Mi As MeteoInfo
-    '        Dim Scale As Double = MeteoArrowSize
-    '        Dim Dte As Date = MeteoArrowDate
+            Dim x As Double
+            Dim y As Double
+            Dim retstring As String = ""
+            Dim C As New Coords
+            Dim Mi As MeteoInfo
+            Dim Scale As Double = MeteoArrowSize
+            Dim Dte As Date = MeteoArrowDate
 
 
-    '        If _UserInfo Is Nothing OrElse Dte.Ticks = 0 Then
-    '            Return ""
-    '        End If
+            If _UserInfo Is Nothing OrElse Dte.Ticks = 0 Then
+                Return ""
+            End If
 
-    '        Dim MeteoRange As Double = 1
+            Dim MeteoRange As Double = 1
 
-    '        For x = -5 To 5 Step 0.5
-    '            For y = -5 To 5 Step 0.5
-    '                C.Lat_Deg = _UserInfo.position.latitude + y * MeteoRange
-    '                C.Lon_Deg = _UserInfo.position.longitude + x * MeteoRange
-    '                Mi = _Meteo.GetMeteoToDate(C, Dte, True)
-    '                'If x = 0 And y = 0 Then
-    '                '    Console.WriteLine("Meteo at " & Dte.ToString & " Dir : " & Mi.Dir.ToString("F2") & " S: " & Mi.Strength.ToString("F2"))
+            For x = -5 To 5 Step 0.5
+                For y = -5 To 5 Step 0.5
+                    C.Lat_Deg = _UserInfo.position.latitude + y * MeteoRange
+                    C.Lon_Deg = _UserInfo.position.longitude + x * MeteoRange
+                    Mi = _Meteo.GetMeteoToDate(C, Dte, True)
+                    If Not Mi Is Nothing Then
+                        retstring &= GetMeteoArrowString(300 + 100 * (x + 5), 100 * (y + 5), Scale, Mi)
+                    End If
+                Next
+            Next
 
-    '                'End If
-    '                If Not Mi Is Nothing Then
-    '                    retstring &= GetMeteoArrowString(300 + 100 * (x + 5), 100 * (y + 5), Scale, Mi)
-    '                End If
-    '            Next
-    '        Next
-
-    '        Return retstring
-    '    End Get
-    'End Property
+            Return retstring
+        End Get
+    End Property
 
     Public Property MeteoInfoList() As ObservableCollection(Of RoutingGridPoint)
         Get
@@ -1699,7 +1707,7 @@ Public Class VOR_Router
             If _UserInfo Is Nothing OrElse _UserInfo.position Is Nothing Then
                 Return 0
             End If
-            Return _2D_Viewer.LonToCanvas(_UserInfo.position.latitude)
+            Return _2D_Viewer.LatToCanvas(_UserInfo.position.latitude)
         End Get
     End Property
 
@@ -2632,6 +2640,7 @@ Public Class VOR_Router
 
         If StartRouting Then
             Dim frm As New frmRouterConfiguration(_PlayerInfo.RaceInfo.idraces)
+            Dim StartDate As DateTime
 
             If Not frm.ShowDialog() Then
                 Return
@@ -2648,9 +2657,15 @@ Public Class VOR_Router
                 WP = _CurUserWP
             End If
 
+            If Now > _PlayerInfo.RaceInfo.deptime Then
+                StartDate = LastDataDate
+            Else
+                StartDate = _PlayerInfo.RaceInfo.deptime
+            End If
+
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ClearGrid"))
             Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
-            _iso.StartIsoRoute(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0), Now)
+            _iso.StartIsoRoute(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0), StartDate)
             'End If
         ElseIf Not _iso Is Nothing Then
             _iso.StopRoute()
