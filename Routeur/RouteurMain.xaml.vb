@@ -56,6 +56,7 @@ Partial Public Class RouteurMain
 
         _WallTimer.Start()
         M.VorHandler.Owner = Me
+        CenterOnBoat(Me, Nothing)
         UpdateCoordsExtent(M)
 
     End Sub
@@ -83,8 +84,8 @@ Partial Public Class RouteurMain
         Dim Pos2 As New Point(_2DGrid.ActualWidth, _2DGrid.ActualHeight)
         Dim C1 As New Coords
         Dim C2 As New Coords
-        Pos1 = VOR2DViewer.TranslatePoint(Pos1, Nothing)
-        Pos2 = VOR2DViewer.TranslatePoint(Pos2, Nothing)
+        Pos1 = VOR2DViewer.TranslatePoint(Pos1, _2DGrid)
+        Pos2 = VOR2DViewer.TranslatePoint(Pos2, _2DGrid)
 
         C1.Lon_Deg = _2D_Viewer.CanvasToLon(Pos1.X)
         C1.Lat_Deg = _2D_Viewer.CanvasToLat(Pos1.Y)
@@ -309,14 +310,14 @@ Partial Public Class RouteurMain
 
         Dim V As VOR_Router = M.VorHandler
         Dim P As New Point
-        P.X = (VOR2DViewer.Width / 2 - V.BoatCanvasX) / VOR2DViewer.Width / SldZoom.Value
-        P.Y = (V.BoatCanvasY - VOR2DViewer.Height / 2) / VOR2DViewer.Height / SldZoom.Value
+        'P.X = VOR2DViewer.Width / (3 * 2 * SldZoom.Value) - V.BoatCanvasX
+        'P.Y = VOR2DViewer.Height / (2 * SldZoom.Value) - V.BoatCanvasY
         VOR2DViewer.RenderTransformOrigin = New Point(V.BoatCanvasX / VOR2DViewer.Width, V.BoatCanvasY / VOR2DViewer.Height)
 
 
-        SldLat.Value = P.Y * _2DGrid.ActualHeight
-        SldLon.Value = _2DGrid.ActualWidth * (P.X)
-        SldZoom.Value *= 0.5
+        SldLat.Value = _2DGrid.ActualHeight / 2 - V.BoatCanvasY
+        SldLon.Value = _2DGrid.ActualWidth / 2 - V.BoatCanvasX
+        SldZoom.Value = 0.5
 
         _ZoomIn = True
     End Sub
