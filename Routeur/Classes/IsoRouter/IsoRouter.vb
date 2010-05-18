@@ -92,7 +92,7 @@ Public Class IsoRouter
                     Dim Ortho As Double
                     tc.StartPoint = rp.P
                     tc.EndPoint = _DestPoint
-                    Ortho = tc.Cap
+                    Ortho = tc.TrueCap
                     tc.StartPoint = _StartPoint.P
                     For alpha = Ortho - _SearchAngle To Ortho + _SearchAngle Step _AngleStep
 
@@ -100,7 +100,7 @@ Public Class IsoRouter
                         P = ReachPoint(rp, alpha, CurStep)
                         If Not P Is Nothing Then
                             tc.EndPoint = P.P
-                            alpha2 = tc.Cap
+                            alpha2 = tc.TrueCap
 
                             Index = RetIsoChrone.IndexFromAngle(alpha2)
                             If Not OuterIso Is Nothing Then
@@ -197,7 +197,7 @@ Public Class IsoRouter
             CurDate = Start.T.AddTicks(i)
             MI = Nothing
             While MI Is Nothing
-                MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.Lon_Deg, TC.StartPoint.Lat_Deg, True)
+                MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.Lon_Deg, TC.StartPoint.Lat_Deg, False)
                 If MI Is Nothing Then
                     System.Threading.Thread.Sleep(250)
                 End If
@@ -240,18 +240,22 @@ Public Class IsoRouter
         TC.EndPoint = C
         Dim Loxo As Double = TC.Cap
         Dim RP As clsrouteinfopoints = Nothing
+        Try
+            For Each iso As IsoChrone In _IsoChrones
+                Dim index As Integer = iso.IndexFromAngle(Loxo)
 
-        For Each iso As IsoChrone In _IsoChrones
-            Dim index As Integer = iso.IndexFromAngle(Loxo)
-
-            If Not iso.Data(index) Is Nothing Then
-                TC.StartPoint = iso.Data(index).P
-                If TC.SurfaceDistance < 1 Then
-                    RP = iso.Data(index)
-                    Exit For
+                If Not iso.Data(index) Is Nothing Then
+                    TC.StartPoint = iso.Data(index).P
+                    If TC.SurfaceDistance < 1 Then
+                        RP = iso.Data(index)
+                        Exit For
+                    End If
                 End If
-            End If
-        Next
+            Next
+
+        Catch ex As Exception
+            RaiseEvent Log("Route to point exception :" & ex.Message)
+        End Try
 
         If RP Is Nothing Then
             Return Nothing
@@ -328,7 +332,11 @@ Public Class IsoRouter
             _TC.StartPoint = From
             _TC.EndPoint = Dest
 
-            Dim mi As MeteoInfo = _Meteo.GetMeteoToDate(StartDate, From.Lon_Deg, From.Lat_Deg, False)
+
+            Dim mi As MeteoInfo = Nothing
+            While mi Is Nothing
+                mi = _Meteo.GetMeteoToDate(StartDate, From.Lon_Deg, From.Lat_Deg, False)
+            End While
             With _StartPoint
                 .P = New Coords(From)
                 .T = StartDate
