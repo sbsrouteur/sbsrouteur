@@ -80,7 +80,7 @@ Module MeteoDrawer
                     pl = 0.3 * (S Mod 10) / 10
                 End If
 
-                L = Sqrt(L * L + 2 * L * pl + 2 * pl * pl)
+                L = Sqrt(L * L + 2 * L * pl * Sqrt(2) + 2 * pl * pl)
                 Theta = GetAsin(pl * Sqrt(2) / 2 / L) - PI / 2 + mi.Dir / 180 * PI
                 X = xOffset + L * Scale * Cos(Theta)
                 Y = yOffset + L * Scale * Sin(Theta)

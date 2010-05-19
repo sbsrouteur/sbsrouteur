@@ -84,8 +84,8 @@ Partial Public Class RouteurMain
         Dim Pos2 As New Point(_2DGrid.ActualWidth, _2DGrid.ActualHeight)
         Dim C1 As New Coords
         Dim C2 As New Coords
-        Pos1 = VOR2DViewer.TranslatePoint(Pos1, _2DGrid)
-        Pos2 = VOR2DViewer.TranslatePoint(Pos2, _2DGrid)
+        Pos1 = _2DGrid.TranslatePoint(Pos1, VOR2DViewer)
+        Pos2 = _2DGrid.TranslatePoint(Pos2, VOR2DViewer)
 
         C1.Lon_Deg = _2D_Viewer.CanvasToLon(Pos1.X)
         C1.Lat_Deg = _2D_Viewer.CanvasToLat(Pos1.Y)
@@ -93,7 +93,7 @@ Partial Public Class RouteurMain
         C2.Lat_Deg = _2D_Viewer.CanvasToLat(Pos2.Y)
 
 
-        'M.VorHandler.CoordsExtent(C1, C2)
+        M.VorHandler.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
     End Sub
 
 
@@ -111,7 +111,9 @@ Partial Public Class RouteurMain
         'Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
         'M.VorHandler.DebugBSP(e.GetPosition(Me.VOR2DViewer))
         'End If
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
+        UpdateCoordsExtent(M)
     End Sub
 
     Private Sub MouseMoveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
@@ -309,9 +311,10 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         Dim V As VOR_Router = M.VorHandler
-        Dim P As New Point
-        'P.X = VOR2DViewer.Width / (3 * 2 * SldZoom.Value) - V.BoatCanvasX
-        'P.Y = VOR2DViewer.Height / (2 * SldZoom.Value) - V.BoatCanvasY
+        'Dim P As New Point
+        'P.X = V.BoatCanvasX
+        'P.Y = V.BoatCanvasY
+        'P = VOR2DViewer.TranslatePoint(P, _2DGrid)
         VOR2DViewer.RenderTransformOrigin = New Point(V.BoatCanvasX / VOR2DViewer.Width, V.BoatCanvasY / VOR2DViewer.Height)
 
 
@@ -320,6 +323,13 @@ Partial Public Class RouteurMain
         SldZoom.Value = 0.5
 
         _ZoomIn = True
+    End Sub
+
+    Private Sub RendererSizeChanged(ByVal sender as Object, ByVal e as System.Windows.SizeChangedEventArgs)
+
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+
+        UpdateCoordsExtent(M)
     End Sub
 
 
