@@ -89,18 +89,18 @@ Public Class IsoRouter
                     If RetIsoChrone Is Nothing Then
                         RetIsoChrone = New IsoChrone(AStep)
                     End If
-                    Dim Ortho As Double
+                    Dim Loxo As Double
                     tc.StartPoint = rp.P
                     tc.EndPoint = _DestPoint
-                    Ortho = tc.TrueCap
+                    Loxo = tc.Cap
                     tc.StartPoint = _StartPoint.P
-                    For alpha = Ortho - _SearchAngle To Ortho + _SearchAngle Step _AngleStep
+                    For alpha = Loxo - _SearchAngle To Loxo + _SearchAngle Step _AngleStep
 
                         'If WindAngle(Ortho, alpha) < _SearchAngle Then
                         P = ReachPoint(rp, alpha, CurStep)
                         If Not P Is Nothing Then
                             tc.EndPoint = P.P
-                            alpha2 = tc.TrueCap
+                            alpha2 = tc.Cap
 
                             Index = RetIsoChrone.IndexFromAngle(alpha2)
                             If Not OuterIso Is Nothing Then
@@ -197,7 +197,7 @@ Public Class IsoRouter
             CurDate = Start.T.AddTicks(i)
             MI = Nothing
             While MI Is Nothing
-                MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.Lon_Deg, TC.StartPoint.Lat_Deg, False)
+                MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.Lon_Deg, TC.StartPoint.Lat_Deg, True)
                 If MI Is Nothing Then
                     System.Threading.Thread.Sleep(250)
                 End If

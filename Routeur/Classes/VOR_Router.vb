@@ -100,6 +100,10 @@ Public Class VOR_Router
     Private _MeteoArrowSize As Double = 50
     Private _MeteoArrowDate As Date
     Private _MeteoVisible As Boolean
+    Private _MeteoNOPoint As Coords
+    Private _MeteoSEPoint As Coords
+    Private _MeteoWidth As Double
+    Private _MeteoHeight As Double
 
     Private _CurMousePos As Coords
 
@@ -993,6 +997,15 @@ Public Class VOR_Router
         End If
     End Sub
 
+    Public Sub CoordsExtent(ByVal C1 As Coords, ByVal C2 As Coords, ByVal Width As Double, ByVal Height As Double)
+
+        _MeteoNOPoint = C1
+        _MeteoSEPoint = C2
+        _MeteoWidth = Width
+        _MeteoHeight = Height
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+
+    End Sub
 
     Public Property CurrentRoute() As TravelCalculator
         Get
@@ -1613,26 +1626,35 @@ Public Class VOR_Router
             Dim Mi As MeteoInfo
             Dim Scale As Double = MeteoArrowSize
             Dim Dte As Date = MeteoArrowDate
-
-
-            If _UserInfo Is Nothing OrElse Dte.Ticks = 0 Then
+                If _UserInfo Is Nothing OrElse Dte.Ticks = 0 OrElse _MeteoNOPoint Is Nothing OrElse _MeteoSEPoint Is Nothing Then
                 Return ""
             End If
 
             Dim MeteoRange As Double = 1
+            Dim MinLon As Double = _MeteoNOPoint.Lon
+            Dim MaxLon As Double = _MeteoSEPoint.Lon
+            Dim DeltaLon As Double = (MaxLon - MinLon) / 10
+            Dim MinLat As Double = _MeteoSEPoint.Lat
+            Dim MaxLat As Double = _MeteoNOPoint.Lat
+            Dim DeltaLat As Double = (MaxLat - MinLat) / 10
+            Dim PX As Double
+            Dim PY As Double
 
-            For x = -5 To 5 Step 0.5
-                For y = -5 To 5 Step 0.5
-                    C.Lat_Deg = _UserInfo.position.latitude + y * MeteoRange
-                    C.Lon_Deg = _UserInfo.position.longitude + x * MeteoRange
+            For x = 0 To 9
+                For y = 0 To 9
+                    C.Lat = MinLat + y * DeltaLat
+                    C.Lon = MinLon + x * DeltaLon
                     Mi = _Meteo.GetMeteoToDate(C, Dte, True)
                     If Not Mi Is Nothing Then
-                        retstring &= GetMeteoArrowString(300 + 100 * (x + 5), 100 * (y + 5), Scale, Mi)
+                        PX = x * _MeteoWidth / 10
+                        PY = y * _MeteoHeight / 10
+
+                        retstring &= GetMeteoArrowString(PX, PY, Scale, Mi)
                     End If
                 Next
             Next
-
             Return retstring
+            
         End Get
     End Property
 
