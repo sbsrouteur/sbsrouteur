@@ -159,6 +159,12 @@ Partial Public Class RouteurMain
         _DragCanvas = False
     End Sub
 
+    Private Sub CloseApp()
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+        M.VorHandler.startGridRoute(False)
+        M.VorHandler.StartIsoRoute(False)
+    End Sub
+
     Private Sub cmdSimpleVMG(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
@@ -302,7 +308,8 @@ Partial Public Class RouteurMain
 
     End Sub
 
-    Private Sub AppQuit(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+    Private Sub AppQuit(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
+        CloseApp()
         Close()
     End Sub
 
@@ -330,6 +337,10 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         UpdateCoordsExtent(M)
+    End Sub
+
+    Private Sub AppQuit(ByVal sender as Object, ByVal e as System.ComponentModel.CancelEventArgs)
+        CloseApp()
     End Sub
 
 

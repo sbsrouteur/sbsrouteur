@@ -1426,7 +1426,9 @@ Public Class VOR_Router
     Private Sub ThreadSafeSetter(ByVal Pv As ObservableCollection(Of clsrouteinfopoints), ByVal Value As ObservableCollection(Of clsrouteinfopoints), ByVal e As PropertyChangedEventArgs, ByVal RefreshBoatInfo As Boolean, ByVal meteo As clsMeteoOrganizer)
 
         Static SelfDlg As New dlgthreadsafesetter(AddressOf ThreadSafeSetter)
-
+        If Application.Current Is Nothing Then
+            Return
+        End If
         If Not System.Threading.Thread.CurrentThread Is Application.Current.Dispatcher.Thread Then
             Application.Current.Dispatcher.BeginInvoke(SelfDlg, New Object() {Pv, Value, e, RefreshBoatInfo, meteo})
 
@@ -1651,7 +1653,7 @@ Public Class VOR_Router
                 Mi = _Meteo.GetMeteoToDate(C, Dte, True)
                 If Not Mi Is Nothing Then
                     PX = x * _MeteoWidth / 10
-                    PY = y * _MeteoHeight / 10
+                    PY = (10 - y) * _MeteoHeight / 10
 
                     retstring &= GetMeteoArrowString(PX, PY, Scale, Mi)
                 End If
