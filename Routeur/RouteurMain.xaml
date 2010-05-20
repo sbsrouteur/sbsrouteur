@@ -291,7 +291,7 @@
 					</Grid.RowDefinitions>
 					<GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
-					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left">
+					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left" SizeChanged="RendererSizeChanged">
 						<Grid x:Name="Weather_Map" >
 							<Path Data="{Binding VorHandler.MeteoArrow, Mode=Default, IsAsync=True}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}">
 							</Path>
