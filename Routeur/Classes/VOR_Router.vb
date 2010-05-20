@@ -104,6 +104,7 @@ Public Class VOR_Router
     Private _MeteoSEPoint As Coords
     Private _MeteoWidth As Double
     Private _MeteoHeight As Double
+    Private _MeteoPath As String
 
     Private _CurMousePos As Coords
 
@@ -484,7 +485,8 @@ Public Class VOR_Router
             If value <> _MeteoArrowDate Then
                 _MeteoArrowDate = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDate"))
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+                updatemeteoArrows()
+                'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
             End If
         End Set
     End Property
@@ -496,7 +498,8 @@ Public Class VOR_Router
             If value <> _MeteoArrowDate.Ticks Then
                 _MeteoArrowDate = New Date(value)
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDate"))
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+                'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+                UpdateMeteoArrows()
             End If
         End Set
     End Property
@@ -526,7 +529,8 @@ Public Class VOR_Router
             If _MeteoArrowSize <> value Then
                 _MeteoArrowSize = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowSize"))
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+                'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+                UpdateMeteoArrows()
             End If
         End Set
 
@@ -1003,8 +1007,8 @@ Public Class VOR_Router
         _MeteoSEPoint = C2
         _MeteoWidth = Width
         _MeteoHeight = Height
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
-
+        'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+        UpdateMeteoArrows()
     End Sub
 
     Public Property CurrentRoute() As TravelCalculator
@@ -1616,45 +1620,89 @@ Public Class VOR_Router
         End Get
     End Property
 
+    Private Sub MeteoArrowDeferred(ByVal state As Object)
+
+        Dim x As Double
+        Dim y As Double
+        Dim retstring As String = ""
+        Dim C As New Coords
+        Dim Mi As MeteoInfo
+        Dim Scale As Double = MeteoArrowSize
+        Dim Dte As Date = MeteoArrowDate
+
+        If _UserInfo Is Nothing OrElse Dte.Ticks = 0 OrElse _MeteoNOPoint Is Nothing OrElse _MeteoSEPoint Is Nothing Then
+            Return
+        End If
+
+        Dim MeteoRange As Double = 1
+        Dim MinLon As Double = _MeteoNOPoint.Lon
+        Dim MaxLon As Double = _MeteoSEPoint.Lon
+        Dim DeltaLon As Double = (MaxLon - MinLon) / 10
+        Dim MinLat As Double = _MeteoSEPoint.Lat
+        Dim MaxLat As Double = _MeteoNOPoint.Lat
+        Dim DeltaLat As Double = (MaxLat - MinLat) / 10
+        Dim PX As Double
+        Dim PY As Double
+
+        For x = 0 To 10
+            For y = 0 To 10
+                C.Lat = MinLat + y * DeltaLat
+                C.Lon = MinLon + x * DeltaLon
+                Mi = _Meteo.GetMeteoToDate(C, Dte, True)
+                If Not Mi Is Nothing Then
+                    PX = x * _MeteoWidth / 10
+                    PY = y * _MeteoHeight / 10
+
+                    retstring &= GetMeteoArrowString(PX, PY, Scale, Mi)
+                End If
+            Next
+        Next
+        _MeteoPath = retstring
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+
+    End Sub
+
+
     Public ReadOnly Property MeteoArrow() As String
         Get
 
-            Dim x As Double
-            Dim y As Double
-            Dim retstring As String = ""
-            Dim C As New Coords
-            Dim Mi As MeteoInfo
-            Dim Scale As Double = MeteoArrowSize
-            Dim Dte As Date = MeteoArrowDate
-                If _UserInfo Is Nothing OrElse Dte.Ticks = 0 OrElse _MeteoNOPoint Is Nothing OrElse _MeteoSEPoint Is Nothing Then
-                Return ""
-            End If
+            'Dim x As Double
+            'Dim y As Double
+            'Dim retstring As String = ""
+            'Dim C As New Coords
+            'Dim Mi As MeteoInfo
+            'Dim Scale As Double = MeteoArrowSize
+            'Dim Dte As Date = MeteoArrowDate
+            'If _UserInfo Is Nothing OrElse Dte.Ticks = 0 OrElse _MeteoNOPoint Is Nothing OrElse _MeteoSEPoint Is Nothing Then
+            '    Return ""
+            'End If
 
-            Dim MeteoRange As Double = 1
-            Dim MinLon As Double = _MeteoNOPoint.Lon
-            Dim MaxLon As Double = _MeteoSEPoint.Lon
-            Dim DeltaLon As Double = (MaxLon - MinLon) / 10
-            Dim MinLat As Double = _MeteoSEPoint.Lat
-            Dim MaxLat As Double = _MeteoNOPoint.Lat
-            Dim DeltaLat As Double = (MaxLat - MinLat) / 10
-            Dim PX As Double
-            Dim PY As Double
+            'Dim MeteoRange As Double = 1
+            'Dim MinLon As Double = _MeteoNOPoint.Lon
+            'Dim MaxLon As Double = _MeteoSEPoint.Lon
+            'Dim DeltaLon As Double = (MaxLon - MinLon) / 10
+            'Dim MinLat As Double = _MeteoSEPoint.Lat
+            'Dim MaxLat As Double = _MeteoNOPoint.Lat
+            'Dim DeltaLat As Double = (MaxLat - MinLat) / 10
+            'Dim PX As Double
+            'Dim PY As Double
 
-            For x = 0 To 9
-                For y = 0 To 9
-                    C.Lat = MinLat + y * DeltaLat
-                    C.Lon = MinLon + x * DeltaLon
-                    Mi = _Meteo.GetMeteoToDate(C, Dte, True)
-                    If Not Mi Is Nothing Then
-                        PX = x * _MeteoWidth / 10
-                        PY = y * _MeteoHeight / 10
+            'For x = 0 To 9
+            '    For y = 0 To 9
+            '        C.Lat = MinLat + y * DeltaLat
+            '        C.Lon = MinLon + x * DeltaLon
+            '        Mi = _Meteo.GetMeteoToDate(C, Dte, True)
+            '        If Not Mi Is Nothing Then
+            '            PX = x * _MeteoWidth / 10
+            '            PY = y * _MeteoHeight / 10
 
-                        retstring &= GetMeteoArrowString(PX, PY, Scale, Mi)
-                    End If
-                Next
-            Next
-            Return retstring
-            
+            '            retstring &= GetMeteoArrowString(PX, PY, Scale, Mi)
+            '        End If
+            '    Next
+            'Next
+            'Return retstring
+            'System.Threading.ThreadPool.QueueUserWorkItem(AddressOf MeteoArrowDeferred, Nothing)
+            Return _MeteoPath
         End Get
     End Property
 
@@ -2286,7 +2334,8 @@ Public Class VOR_Router
                     VLMInfoMessage &= " (exp: " & V.ToString("f2") & ")"
                 End If
                 AddLog(VLMInfoMessage)
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+                'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+                UpdateMeteoArrows()
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateStart"))
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateEnd"))
                 If _MeteoArrowDate < _UserInfo.date Then
@@ -2503,6 +2552,11 @@ Public Class VOR_Router
         End Set
     End Property
 
+    Private Sub UpdateMeteoArrows()
+
+        System.Threading.ThreadPool.QueueUserWorkItem(AddressOf MeteoArrowDeferred, Nothing)
+
+    End Sub
     Public Sub UpdatePath(ByVal Clear As Boolean)
 
         If Clear Then
