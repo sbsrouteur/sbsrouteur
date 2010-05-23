@@ -598,7 +598,7 @@ Public Class GridRouter
                     If Not C Is Nothing Then
                         N = CType(_GridPointsList(C), RoutingGridPoint)
                         TC.EndPoint = N.P.P
-                        If FromAngle <> -1 AndAlso VOR_Router.WindAngle(TC.Cap, FromAngle) <= 60 Then
+                        If FromAngle <> -1 AndAlso VOR_Router.WindAngle(TC.Cap, FromAngle) <= 90 Then
                             Continue For
                         End If
 
