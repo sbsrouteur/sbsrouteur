@@ -79,13 +79,12 @@ Public Class GSHHS_Reader
 
             For Each excl In RouteurModel.Exclusions
                 'ReDim A(CInt(excl.Count / 2) - 1)
+                A = New Polygon
                 For i = 0 To excl.Count - 1 Step 2
-                    A = New Polygon
-                    A(i \ 2) = New Coords
-                    A(i \ 2).Lon_Deg = excl(i)
-                    A(i \ 2).Lat_Deg = excl(i + 1)
+                    Dim c As New Coords(excl(i + 1), excl(i))
+                    A.Add(c)
                 Next
-                _PolyGons.AddLast(A)
+                _PolyGons.AddFirst(A)
                 '_UseFullPolygon.Add(A)
                 '_usefullboxes.Add(UpdateBox(A))
 
