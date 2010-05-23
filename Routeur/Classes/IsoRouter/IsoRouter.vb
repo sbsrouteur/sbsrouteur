@@ -142,6 +142,7 @@ Public Class IsoRouter
         Dim TC As New TravelCalculator
         TC.StartPoint = _StartPoint.P
         TC.EndPoint = _DestPoint
+        Dim CurDTF As Double = Double.MaxValue
 
         Dim Loxo As Double = TC.Cap
         Dim Dist As Double = TC.SurfaceDistance
@@ -155,8 +156,9 @@ Public Class IsoRouter
                 _IsoChrones.AddLast(CurIsoChrone)
                 For Each rp As clsrouteinfopoints In CurIsoChrone.Data
                     If Not rp Is Nothing Then
-                        If P Is Nothing OrElse (P.DTF > rp.DTF) Then
+                        If (CurDTF > rp.DTF) Then
                             P = rp
+                            CurDTF = P.DTF
                         End If
                     End If
                 Next
@@ -165,6 +167,8 @@ Public Class IsoRouter
 
             If Not P Is Nothing Then
                 _CurBest = P
+            Else
+                RouteComplete = True
             End If
 
             If CurIsoChrone Is Nothing Then

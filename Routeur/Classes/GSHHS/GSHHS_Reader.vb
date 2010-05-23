@@ -84,7 +84,7 @@ Public Class GSHHS_Reader
                     Dim c As New Coords(excl(i + 1), excl(i))
                     A.Add(c)
                 Next
-                _PolyGons.AddFirst(A)
+                _PolyGons.AddLast(A)
                 '_UseFullPolygon.Add(A)
                 '_usefullboxes.Add(UpdateBox(A))
 

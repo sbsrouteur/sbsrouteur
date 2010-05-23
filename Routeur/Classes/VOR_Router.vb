@@ -811,12 +811,16 @@ Public Class VOR_Router
                         If Not Long.TryParse(Fields(1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderDateSecs) _
                            OrElse Not Integer.TryParse(Fields(2), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderType) Then
 
+                            AddLog("Invalid pilototo string : " & _Pilototo(CurIndex))
+                            RouteComplete = True
                             Continue While
                         End If
 
                         Select Case OrderType
                             Case 1, 2
                                 If Not Double.TryParse(Fields(3), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderValue) Then
+                                    AddLog("Invalid pilototo string : " & _Pilototo(CurIndex))
+                                    RouteComplete = True
                                     Continue While
                                 End If
 
