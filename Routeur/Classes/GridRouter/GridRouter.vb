@@ -581,7 +581,9 @@ Public Class GridRouter
                     RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, Start, _WP)
                     CurWP = RouteurModel.CurWP
                 Else
-                    RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, _CurBestTarget.P.P, _WP)
+                    'RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, _CurBestTarget.P.P, _WP)
+                    RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, Start, _WP)
+
                 End If
 
                 'Dim log As New System.IO.FileStream("log.log", IO.FileMode.Append)
@@ -591,14 +593,14 @@ Public Class GridRouter
                 Dim FromAngle As Double = -1
                 If Not RG.From Is Nothing Then
                     TC.EndPoint = RG.From.P.P
-                    FromAngle = TC.Cap
+                    FromAngle = (TC.Cap + 180) Mod 360
                 End If
 
                 For Each C In RG.Neighboors
                     If Not C Is Nothing Then
                         N = CType(_GridPointsList(C), RoutingGridPoint)
                         TC.EndPoint = N.P.P
-                        If FromAngle <> -1 AndAlso VOR_Router.WindAngle(TC.Cap, FromAngle) <= 90 Then
+                        If FromAngle <> -1 AndAlso VOR_Router.WindAngle(TC.Cap, FromAngle) > 90 Then
                             Continue For
                         End If
 
