@@ -200,12 +200,15 @@ Public Class IsoRouter
         For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
             CurDate = Start.T.AddTicks(i)
             MI = Nothing
-            While MI Is Nothing
+            While MI Is Nothing And Not _CancelRequested
                 MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.Lon_Deg, TC.StartPoint.Lat_Deg, True)
                 If MI Is Nothing Then
                     System.Threading.Thread.Sleep(250)
                 End If
             End While
+            If _CancelRequested Then
+                Return Nothing
+            End If
 
             Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
             TC.EndPoint = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Cap)
