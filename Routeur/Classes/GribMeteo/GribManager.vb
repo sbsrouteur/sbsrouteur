@@ -393,8 +393,8 @@ Public Class GribManager
         Dim S10 As Double = _MeteoArrays(MeteoIndex).Data(Lon1, Lat0).Strength
         Dim S11 As Double = _MeteoArrays(MeteoIndex).Data(Lon1, Lat1).Strength
 
-        Dim Angle1 As Double = CheckAngleInterp(D01 - D00)
-        Dim Angle2 As Double = CheckAngleInterp(D11 - D10)
+        Dim Angle1 As Double = CheckAngleInterp(D10 - D00)
+        Dim Angle2 As Double = CheckAngleInterp(D11 - D01)
 
 
         If Angle1 * Angle2 > 0 Then
@@ -452,7 +452,7 @@ Public Class GribManager
 
         Dim RetInfo As New MeteoInfo
 
-        If Dir0 = Dir1 OrElse Dir0 = DirInterpolation.UV OrElse Dir1 = DirInterpolation.UV Then
+        If Dir0 = Dir1 Then 'OrElse Dir0 = DirInterpolation.UV OrElse Dir1 = DirInterpolation.UV Then
             RetInfo.Dir = M0.Dir + DteOffset / GRIB_GRAIN * CheckAngleInterp(M1.Dir - M0.Dir)
             RetInfo.Strength = M0.Strength + DteOffset / GRIB_GRAIN * (M1.Strength - M0.Strength)
         Else
