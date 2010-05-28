@@ -72,6 +72,7 @@ Public Class BspRect
                 If _PolyGons Is Nothing Then
 
                     Dim P As Polygon
+                    Dim PolygonIndex As Integer = 0
                     Dim Corner As New Coords
                     'Build the polygons list using the proper "trimmed " polygons
                     _PolyGons = New LinkedList(Of Polygon)
@@ -79,11 +80,17 @@ Public Class BspRect
 
                     For Each P In GSHHS_Reader.AllPolygons
 
-                        If P(0) IsNot Nothing Then
+                        If PolygonIndex < GSHHS_Reader.ExclusionCount Then
+                            'Always add exclusions 
+                            _PolyGons.AddLast(P)
+                        Else
+                            If P(0) IsNot Nothing Then
 
-                            Dim PRet As Polygon = PolyClipper.ClipPolygon(P1, P2, P)
-                            If Not PRet Is Nothing Then
-                                _PolyGons.AddLast(PRet)
+                                Dim PRet As Polygon = PolyClipper.ClipPolygon(P1, P2, P)
+                                If Not PRet Is Nothing Then
+                                    _PolyGons.AddLast(PRet)
+                                End If
+
                             End If
 
                         End If
