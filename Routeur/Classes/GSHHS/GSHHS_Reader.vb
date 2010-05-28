@@ -13,6 +13,7 @@ Public Class GSHHS_Reader
     Private Shared _P2 As New Coords(-90, -179.99999)
     Public Shared WithEvents _Tree As BspRect
     Private Shared _LakePolyGons As New LinkedList(Of Polygon)
+    Public Shared ExclusionCount As Integer
 
 #If HIT_STATS Then
     Private Shared _HitDistTicks As Long
@@ -77,6 +78,7 @@ Public Class GSHHS_Reader
 
             S.Close()
 
+            ExclusionCount = 0
             For Each excl In RouteurModel.Exclusions
                 'ReDim A(CInt(excl.Count / 2) - 1)
                 A = New Polygon
@@ -84,7 +86,8 @@ Public Class GSHHS_Reader
                     Dim c As New Coords(excl(i + 1), excl(i))
                     A.Add(c)
                 Next
-                _PolyGons.AddLast(A)
+                _PolyGons.AddFirst(A)
+                ExclusionCount += 1
                 '_UseFullPolygon.Add(A)
                 '_usefullboxes.Add(UpdateBox(A))
 
@@ -446,7 +449,11 @@ Public Class GSHHS_Reader
             Dim MaxIndex As Integer = Poly.Count
 
             j = Poly.Count
-            While Poly(j) Is Nothing AndAlso MaxIndex >= 0
+            If j = 0 Then
+                Continue For
+            End If
+
+            While Poly(j) Is Nothing AndAlso MaxIndex > 0
                 j -= 1
             End While
             MaxIndex = j

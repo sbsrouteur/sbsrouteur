@@ -470,10 +470,13 @@ Public Class VOR_Router
 
     Public ReadOnly Property IsoChrones() As LinkedList(Of IsoChrone)
         Get
-            If _iso Is Nothing Then
-                Return Nothing
+            If Not _gr Is Nothing Then
+                Return _gr.IsoChrones
             End If
-            Return _iso.IsoChrones
+            If _iso IsNot Nothing Then
+                Return _iso.IsoChrones
+            End If
+            Return Nothing
         End Get
     End Property
 
@@ -793,7 +796,7 @@ Public Class VOR_Router
                     ElseIf OrderDate.Ticks = 0 Then
                         ReDim Fields(0)
                         If PrevMode < 4 Then
-                            OrderDate = Now.AddHours(RouteurModel.CourseExtensionHours)
+                            OrderDate = CurDate.AddHours(RouteurModel.CourseExtensionHours)
                         Else
                             RouteToEnd = True
                         End If
@@ -981,6 +984,9 @@ Public Class VOR_Router
                         End If
                         CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
                     End While
+
+                    'Extend route 10h, unless pilototo contradicts
+                    OrderDate = New DateTime(0)
 
                     If OrderType <> 0 Then
                         PrevMode = OrderType

@@ -37,6 +37,8 @@ Public Class GridRouter
     Private _LoopCount As Long = 0
     Private _BoatType As String
     Private _WP As List(Of Coords())
+    Private _IsoChrones As New LinkedList(Of IsoChrone)
+
 
 #If GRID_STATS Then
     Private _ProcessTotalTicks As Long
@@ -73,6 +75,12 @@ Public Class GridRouter
     Public ReadOnly Property GridPointsList() As BSPList
         Get
             Return _GridPointsList
+        End Get
+    End Property
+
+    Public ReadOnly Property IsoChrones() As LinkedList(Of IsoChrone)
+        Get
+            Return _IsoChrones
         End Get
     End Property
 
@@ -526,6 +534,7 @@ Public Class GridRouter
         Static Counts As Long
         Static CurWP As Long = 0
 
+
 #If GRID_STAT Then
 
         Dim StartTick As DateTime = Now
@@ -581,6 +590,7 @@ Public Class GridRouter
                     RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, Start, _WP)
                     CurWP = RouteurModel.CurWP
                 Else
+                    'FIX ME : find a way to reduce the point count but not by too much
                     'RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, _CurBestTarget.P.P, _WP)
                     RG.BuildNeighBoorsList(GridStep, _AngleStep, _GridGrain, _GridPointsList, _SailManager, Start, Start, _WP)
 
@@ -607,7 +617,7 @@ Public Class GridRouter
                         eta = GetETATo(RG.P.P, N.P.P, RG.CurETA, _MeteoProvider, BoatType, CurSail, CurSpeed)
 
                         If eta < N.CurETA Then 'AndAlso (_CurBestTarget Is Nothing OrElse N.CurETA.Ticks - StartDate.Ticks < 1.3 * (_CurBestTarget.CurETA.Ticks - StartDate.Ticks)) Then
-
+                            Dim PrevEta As DateTime = N.CurETA
                             N.CurETA = eta
                             N.From = RG
                             N.P.Cap = (TC.TrueCap + 360) Mod 360
@@ -628,12 +638,32 @@ Public Class GridRouter
 
                             End SyncLock
 
-                            'If _CurBestTarget Is Nothing OrElse _CurBestTarget.Score > N.Score Then
+                            'Update the IsoChrones
+                            'If N.CurETA.Minute < 10 Then
+                            TC.StartPoint = Start
+                            TC.EndPoint = N.P.P
 
-                            '    'SR.WriteLine("Changed Target " & N.P.P.ToString & " " & N.CurETA & " " & N.CrossedLine & " " & N.Dist & " " & N.P.Cap)
-                            '    _CurBestTarget = N
-                            '    RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
-                            'End If
+                            If TC.SurfaceDistance > 0 Then
+
+                                Dim IsoIndex As Integer = CInt(N.CurETA.Subtract(StartDate).TotalHours / RouteurModel.GridGrain * 0.01)
+                                Dim PrevIsoIndex As Integer = CInt(PrevEta.Subtract(StartDate).TotalHours / RouteurModel.GridGrain * 0.01)
+                                While IsoIndex >= _IsoChrones.Count
+                                    _IsoChrones.AddLast(New IsoChrone(0.5))
+                                End While
+                                Dim Iso As IsoChrone = _IsoChrones(IsoIndex)
+                                Dim Alpha As Double = Iso.IndexFromAngle(TC.Cap)
+
+                                If PrevIsoIndex <> IsoIndex AndAlso Not _IsoChrones(PrevIsoIndex) Is Nothing AndAlso _IsoChrones(PrevIsoIndex).Data(Alpha) Is N.P Then
+                                    _IsoChrones(PrevIsoIndex).Data(Alpha) = Nothing
+                                    _IsoChrones(PrevIsoIndex).Drawn = False
+                                End If
+
+                                If Iso.Data(Alpha) Is Nothing OrElse Iso.Data(Alpha).T > N.P.T Then
+                                    Iso.Data(Alpha) = N.P
+                                End If
+
+                                Iso.Drawn = False
+                            End If
 
                             If N.Improve(_CurBestTarget, CurSpeed, _WP) Then
                                 'SR.WriteLine("Changed Target " & N.P.P.ToString & " " & N.CurETA & " " & N.CrossedLine & " " & N.Dist & " " & N.P.Cap)
