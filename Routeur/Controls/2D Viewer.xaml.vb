@@ -36,6 +36,7 @@ Partial Public Class _2D_Viewer
     Private _CurCoords As New Coords
     Private _P As Point
     Private _Progress As MapProgressContext
+    Private _ClearBgMap As Boolean = False
 
     'Private Shared _RaceRect As Coords() = New Coords() {New Coords(48, 12), New Coords(48, -13), New Coords(55, -13), New Coords(55, -2), _
     '                                                     New Coords(59, 5), New Coords(62, 20), New Coords(48.1, 12)}
@@ -381,6 +382,13 @@ Render1:
             'Dim Pixels As Array
             SyncLock Me
                 _RBmp.Clear()
+
+                If _ClearBgMap Then
+                    BgStarted = False
+                    _ClearBgMap = False
+                    _BackDropBmp = Nothing
+                    _GridBmp.Clear()
+                End If
 
                 If Not BgStarted AndAlso _BackDropBmp Is Nothing Then
                     BgStarted = True 'BgBackDropDrawing(0)
@@ -748,6 +756,12 @@ Render1:
         'Debug.WriteLine("Coords : " & CurCoords.ToString)
         RaiseEvent PropertyChanged(Me, evtprops)
 
+
+    End Sub
+
+    Public Sub ClearBgMap()
+
+        _ClearBgMap = True
 
     End Sub
 

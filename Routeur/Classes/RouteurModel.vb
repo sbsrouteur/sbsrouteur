@@ -137,6 +137,25 @@ Public Class RouteurModel
     Public Sub New()
     End Sub
 
+    Public Sub UpdateRaceScale(ByVal C1 As Coords, ByVal C2 As Coords)
+        'ReDim RouteurModel._RaceRect(3)
+        _LonOffset = (C1.Lon_Deg + C2.Lon_Deg) / 2
+        _LatOffset = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
+        Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
+        Dim Scale2 As Double = 180 / 1.1 / Math.Abs(C1.Mercator_Y_Deg - C2.Mercator_Y_Deg)
+        If Scale2 < Scale Then
+            Scale = Scale2
+        End If
+        Scale *= _2D_Viewer.DEFINITION
+
+        If Not _2DViewer Is Nothing Then
+            _2DViewer.Scale = Scale
+            _2DViewer.LonOffset = _LonOffset
+            _2DViewer.LatOffset = _LatOffset
+            _2DViewer.clearBgMap()
+        End If
+    End Sub
+
     Public Sub Init()
 
 
@@ -244,19 +263,13 @@ Public Class RouteurModel
             C2.Lon_Deg = 180
         End If
 
-        'ReDim RouteurModel._RaceRect(3)
         RouteurModel._RaceRect(0) = New Coords(C1)
         RouteurModel._RaceRect(1) = New Coords(C1.Lat_Deg, C2.Lon_Deg)
         RouteurModel._RaceRect(2) = New Coords(C2)
         RouteurModel._RaceRect(3) = New Coords(C2.Lat_Deg, C1.Lon_Deg)
-        _LonOffset = (C1.Lon_Deg + C2.Lon_Deg) / 2
-        _LatOffset = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
-        Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
-        Dim Scale2 As Double = 180 / 1.1 / Math.Abs(C1.Mercator_Y_Deg - C2.Mercator_Y_Deg)
-        If Scale2 < Scale Then
-            Scale = Scale2
-        End If
-        Scale *= _2D_Viewer.DEFINITION
+
+        UpdateRaceScale(C1, C2)
+
     End Sub
 
     Public Shared ReadOnly Property BaseFileDir() As String
