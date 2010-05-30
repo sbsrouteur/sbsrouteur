@@ -48,6 +48,10 @@ Partial Public Class _2D_Viewer
     Private _Frm As frmRoutingProgress
     Private _MapPg As New MapProgressContext("Drawing Map...")
 
+    Private _Scale As Double
+    Private _LonOffset As Double
+    Private _LatOffset As Double
+
 
     Public Sub New()
         MyBase.New()
@@ -60,28 +64,28 @@ Partial Public Class _2D_Viewer
 
     End Sub
 
-    Public Shared Function CanvasToLat(ByVal C As Double) As Double
-        Dim Ret As Double = (90 * DEFINITION - C) / RouteurModel.SCALE + RouteurModel.LAT_OFFSET '90 / RouteurModel.SCALE - C / DEFINITION / RouteurModel.SCALE + RouteurModel.LAT_OFFSET
+    Public Function CanvasToLat(ByVal C As Double) As Double
+        Dim Ret As Double = (90 * DEFINITION - C) / Scale + LatOffset '90 / RouteurModel.SCALE - C / DEFINITION / RouteurModel.SCALE + RouteurModel.LAT_OFFSET
         Ret = Ret / 180 * PI
         Return Math.Atan(Math.Sinh(Ret)) / PI * 180
     End Function
 
-    Public Shared Function CanvasToLon(ByVal V As Double) As Double
-        Return (V - 180 * DEFINITION) / RouteurModel.SCALE + RouteurModel.LON_OFFSET '(V - 180 * DEFINITION) / DEFINITION / RouteurModel.SCALE
+    Public Function CanvasToLon(ByVal V As Double) As Double
+        Return (V - 180 * DEFINITION) / Scale + LonOffset '(V - 180 * DEFINITION) / DEFINITION / RouteurModel.SCALE
     End Function
 
 
-    Public Shared Function LatToCanvas(ByVal V As Double) As Double
+    Public Function LatToCanvas(ByVal V As Double) As Double
 
-        V = V / 180 * pi
+        V = V / 180 * PI
         V = Log(Tan(V) + 1 / Cos(V))
         V = V / PI * 180
-        Return 90 * DEFINITION - (V - RouteurModel.LAT_OFFSET) * RouteurModel.SCALE
+        Return 90 * DEFINITION - (V - LatOffset) * Scale
 
     End Function
 
-    Public Shared Function LonToCanvas(ByVal V As Double) As Double
-        Return 180 * DEFINITION + (V - RouteurModel.LON_OFFSET) * RouteurModel.SCALE
+    Public Function LonToCanvas(ByVal V As Double) As Double
+        Return 180 * DEFINITION + (V - LonOffset) * Scale
 
     End Function
 
@@ -759,6 +763,24 @@ Render1:
         End Set
     End Property
 
+    Public Property LatOffset() As Double
+        Get
+            Return _LatOffset
+        End Get
+        Set(ByVal value As Double)
+            _LatOffset = value
+        End Set
+    End Property
+
+    Public Property LonOffset() As Double
+        Get
+            Return _LonOffset
+        End Get
+        Set(ByVal value As Double)
+            _LonOffset = value
+        End Set
+    End Property
+
     Public Property MouseP() As Point
         Get
             Return _P
@@ -776,5 +798,14 @@ Render1:
             End If
             Return _RacePolygons
         End Get
+    End Property
+
+    Public Property Scale() As Double
+        Get
+            Return _Scale
+        End Get
+        Set(ByVal value As Double)
+            _Scale = value
+        End Set
     End Property
 End Class
