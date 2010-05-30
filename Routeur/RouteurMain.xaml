@@ -212,7 +212,11 @@
 				<CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center"/>
 				<CheckBox Content="Hide Boat &amp; Wind Arrow" IsChecked="{Binding VorHandler.HideWindArrow, Mode=Default}" VerticalAlignment="Center" />
 				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="False"/>
+				<Separator/>
 				<MenuItem Header="Center on Boat!" Click="CenterOnBoat"></MenuItem>
+				<Separator/>
+				<MenuItem Header="Rescale Map" Click="ReScaleMap" ></MenuItem>
+				<MenuItem Header="Restore Race Zone Map Scale" Click="RestoreMapScale" ></MenuItem>
 			</MenuItem>
 			<MenuItem Header="Meteo" VerticalAlignment="Center">
 				<CheckBox IsChecked="{Binding VorHandler.MeteoVisible, Mode=Default}" Content="Meteo Data Visible" ></CheckBox>

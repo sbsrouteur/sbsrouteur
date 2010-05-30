@@ -57,7 +57,7 @@ Partial Public Class RouteurMain
         _WallTimer.Start()
         M.VorHandler.Owner = Me
         CenterOnBoat(Me, Nothing)
-        UpdateCoordsExtent(M)
+        UpdateCoordsExtent(M, False, False)
 
     End Sub
 
@@ -78,22 +78,35 @@ Partial Public Class RouteurMain
 
     End Sub
 
-    Private Sub UpdateCoordsExtent(ByVal M As RouteurModel)
+    Private Sub UpdateCoordsExtent(ByVal M As RouteurModel, ByVal FromRace As Boolean, ByVal RescaleMap As Boolean)
 
         Dim Pos1 As New Point(0, 0)
         Dim Pos2 As New Point(_2DGrid.ActualWidth, _2DGrid.ActualHeight)
-        Dim C1 As New Coords
-        Dim C2 As New Coords
-        Pos1 = _2DGrid.TranslatePoint(Pos1, VOR2DViewer)
-        Pos2 = _2DGrid.TranslatePoint(Pos2, VOR2DViewer)
+        Dim C1 As Coords
+        Dim C2 As Coords
 
-        C1.Lon_Deg = M.The2DViewer.CanvasToLon(Pos1.X)
-        C1.Lat_Deg = M.The2DViewer.CanvasToLat(Pos1.Y)
-        C2.Lon_Deg = M.The2DViewer.CanvasToLon(Pos2.X)
-        C2.Lat_Deg = M.The2DViewer.CanvasToLat(Pos2.Y)
+        If Not FromRace Then
+            C1 = New Coords
+            C2 = New Coords
+            Pos1 = _2DGrid.TranslatePoint(Pos1, VOR2DViewer)
+            Pos2 = _2DGrid.TranslatePoint(Pos2, VOR2DViewer)
 
+            C1.Lon_Deg = M.The2DViewer.CanvasToLon(Pos1.X)
+            C1.Lat_Deg = M.The2DViewer.CanvasToLat(Pos1.Y)
+            C2.Lon_Deg = M.The2DViewer.CanvasToLon(Pos2.X)
+            C2.Lat_Deg = M.The2DViewer.CanvasToLat(Pos2.Y)
+        Else
+            C1 = RouteurModel._RaceRect(0)
+            C2 = RouteurModel._RaceRect(2)
+        End If
 
         M.VorHandler.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
+
+        If RescaleMap Then
+            M.UpdateRaceScale(C1, C2)
+            SldZoom.Value = 1
+        End If
+
     End Sub
 
 
@@ -113,7 +126,7 @@ Partial Public Class RouteurMain
         'End If
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
-        UpdateCoordsExtent(M)
+        UpdateCoordsExtent(M, False, False)
     End Sub
 
     Private Sub MouseMoveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
@@ -190,7 +203,7 @@ Partial Public Class RouteurMain
             Zoom(1 / 1.2, e.GetPosition(Me.VOR2DViewer))
         End If
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
-        UpdateCoordsExtent(M)
+        UpdateCoordsExtent(M, False, False)
     End Sub
 
     Private Sub Zoom(ByVal Factor As Double, ByVal CenterPosition As Point)
@@ -336,11 +349,25 @@ Partial Public Class RouteurMain
 
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
-        UpdateCoordsExtent(M)
+        UpdateCoordsExtent(M, False, False)
     End Sub
 
     Private Sub AppQuit(ByVal sender as Object, ByVal e as System.ComponentModel.CancelEventArgs)
         CloseApp()
+    End Sub
+
+    Private Sub ReScaleMap(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+
+        UpdateCoordsExtent(M, False, True)
+    End Sub
+
+    Private Sub RestoreMapScale(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
+        'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+
+        UpdateCoordsExtent(M, True, True)
     End Sub
 
 

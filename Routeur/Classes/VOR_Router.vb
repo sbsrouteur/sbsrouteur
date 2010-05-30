@@ -855,8 +855,10 @@ Public Class VOR_Router
                     End If
 
                     While Not RouteComplete AndAlso (CurDate < OrderDate OrElse RouteToEnd)
-                        Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
+                        Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, False)
                         If Mi Is Nothing Then
+                            'If there is no meteo, try on the next loop
+                            RouteComplete = True
                             Exit While
                         End If
                         Tc.StartPoint = CurPos
