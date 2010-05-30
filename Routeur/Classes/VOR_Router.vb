@@ -1042,15 +1042,16 @@ Public Class VOR_Router
         End Set
     End Property
 
-    Public Sub DebugBSP(ByVal p As Point)
+    'TDB v>21
+    'Public Sub DebugBSP(ByVal p As Point)
 
-        Dim C As New Coords
-        C.Lon_Deg = _2D_Viewer.CanvasToLon(p.X)
-        C.Lat_Deg = _2D_Viewer.CanvasToLat(p.X)
+    '    Dim C As New Coords
+    '    C.Lon_Deg = _2D_Viewer.CanvasToLon(p.X)
+    '    C.Lat_Deg = _2D_Viewer.CanvasToLat(p.X)
 
-        AddLog(GSHHS_Reader._Tree.DebugInfo(C))
+    '    AddLog(GSHHS_Reader._Tree.DebugInfo(C))
 
-    End Sub
+    'End Sub
 
     Public ReadOnly Property DiffEvolution() As ObservableCollection(Of Decimal)
         Get
@@ -1738,23 +1739,6 @@ Public Class VOR_Router
         End Get
     End Property
 
-    Public ReadOnly Property BoatCanvasX() As Double
-        Get
-            If _UserInfo Is Nothing OrElse _UserInfo.position Is Nothing Then
-                Return 0
-            End If
-            Return _2D_Viewer.LonToCanvas(_UserInfo.position.longitude)
-        End Get
-    End Property
-
-    Public ReadOnly Property BoatCanvasY() As Double
-        Get
-            If _UserInfo Is Nothing OrElse _UserInfo.position Is Nothing Then
-                Return 0
-            End If
-            Return _2D_Viewer.LatToCanvas(_UserInfo.position.latitude)
-        End Get
-    End Property
 
     Public Property BoatInfoList() As System.Collections.IList
         Get

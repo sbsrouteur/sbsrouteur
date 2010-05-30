@@ -31,9 +31,9 @@ Public Class RouteurModel
     Private Shared _BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
 
 
-    Public Shared SCALE As Double = 1
-    Public Shared LAT_OFFSET As Double = 0
-    Public Shared LON_OFFSET As Double = 0
+    Private Dim _Scale As Double = 1
+    Public _LatOffset As Double = 0
+    Public _LonOffset As Double = 0
 
     Public Const PenWidth As Double = 0.3
 
@@ -71,7 +71,7 @@ Public Class RouteurModel
 
     Public Shared GridGrain As Double = 0.02
     Public Shared EllipseFactor As Double = 1.3
-    
+
     Public Const InvertMeteoLon As Boolean = True
     Public Const METEO_GIRD_SIZE As Integer = 10
     Public Const METEO_GRID_STEP As Double = 1
@@ -249,15 +249,14 @@ Public Class RouteurModel
         RouteurModel._RaceRect(1) = New Coords(C1.Lat_Deg, C2.Lon_Deg)
         RouteurModel._RaceRect(2) = New Coords(C2)
         RouteurModel._RaceRect(3) = New Coords(C2.Lat_Deg, C1.Lon_Deg)
-        LON_OFFSET = (C1.Lon_Deg + C2.Lon_Deg) / 2
-        LAT_OFFSET = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
-        SCALE = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
+        _LonOffset = (C1.Lon_Deg + C2.Lon_Deg) / 2
+        _LatOffset = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
+        Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
         Dim Scale2 As Double = 180 / 1.1 / Math.Abs(C1.Mercator_Y_Deg - C2.Mercator_Y_Deg)
-        If Scale2 < SCALE Then
-            SCALE = Scale2
+        If Scale2 < Scale Then
+            Scale = Scale2
         End If
-        SCALE *= _2D_Viewer.DEFINITION
-
+        Scale *= _2D_Viewer.DEFINITION
     End Sub
 
     Public Shared ReadOnly Property BaseFileDir() As String
@@ -273,6 +272,26 @@ Public Class RouteurModel
             Return _BaseFileDir
         End Get
     End Property
+
+    Public ReadOnly Property BoatCanvasX() As Double
+        Get
+            If VorHandler.UserInfo Is Nothing OrElse VorHandler.UserInfo.position Is Nothing Then
+                Return 0
+            End If
+            Return _2DViewer.LonToCanvas(VorHandler.UserInfo.position.longitude)
+        End Get
+    End Property
+
+    Public ReadOnly Property BoatCanvasY() As Double
+        Get
+            If VorHandler.UserInfo Is Nothing OrElse VorHandler.UserInfo.position Is Nothing Then
+                Return 0
+            End If
+
+            Return _2DViewer.LatToCanvas(VorHandler.UserInfo.position.latitude)
+        End Get
+    End Property
+
 
     Public Property IsoRouterActive() As Boolean
         Get
@@ -472,6 +491,14 @@ Public Class RouteurModel
         End Set
     End Property
 
+    Public Property Scale() As Double
+        Get
+            Return _Scale
+        End Get
+        Set(ByVal value As Double)
+            _Scale = value
+        End Set
+    End Property
     Public ReadOnly Property Stats() As ObservableCollection(Of StatInfo)
         Get
             Return Routeur.Stats.Stats
@@ -488,6 +515,11 @@ Public Class RouteurModel
         End Get
         Set(ByVal value As _2D_Viewer)
             _2DViewer = value
+
+            _2DViewer.Scale = Scale
+            _2DViewer.LonOffset = _LonOffset
+            _2DViewer.LatOffset = _LatOffset
+
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("The2DViewer"))
         End Set
     End Property
