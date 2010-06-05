@@ -100,18 +100,20 @@ Public Class IsoRouter
                         P = ReachPoint(rp, alpha, CurStep)
                         If Not P Is Nothing Then
                             tc.EndPoint = P.P
-                            alpha2 = tc.Cap
+                            If tc.SurfaceDistance > 0 Then
+                                alpha2 = tc.Cap
 
-                            Index = RetIsoChrone.IndexFromAngle(alpha2)
-                            If Not OuterIso Is Nothing Then
-                                PrevIndex = OuterIso.IndexFromAngle(alpha2)
-                            End If
-                            OldP = RetIsoChrone.Data(Index)
-                            If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
-                                If OuterIso Is Nothing OrElse OuterIso.Data(PrevIndex) Is Nothing OrElse (Not OuterIso.Data(PrevIndex) Is Nothing AndAlso P.DTF <= OuterIso.Data(PrevIndex).DTF) Then
-                                    RetIsoChrone.Data(Index) = P
-                                    If Not OuterIso Is Nothing Then
-                                        OuterIso.Data(PrevIndex) = P
+                                Index = RetIsoChrone.IndexFromAngle(alpha2)
+                                If Not OuterIso Is Nothing Then
+                                    PrevIndex = OuterIso.IndexFromAngle(alpha2)
+                                End If
+                                OldP = RetIsoChrone.Data(Index)
+                                If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
+                                    If OuterIso Is Nothing OrElse OuterIso.Data(PrevIndex) Is Nothing OrElse (Not OuterIso.Data(PrevIndex) Is Nothing AndAlso P.DTF <= OuterIso.Data(PrevIndex).DTF) Then
+                                        RetIsoChrone.Data(Index) = P
+                                        If Not OuterIso Is Nothing Then
+                                            OuterIso.Data(PrevIndex) = P
+                                        End If
                                     End If
                                 End If
                             End If
