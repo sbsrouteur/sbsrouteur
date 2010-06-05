@@ -65,31 +65,31 @@ Public Class MeteoInfo
 
     Private Function GetDir() As Double
         Dim dir As Double
-        If _UGRD = 0 Then
-            dir = 0
-            If _VGRD < 0 Then
-                dir = 180
-            End If
-        Else
+        'If _UGRD = 0 Then
+        'dir = 0
+        'If _VGRD < 0 Then
+        ' dir = 180
+        'End If
+        'Else
 
-            'Dim atan = Math.Atan2(_UGRD, _VGRD)
-            'dir = (CInt(atan / Math.PI * 180) + 180 + 360) Mod 360
-            '            # define _transform_u_v(a, b)                   \
-            '402	  t_speed = sqrt(a*a+b*b);                      \
-            '403	  b = acos(-b/t_speed);                         \
-            '404	  if (a > 0.0) {                                \
-            '405	    b = TWO_PI - b;                             \
-            '406	  }
+        'Dim atan = Math.Atan2(_UGRD, _VGRD)
+        'dir = (CInt(atan / Math.PI * 180) + 180 + 360) Mod 360
+        '            # define _transform_u_v(a, b)                   \
+        '402	  t_speed = sqrt(a*a+b*b);                      \
+        '403	  b = acos(-b/t_speed);                         \
+        '404	  if (a > 0.0) {                                \
+        '405	    b = TWO_PI - b;                             \
+        '406	  }
 
-            Dim t_speed As Double = Math.Sqrt(_UGRD * _UGRD + _VGRD * _VGRD)
-            dir = Math.Acos(-_VGRD / t_speed)
-            If _UGRD > 0 Then
-                dir = 2 * Math.PI - dir
-            End If
-
-            dir = (dir / Math.PI * 180) Mod 360
-
+        Dim t_speed As Double = Math.Sqrt(_UGRD * _UGRD + _VGRD * _VGRD)
+        dir = Math.Acos(-_VGRD / t_speed)
+        If _UGRD > 0 Then
+            dir = 2 * Math.PI - dir
         End If
+
+        dir = (dir / Math.PI * 180) Mod 360
+
+        'End If
 
         Return dir
 
