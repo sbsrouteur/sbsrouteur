@@ -83,11 +83,12 @@ Public Class BspRect
                         If PolygonIndex < GSHHS_Reader.ExclusionCount Then
                             'Always add exclusions 
                             _PolyGons.AddLast(P)
+                            PolygonIndex += 1
                         Else
                             If P(0) IsNot Nothing Then
 
                                 Dim PRet As Polygon = PolyClipper.ClipPolygon(P1, P2, P)
-                                If Not PRet Is Nothing Then
+                                If Not PRet Is Nothing AndAlso PRet.Count > 1 Then
                                     _PolyGons.AddLast(PRet)
                                 End If
 
