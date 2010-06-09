@@ -92,7 +92,16 @@
             Dim WP(1) As Coords
             Dim L As New List(Of Coords())
             WP(0) = New Coords(latitude1 / 1000, longitude1 / 1000)
-            WP(1) = New Coords(latitude2 / 1000, longitude2 / 1000)
+            If latitude1 <> latitude2 OrElse longitude1 <> longitude2 Then
+                WP(1) = New Coords(latitude2 / 1000, longitude2 / 1000)
+            Else
+                Dim TC As New TravelCalculator
+                TC.StartPoint = WP(0)
+                WP(1) = TC.ReachDistance(60, 180 + _laisser_au)
+                TC.StartPoint = Nothing
+                TC.EndPoint = Nothing
+                TC = Nothing
+            End If
             L.Add(WP)
             Return L
         End Get

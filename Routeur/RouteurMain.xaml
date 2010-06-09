@@ -297,7 +297,11 @@
 					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left" SizeChanged="RendererSizeChanged">
 						<Grid x:Name="Weather_Map" >
-							<Path Data="{Binding VorHandler.MeteoArrow, Mode=Default, IsAsync=True}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}">
+							<Path Data="{Binding VorHandler.MeteoArrow, Mode=Default, IsAsync=false}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}">
+							</Path>
+						</Grid>
+						<Grid x:Name="WP_RoutingObjects" >
+							<Path Data="{Binding WPsPath, Mode=Default, IsAsync=false}" Stroke="#FFFA7D7D" StrokeThickness="5" >
 							</Path>
 						</Grid>
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >

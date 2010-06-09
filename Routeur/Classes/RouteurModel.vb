@@ -101,6 +101,13 @@ Public Class RouteurModel
     Private _ClearGrid As Boolean
     Private _IsoRouterActive As Boolean
 
+    Private _WPPath As String = ""
+
+    Private _NOPoint As Coords
+    Private _SEPoint As Coords
+    Private _Width As Double
+    Private _Height As Double
+
 
     Private Sub CheckPassword()
 
@@ -154,6 +161,7 @@ Public Class RouteurModel
             _2DViewer.LatOffset = _LatOffset
             _2DViewer.clearBgMap()
         End If
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPsPath"))
     End Sub
 
     Public Sub Init()
@@ -304,6 +312,25 @@ Public Class RouteurModel
             Return _2DViewer.LatToCanvas(VorHandler.UserInfo.position.latitude)
         End Get
     End Property
+
+    Private Sub BuildWPPath()
+        Dim X As Double
+        Dim Y As Double
+
+        If _CurPlayer Is Nothing OrElse _CurPlayer.RaceInfo Is Nothing Or _2DViewer Is Nothing Then
+            Return
+        End If
+        _WPPath = ""
+        For Each WP In _CurPlayer.RaceInfo.races_waypoints
+            X = (WP.WPs.Item(0)(0).Lon - _NOPoint.Lon) / (_SEPoint.Lon - _NOPoint.Lon) * _Width
+            Y = _Height - (WP.WPs.Item(0)(0).Lat - _SEPoint.Lat) / (_NOPoint.Lat - _SEPoint.Lat) * _Height
+            _WPPath &= "M " & GetCoordsString(X, Y)
+            X = (WP.WPs.Item(0)(1).Lon - _NOPoint.Lon) / (_SEPoint.Lon - _NOPoint.Lon) * _Width
+            Y = _Height - (WP.WPs.Item(0)(1).Lat - _SEPoint.Lat) / (_NOPoint.Lat - _SEPoint.Lat) * _Height
+            _WPPath &= "L " & GetCoordsString(X, Y)
+        Next
+
+    End Sub
 
 
     Public Property IsoRouterActive() As Boolean
@@ -495,6 +522,15 @@ Public Class RouteurModel
         End Set
     End Property
 
+    Public Sub CoordsExtent(ByVal C1 As Coords, ByVal C2 As Coords, ByVal Width As Double, ByVal Height As Double)
+
+        _NOPoint = C1
+        _SEPoint = C2
+        _Width = Width
+        _Height = Height
+
+    End Sub
+
     Public Shared Property CourseExtensionHours() As Double
         Get
             Return _RouteExtensionHours
@@ -638,6 +674,14 @@ Public Class RouteurModel
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Stats"))
     End Sub
 
+    Public ReadOnly Property WPsPath() As String
+        Get
+            'If _WPPath = "" Then
+            'BuildWPPath()
+            'End If
+            Return _WPPath
+        End Get
+    End Property
     Public Shared ReadOnly Property WPList() As List(Of String)
         Get
             Return _WPList
