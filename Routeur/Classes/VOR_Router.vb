@@ -855,7 +855,7 @@ Public Class VOR_Router
                     End If
 
                     While Not RouteComplete AndAlso (CurDate < OrderDate OrElse RouteToEnd)
-                        Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, False)
+                        Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
                         If Mi Is Nothing Then
                             'If there is no meteo, try on the next loop
                             RouteComplete = True
@@ -2515,7 +2515,9 @@ Public Class VOR_Router
 
     Private Sub UpdateMeteoArrows()
 
-        System.Threading.ThreadPool.QueueUserWorkItem(AddressOf MeteoArrowDeferred, Nothing)
+        If MeteoVisible Then
+            System.Threading.ThreadPool.QueueUserWorkItem(AddressOf MeteoArrowDeferred, Nothing)
+        End If
 
     End Sub
     Public Sub UpdatePath(ByVal Clear As Boolean)

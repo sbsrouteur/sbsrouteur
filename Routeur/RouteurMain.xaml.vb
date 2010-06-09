@@ -101,11 +101,12 @@ Partial Public Class RouteurMain
         End If
 
         M.VorHandler.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
-
+        M.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
         If RescaleMap Then
             M.UpdateRaceScale(C1, C2)
             SldZoom.Value = 1
         End If
+        RaiseEvent PropertyChanged(M, New PropertyChangedEventArgs("WPsPath"))
 
     End Sub
 

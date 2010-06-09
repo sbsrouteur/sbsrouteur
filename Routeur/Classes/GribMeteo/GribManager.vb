@@ -95,7 +95,7 @@ Public Class GribManager
     End Function
 
     Public Shared Function GetCurGribDate(ByVal Dte As DateTime) As DateTime
-        Dim CurZulu As DateTime = Dte.AddHours(GRIB_OFFSET).AddHours(ZULU_OFFSET).AddMinutes(-30)
+        Dim CurZulu As DateTime = Dte.AddHours(GRIB_OFFSET + ZULU_OFFSET - 0.5)
 
         Return New DateTime(CurZulu.Year, CurZulu.Month, CurZulu.Day, CInt(Math.Floor(CurZulu.Hour / GRIB_PERIOD) * GRIB_PERIOD), 0, 0)
 
