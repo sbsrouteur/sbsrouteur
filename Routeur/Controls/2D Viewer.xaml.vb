@@ -108,6 +108,7 @@ Partial Public Class _2D_Viewer
         Dim p0 As Point
         Dim P1 As Point
         Dim Pen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Black), 0.3)
+        Dim WPPen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Red), 2)
         Dim LocalBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
         Dim RaceZone As New List(Of Polygon)
         Dim polyindex As Integer = -1
@@ -116,6 +117,7 @@ Partial Public Class _2D_Viewer
         Dim MinLat As Double = 90
         Dim MaxLat As Double = -90
         Dim drawn As Boolean
+        Dim WPs As List(Of VLM_RaceWaypoint) = CType(state, List(Of VLM_RaceWaypoint))
 
         While Not _RacePolygonsInited
             System.Threading.Thread.Sleep(100)
@@ -219,6 +221,17 @@ Render1:
             _MapPg.Progress(polyindex)
         Next
 
+        Dim WP As VLM_RaceWaypoint
+
+        For Each WP In WPs
+            p0.X = LonToCanvas(WP.WPs(0)(0).Lon_Deg)
+            p0.Y = LatToCanvas(WP.WPs(0)(0).Lat_Deg)
+            P1.X = LonToCanvas(WP.WPs(0)(1).Lon_Deg)
+            P1.Y = LatToCanvas(WP.WPs(0)(1).Lat_Deg)
+
+            SafeDrawLine(DC, WP.WPs(0)(0), WP.WPs(0)(1), WPPen, p0, P1)
+        Next
+
         DC.Close()
         LocalBmp.Render(D)
         LocalBmp.Freeze()
@@ -252,7 +265,7 @@ Render1:
     End Sub
 
     Private Delegate Sub UpdatePathDelegate(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VOR_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
-                                                ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone))
+                                                ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint))
 
 
     Private Sub SafeDrawLine(ByVal dc As DrawingContext, ByVal PrevP As Coords, ByVal P As Coords, ByVal pe As Pen, ByVal Prevpoint As Point, ByVal NewP As Point)
@@ -282,7 +295,7 @@ Render1:
         End If
     End Sub
     Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VOR_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
-                          ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone))
+                          ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint))
 
         Static Invoking As Integer = 0
         Static lastinvoke As DateTime = New DateTime(0)
@@ -300,7 +313,8 @@ Render1:
             '        Return
             '    End If
             '    lastinvoke = Now
-            Dim R As System.Windows.Threading.DispatcherOperation = Dispatcher.BeginInvoke(dlg, New Object() {PathString, Routes, Opponents, Grid, ClearGrid, ClearBoats, IsoChrones})
+            Dim R As System.Windows.Threading.DispatcherOperation = Dispatcher.BeginInvoke(dlg, New Object() {PathString, Routes, _
+                                                                                Opponents, Grid, ClearGrid, ClearBoats, IsoChrones, WPs})
 
             While Q.Count > 0
                 Dim R2 As System.Windows.Threading.DispatcherOperation = CType(Q.Dequeue, System.Windows.Threading.DispatcherOperation)
@@ -394,7 +408,7 @@ Render1:
                     BgStarted = True 'BgBackDropDrawing(0)
 
                     _Frm.DataContext = _MapPg
-                    System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, D)
+                    System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, WPs)
 
                 End If
 
@@ -468,8 +482,7 @@ Render1:
 
                     End If
 
-                    Dim GridMode As Boolean = False
-                    If ClearGrid Or GridMode Then
+                    If ClearGrid Then
                         _GridBmp.Clear()
                     End If
 
@@ -477,7 +490,7 @@ Render1:
                     If Not IsoChrones Is Nothing Then
                         For Each iso As IsoChrone In IsoChrones
                             FirstPoint = True
-                            If Not iso.Drawn Or GridMode Then
+                            If Not iso.Drawn Or ClearGrid Then
                                 Dim MaxIndex As Integer = iso.MaxIndex
                                 Dim index As Integer
                                 Dim PrevIndex As Integer
@@ -498,7 +511,7 @@ Render1:
                                         PrevP.Lat = CurP.Lat
                                         PrevPoint = P1
 
-                                    ElseIf Not GridMode Then
+                                    Else
                                         FirstPoint = True
                                     End If
                                 Next

@@ -313,24 +313,24 @@ Public Class RouteurModel
         End Get
     End Property
 
-    Private Sub BuildWPPath()
-        Dim X As Double
-        Dim Y As Double
+    'Private Sub BuildWPPath()
+    '    Dim X As Double
+    '    Dim Y As Double
 
-        If _CurPlayer Is Nothing OrElse _CurPlayer.RaceInfo Is Nothing Or _2DViewer Is Nothing Then
-            Return
-        End If
-        _WPPath = ""
-        For Each WP In _CurPlayer.RaceInfo.races_waypoints
-            X = (WP.WPs.Item(0)(0).Lon - _NOPoint.Lon) / (_SEPoint.Lon - _NOPoint.Lon) * _Width
-            Y = _Height - (WP.WPs.Item(0)(0).Lat - _SEPoint.Lat) / (_NOPoint.Lat - _SEPoint.Lat) * _Height
-            _WPPath &= "M " & GetCoordsString(X, Y)
-            X = (WP.WPs.Item(0)(1).Lon - _NOPoint.Lon) / (_SEPoint.Lon - _NOPoint.Lon) * _Width
-            Y = _Height - (WP.WPs.Item(0)(1).Lat - _SEPoint.Lat) / (_NOPoint.Lat - _SEPoint.Lat) * _Height
-            _WPPath &= "L " & GetCoordsString(X, Y)
-        Next
+    '    If _CurPlayer Is Nothing OrElse _CurPlayer.RaceInfo Is Nothing Or _2DViewer Is Nothing Then
+    '        Return
+    '    End If
+    '    _WPPath = ""
+    '    For Each WP In _CurPlayer.RaceInfo.races_waypoints
+    '        X = (WP.WPs.Item(0)(0).Lon - _NOPoint.Lon) / (_SEPoint.Lon - _NOPoint.Lon) * _Width
+    '        Y = _Height - (WP.WPs.Item(0)(0).Lat - _SEPoint.Lat) / (_NOPoint.Lat - _SEPoint.Lat) * _Height
+    '        _WPPath &= "M " & GetCoordsString(X, Y)
+    '        X = (WP.WPs.Item(0)(1).Lon - _NOPoint.Lon) / (_SEPoint.Lon - _NOPoint.Lon) * _Width
+    '        Y = _Height - (WP.WPs.Item(0)(1).Lat - _SEPoint.Lat) / (_NOPoint.Lat - _SEPoint.Lat) * _Height
+    '        _WPPath &= "L " & GetCoordsString(X, Y)
+    '    Next
 
-    End Sub
+    'End Sub
 
 
     Public Property IsoRouterActive() As Boolean
@@ -528,6 +528,7 @@ Public Class RouteurModel
         _SEPoint = C2
         _Width = Width
         _Height = Height
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPsPath"))
 
     End Sub
 
@@ -662,7 +663,7 @@ Public Class RouteurModel
 
                 End If
                 _Busy = True
-                The2DViewer.UpdatePath(Traj, routes, VorHandler.Opponents, VorHandler.GridRoute, _ClearGrid, _ClearBoats, VorHandler.IsoChrones)
+                The2DViewer.UpdatePath(Traj, routes, VorHandler.Opponents, VorHandler.GridRoute, _ClearGrid, _ClearBoats, VorHandler.IsoChrones, CurPlayer.RaceInfo.races_waypoints)
                 _ClearGrid = False
                 _ClearBoats = False
             End If
@@ -674,14 +675,14 @@ Public Class RouteurModel
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Stats"))
     End Sub
 
-    Public ReadOnly Property WPsPath() As String
-        Get
-            'If _WPPath = "" Then
-            'BuildWPPath()
-            'End If
-            Return _WPPath
-        End Get
-    End Property
+    'Public ReadOnly Property WPsPath() As String
+    '    Get
+    '        'If _WPPath = "" Then
+    '        'BuildWPPath()
+    '        'End If
+    '        Return _WPPath
+    '    End Get
+    'End Property
     Public Shared ReadOnly Property WPList() As List(Of String)
         Get
             Return _WPList

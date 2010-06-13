@@ -81,7 +81,7 @@ Partial Public Class RouteurMain
     Private Sub UpdateCoordsExtent(ByVal M As RouteurModel, ByVal FromRace As Boolean, ByVal RescaleMap As Boolean)
 
         Dim Pos1 As New Point(0, 0)
-        Dim Pos2 As New Point(_2DGrid.ActualWidth, _2DGrid.ActualHeight)
+        Dim Pos2 As New Point(Me.TabCanvas.ActualWidth, Me.TabCanvas.ActualHeight)
         Dim C1 As Coords
         Dim C2 As Coords
 
