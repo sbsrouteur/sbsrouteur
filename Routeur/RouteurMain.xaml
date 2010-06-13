@@ -228,7 +228,7 @@
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureDuration, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Durée de la trajectoire" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
         </Menu>
-   	<TabControl IsSynchronizedWithCurrentItem="True" Grid.Column="0" Grid.RowSpan="2" Grid.Row="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="1,-2,-1,2">
+   	<TabControl x:Name="TabCanvas" IsSynchronizedWithCurrentItem="True" Grid.Column="0" Grid.RowSpan="2" Grid.Row="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="1,-2,-1,2">
  			 <TabItem Header="Speed / Position" >
 				<Grid>
 					<Grid.RowDefinitions>
