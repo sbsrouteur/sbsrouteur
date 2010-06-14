@@ -211,7 +211,7 @@
 				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}" HorizontalAlignment="Left"/>
 				<CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center"/>
 				<CheckBox Content="Hide Boat &amp; Wind Arrow" IsChecked="{Binding VorHandler.HideWindArrow, Mode=Default}" VerticalAlignment="Center" />
-				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="False"/>
+				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="{Binding VORHandler.EnableManualRefresh, Mode=Default}"/>
 				<Separator/>
 				<MenuItem Header="Center on Boat!" Click="CenterOnBoat"></MenuItem>
 				<Separator/>
@@ -300,10 +300,7 @@
 							<Path Data="{Binding VorHandler.MeteoArrow, Mode=Default, IsAsync=false}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}">
 							</Path>
 						</Grid>
-						<Grid x:Name="WP_RoutingObjects" >
-							<Path Data="{Binding WPsPath, Mode=Default, IsAsync=false}" Stroke="#FFFA7D7D" StrokeThickness="5" >
-							</Path>
-						</Grid>
+						<Grid x:Name="WP_RoutingObjects" Visibility="Collapsed" />
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
 							<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
 						</Grid>
