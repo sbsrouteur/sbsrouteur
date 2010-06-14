@@ -169,7 +169,7 @@ Public Class IsoRouter
 
             If Not P Is Nothing Then
                 _CurBest = P
-            Else
+            ElseIf CurDTF < 30 Then
                 RouteComplete = True
             End If
 

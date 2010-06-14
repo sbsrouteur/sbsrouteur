@@ -313,6 +313,9 @@ Partial Public Class RouteurMain
 
     Private Sub ReloadPilototo(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
     	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+
+        M.Refresh()
     End Sub
 
     Private Sub Refresh(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)

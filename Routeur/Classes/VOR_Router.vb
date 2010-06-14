@@ -112,6 +112,9 @@ Public Class VOR_Router
     Private Shared _PosValide As Boolean = False
     Private Shared _Sails As New clsSailManager
 
+    Private _EnableManualRefresh As Boolean = True
+    Private _ManualRefreshCount As Integer = 0
+
     Public Shared BoatType As String
 
 
@@ -1423,6 +1426,12 @@ Public Class VOR_Router
         OnBoatWorkerComplete()
 
     End Sub
+
+    Public ReadOnly Property EnableManualRefresh() As Boolean
+        Get
+            Return _EnableManualRefresh
+        End Get
+    End Property
 
     Public Property ETA() As DateTime
         Get
