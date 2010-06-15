@@ -200,7 +200,7 @@
 	            <MenuItem Header="Quit" Click="AppQuit" ></MenuItem>
 			</MenuItem>
 			<MenuItem Header="Information" VerticalAlignment="Center">
-				<TextBox Text="{Binding MeteoValidSpan, Mode=OneWay, StringFormat={} Meteo update in {0:HH}}" VerticalAlignment="Center" />
+				<TextBlock Text="{Binding MeteoValidSpan, Mode=OneWay, StringFormat={} Meteo update in {0:HH}}" VerticalAlignment="Center" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
 				<Separator />
 				<ComboBox IsSynchronizedWithCurrentItem="True" x:Name="comboBox" 
 					ItemsSource="{Binding P_Info, Mode=OneWay}" SelectedItem="{Binding CurPlayer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Nick"/>
@@ -223,7 +223,7 @@
 				<CheckBox IsChecked="{Binding VorHandler.MeteoVisible, Mode=Default}" Content="Meteo Data Visible" ></CheckBox>
 				<Slider Maximum="100" Minimum="5" Value="{Binding VorHandler.MeteoArrowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" TickFrequency="25" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" />
 				<Slider x:Name="slider" Maximum="{Binding VorHandler.MeteoArrowDateEnd, Mode=Default}" Minimum="{Binding VorHandler.MeteoArrowDateStart, Mode=Default}" Width="129" Value="{Binding VorHandler.MeteoArrowDateTicks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding VorHandler.TickFreq, Mode=Default}" TickPlacement="BottomRight" />
-				<MenuItem Header="{Binding VorHandler.MeteoArrowDate, Mode=Default}" />
+				<TextBlock Text="{Binding VorHandler.MeteoArrowDate, Mode=Default}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
 			</MenuItem>
             <ComboBox     Height="26.92" ItemsSource="{Binding WPList, Mode=Default}" ToolTip="Route to this WP" SelectedItem="{Binding VorHandler.CurUserWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"     />
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
