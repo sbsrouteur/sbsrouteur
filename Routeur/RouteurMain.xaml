@@ -169,6 +169,7 @@
 				<SplineThicknessKeyFrame KeyTime="00:00:00.5000000" Value="0,0,0,0"/>
 			</ThicknessAnimationUsingKeyFrames>
 		</Storyboard>
+		<SolidColorBrush x:Key="DefTextBlockMenuForeColor" Color="#FF040012"/>
 		
 	</Window.Resources>
     
@@ -204,8 +205,8 @@
 				<ComboBox IsSynchronizedWithCurrentItem="True" x:Name="comboBox" 
 					ItemsSource="{Binding P_Info, Mode=OneWay}" SelectedItem="{Binding CurPlayer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Nick"/>
 				<Separator />
-				<TextBox Text="{Binding RacePrefs.MapLevel, StringFormat=MapLevel {0}, Mode=OneWay}" Foreground="#FF3204F8" />					
-				<TextBox Text="{Binding RacePrefs.GridGrain, StringFormat=GridGrain {0:F2}, Mode=OneWay}" IsEnabled="False" />					
+				<TextBlock Text="{Binding RacePrefs.MapLevel, StringFormat=MapLevel {0}, Mode=OneWay}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
+				<TextBlock Text="{Binding RacePrefs.GridGrain, StringFormat=GridGrain {0:F2}, Mode=OneWay}" IsEnabled="False" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
 			</MenuItem>
 			<MenuItem Header="Display" VerticalAlignment="Center">
 				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}" HorizontalAlignment="Left"/>
