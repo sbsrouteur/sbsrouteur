@@ -169,8 +169,8 @@ Public Class IsoRouter
 
             If Not P Is Nothing Then
                 _CurBest = P
-            ElseIf CurDTF < 30 Then
-                RouteComplete = True
+                'ElseIf CurDTF < 5 Then
+                '    RouteComplete = True
             End If
 
             If CurIsoChrone Is Nothing Then
