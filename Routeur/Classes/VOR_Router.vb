@@ -778,6 +778,8 @@ Public Class VOR_Router
                 Dim ModeAtWP As Integer = PrevMode
                 Dim WPDist As Double
                 Dim RouteToEnd As Boolean = False
+                Dim PrevWPDest As Coords
+                Dim PrevWPNum As Integer = Nothing
 
                 PilototoRoute.Clear()
                 Select Case PrevMode
@@ -844,11 +846,11 @@ Public Class VOR_Router
                                     ModeAtWP = OrderType
                                 End If
                                 If Lat = 0 And Lon = 0 Then
-                                    CurWPNUm = RouteurModel.CurWP
-                                    CurWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(CurWPNUm - 1).WPs(0)(0))
+                                    PrevWPNUm = RouteurModel.CurWP
+                                    PrevWPDEst = New Coords(_PlayerInfo.RaceInfo.races_waypoints(CurWPNUm - 1).WPs(0)(0))
                                 Else
-                                    CurWPNUm = -1
-                                    CurWPDest = New Coords(Lat, Lon)
+                                    PrevWPNUm = -1
+                                    PrevWPDEst = New Coords(Lat, Lon)
                                 End If
 
                         End Select
@@ -996,6 +998,8 @@ Public Class VOR_Router
                     If OrderType <> 0 Then
                         PrevMode = OrderType
                         PrevValue = OrderValue
+                        CurWPNUm = PrevWPNum
+                        CurWPDest = PrevWPDest
                     End If
                     'If Not Mi Is Nothing Then
                     '    P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
@@ -1427,10 +1431,15 @@ Public Class VOR_Router
 
     End Sub
 
-    Public ReadOnly Property EnableManualRefresh() As Boolean
+    Public Property EnableManualRefresh() As Boolean
         Get
             Return _EnableManualRefresh
         End Get
+
+        Set(ByVal value As Boolean)
+            _EnableManualRefresh = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("EnableManualRefresh"))
+        End Set
     End Property
 
     Public Property ETA() As DateTime
@@ -2257,6 +2266,15 @@ Public Class VOR_Router
 
     End Sub
 
+    Public Sub getboatinfo(ByVal Force As Boolean)
+
+        If Force And _ManualRefreshCount < RouteurModel.VacationMinutes * 4 Then
+            EnableManualRefresh = False
+            _ManualRefreshCount += 1
+        End If
+        getboatinfo(_Meteo, Force)
+    End Sub
+
     Public Sub GetBoatInfo(ByVal meteo As clsMeteoOrganizer, Optional ByVal force As Boolean = False)
 
         Dim ErrorCount As Integer = 0
@@ -2271,6 +2289,11 @@ Public Class VOR_Router
 
         If Not force AndAlso Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.date).TotalMinutes < RouteurModel.VacationMinutes Then
             Return
+        End If
+
+        If Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.date).TotalMinutes < RouteurModel.VacationMinutes Then
+            EnableManualRefresh = True
+            _ManualRefreshCount = 0
         End If
 
         Try

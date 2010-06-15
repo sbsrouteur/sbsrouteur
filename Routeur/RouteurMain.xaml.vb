@@ -315,10 +315,10 @@ Partial Public Class RouteurMain
     	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
-        M.Refresh()
+        M.VorHandler.getboatinfo(True)
     End Sub
 
-    Private Sub Refresh(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+    Private Sub Refresh(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         M.Refresh()
@@ -330,7 +330,7 @@ Partial Public Class RouteurMain
         Close()
     End Sub
 
-    Private Sub CenterOnBoat(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+    Private Sub CenterOnBoat(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
 
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
@@ -349,19 +349,19 @@ Partial Public Class RouteurMain
         _ZoomIn = True
     End Sub
 
-    Private Sub RendererSizeChanged(ByVal sender as Object, ByVal e as System.Windows.SizeChangedEventArgs)
+    Private Sub RendererSizeChanged(ByVal sender As Object, ByVal e As System.Windows.SizeChangedEventArgs)
 
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         UpdateCoordsExtent(M, False, False)
     End Sub
 
-    Private Sub AppQuit(ByVal sender as Object, ByVal e as System.ComponentModel.CancelEventArgs)
+    Private Sub AppQuit(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs)
         CloseApp()
     End Sub
 
-    Private Sub ReScaleMap(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
-    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+    Private Sub ReScaleMap(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
+        'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         UpdateCoordsExtent(M, False, True)
