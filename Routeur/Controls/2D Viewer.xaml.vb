@@ -390,6 +390,7 @@ Render1:
             Dim OpponentMap As Boolean = False
             Static BgStarted As Boolean = False
             Dim PrevP As New Coords
+            Dim ForceIsoRedraw As Boolean = False
 
             'GC.Collect()
 
@@ -406,7 +407,7 @@ Render1:
 
                 If Not BgStarted AndAlso _BackDropBmp Is Nothing Then
                     BgStarted = True 'BgBackDropDrawing(0)
-
+                    ForceIsoRedraw = True
                     _Frm.DataContext = _MapPg
                     System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, WPs)
 
@@ -490,7 +491,7 @@ Render1:
                     If Not IsoChrones Is Nothing Then
                         For Each iso As IsoChrone In IsoChrones
                             FirstPoint = True
-                            If Not iso.Drawn Or ClearGrid Then
+                            If Not iso.Drawn Or ForceIsoRedraw Then
                                 Dim MaxIndex As Integer = iso.MaxIndex
                                 Dim index As Integer
                                 Dim PrevIndex As Integer

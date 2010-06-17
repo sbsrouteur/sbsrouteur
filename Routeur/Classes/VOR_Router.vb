@@ -772,13 +772,13 @@ Public Class VOR_Router
                 Dim OrderDate As Date
                 Dim OrderType As Integer
                 Dim OrderValue As Double
-                Dim Fields() As String
+                Dim Fields() As String = Nothing
                 Dim CurWPNUm As Integer = -1
                 Dim CapAtWP As Double = 0
                 Dim ModeAtWP As Integer = PrevMode
                 Dim WPDist As Double
                 Dim RouteToEnd As Boolean = False
-                Dim PrevWPDest As Coords
+                Dim PrevWPDest As Coords = Nothing
                 Dim PrevWPNum As Integer = Nothing
 
                 PilototoRoute.Clear()
@@ -796,25 +796,32 @@ Public Class VOR_Router
 
                 While Not RouteComplete
 
-                    If CurIndex <= 5 AndAlso _Pilototo(CurIndex) IsNot Nothing Then
+                    While CurIndex <= 5 AndAlso _Pilototo(CurIndex) IsNot Nothing
                         Fields = _Pilototo(CurIndex).Split(","c)
-                    ElseIf OrderDate.Ticks = 0 Then
-                        ReDim Fields(0)
-                        If PrevMode < 4 Then
-                            OrderDate = CurDate.AddHours(RouteurModel.CourseExtensionHours)
-                        Else
-                            RouteToEnd = True
+                        If Fields.Count >= 5 AndAlso _Pilototo(CurIndex).ToLowerInvariant.Contains("pending") Then
+                            Exit While
                         End If
-                    Else
+                        CurIndex += 1
+                    End While
 
-                        ReDim Fields(0)
-                        RouteComplete = True
-                        OrderDate = OrderDate.AddHours(RacePrefs.RACE_COURSE_EXTENSION_HOURS)
+                    If CurIndex > 5 Then
+                        If OrderDate.Ticks = 0 Then
+                            ReDim Fields(0)
+                            If PrevMode < 4 Then
+                                OrderDate = CurDate.AddHours(RouteurModel.CourseExtensionHours)
+                            Else
+                                RouteToEnd = True
+                            End If
+                        Else
+
+                            ReDim Fields(0)
+                            RouteComplete = True
+                            OrderDate = OrderDate.AddHours(RacePrefs.RACE_COURSE_EXTENSION_HOURS)
+                        End If
                     End If
 
-                    If Fields.Count >= 5 AndAlso _Pilototo(CurIndex).ToLowerInvariant.Contains("pending") Then
 
-
+                    If Fields IsNot Nothing AndAlso Fields.Count >= 5 AndAlso _Pilototo(CurIndex).ToLowerInvariant.Contains("pending") Then
 
                         If Not Long.TryParse(Fields(1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderDateSecs) _
                            OrElse Not Integer.TryParse(Fields(2), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderType) Then
@@ -846,11 +853,11 @@ Public Class VOR_Router
                                     ModeAtWP = OrderType
                                 End If
                                 If Lat = 0 And Lon = 0 Then
-                                    PrevWPNUm = RouteurModel.CurWP
-                                    PrevWPDEst = New Coords(_PlayerInfo.RaceInfo.races_waypoints(CurWPNUm - 1).WPs(0)(0))
+                                    PrevWPNum = RouteurModel.CurWP
+                                    PrevWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(CurWPNUm - 1).WPs(0)(0))
                                 Else
-                                    PrevWPNUm = -1
-                                    PrevWPDEst = New Coords(Lat, Lon)
+                                    PrevWPNum = -1
+                                    PrevWPDest = New Coords(Lat, Lon)
                                 End If
 
                         End Select
@@ -884,7 +891,7 @@ Public Class VOR_Router
 
                             Case 3
                                 'Ortho
-                                Tc.EndPoint = CurWPDest
+                                Tc.EndPoint = PrevWPDest
                                 Dim CapOrtho As Double = Tc.TrueCap
                                 BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, CapOrtho)
@@ -1001,6 +1008,7 @@ Public Class VOR_Router
                         CurWPNUm = PrevWPNum
                         CurWPDest = PrevWPDest
                     End If
+
                     'If Not Mi Is Nothing Then
                     '    P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
                     '    PilototoRoute.Add(P)
