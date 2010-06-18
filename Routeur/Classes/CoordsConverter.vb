@@ -1,4 +1,6 @@
-﻿Public Class CoordsConverter
+﻿Imports System.Text.RegularExpressions
+
+Public Class CoordsConverter
 
     Implements IValueConverter
 
@@ -17,10 +19,10 @@
             Select Case CType(parameter, CoordsDisplayMode)
 
                 Case CoordsDisplayMode.Degs
-                
+
                     Dim North As Boolean = C.Lat >= 0
                     Dim West As Boolean = C.Lon < 0
-                    Return CStr(C.Lon_Deg) & CStr(If(North, " N ", " S ")) & " " & CStr(C.Lat_Deg) & CStr(If(West, " W ", " E "))
+                    Return CStr(C.Lat_Deg) & CStr(If(North, " N ", " S ")) & " " & CStr(C.Lon_Deg) & CStr(If(West, " W ", " E "))
                 Case CoordsDisplayMode.DegsMinSec
                     Dim North As Boolean = C.Lat >= 0
                     Dim West As Boolean = C.Lon < 0
@@ -61,6 +63,26 @@
 
     Public Function ConvertBack(ByVal value As Object, ByVal targetType As System.Type, ByVal parameter As Object, ByVal culture As System.Globalization.CultureInfo) As Object Implements System.Windows.Data.IValueConverter.ConvertBack
 
+        Const RE_COORDS_DEG_FRAC As String = "(-?\d+(?:[\.]?[\d]*))\s+(-?\d+(?:[\.]?[\d]*))"
+
+        Static Exps() As String = New String() {RE_COORDS_DEG_FRAC}
+        If TypeOf value Is String And targetType Is GetType(Coords) Then
+            Dim Re As New Regex(RE_COORDS_DEG_FRAC)
+
+            If Re.Match(CStr(value)).Length = CStr(value).Length Then
+                Dim i As Integer = 0
+                Dim Lat As Double
+                Dim lon As Double
+
+                Double.TryParse(Re.Match(CStr(value)).Groups(1).Captures(0).Value, System.Globalization.NumberStyles.Any, _
+                                 System.Globalization.CultureInfo.InvariantCulture, Lat)
+                Double.TryParse(Re.Match(CStr(value)).Groups(2).Captures(0).Value, System.Globalization.NumberStyles.Any, _
+                                                 System.Globalization.CultureInfo.InvariantCulture, lon)
+
+                Return New Coords(Lat, lon)
+
+            End If
+        End If
         Return Nothing
     End Function
 
