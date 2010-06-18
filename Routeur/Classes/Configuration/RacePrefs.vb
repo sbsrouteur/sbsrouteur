@@ -41,6 +41,10 @@ Public Class RacePrefs
     Private _IsoStep_48 As TimeSpan
     Private _IsoAngleStep As Double
 
+    'Routing Dest
+    Private _UseCustomDest As Boolean = False
+    Private _RouteDest As Coords
+
 
     Public Shared Function GetRaceInfo(ByVal RaceID As Integer) As RacePrefs
 
@@ -81,6 +85,9 @@ Public Class RacePrefs
                 .IsoStep = New TimeSpan(1, 0, 0)
                 .IsoStep_24 = New TimeSpan(3, 0, 0)
                 .IsoStep_48 = New TimeSpan(12, 0, 0)
+                .UseCustomDest = False
+                .RouteDest = Nothing
+
             End With
 
         End If
@@ -249,6 +256,16 @@ Public Property IsoStep48String() As String
         End Set
     End Property
 
+    Public Property RouteDest() As Coords
+        Get
+            Return _RouteDest
+        End Get
+        Set(ByVal value As Coords)
+            _RouteDest = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RouteDest"))
+        End Set
+    End Property
+
     Public Property SouthOffset() As Double
         Get
             Return _RaceOffset(RaceZoneDirs.South)
@@ -268,6 +285,16 @@ Public Property IsoStep48String() As String
             _RaceOffset(RaceZoneDirs.East) = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceZoneOffset"))
 
+        End Set
+    End Property
+
+    Public Property UseCustomDest() As Boolean
+        Get
+            Return _UseCustomDest
+        End Get
+        Set(ByVal value As Boolean)
+            _UseCustomDest = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceZoneOffset"))
         End Set
     End Property
 

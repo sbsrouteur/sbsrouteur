@@ -796,10 +796,12 @@ Public Class VOR_Router
 
                 While Not RouteComplete
 
-                    While CurIndex <= 5 AndAlso _Pilototo(CurIndex) IsNot Nothing
-                        Fields = _Pilototo(CurIndex).Split(","c)
-                        If Fields.Count >= 5 AndAlso _Pilototo(CurIndex).ToLowerInvariant.Contains("pending") Then
-                            Exit While
+                    While CurIndex <= 5
+                        If _Pilototo(CurIndex) IsNot Nothing Then
+                            Fields = _Pilototo(CurIndex).Split(","c)
+                            If Fields.Count >= 5 AndAlso _Pilototo(CurIndex).ToLowerInvariant.Contains("pending") Then
+                                Exit While
+                            End If
                         End If
                         CurIndex += 1
                     End While
@@ -891,7 +893,7 @@ Public Class VOR_Router
 
                             Case 3
                                 'Ortho
-                                Tc.EndPoint = PrevWPDest
+                                Tc.EndPoint = curWPDest
                                 Dim CapOrtho As Double = Tc.TrueCap
                                 BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, CapOrtho)
@@ -914,8 +916,8 @@ Public Class VOR_Router
                                 Tc.EndPoint = CurWPDest
                                 Dim CapOrtho As Double = Tc.TrueCap
                                 Dim Angle As Double
-                                Dim MaxSpeed As Double
-                                Dim BestAngle As Double
+                                Dim MaxSpeed As Double = 0
+                                Dim BestAngle As Double = 0
                                 Dim dir As Integer
                                 WPDist = Tc.SurfaceDistance
 
@@ -2744,7 +2746,12 @@ Public Class VOR_Router
 
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ClearGrid"))
             Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
-            _iso.StartIsoRoute(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0), StartDate)
+            If prefs.UseCustomDest Then
+                _iso.StartIsoRoute(start, prefs.RouteDest, StartDate)
+            Else
+                _iso.StartIsoRoute(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0), StartDate)
+
+            End If
             'End If
         ElseIf Not _iso Is Nothing Then
             _iso.StopRoute()
