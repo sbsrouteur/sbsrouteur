@@ -805,7 +805,7 @@ Public Class VOR_Router
                         End If
                         CurIndex += 1
                     End While
-
+                    
                     If CurIndex > 5 Then
                         If OrderDate.Ticks = 0 Then
                             ReDim Fields(0)
@@ -856,7 +856,8 @@ Public Class VOR_Router
                                 End If
                                 If Lat = 0 And Lon = 0 Then
                                     PrevWPNum = RouteurModel.CurWP
-                                    PrevWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(CurWPNUm - 1).WPs(0)(0))
+                                    PrevWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0))
+
                                 Else
                                     PrevWPNum = -1
                                     PrevWPDest = New Coords(Lat, Lon)
@@ -868,10 +869,14 @@ Public Class VOR_Router
                         OrderDate = New Date(1970, 1, 1).AddSeconds(OrderDateSecs).AddHours(System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
                     End If
 
+                    'move index forward, otherwise, each wp is iterated twice
+                    CurIndex += 1
+
                     While Not RouteComplete AndAlso (CurDate < OrderDate OrElse RouteToEnd)
                         Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
                         If Mi Is Nothing Then
                             'If there is no meteo, try on the next loop
+                            AddLog("Pilototo route aborted, not enough meteo yet, try again later (meteo date : " & CurDate & " )")
                             RouteComplete = True
                             Exit While
                         End If
@@ -993,7 +998,8 @@ Public Class VOR_Router
                                 P.T = CurDate
                                 PilototoRoute.Add(P)
                                 LastPTick = Now.Ticks
-                                If PilototoRoute.Count > 600 Then
+                                If PilototoRoute.Count > 1500 Then
+                                    AddLog("Pilototo route stopped at 1500 vac.")
                                     RouteComplete = True
                                 End If
                             End If
@@ -1011,12 +1017,6 @@ Public Class VOR_Router
                         CurWPDest = PrevWPDest
                     End If
 
-                    'If Not Mi Is Nothing Then
-                    '    P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
-                    '    PilototoRoute.Add(P)
-                    'End If
-
-                    CurIndex += 1
                 End While
 
             Finally

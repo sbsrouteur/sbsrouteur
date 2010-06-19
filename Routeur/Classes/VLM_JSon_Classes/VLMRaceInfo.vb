@@ -26,6 +26,27 @@
         End Set
     End Property
 
+    Public ReadOnly Property races_waypoints(ByVal index As Integer) As VLM_RaceWaypoint
+        Get
+
+            If index <= 0 Then
+                Dim DestIndex As Integer = RouteurModel.CurWP - 1
+                If DestIndex < 0 Then
+                    DestIndex = 0
+                ElseIf DestIndex >= _race_waypoints.Count Then
+                    DestIndex = _race_waypoints.Count - 1
+                End If
+                Return _race_waypoints(DestIndex)
+            ElseIf index <= _race_waypoints.Count Then
+                Return _race_waypoints(index - 1)
+            Else
+                Return _race_waypoints(_race_waypoints.Count - 1)
+            End If
+
+        End Get
+        
+    End Property
+
     Public Property races_waypoints() As List(Of VLM_RaceWaypoint)
         Get
             Return _race_waypoints
