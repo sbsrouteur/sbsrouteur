@@ -403,6 +403,9 @@
   <ItemGroup>
     <Resource Include="Graphics\Layers.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\Target-32.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>rem editbin /LARGEADDRESSAWARE "$(TargetPath)"</PostBuildEvent>

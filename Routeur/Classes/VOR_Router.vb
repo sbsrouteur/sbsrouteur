@@ -2722,10 +2722,10 @@ Public Class VOR_Router
 
     End Sub
 
-    Public Sub StartIsoRoute(ByVal StartRouting As Boolean)
+    Public Sub StartIsoRoute(ByVal Owner As RouteurMain, ByVal StartRouting As Boolean)
 
         If StartRouting Then
-            Dim frm As New frmRouterConfiguration(_PlayerInfo.RaceInfo.idraces)
+            Dim frm As New frmRouterConfiguration(Owner, _PlayerInfo.RaceInfo.idraces)
             Dim StartDate As DateTime
 
             If Not frm.ShowDialog() Then
