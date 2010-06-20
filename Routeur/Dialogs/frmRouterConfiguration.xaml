@@ -14,6 +14,20 @@
 				<ResourceDictionary Source="/Routeur;Component/Styles/ControlsStyles.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 			<local:CoordsConverter x:Key="CoordsConverter"/>
+			<Storyboard x:Key="CaptureTarget">
+				<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="{x:Null}" Storyboard.TargetProperty="(UIElement.Opacity)">
+					<SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+					<SplineDoubleKeyFrame KeyTime="00:00:01" Value="0.295"/>
+				</DoubleAnimationUsingKeyFrames>
+				<ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="{x:Null}" Storyboard.TargetProperty="(Window.WindowStyle)">
+					<DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static WindowStyle.SingleBorderWindow}"/>
+					<DiscreteObjectKeyFrame KeyTime="00:00:00.2000000" Value="{x:Static WindowStyle.None}"/>
+				</ObjectAnimationUsingKeyFrames>
+				<BooleanAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="{x:Null}" Storyboard.TargetProperty="(Window.AllowsTransparency)">
+					<DiscreteBooleanKeyFrame KeyTime="00:00:00" Value="False"/>
+					<DiscreteBooleanKeyFrame KeyTime="00:00:01" Value="True"/>
+				</BooleanAnimationUsingKeyFrames>
+			</Storyboard>
 		</ResourceDictionary>
 	</Window.Resources>
 
@@ -49,7 +63,10 @@
 		<TextBox Text="{Binding IsoStep_24, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="3" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
 		<TextBox Text="{Binding IsoStep_48, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="4" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
 		<TextBox Text="{Binding IsoAngleStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="5" Style="{DynamicResource DoubleFormatCheckTextBox}" />
-		<CheckBox HorizontalAlignment="Left" Grid.Column="1" Grid.Row="6" IsChecked="{Binding UseCustomDest, Mode=Default}"/>
+		<StackPanel Margin="{DynamicResource DefMargin}" Grid.Column="1" Grid.Row="6" Orientation="Horizontal" >
+			<CheckBox HorizontalAlignment="Left" Grid.Column="1" Grid.Row="6" IsChecked="{Binding UseCustomDest, Mode=Default}"/>
+			<Image x:Name="image" Source="/Routeur;Component/Graphics/Target-32.png" Stretch="Fill" Width="23" Height="23" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture"/>
+		</StackPanel>
 		<TextBox Text="{Binding RouteDest, Converter={StaticResource CoordsConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding UseCustomDest, Mode=Default}"  />
 		<Grid Grid.Column="1" Grid.Row="1 ">
 			<Grid.ColumnDefinitions>

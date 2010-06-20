@@ -109,6 +109,21 @@ Public Class RouteurModel
     Private _Height As Double
 
 
+    Public Function CanvasToCoords(ByVal X As Double, ByVal Y As Double) As Coords
+
+        If Not _VorHandler Is Nothing AndAlso Not _2DViewer Is Nothing Then
+            Return New Coords(_2DViewer.CanvasToLat(Y), _2DViewer.CanvasToLon(X))
+        End If
+
+        Return Nothing
+    End Function
+
+    Public Function CanvasToCoords(ByVal P As Point) As Coords
+
+        Return CanvasToCoords(P.X, P.Y)
+
+    End Function
+
     Private Sub CheckPassword()
 
 

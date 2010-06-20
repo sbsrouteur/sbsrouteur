@@ -176,7 +176,7 @@ Partial Public Class RouteurMain
     Private Sub CloseApp()
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
         M.VorHandler.startGridRoute(False)
-        M.VorHandler.StartIsoRoute(False)
+        M.VorHandler.StartIsoRoute(Me, False)
     End Sub
 
     Private Sub cmdSimpleVMG(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
@@ -265,7 +265,7 @@ Partial Public Class RouteurMain
     Private Sub CheckIsoRoute(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
-        M.VorHandler.StartIsoRoute(CBool(chkIsoRoute.IsChecked))
+        M.VorHandler.StartIsoRoute(Me, CBool(chkIsoRoute.IsChecked))
     End Sub
 
 
@@ -348,6 +348,12 @@ Partial Public Class RouteurMain
 
         _ZoomIn = True
     End Sub
+
+    Public Function RenderCanvasCoords(ByVal e As System.Windows.Input.MouseEventArgs) As Point
+
+        Return e.GetPosition(Me.VOR2DViewer)
+
+    End Function
 
     Private Sub RendererSizeChanged(ByVal sender As Object, ByVal e As System.Windows.SizeChangedEventArgs)
 
