@@ -294,7 +294,7 @@ Public Property IsoStep48String() As String
         End Get
         Set(ByVal value As Boolean)
             _UseCustomDest = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceZoneOffset"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("UseCustomDest"))
         End Set
     End Property
 
