@@ -1017,6 +1017,11 @@ Public Class VOR_Router
                         CurWPDest = PrevWPDest
                     End If
 
+                    'Exit if all orders have been executed
+                    If CurIndex > 5 Then
+                        RouteComplete = True
+                    End If
+
                 End While
 
             Finally
