@@ -15,10 +15,13 @@ Public Class GribManager
     End Enum
 
     Private Const GRIB_OFFSET As Integer = -3
-    Private Const GRIB_GRAIN As Integer = 3
+    Private Const GRIB_GRAIN_05 As Integer = 3
+    Private Const GRIB_GRAIN_1 As Integer = 12
     Private Const GRIB_PERIOD As Integer = 6
-    Private Const NBJOURS As Integer = 7
-    Private Const MAX_INDEX As Integer = CInt(24 / GRIB_GRAIN * NBJOURS - 1)
+    Public Const NB_JOURS As Integer = 16
+    Private Const MAX_INDEX_05 As Integer = CInt(180 / GRIB_GRAIN_05)
+    Private Const MAX_INDEX_1 As Integer = CInt((384 - 192) / GRIB_GRAIN_1) + MAX_INDEX_05
+    Private Const MAX_INDEX As Integer = MAX_INDEX_1
     Private Shared ZULU_OFFSET As Integer = -CInt(TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
 
     Private _MeteoArrays(MAX_INDEX) As MeteoArray
@@ -73,7 +76,7 @@ Public Class GribManager
                 'bLoad = bLoad OrElse Now.Ticks > NextTick
                 If bLoad Then
                     'System.Threading.Monitor.Enter(_GribMonitor)
-                    retval = LoadGribData(MeteoIndex, MeteoArray.GetArrayIndexLon(LonIndex), MeteoArray.GetArrayIndexLat(latIndex))
+                    retval = LoadGribData(MeteoIndex, MeteoArray.GetArrayIndexLon(LonIndex, GetIndexGrain(MeteoIndex)), MeteoArray.GetArrayIndexLat(latIndex, GetIndexGrain(MeteoIndex)))
                 Else
                     retval = True
                 End If
@@ -125,7 +128,7 @@ Public Class GribManager
 
 
             While Not FileOK
-                Dim GribURL As String = GetGribURL(MeteoIndex * GRIB_GRAIN + RouteurModel.GribOffset, retries * GRIB_PERIOD, WLon, ELon, NLat, SLat, False)
+                Dim GribURL As String = GetGribURL(MeteoIndex, retries * GRIB_PERIOD, WLon, ELon, NLat, SLat, False)
                 'Dim Http As HttpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), HttpWebRequest)
                 Dim ftp As FtpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), FtpWebRequest)
                 Try
@@ -229,23 +232,40 @@ Public Class GribManager
 
     Private Function GetGribDataFileName(ByVal MeteoIndex As Integer) As String
 
-        Dim HourOffset As Integer = MeteoIndex * GRIB_GRAIN + RouteurModel.GribOffset
+        Dim HourOffset As Integer
         Dim CurGrib As DateTime = GetCurGribDate(Now)
+
+        If MeteoIndex < MAX_INDEX_05 Then
+            HourOffset = MeteoIndex * GRIB_GRAIN_05
+        Else
+            HourOffset = MeteoIndex * GRIB_GRAIN_1
+        End If
 
 
         Return "F" & CurGrib.ToString("yyyyMMddHH") & "." & HourOffset.ToString("00")
 
     End Function
 
-    Private Function GetGribURL(ByVal HourOffset As Integer, ByVal Fallbackhours As Integer, ByVal WestLon As Integer, ByVal EastLon As Integer, ByVal NorthLat As Integer, ByVal SouthLat As Integer, ByVal UseHttp As Boolean) As String
+    Private Function GetGribURL(ByVal MeteoIndex As Integer, ByVal Fallbackhours As Integer, ByVal WestLon As Integer, ByVal EastLon As Integer, ByVal NorthLat As Integer, ByVal SouthLat As Integer, ByVal UseHttp As Boolean) As String
         Dim CurGrib As DateTime = GetCurGribDate(Now)
 
+        Dim HourOffset As Double
         Dim RequestDate As DateTime = CurGrib.AddHours(-Fallbackhours)
 
         If UseHttp Then
-            Dim ReturnUrl As String = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_hd.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
-                    "z.mastergrb2f" & (HourOffset + Fallbackhours).ToString("00") & "&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
-                    & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH") & "%2Fmaster"
+            Dim ReturnUrl As String
+            If MeteoIndex < MAX_INDEX_05 Then
+                HourOffset = MeteoIndex * GRIB_GRAIN_05
+                ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_hd.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
+                        "z.mastergrb2f" & (HourOffset + Fallbackhours).ToString("00") & "&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
+                        & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH") & "%2Fmaster"
+            Else
+                HourOffset = 192 + GRIB_GRAIN_1 * (MeteoIndex - MAX_INDEX_05)
+                ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
+                        "z.pgrbf" & (HourOffset + Fallbackhours).ToString("00") & ".grib2&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
+                        & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH")
+            End If
+
             Return ReturnUrl
         Else
 
@@ -255,6 +275,16 @@ Public Class GribManager
         End If
     End Function
 
+    Private Function GetIndexGrain(ByVal MeteoIndex As Integer) As Double
+
+        If MeteoIndex < MAX_INDEX_05 Then
+            Return 0.5
+        Else
+            Return 1
+        End If
+
+    End Function
+
     Private Function GetMeteoIndex(ByVal Dte As DateTime) As Integer
         Dim CurGrib As DateTime = GetCurGribDate(Now)
 
@@ -262,7 +292,14 @@ Public Class GribManager
             Return 0
         End If
 
-        Dim HourIndex As Integer = CInt(Math.Floor(Dte.AddHours(-TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours).Subtract(CurGrib).TotalHours / GRIB_GRAIN))
+        Dim TotalHours As Double = Dte.AddHours(-TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours).Subtract(CurGrib).TotalHours
+        Dim HourIndex As Integer
+
+        If totalhours < MAX_INDEX_05 * GRIB_GRAIN_05 Then
+            HourIndex = CInt(Math.Floor(TotalHours / GRIB_GRAIN_05))
+        Else
+            HourIndex = MAX_INDEX_05 + CInt(Math.Floor((TotalHours - 192) / GRIB_GRAIN_1))
+        End If
 
         If HourIndex < 0 Then
             'Throw New ArgumentException("Dte before curgrib")
@@ -351,10 +388,10 @@ Public Class GribManager
 
     Private Function GetMeteoToIndex(ByVal MeteoIndex As Integer, ByRef Dir As DirInterpolation, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
 
-        Dim Lon0 As Integer = MeteoArray.GetLonArrayIndex(Lon)
-        Dim Lat0 As Integer = MeteoArray.GetLatArrayIndex(Lat)
-        Dim dX As Double = ((Lon - MeteoArray.GetArrayIndexLon(Lon0)) Mod 360) / MeteoArray.GRID_GRAIN
-        Dim dY As Double = (Lat - MeteoArray.GetArrayIndexLat(Lat0)) / MeteoArray.GRID_GRAIN
+        Dim Lon0 As Integer = MeteoArray.GetLonArrayIndex(Lon, GetIndexGrain(MeteoIndex))
+        Dim Lat0 As Integer = MeteoArray.GetLatArrayIndex(Lat, GetIndexGrain(MeteoIndex))
+        Dim dX As Double = ((Lon - MeteoArray.GetArrayIndexLon(Lon0, GetIndexGrain(MeteoIndex))) Mod 360) / GetIndexGrain(MeteoIndex)
+        Dim dY As Double = (Lat - MeteoArray.GetArrayIndexLat(Lat0, GetIndexGrain(MeteoIndex))) / GetIndexGrain(MeteoIndex)
 
 
         If Not CheckGribData(MeteoIndex, Lon0, Lat0, NoLock) Then
@@ -371,8 +408,8 @@ Public Class GribManager
 
 
 
-        Dim Lon1 As Integer = (Lon0 + MeteoArray.GetMaxLonindex + 1) Mod (MeteoArray.GetMaxLonindex)
-        Dim Lat1 As Integer = (Lat0 + MeteoArray.GetMaxLatindex + 1) Mod (MeteoArray.GetMaxLatindex)
+        Dim Lon1 As Integer = (Lon0 + MeteoArray.GetMaxLonindex(GetIndexGrain(MeteoIndex)) + 1) Mod (MeteoArray.GetMaxLonindex(GetIndexGrain(MeteoIndex)))
+        Dim Lat1 As Integer = (Lat0 + MeteoArray.GetMaxLatindex(GetIndexGrain(MeteoIndex)) + 1) Mod (MeteoArray.GetMaxLatindex(GetIndexGrain(MeteoIndex)))
 
         If Not CheckGribData(MeteoIndex, Lon0, Lat1, NoLock) OrElse _
             Not CheckGribData(MeteoIndex, Lon1, Lat0, NoLock) OrElse _
@@ -435,9 +472,16 @@ Public Class GribManager
         Dim MeteoIndex = GetMeteoIndex(Dte)
         Dim NextMeteoIndex = MeteoIndex + 1
         Dim DteOffset As Double = GetMetoDateOffset(Dte) ' - GRIB_GRAIN * MeteoIndex
+        Dim GribGrain As Double
 
         If NextMeteoIndex > MAX_INDEX Then
             NextMeteoIndex = MAX_INDEX
+        End If
+
+        If NextMeteoIndex < MAX_INDEX_05 Then
+            GribGrain = GRIB_GRAIN_05
+        Else
+            GribGrain = GRIB_GRAIN_1
         End If
 
         Dim Dir0 As DirInterpolation
@@ -453,8 +497,8 @@ Public Class GribManager
         Dim RetInfo As New MeteoInfo
 
         If Dir0 = Dir1 OrElse Dir0 = DirInterpolation.UV OrElse Dir1 = DirInterpolation.UV Then
-            RetInfo.Dir = M0.Dir + DteOffset / GRIB_GRAIN * CheckAngleInterp(M1.Dir - M0.Dir)
-            RetInfo.Strength = M0.Strength + DteOffset / GRIB_GRAIN * (M1.Strength - M0.Strength)
+            RetInfo.Dir = M0.Dir + DteOffset / GribGrain * CheckAngleInterp(M1.Dir - M0.Dir)
+            RetInfo.Strength = M0.Strength + DteOffset / GribGrain * (M1.Strength - M0.Strength)
         Else
             Dim u1 As Double
             Dim u2 As Double
@@ -463,8 +507,8 @@ Public Class GribManager
 
             TransformBackUV(M0.Dir, M0.Strength, u1, v1)
             TransformBackUV(M1.Dir, M1.Strength, u2, v2)
-            RetInfo.UGRD = SimpleAverage(u1, u2, DteOffset / GRIB_GRAIN)
-            RetInfo.VGRD = SimpleAverage(v1, v2, DteOffset / GRIB_GRAIN)
+            RetInfo.UGRD = SimpleAverage(u1, u2, DteOffset / GribGrain)
+            RetInfo.VGRD = SimpleAverage(v1, v2, DteOffset / GribGrain)
 
         End If
 
@@ -525,7 +569,7 @@ Public Class GribManager
                 'RaiseEvent log("Loaded @   " & DataGribDate.ToString & " lon " & lon & " , Lat " & lat)
 
                 If _MeteoArrays(MeteoIndex) Is Nothing Then
-                    _MeteoArrays(MeteoIndex) = New MeteoArray
+                    _MeteoArrays(MeteoIndex) = New MeteoArray(GetIndexGrain(MeteoIndex))
                 End If
 
 
@@ -550,7 +594,7 @@ Public Class GribManager
                     '    _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat)) = New MeteoInfo
                     'End If
 
-                    Dim Data As MeteoInfo = _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat))
+                    Dim Data As MeteoInfo = _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon, GetIndexGrain(MeteoIndex)), MeteoArray.GetLatArrayIndex(CurLat, GetIndexGrain(MeteoIndex)))
 
                     Select Case Type
                         Case """UGRD"""
@@ -585,14 +629,14 @@ Public Class GribManager
         Dim WaitStart As DateTime
 
         While Not FileOK
-            Dim GribURL As String = GetGribURL(MeteoIndex * GRIB_GRAIN + RouteurModel.GribOffset, retries * GRIB_PERIOD, WLon, ELon, NLat, SLat, True)
+            Dim GribURL As String = GetGribURL(MeteoIndex, 0, WLon, ELon, NLat, SLat, True)
             Dim Http As HttpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), HttpWebRequest)
             Try
                 Http.Timeout = 10000
                 wr = Http.GetResponse()
                 FileOK = True
             Catch ex2 As WebException
-                If retries > 2 Then
+                If retries > 1 Then
                     'Meteo is not available for that date (two late??)
                     Return False
                 ElseIf ex2.Message.Contains("404") Then
@@ -709,7 +753,7 @@ Public Class GribManager
             'RaiseEvent log("Loaded @   " & DataGribDate.ToString & " lon " & lon & " , Lat " & lat)
 
             If _MeteoArrays(MeteoIndex) Is Nothing Then
-                _MeteoArrays(MeteoIndex) = New MeteoArray
+                _MeteoArrays(MeteoIndex) = New MeteoArray(GetIndexGrain(MeteoIndex))
             End If
 
             For Each Line In lines
@@ -736,7 +780,7 @@ Public Class GribManager
                     '    _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(lLon), MeteoArray.GetLatArrayIndex(lLat)) = New MeteoInfo
                     'End If
 
-                    Dim Data As MeteoInfo = _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(lLon), MeteoArray.GetLatArrayIndex(lLat))
+                    Dim Data As MeteoInfo = _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(lLon, GetIndexGrain(MeteoIndex)), MeteoArray.GetLatArrayIndex(lLat, GetIndexGrain(MeteoIndex)))
 
                     Data.GribDate = CurGribDate
                     Select Case Type

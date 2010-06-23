@@ -64,7 +64,7 @@ Module MeteoDrawer
         Dim pl As Double
 
         If S > 0 Then
-            While S > 0
+            While S > 0 And CurDecade < 6
 
                 L = 0.5 - CurDecade / 8
 
@@ -89,7 +89,7 @@ Module MeteoDrawer
 
                 S -= 10
                 CurDecade += 1
-                
+
             End While
         End If
         Return RetString
