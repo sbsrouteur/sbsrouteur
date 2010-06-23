@@ -1,54 +1,55 @@
 ﻿Public Class MeteoArray
 
-    Public Const GRID_GRAIN As Double = 0.5
+    Private _GridGrain As Double = 0.5
     Private _LonData()() As MeteoInfo
 
-    Public Sub New()
+    Public Sub New(ByVal Grain As Double)
         'ReDim Data(CInt(360 / GRID_GRAIN) - 1, CInt(180 / GRID_GRAIN) - 1)
+        _GridGrain = Grain
     End Sub
 
 
-    Public Shared Function GetLonArrayIndex(ByVal Lon As Double) As Integer
+    Public Shared Function GetLonArrayIndex(ByVal Lon As Double, ByVal Grain As Double) As Integer
 
         If Lon < -180 Then
             Lon = -180
         ElseIf Lon >= 180 Then
             Lon = 180
         End If
-        Return CInt(Math.Floor((Lon + 180) / GRID_GRAIN)) Mod CInt(360 / GRID_GRAIN)
+        Return CInt(Math.Floor((Lon + 180) / Grain)) Mod CInt(360 / Grain)
 
     End Function
 
-    Public Shared Function GetLatArrayIndex(ByVal Lat As Double) As Integer
+    Public Shared Function GetLatArrayIndex(ByVal Lat As Double, ByVal Grain As Double) As Integer
 
         If Lat < -90 Then
             Lat = -90
         ElseIf Lat >= 90 Then
-            Lat = 90 - GRID_GRAIN
+            Lat = 90 - Grain
         End If
-        Return CInt(Math.Floor((Lat + 90) / GRID_GRAIN))
+        Return CInt(Math.Floor((Lat + 90) / Grain))
 
     End Function
 
-    Public Shared Function GetArrayIndexLon(ByVal Lon As Integer) As Double
+    Public Shared Function GetArrayIndexLon(ByVal Lon As Integer, ByVal Grain As Double) As Double
 
 
-        Return (GRID_GRAIN * Lon - 180)
-
-    End Function
-
-    Public Shared Function GetArrayIndexLat(ByVal Lat As Integer) As Double
-
-        Return GRID_GRAIN * Lat - 90
+        Return (Grain * Lon - 180)
 
     End Function
 
-    Public Shared Function GetMaxLatindex() As Integer
-        Return GetLatArrayIndex(90 - GRID_GRAIN)
+    Public Shared Function GetArrayIndexLat(ByVal Lat As Integer, ByVal Grain As Double) As Double
+
+        Return Grain * Lat - 90
+
     End Function
 
-    Public Shared Function GetMaxLonindex() As Integer
-        Return GetLonArrayIndex(180 - GRID_GRAIN)
+    Public Shared Function GetMaxLatindex(ByVal Grain As Double) As Integer
+        Return GetLatArrayIndex(90 - Grain, Grain)
+    End Function
+
+    Public Shared Function GetMaxLonindex(ByVal Grain As Double) As Integer
+        Return GetLonArrayIndex(180 - Grain, Grain)
     End Function
 
 
@@ -58,7 +59,7 @@
                 Throw New InvalidOperationException("NegLat index or neglon index <0")
             End If
 
-            If LatIndex > GetMaxLatindex() OrElse LonIndex > GetMaxLonindex() Then
+            If LatIndex > GetMaxLatindex(_GridGrain) OrElse LonIndex > GetMaxLonindex(_GridGrain) Then
                 Throw New InvalidOperationException("NegLat index or neglon index out of bound")
             End If
 

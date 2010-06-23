@@ -76,8 +76,7 @@ Public Class RouteurModel
     Public Const METEO_GIRD_SIZE As Integer = 10
     Public Const METEO_GRID_STEP As Double = 1
 
-    Public Const GribOffset As Integer = 0
-
+    
     Public Const LAKE_RACE As Boolean = False
 
     'Exclusion Neg East/South

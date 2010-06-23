@@ -523,7 +523,7 @@ Public Class VOR_Router
     Public ReadOnly Property MeteoArrowDateEnd() As Long
         Get
             'FIXME Use meteo span const from grib manager!!
-            Return MeteoArrowDateStart + TimeSpan.TicksPerDay * 7
+            Return MeteoArrowDateStart + TimeSpan.TicksPerDay * GribManager.NB_JOURS
         End Get
     End Property
 
