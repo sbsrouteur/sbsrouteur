@@ -5,6 +5,8 @@ Imports System.Threading
 
 Public Class GribManager
     Implements INotifyPropertyChanged
+    Private Const MAX_GRIB_05 As Integer = 180
+    Private Const MAX_GRIB_1 As Integer = 384
 
     Private Enum DirInterpolation As Integer
 
@@ -19,8 +21,8 @@ Public Class GribManager
     Private Const GRIB_GRAIN_1 As Integer = 12
     Private Const GRIB_PERIOD As Integer = 6
     Public Const NB_JOURS As Integer = 16
-    Private Const MAX_INDEX_05 As Integer = CInt(180 / GRIB_GRAIN_05)
-    Private Const MAX_INDEX_1 As Integer = CInt((384 - 192) / GRIB_GRAIN_1) + MAX_INDEX_05
+    Private Const MAX_INDEX_05 As Integer = CInt(MAX_GRIB_05 / GRIB_GRAIN_05)
+    Private Const MAX_INDEX_1 As Integer = CInt((MAX_GRIB_1 - MAX_GRIB_05 - GRIB_GRAIN_1) / GRIB_GRAIN_1) + MAX_INDEX_05
     Private Const MAX_INDEX As Integer = MAX_INDEX_1
     Private Shared ZULU_OFFSET As Integer = -CInt(TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
 
@@ -280,7 +282,7 @@ Public Class GribManager
         If MeteoIndex < MAX_INDEX_05 Then
             Return 0.5
         Else
-            Return 1
+            Return 2.5
         End If
 
     End Function
@@ -317,8 +319,13 @@ Public Class GribManager
     Private Function GetMetoDateOffset(ByVal Dte As DateTime) As Double
         Dim CurGrib As DateTime = GetCurGribDate(Now)
         Static GMT_Offset As Double = TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours
+        Dim TotalHours As Double = Dte.AddHours(-GMT_Offset).Subtract(CurGrib).TotalHours
 
-        Return Dte.AddHours(-GMT_Offset).Subtract(CurGrib).TotalHours Mod 3
+        If TotalHours <= MAX_GRIB_05 Then
+            Return TotalHours Mod GRIB_GRAIN_05
+        Else
+            Return TotalHours Mod GRIB_GRAIN_1
+        End If
 
     End Function
 
