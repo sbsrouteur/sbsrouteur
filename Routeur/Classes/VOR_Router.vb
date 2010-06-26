@@ -1697,7 +1697,7 @@ Public Class VOR_Router
                 C.Lat = MinLat + y * DeltaLat
                 C.Lon = MinLon + x * DeltaLon
                 Mi = _Meteo.GetMeteoToDate(C, Dte, True)
-                If Not Mi Is Nothing Then
+                If Not Mi Is Nothing AndAlso Mi.Strength >= 0.1 Then
                     PX = x * _MeteoWidth / 10
                     PY = (10 - y) * _MeteoHeight / 10
 
