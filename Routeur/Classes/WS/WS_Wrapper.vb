@@ -54,6 +54,10 @@ Module WS_Wrapper
         Return Nothing
     End Function
 
+    Public Function GetRouteurUserAgent() As String
+        Return "SbsRouteur/" & My.Application.Info.Version.ToString
+    End Function
+
     Private Function RequestPage(ByVal URL As String) As String
 
         Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)
@@ -62,13 +66,14 @@ Module WS_Wrapper
         'Dim Encoder As New System.Text.ASCIIEncoding
         Dim rs As System.IO.StreamReader
         Dim Response As String
+        Http.UserAgent = GetRouteurUserAgent()
         Http.CookieContainer = _Cookies
         wr = Http.GetResponse()
         rs = New System.IO.StreamReader(wr.GetResponseStream())
         Response = rs.ReadToEnd
 
         Return Response
-        
+
     End Function
 
 
