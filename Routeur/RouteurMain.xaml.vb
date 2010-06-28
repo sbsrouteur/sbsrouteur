@@ -301,6 +301,15 @@ Partial Public Class RouteurMain
         Return dt
     End Function
 
+    Private Sub ShowPilototoRouteDlg(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
+
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+
+        Dim frm As New frmRouteViewer(M.GetPilototoRoute)
+        frm.Show()
+
+    End Sub
+
     Private Sub _2D_Renderer_MouseMoveHandler(ByVal sender as Object, ByVal e as System.Windows.Input.MouseEventArgs)
         Dim P As New Point
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
@@ -379,6 +388,7 @@ Partial Public Class RouteurMain
 
         UpdateCoordsExtent(M, True, True)
     End Sub
+
 
 
 

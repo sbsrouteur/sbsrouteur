@@ -178,6 +178,19 @@ Public Class RouteurModel
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPsPath"))
     End Sub
 
+    Public ReadOnly Property GetPilototoRoute() As RouteViewModel
+        Get
+
+            If Not VorHandler Is Nothing Then
+
+                Return VorHandler.PilototoRouteView
+
+            Else
+                Return Nothing
+            End If
+        End Get
+    End Property
+
     Public Sub Init()
 
 

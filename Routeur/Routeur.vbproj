@@ -140,6 +140,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Dialogs\frmRouteViewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Dialogs\frmUserPicker.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -234,12 +238,16 @@
     <Compile Include="Classes\Polygon\PolygonEnumerator.vb" />
     <Compile Include="Classes\ProgressContext.vb" />
     <Compile Include="Classes\RoutePointInfo.vb" />
+    <Compile Include="Classes\Route\RoutePointValueBase.vb" />
+    <Compile Include="Classes\Route\RouteViewModel.vb" />
+    <Compile Include="Classes\Route\RoutePointViewBase.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMBoatInfo.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMRaceInfo.vb" />
     <Compile Include="Classes\RegistryPlayerInfo.vb" />
     <Compile Include="Classes\RouteurModel.vb" />
     <Compile Include="Classes\Stats.vb" />
     <Compile Include="Classes\TravelCalculator.vb" />
+    <Compile Include="Classes\VLM_JSon_Classes\VLM_PilototoPointParser.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLM_RaceWaypoint.vb" />
     <Compile Include="Classes\VOR_Router.vb" />
     <Compile Include="Classes\WS\WS_Wrapper.vb" />
@@ -251,6 +259,9 @@
     </Compile>
     <Compile Include="Dialogs\frmRacePrefs.xaml.vb">
       <DependentUpon>frmRacePrefs.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\frmRouteViewer.xaml.vb">
+      <DependentUpon>frmRouteViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\frmUserPicker.xaml.vb">
       <DependentUpon>frmUserPicker.xaml</DependentUpon>
