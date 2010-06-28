@@ -1,0 +1,31 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	x:Class="frmRouteViewer"
+	x:Name="Window"
+	Title="frmRouteViewer"
+	Width="640" Height="480" mc:Ignorable="d">
+
+	<Grid x:Name="LayoutRoot">
+		<Grid.RowDefinitions>
+			<RowDefinition/>
+			<RowDefinition Height="Auto" MinHeight="52.836"/>
+		</Grid.RowDefinitions>
+		<ListView ItemsSource="{Binding Points, Mode=Default}">
+			<ListView.View>
+				<GridView>
+					<GridViewColumn DisplayMemberBinding="{Binding ActionDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Date"/>
+					<GridViewColumn DisplayMemberBinding="{Binding RouteMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Order Type"/>
+					<GridViewColumn DisplayMemberBinding="{Binding RouteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Order Value"/>
+					<GridViewColumn Header="Actions"/>
+				</GridView>
+			</ListView.View>
+		</ListView>
+		<DockPanel x:Name="PnlControlButtons" LastChildFill="False" HorizontalAlignment="Right" Margin="{DynamicResource DefMargin}" Grid.Row="1" d:LayoutOverrides="Height">
+			<StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+				<Button x:Name="cmdClose" Content="Close" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdCloseClick" Style="{DynamicResource DefaultButton}"/>
+			</StackPanel>
+		</DockPanel>
+	</Grid>
+</Window>

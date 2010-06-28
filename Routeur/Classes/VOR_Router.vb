@@ -3,6 +3,7 @@ Imports System.Xml.Serialization
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 Imports System.Math
+Imports Routeur.RoutePointViewBase
 
 Public Class VOR_Router
 
@@ -26,7 +27,7 @@ Public Class VOR_Router
     Private _WindCoords As New Coords
 
     Private _Meteo As New clsMeteoOrganizer
-    
+
     Private _CurrentRoute As New TravelCalculator
     Private _RouteToGoal As New TravelCalculator
 
@@ -196,7 +197,7 @@ Public Class VOR_Router
             End Set
         End Property
 
-        
+
         Public Property From() As clsrouteinfopoints
             Get
                 Return _From
@@ -319,7 +320,7 @@ Public Class VOR_Router
             If _CurUserWP <> 0 AndAlso _CurUserWP < RouteurModel.WPList.Count Then
 
                 Return RouteurModel.WPList(_CurUserWP)
-            ElseIf _CurUserWP = 0 AndAlso RouteurModel.WPList.Count > 0 Then 
+            ElseIf _CurUserWP = 0 AndAlso RouteurModel.WPList.Count > 0 Then
                 Return RouteurModel.WPList(0)
             Else
                 Return "??"
@@ -400,7 +401,7 @@ Public Class VOR_Router
             Dim Y As Double
 
             Dim Speed As Double
-            
+
             For i As Double = 0 To 360 Step 2.5
                 If MI.Strength > 0 Then
                     Speed = _Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), MI.Dir), MI.Strength)
@@ -491,7 +492,7 @@ Public Class VOR_Router
             If value <> _MeteoArrowDate Then
                 _MeteoArrowDate = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDate"))
-                updatemeteoArrows()
+                UpdateMeteoArrows()
                 'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
             End If
         End Set
@@ -590,6 +591,12 @@ Public Class VOR_Router
         Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
             _PilototoRoute = value
         End Set
+    End Property
+
+    Public ReadOnly Property PilototoRouteView() As RouteViewModel
+        Get
+            Return New RouteViewModel(_Pilototo)
+        End Get
     End Property
 
     Public Shared Property PosValide() As Boolean
@@ -768,9 +775,8 @@ Public Class VOR_Router
                 Dim PrevMode As Integer = _UserInfo.position.ModePilote
                 Dim PrevValue As Double
 
-                Dim OrderDateSecs As Long
                 Dim OrderDate As Date
-                Dim OrderType As Integer
+                Dim OrderType As EnumRouteMode
                 Dim OrderValue As Double
                 Dim Fields() As String = Nothing
                 Dim CurWPNUm As Integer = -1
@@ -805,7 +811,7 @@ Public Class VOR_Router
                         End If
                         CurIndex += 1
                     End While
-                    
+
                     If CurIndex > 5 Then
                         If OrderDate.Ticks = 0 Then
                             ReDim Fields(0)
@@ -823,10 +829,10 @@ Public Class VOR_Router
                     End If
 
 
-                    If Fields IsNot Nothing AndAlso Fields.Count >= 5 AndAlso _Pilototo(CurIndex).ToLowerInvariant.Contains("pending") Then
+                    If Fields IsNot Nothing AndAlso Fields.Count >= MIN_PILOTOTO_FIED_COUNT AndAlso OrderIsPending(_Pilototo(CurIndex)) Then
 
-                        If Not Long.TryParse(Fields(1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderDateSecs) _
-                           OrElse Not Integer.TryParse(Fields(2), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderType) Then
+                        If Not GetOrderDate(Fields(FLD_DATEVALUE), OrderDate) _
+                           OrElse Not GetOrderType(Fields(2), OrderType) Then
 
                             AddLog("Invalid pilototo string : " & _Pilototo(CurIndex))
                             RouteComplete = True
@@ -834,14 +840,14 @@ Public Class VOR_Router
                         End If
 
                         Select Case OrderType
-                            Case 1, 2
+                            Case EnumRouteMode.Angle, EnumRouteMode.Bearing
                                 If Not Double.TryParse(Fields(3), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, OrderValue) Then
                                     AddLog("Invalid pilototo string : " & _Pilototo(CurIndex))
                                     RouteComplete = True
                                     Continue While
                                 End If
 
-                            Case 3, 4, 5
+                            Case EnumRouteMode.BVMG, EnumRouteMode.Ortho, EnumRouteMode.VMG
 
                                 Dim Lon As Double = 0
                                 Dim Lat As Double = 0
@@ -863,10 +869,15 @@ Public Class VOR_Router
                                     PrevWPDest = New Coords(Lat, Lon)
                                 End If
 
+                            Case Else
+                                AddLog("Invalid pilototo string (unknown routing mode: " & _Pilototo(CurIndex))
+                                RouteComplete = True
+                                Continue While
+
                         End Select
 
 
-                        OrderDate = New Date(1970, 1, 1).AddSeconds(OrderDateSecs).AddHours(System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
+                        'OrderDate = New Date(1970, 1, 1).AddSeconds(OrderDateSecs).AddHours(System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
                     End If
 
                     'move index forward, otherwise, each wp is iterated twice
@@ -898,7 +909,7 @@ Public Class VOR_Router
 
                             Case 3
                                 'Ortho
-                                Tc.EndPoint = curWPDest
+                                Tc.EndPoint = CurWPDest
                                 Dim CapOrtho As Double = Tc.TrueCap
                                 BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, CapOrtho)
@@ -1493,7 +1504,7 @@ Public Class VOR_Router
             RaiseEvent PropertyChanged(Me, e)
 
 
-            End If
+        End If
     End Sub
 
     Public ReadOnly Property Track() As String
