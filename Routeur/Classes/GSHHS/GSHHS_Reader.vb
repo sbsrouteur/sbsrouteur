@@ -215,9 +215,7 @@ Public Class GSHHS_Reader
             maxeast = 180
         End If
 
-        If ActivePoints > 0 AndAlso ActivePoints + 1 < RetPoints.Length Then
-            'ReDim Preserve RetPoints(ActivePoints)
-        ElseIf ActivePoints = 0 Then
+        If ActivePoints = 0 Then
             Return Nothing
         End If
 

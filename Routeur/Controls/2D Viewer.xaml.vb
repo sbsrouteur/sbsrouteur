@@ -105,7 +105,7 @@ Partial Public Class _2D_Viewer
         Dim D As New DrawingVisual
         Dim DC As DrawingContext = D.RenderOpen()
         Dim FirstPoint As Boolean
-        Dim p0 As Point
+        Dim P0 As Point
         Dim P1 As Point
         Dim Pen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Black), 0.3)
         Dim WPPen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Red), 2)
@@ -117,6 +117,7 @@ Partial Public Class _2D_Viewer
         Dim MinLat As Double = 90
         Dim MaxLat As Double = -90
         Dim drawn As Boolean
+        Dim PrevIndex As Integer
         Dim WPs As List(Of VLM_RaceWaypoint) = CType(state, List(Of VLM_RaceWaypoint))
 
         While Not _RacePolygonsInited
@@ -160,64 +161,72 @@ Partial Public Class _2D_Viewer
 
 
             FirstPoint = True
-            For i = 1 To C_Array.Count - 1
+            If C_Array.Count > 1 Then
+                P0.X = LonToCanvas(C_Array(C_Array.Count - 1).Lon_Deg)
+                P0.Y = LatToCanvas(C_Array(C_Array.Count - 1).Lat_Deg)
+                PrevIndex = C_Array.Count - 1
+                For i = 0 To C_Array.Count - 1
 
 
-                If C_Array(i) IsNot Nothing AndAlso C_Array(i - 1) IsNot Nothing Then
-                    'If GSHHS_Reader.HitTest(C_Array(i), 0, RaceZone, False) Then
-                    If C_Array(i).Lon >= MinLon AndAlso _
-                        C_Array(i).Lon <= MaxLon AndAlso _
-                        C_Array(i).Lat >= MinLat AndAlso _
-                        C_Array(i).Lat <= MaxLat Then
+                    If C_Array(i) IsNot Nothing Then 'AndAlso C_Array(i - 1) IsNot Nothing Then
+                        'If GSHHS_Reader.HitTest(C_Array(i), 0, RaceZone, False) Then
+                        If C_Array(i).Lon >= MinLon AndAlso _
+                            C_Array(i).Lon <= MaxLon AndAlso _
+                            C_Array(i).Lat >= MinLat AndAlso _
+                            C_Array(i).Lat <= MaxLat Then
 
-                        p0.X = LonToCanvas(C_Array(i - 1).Lon_Deg)
-                        p0.Y = LatToCanvas(C_Array(i - 1).Lat_Deg)
-                        P1.X = LonToCanvas(C_Array(i).Lon_Deg)
-                        P1.Y = LatToCanvas(C_Array(i).Lat_Deg)
+                            'p0.X = LonToCanvas(C_Array(i - 1).Lon_Deg)
+                            'p0.Y = LatToCanvas(C_Array(i - 1).Lat_Deg)
+                            P1.X = LonToCanvas(C_Array(i).Lon_Deg)
+                            P1.Y = LatToCanvas(C_Array(i).Lat_Deg)
 
-                        SafeDrawLine(DC, C_Array(i - 1), C_Array(i), Pen, p0, P1)
+                            SafeDrawLine(DC, C_Array(PrevIndex), C_Array(i), Pen, P0, P1)
 
-                        LineCount += 1
-                        drawn = True
+                            LineCount += 1
+                            drawn = True
+                            P0.X = P1.X
+                            P0.Y = P1.Y
+                            PrevIndex = i
+                        End If
+
                     End If
 
-                End If
-
-                If drawn AndAlso LineCount Mod 500 = 0 Then
-                    drawn = False
-                    DC.Close()
+                    If drawn AndAlso LineCount Mod 500 = 0 Then
+                        drawn = False
+                        DC.Close()
 Render1:
-                    Try
-                        LocalBmp.Render(D)
-                    Catch
-                        GoTo Render1
-                    End Try
-                    LocalBmp.Freeze()
-                    _BackDropBmp = LocalBmp
-                    DC = D.RenderOpen
-                    'Prevbmp = LocalBmp
-                    DC.DrawImage(_BackDropBmp, R)
-                    'LocalBmp.Clear()
-                    LocalBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
-                    'LocalBmp.Clear()
-                    If LineCount Mod 2000 = 0 Then
-                        GC.Collect()
+                        Try
+                            LocalBmp.Render(D)
+                        Catch
+                            GoTo Render1
+                        End Try
+                        LocalBmp.Freeze()
+                        _BackDropBmp = LocalBmp
+                        DC = D.RenderOpen
+                        'Prevbmp = LocalBmp
+                        DC.DrawImage(_BackDropBmp, R)
+                        'LocalBmp.Clear()
+                        LocalBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+                        'LocalBmp.Clear()
+                        If LineCount Mod 2000 = 0 Then
+                            GC.Collect()
+                        End If
                     End If
-                End If
 
-            Next
-            'If LineCount Mod 1000 = 0 Then
-            '    DC.Close()
-            '    LocalBmp.Render(D)
-            '    LocalBmp.Freeze()
-            '    _BackDropBmp = LocalBmp
-            '    DC = D.RenderOpen
-            '    'Prevbmp = LocalBmp
-            '    DC.DrawImage(_BackDropBmp, R)
-            '    LocalBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
-            '    'LocalBmp.Clear()
-            '    GC.Collect()
-            'End If
+                Next
+                'If LineCount Mod 1000 = 0 Then
+                '    DC.Close()
+                '    LocalBmp.Render(D)
+                '    LocalBmp.Freeze()
+                '    _BackDropBmp = LocalBmp
+                '    DC = D.RenderOpen
+                '    'Prevbmp = LocalBmp
+                '    DC.DrawImage(_BackDropBmp, R)
+                '    LocalBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+                '    'LocalBmp.Clear()
+                '    GC.Collect()
+                'End If
+            End If
             _MapPg.Progress(polyindex)
         Next
 
