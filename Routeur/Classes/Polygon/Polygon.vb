@@ -2,9 +2,8 @@
 
     Implements IList(Of Coords)
 
-    Private Const BASE_ARRAY_SIZE As Integer = 500
-    Private Const BASE_ARRAY_EXTENSION As Integer = 100
-
+    Private Const BASE_ARRAY_SIZE As Integer = 1750
+    
     Private Class CoordsList
         Private _Coords(BASE_ARRAY_SIZE - 1) As Coords
         Private _NextList As CoordsList = Nothing

@@ -238,6 +238,7 @@
     <Compile Include="Classes\Polygon\PolygonEnumerator.vb" />
     <Compile Include="Classes\ProgressContext.vb" />
     <Compile Include="Classes\RoutePointInfo.vb" />
+    <Compile Include="Classes\Route\RouteConverters.vb" />
     <Compile Include="Classes\Route\RoutePointValueBase.vb" />
     <Compile Include="Classes\Route\RouteViewModel.vb" />
     <Compile Include="Classes\Route\RoutePointViewBase.vb" />
