@@ -153,12 +153,11 @@ Public Class GSHHS_Reader
         Dim lon As Double
         Dim i As Integer
         Dim ActivePoints As Integer
-        Dim TC As New TravelCalculator
+        'Dim TC As New TravelCalculator
         Dim InZone As Boolean
         Dim HasPointsInZone As Boolean = False
         Dim Fr_map As System.IO.StreamWriter = Nothing
         Dim lookupzone As LinkedList(Of Polygon) = SI.PolyGons
-
 
         Static maxeast As Integer = 270
         If H Is Nothing Then
@@ -189,13 +188,14 @@ Public Class GSHHS_Reader
                     ActivePoints += 1
                     HasPointsInZone = InZone
                 ElseIf ActivePoints >= 0 Then
-                    TC.StartPoint = RetPoints(ActivePoints)
-                    TC.EndPoint = RetPoints(ActivePoints + 1)
+                    'TC.StartPoint = RetPoints(ActivePoints)
+                    'TC.EndPoint = RetPoints(ActivePoints + 1)
 
                     HasPointsInZone = InZone Or HasPointsInZone
 
                     'If (InZone And TC.SurfaceDistance > 3) OrElse TC.SurfaceDistance > 25 Then
-                    If ((HasPointsInZone AndAlso TC.SurfaceDistance > RouteurModel.GridGrain / 2)) OrElse IgnoredPoints > 2000 Then
+                    'If ((HasPointsInZone AndAlso TC.SurfaceDistance > RouteurModel.GridGrain / 2)) OrElse IgnoredPoints > 2000 Then
+                    If HasPointsInZone OrElse IgnoredPoints > 2000 Then
 
                         ActivePoints += 1
                         If InZone Then
