@@ -341,7 +341,7 @@ Public Class VOR_Router
 
             While RouteurModel.WPList(Index) <> value
                 Index += 1
-                If Index > RouteurModel.WPList.Count Then
+                If Index >= RouteurModel.WPList.Count Then
                     Return
                 End If
             End While
@@ -923,9 +923,10 @@ Public Class VOR_Router
 
 
                                     If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
-                                        CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
+                                        CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0) _
+                                                                                         , _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(1))
+                                        'CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
                                     End If
-                                    CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(1))
 
                                 End If
 
@@ -961,9 +962,10 @@ Public Class VOR_Router
 
 
                                     If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
-                                        CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
+                                        'CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
+                                        CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0) _
+                                                                                             , _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(1))
                                     End If
-                                    CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(1))
 
                                 End If
                                 Dim angle As Double = do_vbvmg(CurPos, CurWPDest, Mi)
