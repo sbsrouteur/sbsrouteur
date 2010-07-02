@@ -7,6 +7,7 @@
     Private _BoatType As String
     Private _StartDate As DateTime
     Private _race_waypoints As New List(Of VLM_RaceWaypoint)
+    Private _vacfreq As Integer
 
     Public Property boattype() As String
         Get
@@ -108,6 +109,15 @@
         End Get
         Set(ByVal value As Integer)
             _StartLon = value
+        End Set
+    End Property
+
+    Public Property vacfreq() As Integer
+        Get
+            Return _vacfreq
+        End Get
+        Set(ByVal value As Integer)
+            _vacfreq = value
         End Set
     End Property
 
