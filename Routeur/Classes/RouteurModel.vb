@@ -490,7 +490,7 @@ Public Class RouteurModel
 
         If Info IsNot Nothing AndAlso Info.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
             LoadJSonDataToObject(_P_Info(0).RaceInfo, Info(JSONDATA_BASE_OBJECT_NAME))
-
+            RouteurModel.VacationMinutes = _P_Info(0).RaceInfo.vacfreq
         End If
 
     End Sub
