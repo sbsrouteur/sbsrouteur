@@ -195,7 +195,7 @@ Public Class GSHHS_Reader
 
                     'If (InZone And TC.SurfaceDistance > 3) OrElse TC.SurfaceDistance > 25 Then
                     'If ((HasPointsInZone AndAlso TC.SurfaceDistance > RouteurModel.GridGrain / 2)) OrElse IgnoredPoints > 2000 Then
-                    If HasPointsInZone OrElse IgnoredPoints > 2000 Then
+                    If InZone OrElse IgnoredPoints > 2000 Then 'HasPointsInZone  Then
 
                         ActivePoints += 1
                         If InZone Then
