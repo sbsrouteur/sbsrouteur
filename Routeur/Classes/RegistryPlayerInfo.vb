@@ -210,7 +210,7 @@ Public Class RegistryPlayerInfo
             _IsPasswordOK = True
             _RaceInfo = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAN")
             _RaceNum = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAC")
-            _IsRacing = True
+            _IsRacing = _RaceNum <> 0
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsRacing"))
