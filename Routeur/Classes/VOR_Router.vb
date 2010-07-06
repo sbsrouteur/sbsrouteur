@@ -313,42 +313,43 @@ Public Class VOR_Router
     End Property
 
 
-    Public Property CurUserWP() As String
+    Public Property CurUserWP() As Integer
         Get
             Dim i As Integer = 0
 
-            If _CurUserWP <> 0 AndAlso _CurUserWP < RouteurModel.WPList.Count Then
+            'If _CurUserWP <> 0 AndAlso _CurUserWP < RouteurModel.WPList.Count Then
 
-                Return RouteurModel.WPList(_CurUserWP)
-            ElseIf _CurUserWP = 0 AndAlso RouteurModel.WPList.Count > 0 Then
-                Return RouteurModel.WPList(0)
-            Else
-                Return "??"
-            End If
+            '    Return RouteurModel.WPList(_CurUserWP)
+            'ElseIf _CurUserWP = 0 AndAlso RouteurModel.WPList.Count > 0 Then
+            '    Return RouteurModel.WPList(0)
+            'Else
+            '    Return "??"
+            'End If
+            Return _CurUserWP
         End Get
-        Set(ByVal value As String)
-            Dim Index As Integer = 0
 
-            If value.StartsWith("<Auto>") Then
-                Index = 0
-            ElseIf value.StartsWith("WP") Then
+        Set(ByVal value As Integer)
+            'Dim Index As Integer = 0
 
-                Dim MinIndex As Integer = value.IndexOf("-"c)
-                Integer.TryParse(value.Substring(2, MinIndex - 2), Index)
-            Else
-                Return
-            End If
+            'If value.StartsWith("<Auto>") Then
+            '    Index = 0
+            'ElseIf value.StartsWith("WP") Then
 
-            While RouteurModel.WPList(Index) <> value
-                Index += 1
-                If Index >= RouteurModel.WPList.Count Then
-                    Return
-                End If
-            End While
+            '    Dim MinIndex As Integer = value.IndexOf("-"c)
+            '    Integer.TryParse(value.Substring(2, MinIndex - 2), Index)
+            'Else
+            '    Return
+            'End If
 
-            If _CurUserWP <> Index Then
+            ''While RouteurModel.WPList(Index) <> value
+            ''    Index += 1
+            ''    If Index >= RouteurModel.WPList.Count Then
+            ''        Return
+            ''    End If
+            ''End While
+            If _CurUserWP <> value Then
                 'Reset the router last start when changing dest
-                _CurUserWP = Index - 1
+                _CurUserWP = value
                 _LastGridRouteStart = New DateTime(0)
             End If
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurUserWP"))
@@ -374,9 +375,9 @@ Public Class VOR_Router
                 End If
 
                 If _CurUserWP = 0 Then
-                    Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP - 1).WPs(0)(0)
+                    Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0)
                 Else
-                    Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP).WPs(0)(0)
+                    Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP - 1).WPs(0)(0)
                 End If
 
                 Dim CapOrtho As Double = Tc.TrueCap
@@ -751,11 +752,12 @@ Public Class VOR_Router
                     While Retries < 2
                         Try
                             If _CurUserWP = 0 Then
-                                CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP - 1).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP - 1).WPs(0)(1))
+                                CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0) _
+                                                                                 , _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
                             Else
                                 CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP - 1).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP - 1).WPs(0)(1))
                             End If
-                            Retries = 3
+                            Exit While
                         Catch ex As Exception
                             AddLog(ex.Message)
                             Retries = Retries + 1
@@ -922,11 +924,11 @@ Public Class VOR_Router
                                 If CurWPNUm <> -1 Then
 
 
-                                    If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
-                                        CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0) _
-                                                                                         , _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(1))
-                                        'CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
-                                    End If
+                                    'If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
+                                    CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0) _
+                                                                                     , _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(1))
+                                    'CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
+                                    'End If
 
                                 End If
 
@@ -961,11 +963,11 @@ Public Class VOR_Router
                                 If CurWPNUm <> -1 Then
 
 
-                                    If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
-                                        'CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
-                                        CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0) _
-                                                                                             , _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(1))
-                                    End If
+                                    'If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
+                                    'CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
+                                    CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0) _
+                                                                                         , _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(1))
+                                    'End If
 
                                 End If
                                 Dim angle As Double = do_vbvmg(CurPos, CurWPDest, Mi)
@@ -2076,15 +2078,25 @@ Public Class VOR_Router
 
     Public Shared Function GetHTTPResponse(ByVal url As String, ByVal Cookies As CookieContainer) As String
 
-        Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(url), HttpWebRequest)
+        Dim response As String = ""
+        Dim Retries As Integer = 0
+        While Retries < 3
+            Try
+                Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(url), HttpWebRequest)
 
-        Http.CookieContainer = Cookies
-        Dim WR As WebResponse = Http.GetResponse()
-        Dim ResponseStream As New System.IO.StreamReader(WR.GetResponseStream)
-        Dim Response As String = ResponseStream.ReadToEnd
-        ResponseStream.Close()
+                Http.CookieContainer = Cookies
+                Dim WR As WebResponse = Http.GetResponse()
+                Dim ResponseStream As New System.IO.StreamReader(WR.GetResponseStream)
+                response = ResponseStream.ReadToEnd
+                ResponseStream.Close()
+                Exit While
+            Catch ex As Exception
+                Retries += 1
+            End Try
+        End While
 
-        Return Response
+
+        Return response
 
     End Function
 
@@ -2334,8 +2346,12 @@ Public Class VOR_Router
         Try
             'ResponseString = WS_Wrapper.GetBoatInfo(_PlayerInfo)
             'ResponseString = _WebClient.DownloadString(STR_GetUserInfo)
-
+            Dim prevwp As Integer = RouteurModel.CurWP
             UserInfo(meteo) = ParseVLMBoatInfoString()
+
+            If RouteurModel.CurWP <> prevwp Then
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
+            End If
 
 
             Dim VLMInfoMessage As String = "Meteo read D:" & UserInfo.position.wind_angle.ToString("f2")
@@ -2611,14 +2627,11 @@ Public Class VOR_Router
         Dim WP As Integer
 
         If _CurUserWP = 0 Then
-            WP = RouteurModel.CurWP - 1
+            WP = RouteurModel.CurWP
         Else
             WP = _CurUserWP
         End If
 
-        If WP < 0 OrElse WP >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
-            Return
-        End If
         Dim D As Double = GSHHS_Reader.HitDistance(c, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs, False)
 
         If D = Double.MaxValue Then
@@ -2757,11 +2770,13 @@ Public Class VOR_Router
                                  prefs.IsoStep_24, prefs.IsoStep_48)
             Dim WP As Integer
 
-            If _CurUserWP = 0 Then
-                WP = RouteurModel.CurWP - 1
+            If CurUserWP = 0 Then
+                WP = RouteurModel.CurWP
             Else
                 WP = _CurUserWP
             End If
+
+
 
             If Now > _PlayerInfo.RaceInfo.deptime Then
                 StartDate = LastDataDate
@@ -2771,10 +2786,12 @@ Public Class VOR_Router
 
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ClearGrid"))
             Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
+            Dim Dest As Coords = GSHHS_Reader.PointToSegmentIntersect(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0) _
+                                                                                 , _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1))
             If prefs.UseCustomDest Then
                 _iso.StartIsoRoute(start, prefs.RouteDest, StartDate)
             Else
-                _iso.StartIsoRoute(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0), StartDate)
+                _iso.StartIsoRoute(start, Dest, StartDate)
 
             End If
             'End If

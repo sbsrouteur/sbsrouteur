@@ -30,6 +30,14 @@ Public MustInherit Class RoutePointViewBase
         End Set
     End Property
 
+    Public ReadOnly Property EnumRouteModes() As String()
+        Get
+
+            Return [Enum].GetNames(GetType(EnumRouteMode))
+
+        End Get
+    End Property
+
     Public Property Pending() As Boolean
         Get
             Return _Pending

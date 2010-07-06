@@ -22,9 +22,9 @@
 		<Custom:DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
 			<Custom:DataGrid.Columns>
 				<Custom:DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=Default}"/>
-				<Custom:DataGridComboBoxColumn DisplayMemberPath="{Binding OrderType, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Mode=Default}"/>
-				<Custom:DataGridTextColumn Header="Order" Binding="{Binding RouteMode, Mode=Default}"/>
-				<Custom:DataGridTextColumn Header="Value" Binding="{Binding RouteValue, Mode=Default}"/>
+				<Custom:DataGridComboBoxColumn SelectedValuePath="{Binding OrderType, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Mode=Default, Source={StaticResource Model}}"/>
+				<!--<Custom:DataGridTextColumn Header="Order" Binding="{Binding RouteMode, Mode=Default}"/>-->
+				<!--<Custom:DataGridTextColumn Header="Value" Binding="{Binding RouteValue, Mode=Default}"/>-->
 				<Custom:DataGridTextColumn Header="Actions"/>
 			</Custom:DataGrid.Columns>
 		</Custom:DataGrid>
