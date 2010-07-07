@@ -10,8 +10,92 @@
 	Width="640" Height="480">
 	
 	<Window.Resources>
-		<local:EnumRouteModeConverter x:Key="EnumRouteModeConverter"/>
-		<local:CoordsConverter x:Key="CoordsConverter"/>
+	
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="/Routeur;Component/Styles/ControlsStyles.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+	
+			<DataTemplate x:Key="DoubleValueTemplate">
+				<Grid>
+					<TextBox Text="{Binding RouteValue.Value, Mode=Default}" TextAlignment="Right" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+				</Grid>
+			</DataTemplate>
+			
+			<DataTemplate x:Key="RoutePointActionsTemplate">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
+					<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-32.png" Width="32" Height="32"/>
+					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Delete" Grid.Column="1" Height="Auto"/>
+					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Update" Grid.Column="2"/>
+				</Grid>
+				
+				<DataTemplate.Triggers>
+					<DataTrigger Binding="{Binding IsPending}" Value="false">
+						<Setter TargetName="PendingStatus" Property="Source" Value="/Routeur;Component/Graphics/kalarm_disabled-32.png" />
+					</DataTrigger>
+				</DataTemplate.Triggers>
+				
+			</DataTemplate>
+	
+			<local:EnumRoutePendingBrushConverter x:Key="EnumRoutePendingBrushConverter"/>
+			<local:EnumRouteModeConverter x:Key="EnumRouteModeConverter"/>
+			<local:CoordsConverter x:Key="CoordsConverter"/>
+			<local:RouteBearingPointView  x:Key="RoutePointBaseViewResource"/>
+			<Style x:Key="RouteRowStyle" TargetType="{x:Type Custom:DataGridRow}">
+				<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+				<Setter Property="SnapsToDevicePixels" Value="True"/>
+				<Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+				<Setter Property="ValidationErrorTemplate">
+					<Setter.Value>
+						<ControlTemplate>
+							<TextBlock Margin="2,0,0,0" VerticalAlignment="Center" Foreground="Red" Text="!"><Run Text="!"/></TextBlock>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+				<Setter Property="Template">
+					<Setter.Value>
+						<ControlTemplate TargetType="{x:Type Custom:DataGridRow}">
+							<Border x:Name="DGR_Border" SnapsToDevicePixels="True" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+								<Custom:SelectiveScrollingGrid>
+									<Custom:SelectiveScrollingGrid.RowDefinitions>
+										<RowDefinition Height="*"/>
+										<RowDefinition Height="Auto"/>
+									</Custom:SelectiveScrollingGrid.RowDefinitions>
+									<Custom:SelectiveScrollingGrid.ColumnDefinitions>
+										<ColumnDefinition Width="Auto"/>
+										<ColumnDefinition Width="*"/>
+									</Custom:SelectiveScrollingGrid.ColumnDefinitions>
+									<Custom:DataGridCellsPresenter Background="{Binding IsPending, Converter={StaticResource EnumRoutePendingBrushConverter}, Mode=Default}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ItemsPanel="{TemplateBinding ItemsPanel}" Grid.Column="1"/>
+									<Custom:DataGridDetailsPresenter Visibility="{TemplateBinding DetailsVisibility}" Grid.Column="1" Grid.Row="1">
+										<Custom:SelectiveScrollingGrid.SelectiveScrollingOrientation>
+											<Binding Path="AreRowDetailsFrozen" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type Custom:DataGrid}}">
+												<Binding.ConverterParameter>
+													<Custom:SelectiveScrollingOrientation>Vertical</Custom:SelectiveScrollingOrientation>
+												</Binding.ConverterParameter>
+											</Binding>
+										</Custom:SelectiveScrollingGrid.SelectiveScrollingOrientation>
+									</Custom:DataGridDetailsPresenter>
+									<Custom:DataGridRowHeader Grid.RowSpan="2" Custom:SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical">
+										<Custom:DataGridRowHeader.Visibility>
+											<Binding Path="HeadersVisibility" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type Custom:DataGrid}}">
+												<Binding.ConverterParameter>
+													<Custom:DataGridHeadersVisibility>Row</Custom:DataGridHeadersVisibility>
+												</Binding.ConverterParameter>
+											</Binding>
+										</Custom:DataGridRowHeader.Visibility>
+									</Custom:DataGridRowHeader>
+								</Custom:SelectiveScrollingGrid>
+							</Border>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
+		</ResourceDictionary>
 	</Window.Resources>
 	
 	<Grid x:Name="LayoutRoot">
@@ -19,13 +103,14 @@
 			<RowDefinition Height="50*" MinHeight="50"/>
 			<RowDefinition Height="Auto" MinHeight="52.836"/>
 		</Grid.RowDefinitions>
-		<Custom:DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+		<Custom:DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}">
 			<Custom:DataGrid.Columns>
 				<Custom:DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=Default}"/>
-				<Custom:DataGridComboBoxColumn SelectedValuePath="{Binding OrderType, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Mode=Default, Source={StaticResource Model}}"/>
+				<Custom:DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource }}" Header="Mode"/>
+				<Custom:DataGridTemplateColumn Header="Value" CellTemplateSelector="{StaticResource RoutePointBaseViewResource}" />
+				<Custom:DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
 				<!--<Custom:DataGridTextColumn Header="Order" Binding="{Binding RouteMode, Mode=Default}"/>-->
 				<!--<Custom:DataGridTextColumn Header="Value" Binding="{Binding RouteValue, Mode=Default}"/>-->
-				<Custom:DataGridTextColumn Header="Actions"/>
 			</Custom:DataGrid.Columns>
 		</Custom:DataGrid>
 		<DockPanel x:Name="PnlControlButtons" LastChildFill="False" HorizontalAlignment="Right" Margin="0,4,4,4" Grid.Row="2" d:LayoutOverrides="Height">

@@ -418,6 +418,10 @@
   <ItemGroup>
     <Resource Include="Graphics\Target-32.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\kalarm-32.png" />
+    <Resource Include="Graphics\kalarm_disabled-32.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>rem editbin /LARGEADDRESSAWARE "$(TargetPath)"</PostBuildEvent>

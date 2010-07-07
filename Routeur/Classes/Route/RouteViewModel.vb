@@ -93,6 +93,7 @@ Public Class RouteViewModel
                         End Select
 
                         If Not PointView Is Nothing Then
+                            PointView.IsPending = OrderIsPending(Point)
                             Points.Add(PointView)
                         End If
 
