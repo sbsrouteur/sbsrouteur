@@ -305,7 +305,7 @@ Partial Public Class RouteurMain
 
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
-        Dim frm As New frmRouteViewer(M.GetPilototoRoute)
+        Dim frm As New frmRouteViewer(M)
         frm.Show()
 
     End Sub

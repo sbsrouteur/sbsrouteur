@@ -31,6 +31,41 @@ Module JSonHelper
 
     End Function
 
+    Public Function GetStringFromJsonObject(ByVal Json As Dictionary(Of String, Object)) As String
+
+        Dim RetString As String = "{"
+        Dim bFirst As Boolean = True
+        For Each item In Json
+
+            If bFirst Then
+                bFirst = False
+            Else
+                RetString &= ","
+            End If
+
+            RetString &= """" & item.Key & """:"
+
+            If TypeOf item.Value Is Integer Then
+                RetString &= CStr(item.Value)
+
+            ElseIf TypeOf item.Value Is Boolean Then
+                If CBool(item.Value) Then
+                    RetString &= True
+                Else
+                    RetString &= False
+                End If
+            Else
+                Throw New InvalidOperationException("unsupported type for json output : " & item.Value.GetType.ToString)
+            End If
+
+        Next
+
+        Return RetString & "}"
+
+    End Function
+
+
+
     Public Function GetJSonDoubleValue(ByVal JSon As Object, ByVal ValueKey As String) As Double
 
         Dim O As Object = GetJSonObjectValue(JSon, ValueKey)
@@ -44,7 +79,7 @@ Module JSonHelper
         Else
             Return 0
         End If
-        
+
 
     End Function
 
@@ -110,9 +145,9 @@ Module JSonHelper
             Else
                 Continue For
             End If
-                If Not Value Is Nothing Then
-                    P.SetValue(O, Value, Nothing)
-                End If
+            If Not Value Is Nothing Then
+                P.SetValue(O, Value, Nothing)
+            End If
 
         Next
 

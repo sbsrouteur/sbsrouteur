@@ -30,8 +30,8 @@
 						<ColumnDefinition Width="*"/>
 					</Grid.ColumnDefinitions>
 					<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-32.png" Width="32" Height="32"/>
-					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Delete" Grid.Column="1" Height="Auto"/>
-					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Update" Grid.Column="2"/>
+					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Delete" Grid.Column="1" Height="Auto" Click="RoutePointDelete"/>
+					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Update" Grid.Column="2" Click="RoutePointUpdate"/>
 				</Grid>
 				
 				<DataTemplate.Triggers>

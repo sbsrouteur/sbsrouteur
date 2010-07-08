@@ -596,7 +596,7 @@ Public Class VOR_Router
 
     Public ReadOnly Property PilototoRouteView() As RouteViewModel
         Get
-            Return New RouteViewModel(_Pilototo)
+            Return New RouteViewModel(_PlayerInfo.NumBoat, _Pilototo)
         End Get
     End Property
 

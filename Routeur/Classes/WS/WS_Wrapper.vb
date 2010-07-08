@@ -1,4 +1,5 @@
 ﻿Imports System.Net
+Imports System.IO
 
 Module WS_Wrapper
 
@@ -73,6 +74,32 @@ Module WS_Wrapper
         Response = rs.ReadToEnd
 
         Return Response
+
+    End Function
+
+    Public Function PostBoatSetup(ByVal Verb As String, ByVal Data As String) As Boolean
+
+        Dim RetVal As Boolean = False
+        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatsetup/" & Verb & ".php"
+
+        Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)
+        Http.Credentials = New NetworkCredential(_LastUser, _LastPassword)
+        Http.UserAgent = GetRouteurUserAgent()
+        Http.CookieContainer = _Cookies
+        Http.Method = "POST"
+        Http.ContentType = "application/json"
+        Dim Sr As Stream = Http.GetRequestStream
+        Dim dataBytes() As Byte = System.Text.Encoding.Unicode.GetBytes(Data)
+        Sr.Write(dataBytes, 0, dataBytes.Count)
+        Sr.Flush()
+        Sr.Close()
+
+
+        Dim wr As WebResponse
+        wr = Http.GetResponse()
+        Dim rs = New System.IO.StreamReader(wr.GetResponseStream)
+        Dim Response As String = rs.ReadToEnd
+        rs.Close()
 
     End Function
 
