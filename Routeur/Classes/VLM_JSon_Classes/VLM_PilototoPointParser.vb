@@ -2,6 +2,7 @@
 
 Module VLM_PilototoPointParser
 
+    Public Const FLD_ID As Integer = 0
     Public Const FLD_DATEVALUE As Integer = 1
     Public Const FLD_ORDERTYPE As Integer = 2
     Public Const FLD_ORDERVALUE As Integer = 3
@@ -25,6 +26,18 @@ Module VLM_PilototoPointParser
 
     End Function
 
+    Public Function GetOrderID(ByVal OrderString As String, ByRef RetID As Integer) As Boolean
+
+        Dim IntValue As Integer
+        If Integer.TryParse(OrderString, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, IntValue) Then
+            RetID = CType(IntValue, EnumRouteMode)
+            Return True
+        Else
+            Return False
+        End If
+
+    End Function
+
     Public Function GetOrderType(ByVal OrderString As String, ByRef RetValue As EnumRouteMode) As Boolean
 
         Dim IntValue As Integer
@@ -36,6 +49,7 @@ Module VLM_PilototoPointParser
         End If
 
     End Function
+
     Public Function OrderIsPending(ByVal OrderString As String) As Boolean
 
         Return OrderString.ToLowerInvariant.Contains("pending")

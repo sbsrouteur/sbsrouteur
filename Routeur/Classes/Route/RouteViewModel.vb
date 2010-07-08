@@ -58,7 +58,7 @@ Public Class RouteViewModel
 
     End Sub
 
-    Public Sub New(ByVal Route() As String)
+    Public Sub New(ByVal IdUser As Integer, ByVal Route() As String)
 
         _Points = New ObservableCollection(Of RoutePointViewBase)
 
@@ -76,18 +76,21 @@ Public Class RouteViewModel
                     If GetOrderType(Fields(FLD_ORDERTYPE), OrderType) Then
 
                         Dim PointView As RoutePointViewBase = Nothing
+                        Dim OrderID As Integer
+
+                        GetOrderID(Fields(FLD_ID), OrderID)
                         GetOrderDate(Fields(FLD_DATEVALUE), OrderDate)
 
                         Select Case OrderType
                             Case EnumRouteMode.Bearing
                                 Dim Value As Double
                                 GetBearingAngleValue(Fields(FLD_ORDERVALUE), Value)
-                                PointView = New RouteBearingPointView(OrderDate, New RoutePointDoubleValue(Value))
+                                PointView = New RouteBearingPointView(IdUser, OrderID, OrderDate, New RoutePointDoubleValue(Value))
 
                             Case EnumRouteMode.Angle
                                 Dim Value As Double
                                 GetBearingAngleValue(Fields(FLD_ORDERVALUE), Value)
-                                PointView = New RouteAnglePointView(OrderDate, New RoutePointDoubleValue(Value))
+                                PointView = New RouteAnglePointView(IdUser, OrderID, OrderDate, New RoutePointDoubleValue(Value))
 
 
                         End Select

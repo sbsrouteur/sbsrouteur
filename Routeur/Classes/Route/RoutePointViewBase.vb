@@ -20,6 +20,8 @@ Public MustInherit Class RoutePointViewBase
     Private _RouteMode As EnumRouteMode
     Private _ActionDate As DateTime
     Private _Pending As Boolean
+    Private _ID As Integer
+    Private _UserID As Integer
 
 
     Public Property ActionDate() As DateTime
@@ -32,6 +34,23 @@ Public MustInherit Class RoutePointViewBase
         End Set
     End Property
 
+    Public Sub Delete()
+
+        If ID = 0 Then
+            Return
+        End If
+
+        'Create the delete query
+        Dim Data As New Dictionary(Of String, Object)
+        Data.Add("taskid", ID)
+        Data.Add("idu", UserID)
+        Data.Add("debug", False)
+
+
+        WS_Wrapper.PostBoatSetup("pilototo_delete", GetStringFromJsonObject(Data))
+
+    End Sub
+
     Public ReadOnly Property EnumRouteModes() As String()
         Get
 
@@ -40,6 +59,15 @@ Public MustInherit Class RoutePointViewBase
         End Get
     End Property
 
+    Public Property ID() As Integer
+        Get
+            Return _ID
+        End Get
+        Set(ByVal value As Integer)
+            _ID = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ID"))
+        End Set
+    End Property
     Public Property IsPending() As Boolean
         Get
             Return _Pending
@@ -85,6 +113,15 @@ Public MustInherit Class RoutePointViewBase
         Return MyBase.SelectTemplate(item, container)
 
     End Function
+    Public Property UserID() As Integer
+        Get
+            Return _UserID
+        End Get
+        Set(ByVal value As Integer)
+            _UserID = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("UserID"))
+        End Set
+    End Property
 End Class
 
 
@@ -113,12 +150,13 @@ Public Class RouteBearingPointView
         RouteMode = EnumRouteMode.Bearing
     End Sub
     
-    Public Sub New(ByVal ActionDate As DateTime, ByVal Bearing As RoutePointDoubleValue)
+    Public Sub New(ByVal UserID As Integer, ByVal ID As Integer, ByVal ActionDate As DateTime, ByVal Bearing As RoutePointDoubleValue)
 
         Me.ActionDate = ActionDate
         RouteValue = Bearing
         Me.RouteMode = EnumRouteMode.Bearing
-
+        Me.ID = ID
+        Me.userId = UserID
     End Sub
 
 End Class
@@ -149,11 +187,12 @@ Public Class RouteAnglePointView
         RouteMode = EnumRouteMode.Angle
     End Sub
 
-    Public Sub New(ByVal ActionDate As DateTime, ByVal Bearing As RoutePointDoubleValue)
+    Public Sub New(ByVal UserID As Integer, ByVal PointID As Integer, ByVal ActionDate As DateTime, ByVal Bearing As RoutePointDoubleValue)
 
         Me.ActionDate = ActionDate
         Me.RouteMode = EnumRouteMode.Angle
         RouteValue = Bearing
-
+        Me.ID = PointID
+        Me.userid = UserID
     End Sub
 End Class
