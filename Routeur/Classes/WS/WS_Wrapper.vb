@@ -87,10 +87,14 @@ Module WS_Wrapper
         Http.UserAgent = GetRouteurUserAgent()
         Http.CookieContainer = _Cookies
         Http.Method = "POST"
-        'Http.ContentType = "application/json; charset=UTF-8"
+        Http.ContentType = "application/x-www-from-urlencoded"
+        'Dim BufStr As String = "{""parms"":" & Data & "}"
+        Dim bufstr = Data
+        'Dim enc As New System.Text.ASCIIEncoding
+        'Dim dataBytes() As Byte = enc.GetBytes(bufstr)
+        ''Dim dataBytes() As Byte = System.Text.Encoding.UTF8.GetBytes("parms=" & Data)
+        'Http.ContentLength = dataBytes.Count
         'Dim Sr As Stream = Http.GetRequestStream
-        ''Dim dataBytes() As Byte = System.Text.Encoding.UTF8.GetBytes("{""parms"":" & Data & "}")
-        'Dim dataBytes() As Byte = System.Text.Encoding.UTF8.GetBytes("parms=" & Data)
         'Sr.Write(dataBytes, 0, dataBytes.Count)
         'Sr.Flush()
         'Sr.Close()

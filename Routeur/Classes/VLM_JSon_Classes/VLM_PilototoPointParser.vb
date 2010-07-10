@@ -6,6 +6,8 @@ Module VLM_PilototoPointParser
     Public Const FLD_DATEVALUE As Integer = 1
     Public Const FLD_ORDERTYPE As Integer = 2
     Public Const FLD_ORDERVALUE As Integer = 3
+    Public Const FLD_LATVALUE As Integer = 3
+    Public Const FLD_LONVALUE As Integer = 4
 
     Public Const MIN_PILOTOTO_FIED_COUNT As Integer = 5
 
@@ -47,6 +49,23 @@ Module VLM_PilototoPointParser
         Else
             Return False
         End If
+
+    End Function
+
+    Public Function GetWPInfo(ByVal LatString As String, ByVal LonString As String, ByRef Lon As Double, ByRef Lat As Double, ByRef WithBearing As Boolean, ByRef Bearing As Double) As Boolean
+
+        Double.TryParse(LatString, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lat)
+        If LonString.Contains("@") Then
+            Double.TryParse(LonString.Substring(0, LonString.IndexOf("@"c)), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon)
+            Double.TryParse(LonString.Substring(LonString.IndexOf("@"c) + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Bearing)
+            WithBearing = Bearing <> -1
+        Else
+            Double.TryParse(LonString, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon)
+            WithBearing = False
+
+        End If
+
+        Return True
 
     End Function
 

@@ -11,6 +11,9 @@ Imports System.Windows.Navigation
 Partial Public Class frmRouteViewer
 
     Private _Model As RouteurModel
+    Private WithEvents _RouteViewModel As RouteViewModel
+
+    Public Event RequestRouteReload()
 
     Public Sub New()
         MyBase.New()
@@ -28,7 +31,8 @@ Partial Public Class frmRouteViewer
     Public Sub New(ByVal Model As RouteurModel)
 
         Me.new()
-        DataContext = Model.GetPilototoRoute
+        _RouteViewModel = Model.GetPilototoRoute
+        DataContext = _RouteViewModel
         _Model = Model
     End Sub
 
@@ -62,4 +66,27 @@ Partial Public Class frmRouteViewer
         End If
     End Sub
 
+    Public Sub RefreshRoute()
+        _RouteViewModel = _Model.GetPilototoRoute
+        DataContext = _RouteViewModel
+    End Sub
+
+    Private Sub _RouteViewModel_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _RouteViewModel.PropertyChanged
+
+        If e.PropertyName = "UPLOAD" Then
+            RaiseEvent RequestRouteReload()
+        End If
+    End Sub
+
+    Private Sub StartTargetCaptureGrab(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
+    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+    End Sub
+
+    Private Sub EndTargetCaptureGrab(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
+    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+    End Sub
+
+    Private Sub AlternateDestCapture(ByVal sender as Object, ByVal e as System.Windows.Input.MouseEventArgs)
+    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+    End Sub
 End Class

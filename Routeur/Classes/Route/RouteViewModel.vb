@@ -65,10 +65,6 @@ Public Class RouteViewModel
 
     Private Sub ItemPropertyChanged(ByVal item As Object, ByVal e As PropertyChangedEventArgs)
 
-        If e.PropertyName = "UPLOAD" Then
-            RaiseEvent PropertyChanged(item, e)
-        End If
-
         RaiseEvent PropertyChanged(item, e)
 
     End Sub
@@ -119,6 +115,17 @@ Public Class RouteViewModel
                                 Dim Value As Double
                                 GetBearingAngleValue(Fields(FLD_ORDERVALUE), Value)
                                 PointView = New RoutePointView(IdUser, OrderID, OrderType, OrderDate, New RoutePointDoubleValue(Value))
+
+                            Case EnumRouteMode.BVMG, EnumRouteMode.Ortho, EnumRouteMode.VMG
+                                Dim Lon As Double
+                                Dim Lat As Double
+                                Dim WithBearing As Boolean
+                                Dim Bearing As Double
+
+                                GetWPInfo(Fields(FLD_LATVALUE), Fields(FLD_LONVALUE), Lon, Lat, WithBearing, Bearing)
+
+                                Dim PointValue As New RoutePointWPValue(Lat, Lon, WithBearing, Bearing)
+                                PointView = New RoutePointView(IdUser, OrderID, OrderType, OrderDate, PointValue)
 
                         End Select
 

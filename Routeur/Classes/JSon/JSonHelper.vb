@@ -45,7 +45,12 @@ Module JSonHelper
 
             RetString &= """" & item.Key & """:"
 
-            If TypeOf item.Value Is Integer Then
+            If item.Value Is Nothing Then
+
+                RetString &= "null"
+
+            ElseIf TypeOf item.Value Is Integer Then
+
                 RetString &= CInt(item.Value).ToString(System.Globalization.CultureInfo.InvariantCulture)
 
             ElseIf TypeOf item.Value Is Boolean Then
@@ -58,6 +63,15 @@ Module JSonHelper
                 RetString &= CDbl(item.Value).ToString(System.Globalization.CultureInfo.InvariantCulture)
             ElseIf TypeOf item.Value Is Long Then
                 RetString &= CLng(item.Value).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            ElseIf TypeOf item.Value Is String Then
+                Dim RetStr As String = CStr(item.Value)
+
+                For Each c As String In New String() {"""", "\", "/", vbCr, vbLf, vbCrLf, vbTab}
+                    RetStr = RetStr.Replace(c, "\" & c)
+                Next
+                RetString &= RetStr
+            ElseIf TypeOf item.Value Is Dictionary(Of String, Object) Then
+                RetString &= GetStringFromJsonObject(CType(item.Value, Dictionary(Of String, Object)))
             Else
                 Throw New InvalidOperationException("unsupported type for json output : " & item.Value.GetType.ToString)
             End If
