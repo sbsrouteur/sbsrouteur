@@ -125,7 +125,9 @@ Public Class RoutePointView
         End Get
         Set(ByVal value As EnumRouteMode)
 
-            If Not ((value = EnumRouteMode.Angle Or value = EnumRouteMode.Bearing) And (_RouteMode = EnumRouteMode.Angle Or _RouteMode = EnumRouteMode.Bearing)) Then
+            Dim valueiswp As Boolean = Not (value = EnumRouteMode.Angle Or value = EnumRouteMode.Bearing)
+            Dim previswp As Boolean = Not (_RouteMode = EnumRouteMode.Angle Or _RouteMode = EnumRouteMode.Bearing)
+            If valueiswp <> previswp Then
 
                 If value = EnumRouteMode.Angle OrElse value = EnumRouteMode.Bearing Then
                     RouteValue = New RoutePointDoubleValue(0)
@@ -182,6 +184,17 @@ Public Class RoutePointView
     '    Return MyBase.SelectTemplate(item, container)
 
     'End Function
+
+    Public Sub SetDraggedValue(ByVal P As Coords)
+
+        If RouteMode = EnumRouteMode.Angle OrElse RouteMode = EnumRouteMode.Bearing Then
+        Else
+            Dim WPValue As RoutePointWPValue = CType(RouteValue, RoutePointWPValue)
+            WPValue.WPLat = P.Lat_Deg
+            WPValue.WPLon = P.Lon_Deg
+
+        End If
+    End Sub
 
     Public ReadOnly Property TaskTime() As Long
         Get
@@ -271,78 +284,3 @@ Public Class RoutePointView
 
     End Sub
 End Class
-
-
-'Public Class RouteBearingPointView
-'    Inherits RoutePointViewBase
-
-'    Private _Value As RoutePointDoubleValue
-
-'    Public Overrides Property RouteValue() As RoutePointValueBase
-'        Get
-'            Return _Value
-'        End Get
-
-'        Set(ByVal value As RoutePointValueBase)
-'            If Not TypeOf value Is RoutePointDoubleValue Then
-'                Throw New InvalidCastException("Can set value to double")
-'            End If
-
-'            _Value = CType(value, RoutePointDoubleValue)
-'            NeedUpdate = True
-'            OnPropertyChanged(New PropertyChangedEventArgs("RouteValue"))
-'        End Set
-
-'    End Property
-
-'    Public Sub New()
-'        RouteValue = New RoutePointDoubleValue(0)
-'        RouteMode = EnumRouteMode.Bearing
-'    End Sub
-
-'    Public Sub New(ByVal UserID As Integer, ByVal ID As Integer, ByVal ActionDate As DateTime, ByVal Bearing As RoutePointDoubleValue)
-
-'        Me.ActionDate = ActionDate
-'        RouteValue = Bearing
-'        Me.RouteMode = EnumRouteMode.Bearing
-'        Me.ID = ID
-'        Me.UserID = UserID
-'        NeedUpdate = False
-'    End Sub
-
-'    Public Overrides Sub Update()
-
-'        'Create the delete query
-'        Dim Data As New Dictionary(Of String, Object)
-'        Data.Add("idu", UserID)
-'        Data.Add("taskid", ID)
-'        Data.Add("pim", CInt(RouteMode))
-'        Data.Add("pip", CType(RouteValue, RoutePointDoubleValue).Value)
-'        Data.Add("tasktime", tasktime)
-
-
-'        WS_Wrapper.PostBoatSetup("pilototo_update", GetStringFromJsonObject(Data))
-
-'    End Sub
-
-'End Class
-
-'Public Class RouteAnglePointView
-
-'    Inherits RoutePointViewBase
-
-'    Private _Value As RoutePointDoubleValue
-
-
-
-'    Public Sub New()
-'        RouteValue = New RoutePointDoubleValue(0)
-'        RouteMode = EnumRouteMode.Angle
-'    End Sub
-
-
-
-
-'    End Sub
-
-'End Class
