@@ -7,7 +7,7 @@
 	x:Class="RouteurMain"
 	x:Name="Window"
 	Width="640" Height="480"
-    Loaded="FormLoaded" Icon="Graphics/sailing ship.ico" Closing="AppQuit"
+    Loaded="FormLoaded" Icon="Graphics/yacht.ico" Closing="AppQuit"
     >
 
 	<Window.Resources>

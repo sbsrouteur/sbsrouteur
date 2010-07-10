@@ -8,7 +8,7 @@ Public Class RoutingGridPoint
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
-    Private _P As VOR_Router.clsrouteinfopoints
+    Private _P As VLM_Router.clsrouteinfopoints
 
     Private _Neighboors() As Coords ' New SortedList(Of Coords, Coords)(4 * (NEIGHBOORS_DIST + 1) * (NEIGHBOORS_DIST + 1), GridRouter.CoordsComparer)
 
@@ -29,7 +29,7 @@ Public Class RoutingGridPoint
 #End If
 
 
-    Public Sub New(ByVal P As VOR_Router.clsrouteinfopoints, ByVal Iteration As Integer, ByVal loch As Double)
+    Public Sub New(ByVal P As VLM_Router.clsrouteinfopoints, ByVal Iteration As Integer, ByVal loch As Double)
 
         Me.P = P
         _Iteration = Iteration
@@ -39,7 +39,7 @@ Public Class RoutingGridPoint
 
     Public Sub New(ByVal Coords As Coords, ByVal Iteration As Integer, ByVal loch As Double)
 
-        Me.P = New VOR_Router.clsrouteinfopoints() With {.P = Coords}
+        Me.P = New VLM_Router.clsrouteinfopoints() With {.P = Coords}
         _Iteration = Iteration
         _Loch = loch
 
@@ -68,7 +68,7 @@ Public Class RoutingGridPoint
         Get
             Dim mi As New MeteoInfo With {.Dir = Me.P.WindDir, .Strength = P.WindStrength}
 
-            Return VOR_Router.CurVMGEnveloppe(mi, P.P, Ortho, VOR_Router.BoatType)
+            Return VLM_Router.CurVMGEnveloppe(mi, P.P, Ortho, VLM_Router.BoatType)
         End Get
     End Property
 
@@ -116,12 +116,12 @@ Public Class RoutingGridPoint
         End Set
     End Property
 
-    Public Property P() As VOR_Router.clsrouteinfopoints
+    Public Property P() As VLM_Router.clsrouteinfopoints
         Get
             Return _P
         End Get
 
-        Set(ByVal value As VOR_Router.clsrouteinfopoints)
+        Set(ByVal value As VLM_Router.clsrouteinfopoints)
             _P = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("P"))
         End Set
@@ -254,7 +254,7 @@ Public Class RoutingGridPoint
                 Dim G As RoutingGridPoint
                 If tc.SurfaceDistance + tc2.SurfaceDistance <= MaxDist Then
 
-                    Dim DirAngle As Double = VOR_Router.WindAngle(BaseCap, tcCheck.Cap)
+                    Dim DirAngle As Double = VLM_Router.WindAngle(BaseCap, tcCheck.Cap)
 
                     If (IgnoreAngle OrElse Math.Abs(DirAngle) <= 120) AndAlso GridRouter.CheckSegmentValid(tcCheck) Then
 

@@ -1,6 +1,6 @@
 ﻿Imports System.Collections.ObjectModel
 Imports System.ComponentModel
-Imports Routeur.RoutePointViewBase
+Imports Routeur.RoutePointView
 
 Public Class RouteViewModel
 
@@ -8,8 +8,12 @@ Public Class RouteViewModel
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
+    Public Const NB_MAX_POINTS_PILOTOTO As Integer = 5
+
     Private _Name As String
-    Private WithEvents _Points As ObservableCollection(Of RoutePointViewBase)
+    Private _IdUser As Integer
+    Private WithEvents _Points As ObservableCollection(Of RoutePointView)
+    Private _NbMaxPoints As Integer = -1
 
     Public Property Name() As String
         Get
@@ -21,11 +25,22 @@ Public Class RouteViewModel
         End Set
     End Property
 
-    Public Property Points() As ObservableCollection(Of RoutePointViewBase)
+    Public Property NbMaxPoints() As Integer
+        Get
+            Return _NbMaxPoints
+        End Get
+        Set(ByVal value As Integer)
+            _NbMaxPoints = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("NbMaxPoints"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CanAddPoints"))
+        End Set
+    End Property
+
+    Public Property Points() As ObservableCollection(Of RoutePointView)
         Get
             Return _Points
         End Get
-        Set(ByVal value As ObservableCollection(Of RoutePointViewBase))
+        Set(ByVal value As ObservableCollection(Of RoutePointView))
             _Points = value
         End Set
     End Property
@@ -35,12 +50,12 @@ Public Class RouteViewModel
         Select Case e.Action
             Case Specialized.NotifyCollectionChangedAction.Add
 
-                For Each item As RoutePointViewBase In e.NewItems
+                For Each item As RoutePointView In e.NewItems
                     AddHandler item.PropertyChanged, AddressOf ItemPropertyChanged
                 Next
 
             Case Specialized.NotifyCollectionChangedAction.Remove
-                For Each item As RoutePointViewBase In e.OldItems
+                For Each item As RoutePointView In e.OldItems
                     RemoveHandler item.PropertyChanged, AddressOf ItemPropertyChanged
                 Next
 
@@ -50,17 +65,35 @@ Public Class RouteViewModel
 
     Private Sub ItemPropertyChanged(ByVal item As Object, ByVal e As PropertyChangedEventArgs)
 
+        If e.PropertyName = "UPLOAD" Then
+            RaiseEvent PropertyChanged(item, e)
+        End If
+
         RaiseEvent PropertyChanged(item, e)
 
     End Sub
 
-    Public Sub New()
+
+    Public ReadOnly Property CanAddPoints() As Boolean
+        Get
+
+            Return NbMaxPoints = -1 OrElse Points Is Nothing OrElse Points.Count < NbMaxPoints
+
+        End Get
+    End Property
+
+    Public Sub AddPoint()
+
+        Dim P As New RoutePointView(_IdUser, 0, RoutePointView.EnumRouteMode.Angle, Now, New RoutePointDoubleValue(0))
+        Points.Add(P)
 
     End Sub
 
-    Public Sub New(ByVal IdUser As Integer, ByVal Route() As String)
+    Public Sub New(ByVal IdUser As Integer, ByVal Route() As String, ByVal MaxPointCount As Integer)
 
-        _Points = New ObservableCollection(Of RoutePointViewBase)
+        _Points = New ObservableCollection(Of RoutePointView)
+        NbMaxPoints = MaxPointCount
+        _IdUser = IdUser
 
         For Each Point As String In Route
 
@@ -75,23 +108,17 @@ Public Class RouteViewModel
 
                     If GetOrderType(Fields(FLD_ORDERTYPE), OrderType) Then
 
-                        Dim PointView As RoutePointViewBase = Nothing
+                        Dim PointView As RoutePointView = Nothing
                         Dim OrderID As Integer
 
                         GetOrderID(Fields(FLD_ID), OrderID)
                         GetOrderDate(Fields(FLD_DATEVALUE), OrderDate)
 
                         Select Case OrderType
-                            Case EnumRouteMode.Bearing
+                            Case EnumRouteMode.Bearing, EnumRouteMode.Angle
                                 Dim Value As Double
                                 GetBearingAngleValue(Fields(FLD_ORDERVALUE), Value)
-                                PointView = New RouteBearingPointView(IdUser, OrderID, OrderDate, New RoutePointDoubleValue(Value))
-
-                            Case EnumRouteMode.Angle
-                                Dim Value As Double
-                                GetBearingAngleValue(Fields(FLD_ORDERVALUE), Value)
-                                PointView = New RouteAnglePointView(IdUser, OrderID, OrderDate, New RoutePointDoubleValue(Value))
-
+                                PointView = New RoutePointView(IdUser, OrderID, OrderType, OrderDate, New RoutePointDoubleValue(Value))
 
                         End Select
 

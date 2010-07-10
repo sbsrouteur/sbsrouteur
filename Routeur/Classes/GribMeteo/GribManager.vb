@@ -24,7 +24,7 @@ Public Class GribManager
     Private Const MAX_INDEX_05 As Integer = CInt(MAX_GRIB_05 / GRIB_GRAIN_05)
     Private Const MAX_INDEX_1 As Integer = CInt((MAX_GRIB_1 - MAX_GRIB_05 - GRIB_GRAIN_1) / GRIB_GRAIN_1) + MAX_INDEX_05
     Private Const MAX_INDEX As Integer = MAX_INDEX_1
-    Private Shared ZULU_OFFSET As Integer = -CInt(TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
+    Public Shared ZULU_OFFSET As Integer = -CInt(TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
 
     Private _MeteoArrays(MAX_INDEX) As MeteoArray
     Private _LastGribDate As DateTime

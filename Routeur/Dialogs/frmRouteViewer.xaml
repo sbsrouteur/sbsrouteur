@@ -4,10 +4,11 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d" xmlns:Custom="http://schemas.microsoft.com/wpf/2008/toolkit"
 	xmlns:local="clr-namespace:Routeur"
+	xmlns:chartingToolkit="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
 	x:Class="frmRouteViewer"
 	x:Name="Window"
-	Title="frmRouteViewer"
-	Width="640" Height="480">
+	Title="Route Editor"
+	Width="640" Height="480" Icon="/Routeur;Component/Graphics/blackboard.ico" WindowStartupLocation="CenterOwner">
 	
 	<Window.Resources>
 	
@@ -15,6 +16,7 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="/Routeur;Component/Styles/ControlsStyles.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
+			<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 	
 			<DataTemplate x:Key="DoubleValueTemplate">
 				<Grid>
@@ -29,23 +31,29 @@
 						<ColumnDefinition Width="*"/>
 						<ColumnDefinition Width="*"/>
 					</Grid.ColumnDefinitions>
-					<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-32.png" Width="32" Height="32"/>
-					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Delete" Grid.Column="1" Height="Auto" Click="RoutePointDelete"/>
-					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Update" Grid.Column="2" Click="RoutePointUpdate"/>
+					<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-48.png" Width="48" Height="48"/>
+					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Delete" Grid.Column="1" Height="48" Click="RoutePointDelete" Template="{DynamicResource TrashButton}" Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Update" Grid.Column="2" Click="RoutePointUpdate" Template="{DynamicResource UploadButton}" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 				</Grid>
 				
 				<DataTemplate.Triggers>
 					<DataTrigger Binding="{Binding IsPending}" Value="false">
-						<Setter TargetName="PendingStatus" Property="Source" Value="/Routeur;Component/Graphics/kalarm_disabled-32.png" />
+						<Setter TargetName="PendingStatus" Property="Source" Value="/Routeur;Component/Graphics/kalarm_disabled-48.png" />
 					</DataTrigger>
 				</DataTemplate.Triggers>
 				
+			</DataTemplate>
+			
+			<DataTemplate x:Key="RoutePointActionDateTemplate">
+				<Grid>
+					<Custom:DatePicker Margin="{DynamicResource DefMargin}"/>
+				</Grid>
 			</DataTemplate>
 	
 			<local:EnumRoutePendingBrushConverter x:Key="EnumRoutePendingBrushConverter"/>
 			<local:EnumRouteModeConverter x:Key="EnumRouteModeConverter"/>
 			<local:CoordsConverter x:Key="CoordsConverter"/>
-			<local:RouteBearingPointView  x:Key="RoutePointBaseViewResource"/>
+			<local:RoutePointView  x:Key="RoutePointBaseViewResource"/>
 			<Style x:Key="RouteRowStyle" TargetType="{x:Type Custom:DataGridRow}">
 				<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
 				<Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -99,24 +107,29 @@
 	</Window.Resources>
 	
 	<Grid x:Name="LayoutRoot">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="0.115*"/>
+			<ColumnDefinition Width="0.885*"/>
+		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="50*" MinHeight="50"/>
 			<RowDefinition Height="Auto" MinHeight="52.836"/>
 		</Grid.RowDefinitions>
-		<Custom:DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}">
+		<Custom:DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.ColumnSpan="2">
 			<Custom:DataGrid.Columns>
 				<Custom:DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=Default}"/>
-				<Custom:DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource }}" Header="Mode"/>
+				<Custom:DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
 				<Custom:DataGridTemplateColumn Header="Value" CellTemplateSelector="{StaticResource RoutePointBaseViewResource}" />
 				<Custom:DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
 				<!--<Custom:DataGridTextColumn Header="Order" Binding="{Binding RouteMode, Mode=Default}"/>-->
 				<!--<Custom:DataGridTextColumn Header="Value" Binding="{Binding RouteValue, Mode=Default}"/>-->
 			</Custom:DataGrid.Columns>
 		</Custom:DataGrid>
-		<DockPanel x:Name="PnlControlButtons" LastChildFill="False" HorizontalAlignment="Right" Margin="0,4,4,4" Grid.Row="2" d:LayoutOverrides="Height">
-			<StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-				<Button x:Name="cmdClose" Content="Close" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdCloseClick" Style="{DynamicResource DefaultButton}"/>
+		<DockPanel x:Name="PnlControlButtons" LastChildFill="False" Grid.Row="1" d:LayoutOverrides="Height, GridBox" Grid.Column="1" HorizontalAlignment="Right">
+			<StackPanel Orientation="Horizontal">
+				<Button x:Name="cmdClose" Content="Close" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdCloseClick" Style="{DynamicResource DefaultButton}" Margin="0"/>
 			</StackPanel>
 		</DockPanel>
+		<Button Margin="3,3,3,0" ToolTip="Add New Point" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource AddNewButton}" Click="AddNewPoint" d:LayoutOverrides="Height" Grid.Row="1" Visibility="{Binding CanAddPoints, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 	</Grid>
 </Window>

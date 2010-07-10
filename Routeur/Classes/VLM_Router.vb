@@ -3,9 +3,9 @@ Imports System.Xml.Serialization
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 Imports System.Math
-Imports Routeur.RoutePointViewBase
+Imports Routeur.RoutePointView
 
-Public Class VOR_Router
+Public Class VLM_Router
 
 
     Implements INotifyPropertyChanged
@@ -596,7 +596,7 @@ Public Class VOR_Router
 
     Public ReadOnly Property PilototoRouteView() As RouteViewModel
         Get
-            Return New RouteViewModel(_PlayerInfo.NumBoat, _Pilototo)
+            Return New RouteViewModel(_PlayerInfo.NumBoat, _Pilototo, RouteViewModel.NB_MAX_POINTS_PILOTOTO)
         End Get
     End Property
 
@@ -2363,7 +2363,7 @@ Public Class VOR_Router
             Dim mi As MeteoInfo = meteo.GetMeteoToDate(New Coords(UserInfo.position.latitude, UserInfo.position.longitude), STart, False)
 
             If Not mi Is Nothing Then
-                Dim V As Double = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, VOR_Router.WindAngle(_UserInfo.position.cap, _UserInfo.position.wind_angle), _UserInfo.position.wind_speed)
+                Dim V As Double = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(_UserInfo.position.cap, _UserInfo.position.wind_angle), _UserInfo.position.wind_speed)
                 If Math.Abs(UserInfo.position.wind_angle - mi.Dir) > 0.1 Then
                     VLMInfoMessage &= " (exp.:" & mi.Dir.ToString("f2") & ")"
                 End If
@@ -3046,7 +3046,7 @@ Public Class BoatInfo
     Public Shared Property ImgList(ByVal Index As String) As BitmapImage
         Get
             If _ImgList(Index) Is Nothing OrElse _ImgList(Index).Width < 10 Then
-                Dim Img As BitmapImage = VOR_Router.GetHttpImage(RouteurModel.BASE_GAME_URL & "/flagimg.php?idflags=" & Index, Nothing)
+                Dim Img As BitmapImage = VLM_Router.GetHttpImage(RouteurModel.BASE_GAME_URL & "/flagimg.php?idflags=" & Index, Nothing)
                 _ImgList(Index) = Img
 
             End If

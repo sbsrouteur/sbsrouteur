@@ -1,4 +1,4 @@
-﻿Imports Routeur.RoutePointViewBase
+﻿Imports Routeur.RoutePointView
 
 Module VLM_PilototoPointParser
 

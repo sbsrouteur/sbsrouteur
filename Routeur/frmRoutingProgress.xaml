@@ -5,7 +5,7 @@
 	x:Class="frmRoutingProgress"
 	x:Name="Window"
 	Title="{Binding Title, Mode=Default}" mc:Ignorable="d"
-	Width="200" Height="62" ResizeMode="NoResize" Icon="Graphics/sailing ship.ico" WindowStyle="ToolWindow">
+	Width="200" Height="62" ResizeMode="NoResize" Icon="Graphics/yacht.ico" WindowStyle="ToolWindow">
 
 	<Grid x:Name="LayoutRoot">
 		<Grid.ColumnDefinitions>

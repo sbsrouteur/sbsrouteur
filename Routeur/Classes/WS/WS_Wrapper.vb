@@ -80,19 +80,20 @@ Module WS_Wrapper
     Public Function PostBoatSetup(ByVal Verb As String, ByVal Data As String) As Boolean
 
         Dim RetVal As Boolean = False
-        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatsetup/" & Verb & ".php"
+        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatsetup/" & Verb & ".php?parms=" & Data
 
         Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)
         Http.Credentials = New NetworkCredential(_LastUser, _LastPassword)
         Http.UserAgent = GetRouteurUserAgent()
         Http.CookieContainer = _Cookies
         Http.Method = "POST"
-        Http.ContentType = "application/json"
-        Dim Sr As Stream = Http.GetRequestStream
-        Dim dataBytes() As Byte = System.Text.Encoding.Unicode.GetBytes(Data)
-        Sr.Write(dataBytes, 0, dataBytes.Count)
-        Sr.Flush()
-        Sr.Close()
+        'Http.ContentType = "application/json; charset=UTF-8"
+        'Dim Sr As Stream = Http.GetRequestStream
+        ''Dim dataBytes() As Byte = System.Text.Encoding.UTF8.GetBytes("{""parms"":" & Data & "}")
+        'Dim dataBytes() As Byte = System.Text.Encoding.UTF8.GetBytes("parms=" & Data)
+        'Sr.Write(dataBytes, 0, dataBytes.Count)
+        'Sr.Flush()
+        'Sr.Close()
 
 
         Dim wr As WebResponse
@@ -100,6 +101,9 @@ Module WS_Wrapper
         Dim rs = New System.IO.StreamReader(wr.GetResponseStream)
         Dim Response As String = rs.ReadToEnd
         rs.Close()
+
+        Return Response.Contains("""Success"":True")
+
 
     End Function
 

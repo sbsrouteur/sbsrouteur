@@ -46,14 +46,18 @@ Module JSonHelper
             RetString &= """" & item.Key & """:"
 
             If TypeOf item.Value Is Integer Then
-                RetString &= CStr(item.Value)
+                RetString &= CInt(item.Value).ToString(System.Globalization.CultureInfo.InvariantCulture)
 
             ElseIf TypeOf item.Value Is Boolean Then
                 If CBool(item.Value) Then
-                    RetString &= True
+                    RetString &= "true"
                 Else
-                    RetString &= False
+                    RetString &= "false"
                 End If
+            ElseIf TypeOf item.Value Is Double Then
+                RetString &= CDbl(item.Value).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            ElseIf TypeOf item.Value Is Long Then
+                RetString &= CLng(item.Value).ToString(System.Globalization.CultureInfo.InvariantCulture)
             Else
                 Throw New InvalidOperationException("unsupported type for json output : " & item.Value.GetType.ToString)
             End If

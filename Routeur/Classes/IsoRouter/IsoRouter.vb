@@ -1,5 +1,5 @@
 ﻿Imports System.Threading
-Imports Routeur.VOR_Router
+Imports Routeur.VLM_Router
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 
@@ -242,7 +242,7 @@ Public Class IsoRouter
         Return RetPoint
     End Function
 
-    Public Function RouteToPoint(ByVal C As Coords) As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+    Public Function RouteToPoint(ByVal C As Coords) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
 
         Dim TC As New TravelCalculator
         TC.StartPoint = _StartPoint.P
@@ -273,9 +273,9 @@ Public Class IsoRouter
         End If
     End Function
 
-    Public Function RouteToPoint(ByVal c As clsrouteinfopoints) As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+    Public Function RouteToPoint(ByVal c As clsrouteinfopoints) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
 
-        Dim RetRoute As New ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+        Dim RetRoute As New ObservableCollection(Of VLM_Router.clsrouteinfopoints)
         Try
             If c Is Nothing Then
                 Return RetRoute
@@ -322,7 +322,7 @@ Public Class IsoRouter
             Return _IsoChrones
         End Get
     End Property
-    Public ReadOnly Property Route() As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+    Public ReadOnly Property Route() As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
         Get
 
             Return RouteToPoint(_CurBest)
@@ -337,7 +337,7 @@ Public Class IsoRouter
         If _IsoRouteThread Is Nothing Then
             _IsoRouteThread = New Thread(AddressOf IsoRouteThread)
             _CancelRequested = False
-            _StartPoint = New VOR_Router.clsrouteinfopoints
+            _StartPoint = New VLM_Router.clsrouteinfopoints
             _TC.StartPoint = From
             _TC.EndPoint = Dest
 

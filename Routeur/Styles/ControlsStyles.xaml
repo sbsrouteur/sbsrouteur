@@ -67,5 +67,29 @@
 		     </Setter.Value>
 		 </Setter>
 	</Style>
+    
+	<ControlTemplate x:Key="TrashButton" TargetType="{x:Type Button}">
+    	<Grid>
+    		<Button >
+    			<Image Height="Auto" Source="/Routeur;Component/Graphics/Trash_48.png" Margin="{DynamicResource DefMargin}"/>
+    		</Button>
+    	</Grid>
+    </ControlTemplate>
+	
+    <ControlTemplate x:Key="UploadButton" TargetType="{x:Type Button}">
+    	<Grid>
+    		<Button >
+    			<Image Height="Auto" Source="/Routeur;Component/Graphics/Up_48.png" Margin="{DynamicResource DefMargin}"/>
+    		</Button>
+    	</Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="AddNewButton" TargetType="{x:Type Button}">
+    	<Grid>
+    		<Button >
+    			<Image Height="Auto" Source="/Routeur;Component/Graphics/Share-plus-48.png" Margin="{DynamicResource DefMargin}"/>
+    		</Button>
+    	</Grid>
+    </ControlTemplate>
 
 </ResourceDictionary>

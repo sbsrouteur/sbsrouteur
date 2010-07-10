@@ -273,12 +273,12 @@ Render1:
         End Try
     End Sub
 
-    Private Delegate Sub UpdatePathDelegate(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VOR_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
+    Private Delegate Sub UpdatePathDelegate(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VLM_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
                                                 ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint))
 
 
     Private Sub SafeDrawLine(ByVal dc As DrawingContext, ByVal PrevP As Coords, ByVal P As Coords, ByVal pe As Pen, ByVal Prevpoint As Point, ByVal NewP As Point)
-        If (PrevP.Lon * P.Lon < 0 AndAlso Math.Abs(P.Lon - PrevP.Lon) >= Math.PI)  Then
+        If (PrevP.Lon * P.Lon < 0 AndAlso Math.Abs(P.Lon - PrevP.Lon) >= Math.PI) Then
             Dim Pint As Point
 
             If PrevP.Lon < 0 Then
@@ -303,7 +303,7 @@ Render1:
 
         End If
     End Sub
-    Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VOR_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
+    Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VLM_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
                           ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint))
 
         Static Invoking As Integer = 0
