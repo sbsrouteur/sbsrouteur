@@ -12,6 +12,8 @@ Partial Public Class frmRouteViewer
 
     Private _Model As RouteurModel
     Private WithEvents _RouteViewModel As RouteViewModel
+    Private _bCapture As Boolean
+    Private _CapturePoint As RoutePointView
 
     Public Event RequestRouteReload()
 
@@ -78,15 +80,30 @@ Partial Public Class frmRouteViewer
         End If
     End Sub
 
-    Private Sub StartTargetCaptureGrab(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
-    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+    Private Sub StartTargetCaptureGrab(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
+        _bCapture = Mouse.Capture(CType(e.Source, IInputElement))
+        _CapturePoint = CType(CType(sender, Image).DataContext, RoutePointView)
+        Mouse.OverrideCursor = Cursors.Cross
     End Sub
 
-    Private Sub EndTargetCaptureGrab(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
-    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+    Private Sub EndTargetCaptureGrab(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
+        'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+        Mouse.Capture(Nothing)
+        Mouse.OverrideCursor = Nothing
+        _bCapture = Nothing
+        'LayoutRoot.Background = _StartBrush
     End Sub
 
-    Private Sub AlternateDestCapture(ByVal sender as Object, ByVal e as System.Windows.Input.MouseEventArgs)
-    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+    Private Sub AlternateDestCapture(ByVal sender As Object, ByVal e As System.Windows.Input.MouseEventArgs)
+        Dim owner As RouteurMain = CType(Me.Owner, RouteurMain)
+        If Not owner Is Nothing AndAlso _bCapture Then
+
+            Dim P As Point = owner.RenderCanvasCoords(e)
+            Dim M As RouteurModel = CType(owner.FindResource("RouteurModel"), RouteurModel)
+            '_Context.RouteDest = M.CanvasToCoords(P)
+            _CapturePoint.SetDraggedValue(_Model.CanvasToCoords(P))
+        End If
+
     End Sub
+
 End Class

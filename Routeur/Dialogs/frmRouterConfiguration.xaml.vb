@@ -54,11 +54,13 @@ Partial Public Class frmRouterConfiguration
         _bCapture = Mouse.Capture(CType(e.Source, IInputElement))
         _StartBrush = LayoutRoot.Background
         LayoutRoot.Background = _AlphaBrush
+        Mouse.OverrideCursor = Cursors.Cross
     End Sub
 
     Private Sub EndTargetCaptureGrab(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
     	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
         Mouse.Capture(Nothing)
+        Mouse.OverrideCursor = Nothing
         _bCapture = Nothing
         LayoutRoot.Background = _StartBrush
     End Sub
