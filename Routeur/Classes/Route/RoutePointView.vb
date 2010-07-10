@@ -2,8 +2,7 @@
 
 Public Class RoutePointView
 
-    Inherits DataTemplateSelector
-
+    
     Implements INotifyPropertyChanged
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -23,7 +22,7 @@ Public Class RoutePointView
     Private _ID As Integer
     Private _UserID As Integer
     Private _NeedUpdate As Boolean
-    Private _routevalue As RoutePointValueBase
+    Private WithEvents _routevalue As RoutePointValueBase
 
 
     Public Property ActionDate() As DateTime
@@ -69,6 +68,28 @@ Public Class RoutePointView
         End Get
     End Property
 
+    Public ReadOnly Property HasDoubleValue() As Visibility
+        Get
+
+            If RouteMode = EnumRouteMode.Angle OrElse RouteMode = EnumRouteMode.Bearing Then
+                Return Visibility.Visible
+            Else
+                Return Visibility.Collapsed
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property HasWPValue() As Visibility
+        Get
+
+            If RouteMode = EnumRouteMode.Angle OrElse RouteMode = EnumRouteMode.Bearing Then
+                Return Visibility.Collapsed
+            Else
+                Return Visibility.Visible
+            End If
+        End Get
+    End Property
+
     Public Property ID() As Integer
         Get
             Return _ID
@@ -103,9 +124,20 @@ Public Class RoutePointView
             Return _RouteMode
         End Get
         Set(ByVal value As EnumRouteMode)
+
+            If Not ((value = EnumRouteMode.Angle Or value = EnumRouteMode.Bearing) And (_RouteMode = EnumRouteMode.Angle Or _RouteMode = EnumRouteMode.Bearing)) Then
+
+                If value = EnumRouteMode.Angle OrElse value = EnumRouteMode.Bearing Then
+                    RouteValue = New RoutePointDoubleValue(0)
+                Else
+                    RouteValue = New RoutePointWPValue
+                End If
+            End If
             _RouteMode = value
             NeedUpdate = True
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RouteMode"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("HasDoubleValue"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("HasWPValue"))
 
         End Set
     End Property
@@ -130,22 +162,26 @@ Public Class RoutePointView
 
     End Sub
 
-    Public Overrides Function SelectTemplate(ByVal item As Object, ByVal container As System.Windows.DependencyObject) As System.Windows.DataTemplate
+    'Public Overrides Function SelectTemplate(ByVal item As Object, ByVal container As System.Windows.DependencyObject) As System.Windows.DataTemplate
 
-        Dim element As FrameworkElement
-        element = TryCast(container, FrameworkElement)
+    '    Dim element As FrameworkElement
+    '    element = TryCast(container, FrameworkElement)
 
-        If element IsNot Nothing AndAlso item IsNot Nothing Then
-            Select Case CType(item, RoutePointView).RouteMode
-                Case EnumRouteMode.Angle, EnumRouteMode.Bearing
-                    Return DirectCast(element.FindResource("DoubleValueTemplate"), DataTemplate)
-            End Select
+    '    If element IsNot Nothing AndAlso item IsNot Nothing Then
+    '        Select Case CType(item, RoutePointView).RouteMode
+    '            Case EnumRouteMode.Angle, EnumRouteMode.Bearing
+    '                Return DirectCast(element.FindResource("DoubleValueTemplate"), DataTemplate)
 
-        End If
+    '            Case EnumRouteMode.BVMG, EnumRouteMode.VMG, EnumRouteMode.Ortho
+    '                Return DirectCast(element.FindResource("WPValueTemplate"), DataTemplate)
 
-        Return MyBase.SelectTemplate(item, container)
+    '        End Select
 
-    End Function
+    '    End If
+
+    '    Return MyBase.SelectTemplate(item, container)
+
+    'End Function
 
     Public ReadOnly Property TaskTime() As Long
         Get
@@ -169,7 +205,21 @@ Public Class RoutePointView
         Data.Add("pim", CInt(RouteMode))
         Select Case RouteMode
             Case EnumRouteMode.Angle, EnumRouteMode.Bearing
-                Data.Add("pip", CType(RouteValue, RoutePointDoubleValue).Value)
+                Data.Add("pip", CType(RouteValue, RoutePointDoubleValue).Value.ToString("f1", System.Globalization.CultureInfo.InvariantCulture))
+
+            Case EnumRouteMode.BVMG, EnumRouteMode.Ortho, EnumRouteMode.VMG
+                Dim WPData As New Dictionary(Of String, Object)
+                Dim WPValue As RoutePointWPValue = CType(RouteValue, RoutePointWPValue)
+                WPData.Add("targetlat", WPValue.WPLat)
+                WPData.Add("targetlong", WPValue.WPLon)
+
+                If WPValue.SetBearingAtWP Then
+                    WPData.Add("targetandhdg", WPValue.BearingAtWP)
+                Else
+                    WPData.Add("targetandhdg", Nothing)
+                End If
+
+                Data.Add("pip", WPData)
         End Select
 
         Data.Add("tasktime", TaskTime)
@@ -196,7 +246,16 @@ Public Class RoutePointView
     Public Sub New(ByVal UserID As Integer, ByVal PointID As Integer, ByVal PointType As EnumRouteMode, ByVal ActionDate As DateTime, ByVal value As RoutePointDoubleValue)
 
         Me.ActionDate = ActionDate
-        Me.RouteMode = EnumRouteMode.Angle
+        RouteMode = PointType
+        RouteValue = value
+        Me.ID = PointID
+        Me.UserID = UserID
+        NeedUpdate = False
+
+    End Sub
+    Public Sub New(ByVal UserID As Integer, ByVal PointID As Integer, ByVal PointType As EnumRouteMode, ByVal ActionDate As DateTime, ByVal value As RoutePointWPValue)
+
+        Me.ActionDate = ActionDate
         RouteMode = PointType
         RouteValue = value
         Me.ID = PointID
@@ -205,6 +264,12 @@ Public Class RoutePointView
 
     End Sub
 
+    Private Sub _routevalue_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _routevalue.PropertyChanged
+
+        NeedUpdate = True
+        RaiseEvent PropertyChanged(sender, e)
+
+    End Sub
 End Class
 
 

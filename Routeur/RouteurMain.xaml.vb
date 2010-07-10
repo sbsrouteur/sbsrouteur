@@ -21,6 +21,7 @@ Partial Public Class RouteurMain
     Private _DragCanvas As Boolean = False
     Private _DragStartPoint As Point
     Private _ZoomIn As Boolean = False
+    Private WithEvents _RouteForm As frmRouteViewer
 
     Public Shared ReadOnly TravelCalculatorProperty As DependencyProperty = _
                            DependencyProperty.Register("TravelCalculator", _
@@ -303,10 +304,15 @@ Partial Public Class RouteurMain
 
     Private Sub ShowPilototoRouteDlg(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
 
-        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+        If _RouteForm Is Nothing Then
+            Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
-        Dim frm As New frmRouteViewer(M)
-        frm.Show()
+            _RouteForm = New frmRouteViewer(M)
+            _RouteForm.Owner = Me
+
+        End If
+
+        _RouteForm.Show()
 
     End Sub
 
@@ -321,7 +327,6 @@ Partial Public Class RouteurMain
     End Sub
 
     Private Sub ReloadPilototo(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
-    	'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         M.VorHandler.getboatinfo(True)
@@ -376,20 +381,26 @@ Partial Public Class RouteurMain
     End Sub
 
     Private Sub ReScaleMap(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
-        'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         UpdateCoordsExtent(M, False, True)
     End Sub
 
     Private Sub RestoreMapScale(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
-        'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         UpdateCoordsExtent(M, True, True)
     End Sub
 
+    Private Sub _RouteForm_Closed(ByVal sender As Object, ByVal e As System.EventArgs) Handles _RouteForm.Closed
+        _RouteForm = Nothing
+    End Sub
 
 
 
+
+    Private Sub _RouteForm_RequestRouteReload() Handles _RouteForm.RequestRouteReload
+        ReloadPilototo(Nothing, Nothing)
+        _RouteForm.RefreshRoute()
+    End Sub
 End Class
