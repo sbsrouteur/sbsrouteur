@@ -343,7 +343,7 @@ Partial Public Class RouteurMain
 
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
-        Dim V As VOR_Router = M.VorHandler
+        Dim V As VLM_Router = M.VorHandler
         'Dim P As New Point
         'P.X = V.BoatCanvasX
         'P.Y = V.BoatCanvasY

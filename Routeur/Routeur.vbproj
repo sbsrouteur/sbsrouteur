@@ -33,7 +33,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <ApplicationIcon>Graphics\sailing ship.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
     <ExpressionBlendVersion>3.0.1938.0</ExpressionBlendVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -58,7 +59,7 @@
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314</NoWarn>
     <DebugType>Full</DebugType>
-    <DefineConstants>BSP_STATS=1 , GRID_STATS=0, NO_MAP=0</DefineConstants>
+    <DefineConstants>BSP_STATS=1 , GRID_STATS=0, NO_MAP=0,TESTING=0</DefineConstants>
     <PlatformTarget>x86</PlatformTarget>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -100,6 +101,7 @@
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Controls.DataVisualization.Toolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -241,7 +243,7 @@
     <Compile Include="Classes\Route\RouteConverters.vb" />
     <Compile Include="Classes\Route\RoutePointValueBase.vb" />
     <Compile Include="Classes\Route\RouteViewModel.vb" />
-    <Compile Include="Classes\Route\RoutePointViewBase.vb" />
+    <Compile Include="Classes\Route\RoutePointView.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMBoatInfo.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMRaceInfo.vb" />
     <Compile Include="Classes\RegistryPlayerInfo.vb" />
@@ -250,7 +252,7 @@
     <Compile Include="Classes\TravelCalculator.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLM_PilototoPointParser.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLM_RaceWaypoint.vb" />
-    <Compile Include="Classes\VOR_Router.vb" />
+    <Compile Include="Classes\VLM_Router.vb" />
     <Compile Include="Classes\WS\WS_Wrapper.vb" />
     <Compile Include="Controls\WindArrow.xaml.vb">
       <DependentUpon>WindArrow.xaml</DependentUpon>
@@ -371,16 +373,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Graphics\sailing ship.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Graphics\1or002c.gif" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\Sailor.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Graphics\Sailingship-32.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\OKShield-48.png" />
@@ -419,8 +415,18 @@
     <Resource Include="Graphics\Target-32.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Graphics\kalarm-32.png" />
-    <Resource Include="Graphics\kalarm_disabled-32.png" />
+    <Resource Include="Graphics\Up_48.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\kalarm-48.png" />
+    <Resource Include="Graphics\kalarm_disabled-48.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\Sailingship-32.png" />
+    <Resource Include="Graphics\Yacht.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\Share-plus-48.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

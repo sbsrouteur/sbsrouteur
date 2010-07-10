@@ -34,16 +34,32 @@ Partial Public Class frmRouteViewer
 
     Private Sub RoutePointDelete(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
         'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
-        Dim RoutePoint As RoutePointViewBase
+        Dim RoutePoint As RoutePointView
 
-        If TypeOf sender Is Button AndAlso TypeOf CType(sender, Button).DataContext Is RoutePointViewBase Then
-            RoutePoint = CType(CType(sender, Button).DataContext, RoutePointViewBase)
+        If TypeOf sender Is Button AndAlso TypeOf CType(sender, Button).DataContext Is RoutePointView Then
+            RoutePoint = CType(CType(sender, Button).DataContext, RoutePointView)
             RoutePoint.Delete()
         End If
     End Sub
 
     Private Sub RoutePointUpdate(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
         'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+        Dim RoutePoint As RoutePointView
+
+        If TypeOf sender Is Button AndAlso TypeOf CType(sender, Button).DataContext Is RoutePointView Then
+            RoutePoint = CType(CType(sender, Button).DataContext, RoutePointView)
+            RoutePoint.Update()
+        End If
+    End Sub
+
+    Private Sub AddNewPoint(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+
+        Dim Route As RouteViewModel
+
+        If TypeOf sender Is Button AndAlso TypeOf CType(sender, Button).DataContext Is RouteViewModel Then
+            Route = CType(CType(sender, Button).DataContext, RouteViewModel)
+            Route.AddPoint()
+        End If
     End Sub
 
 End Class

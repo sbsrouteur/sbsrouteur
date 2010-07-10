@@ -157,7 +157,7 @@ Public Class GridRouter
                 ETA.AddHours(0.5)
             Else
                 NoWindCount = 0
-                speed = _SailManager.GetBestSailSpeed(BoatType, Sail, VOR_Router.WindAngle(Cap, Mi.Dir), Mi.Strength)
+                speed = _SailManager.GetBestSailSpeed(BoatType, Sail, VLM_Router.WindAngle(Cap, Mi.Dir), Mi.Strength)
                 If speed < 1 AndAlso speed < Mi.Strength / 10 Then
                     'NoSpeed()
                     Exit Do
@@ -205,20 +205,20 @@ Public Class GridRouter
     End Function
 
 
-    Public Function RouteToPoint(ByVal c As ICoords) As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+    Public Function RouteToPoint(ByVal c As ICoords) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
 
         Dim c2 As Coords = New Coords(c)
         c2.RoundTo(RouteurModel.GridGrain)
         If _GridPointsList.Contains(c2) Then
             Return RouteToPoint(CType(_GridPointsList(c2), RoutingGridPoint))
         Else
-            Return New ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+            Return New ObservableCollection(Of VLM_Router.clsrouteinfopoints)
         End If
     End Function
 
-    Public Function RouteToPoint(ByVal c As RoutingGridPoint) As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+    Public Function RouteToPoint(ByVal c As RoutingGridPoint) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
 
-        Dim RetRoute As New ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+        Dim RetRoute As New ObservableCollection(Of VLM_Router.clsrouteinfopoints)
         Try
             If c Is Nothing Then
                 Return RetRoute
@@ -260,7 +260,7 @@ Public Class GridRouter
         Return RetRoute
     End Function
 
-    Public ReadOnly Property Route() As ObservableCollection(Of VOR_Router.clsrouteinfopoints)
+    Public ReadOnly Property Route() As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
         Get
 
             Return RouteToPoint(_CurBestTarget)
@@ -370,42 +370,42 @@ Public Class GridRouter
         Try
 #End If
 
-            If TC.SurfaceDistance = 0 Or RouteurModel.NoObstacle Then
-                Return True
-            End If
+        If TC.SurfaceDistance = 0 Or RouteurModel.NoObstacle Then
+            Return True
+        End If
 
-            If GSHHS_Reader.HitTest(TC.EndPoint, GRID_HIT_TOLERANCE, GSHHS_Reader.Polygons(TC.EndPoint), True) Then
+        If GSHHS_Reader.HitTest(TC.EndPoint, GRID_HIT_TOLERANCE, GSHHS_Reader.Polygons(TC.EndPoint), True) Then
+            Return False
+        End If
+
+        Dim Dx As Double = TC.EndPoint.Lon - TC.StartPoint.Lon
+        Dim Dy As Double = TC.EndPoint.Lat - TC.StartPoint.Lat
+        Dim CurP As New Coords(TC.StartPoint)
+        Dim SegmentStep As Integer
+        Dim i As Integer
+        If Math.Abs(Dx) > Math.Abs(Dy) Then
+            SegmentStep = CInt(Math.Ceiling(Dx / Px))
+        Else
+            SegmentStep = CInt(Math.Ceiling(Dy / Px))
+        End If
+
+        If SegmentStep < 0 Then
+            SegmentStep = -SegmentStep
+        End If
+
+        Dx /= SegmentStep
+        Dy /= SegmentStep
+
+        For i = 1 To SegmentStep
+            CurP.Lon += Dx
+            CurP.Lat += Dy
+            Dim Polys = GSHHS_Reader.Polygons(CurP)
+            If GSHHS_Reader.HitTest(CurP, GRID_HIT_TOLERANCE, Polys, True) Then
                 Return False
             End If
+        Next
 
-            Dim Dx As Double = TC.EndPoint.Lon - TC.StartPoint.Lon
-            Dim Dy As Double = TC.EndPoint.Lat - TC.StartPoint.Lat
-            Dim CurP As New Coords(TC.StartPoint)
-            Dim SegmentStep As Integer
-            Dim i As Integer
-            If Math.Abs(Dx) > Math.Abs(Dy) Then
-                SegmentStep = CInt(Math.Ceiling(Dx / Px))
-            Else
-                SegmentStep = CInt(Math.Ceiling(Dy / Px))
-            End If
-
-            If SegmentStep < 0 Then
-                SegmentStep = -SegmentStep
-            End If
-
-            Dx /= SegmentStep
-            Dy /= SegmentStep
-
-            For i = 1 To SegmentStep
-                CurP.Lon += Dx
-                CurP.Lat += Dy
-                Dim Polys = GSHHS_Reader.Polygons(CurP)
-                If GSHHS_Reader.HitTest(CurP, GRID_HIT_TOLERANCE, Polys, True) Then
-                    Return False
-                End If
-            Next
-
-            Return True
+        Return True
 
 #If GRID_STAT Then
         Finally
@@ -610,7 +610,7 @@ Public Class GridRouter
                     If Not C Is Nothing Then
                         N = CType(_GridPointsList(C), RoutingGridPoint)
                         TC.EndPoint = N.P.P
-                        If FromAngle <> -1 AndAlso VOR_Router.WindAngle(TC.Cap, FromAngle) > 90 Then
+                        If FromAngle <> -1 AndAlso VLM_Router.WindAngle(TC.Cap, FromAngle) > 90 Then
                             Continue For
                         End If
 

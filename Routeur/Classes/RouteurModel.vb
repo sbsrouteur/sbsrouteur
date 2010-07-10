@@ -12,7 +12,7 @@ Public Class RouteurModel
 
     Public Event BoatsDrawn()
 
-    Private WithEvents _VorHandler As VOR_Router
+    Private WithEvents _VorHandler As VLM_Router
     Private WithEvents _2DViewer As _2D_Viewer
     Private _Prefs As RacePrefs
 
@@ -31,17 +31,23 @@ Public Class RouteurModel
     Private Shared _BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
 
 
-    Private Dim _Scale As Double = 1
+    Private _Scale As Double = 1
     Public _LatOffset As Double = 0
     Public _LonOffset As Double = 0
 
     Public Const PenWidth As Double = 0.3
 
+#If TESTING = 1 Then
+    Public Const S11_SERVER As String = "http://testing.virtual-loup-de-mer.org"
+    Public Const S10_SERVER As String = "http://testing.virtual-loup-de-mer.org"
+#Else
     Public Const S11_SERVER As String = "http://virtual-loup-de-mer.org"
     Public Const S10_SERVER As String = "http://tcv.virtual-loup-de-mer.org"
-    Public Const BASE_SAIL_URL As String = "http://www.virtual-loup-de-mer.org/Polaires/"
+
+#End If
 
     Public Shared BASE_GAME_URL As String = S11_SERVER
+    Public Shared BASE_SAIL_URL As String = BASE_GAME_URL & "/Polaires/"
 
     Public Shared VacationMinutes As Double = 5
     Public Shared MapLevel As String = "l"
@@ -76,7 +82,7 @@ Public Class RouteurModel
     Public Const METEO_GIRD_SIZE As Integer = 10
     Public Const METEO_GRID_STEP As Double = 1
 
-    
+
     Public Const LAKE_RACE As Boolean = False
 
     'Exclusion Neg East/South
@@ -602,11 +608,11 @@ Public Class RouteurModel
         End Set
     End Property
 
-    Public Property VorHandler() As VOR_Router
+    Public Property VorHandler() As VLM_Router
         Get
 
             If _VorHandler Is Nothing Then
-                _VorHandler = New VOR_Router
+                _VorHandler = New VLM_Router
                 '_VorHandler.GetBoatInfo()
                 _VorHandler.DebugTest()
             End If
@@ -618,7 +624,7 @@ Public Class RouteurModel
             Return _VorHandler
         End Get
 
-        Set(ByVal value As VOR_Router)
+        Set(ByVal value As VLM_Router)
             _VorHandler = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("VorHandler"))
         End Set
@@ -679,7 +685,7 @@ Public Class RouteurModel
         If System.Threading.Monitor.TryEnter(Me) Then
             If Not The2DViewer Is Nothing And Not _Busy Then
 
-                Static routes As ObservableCollection(Of VOR_Router.clsrouteinfopoints)() = New ObservableCollection(Of VOR_Router.clsrouteinfopoints)() _
+                Static routes As ObservableCollection(Of VLM_Router.clsrouteinfopoints)() = New ObservableCollection(Of VLM_Router.clsrouteinfopoints)() _
                                 {VorHandler.PlannedRoute, VorHandler.BestRouteAtPoint, VorHandler.BruteRoute, VorHandler.TempRoute, _
                                  VorHandler.TempVMGRoute, VorHandler.AllureRoute, VorHandler.PilototoRoute}
                 Dim Traj As String
