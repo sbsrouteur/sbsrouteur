@@ -61,6 +61,8 @@ Public Class RouteViewModel
 
         End Select
 
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CanAddPoints"))
+
     End Sub
 
     Private Sub ItemPropertyChanged(ByVal item As Object, ByVal e As PropertyChangedEventArgs)

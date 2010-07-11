@@ -112,7 +112,6 @@ Public Class RoutePointWPValue
     Public ReadOnly Property UseCustomWP() As Boolean
         Get
             Return Not _UseRaceWP
-            OnPropertyChanged(New PropertyChangedEventArgs("UseCustomWP"))
         End Get
     End Property
 

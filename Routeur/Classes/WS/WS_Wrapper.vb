@@ -1,5 +1,6 @@
 ﻿Imports System.Net
 Imports System.IO
+Imports System.Web
 
 Module WS_Wrapper
 
@@ -80,24 +81,24 @@ Module WS_Wrapper
     Public Function PostBoatSetup(ByVal Verb As String, ByVal Data As String) As Boolean
 
         Dim RetVal As Boolean = False
-        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatsetup/" & Verb & ".php?parms=" & Data
+        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatsetup/" & Verb & ".php" '?parms=" & Data
 
         Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)
         Http.Credentials = New NetworkCredential(_LastUser, _LastPassword)
         Http.UserAgent = GetRouteurUserAgent()
         Http.CookieContainer = _Cookies
         Http.Method = "POST"
-        Http.ContentType = "application/x-www-from-urlencoded"
-        'Dim BufStr As String = "{""parms"":" & Data & "}"
-        Dim bufstr = Data
+        Http.ContentType = "application/x-www-form-urlencoded"
+        Dim BufStr As String = "parms=" & HttpUtility.UrlEncode(Data)
+        'Dim bufstr = Data
         'Dim enc As New System.Text.ASCIIEncoding
-        'Dim dataBytes() As Byte = enc.GetBytes(bufstr)
-        ''Dim dataBytes() As Byte = System.Text.Encoding.UTF8.GetBytes("parms=" & Data)
+        Dim dataBytes() As Byte = System.Text.Encoding.ASCII.GetBytes(BufStr)
+        'Dim dataBytes() As Byte = System.Text.Encoding.UTF8.GetBytes(BufStr)
         'Http.ContentLength = dataBytes.Count
-        'Dim Sr As Stream = Http.GetRequestStream
-        'Sr.Write(dataBytes, 0, dataBytes.Count)
-        'Sr.Flush()
-        'Sr.Close()
+        Dim Sr As Stream = Http.GetRequestStream
+        Sr.Write(dataBytes, 0, dataBytes.Count)
+        Sr.Flush()
+        Sr.Close()
 
 
         Dim wr As WebResponse
