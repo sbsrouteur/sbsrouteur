@@ -45,7 +45,7 @@
 						<CheckBox Grid.Column="2" Content="Set bearing at WP" IsChecked="{Binding RouteValue.SetBearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 						<TextBox Grid.Row="1" Grid.Column="2" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" Visibility="{Binding RouteValue.SetBearingAtWP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Text="{Binding RouteValue.BearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
 						<Image x:Name="image" Source="..\Graphics\Target-32.png" Stretch="Fill" Width="23" Height="23" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" ToolTip="Drag le to target point" HorizontalAlignment="Right" Margin="0,28.96,8,7.96" Grid.Column="2" Grid.Row="1"/>
-						<Grid Grid.Row="2">
+						<Grid Grid.Row="2" Visibility="{Binding RouteValue.UseCustomWP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}">
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="0.343*"/>
 								<ColumnDefinition Width="0.657*"/>
@@ -65,39 +65,7 @@
 				</Grid>
 			</DataTemplate>
 			
-			<DataTemplate x:Key="WPValueTemplate">
-				<Grid>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto" />
-						<RowDefinition Height="Auto" />
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="Auto" MinWidth="101.977"/>
-						<ColumnDefinition Width="10	"/>
-						<ColumnDefinition Width="Auto" />
-					</Grid.ColumnDefinitions>
-					<CheckBox Margin="{DynamicResource DefMargin}"  d:LayoutOverrides="Width, Height" Content="Go to Next WP" Grid.RowSpan="1" IsChecked="{Binding RouteValue.UseRaceWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-					<CheckBox Grid.Column="2" Content="Set bearing at WP" IsChecked="{Binding RouteValue.SetBearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-					<TextBox Grid.Row="1" Grid.Column="2" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" Visibility="{Binding RouteValue.SetBearingAtWP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Text="{Binding RouteValue.BearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-					<Grid Grid.Row="2">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="0.343*"/>
-							<ColumnDefinition Width="0.657*"/>
-						</Grid.ColumnDefinitions>
-						<Grid.RowDefinitions>
-							<RowDefinition Height="Auto" />
-							<RowDefinition Height="Auto" MinHeight="16.47"/>
-						</Grid.RowDefinitions>
-						<TextBlock Text="Lat." Margin="{DynamicResource DefMargin}"/>
-						<TextBlock Text="Lon." Grid.Row="1" Margin="{DynamicResource DefMargin}"/>
-						<TextBox Grid.Column="1" Text="{Binding RouteValue.WPLat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-						<TextBox Grid.Row="2" Text="{Binding RouteValue.WPLon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1"/>
-						
-						
-					</Grid>
-				</Grid>
-			</DataTemplate>
-			
+
 			<DataTemplate x:Key="RoutePointActionsTemplate">
 				<Grid>
 					<Grid.ColumnDefinitions>
@@ -105,9 +73,9 @@
 						<ColumnDefinition Width="*"/>
 						<ColumnDefinition Width="*"/>
 					</Grid.ColumnDefinitions>
-					<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-48.png" Width="48" Height="48"/>
-					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Delete" Grid.Column="1" Height="48" Click="RoutePointDelete" Template="{DynamicResource TrashButton}" Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
-					<Button HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" Content="Update" Grid.Column="2" Click="RoutePointUpdate" Template="{DynamicResource UploadButton}" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+					<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-48.png" Width="48" Height="48" VerticalAlignment="Center"/>
+					<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Content="Delete" Grid.Column="1" Height="48" Click="RoutePointDelete" Template="{DynamicResource TrashButton}" Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" VerticalAlignment="Center"/>
+					<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Content="Update" Grid.Column="2" Click="RoutePointUpdate" Template="{DynamicResource UploadButton}" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Height="48" VerticalAlignment="Center"/>
 				</Grid>
 				
 				<DataTemplate.Triggers>
