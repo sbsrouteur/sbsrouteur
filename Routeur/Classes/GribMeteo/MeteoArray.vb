@@ -2,10 +2,14 @@
 
     Private _GridGrain As Double = 0.5
     Private _LonData()() As MeteoInfo
+    Private _MaxLat As Integer = 0
+    Private _MaxLon As Integer = 0
 
     Public Sub New(ByVal Grain As Double)
         'ReDim Data(CInt(360 / GRID_GRAIN) - 1, CInt(180 / GRID_GRAIN) - 1)
         _GridGrain = Grain
+        _MaxLat = GetMaxLatindex(Grain)
+        _MaxLon = GetMaxLonindex(Grain)
     End Sub
 
 
@@ -59,8 +63,9 @@
                 Throw New InvalidOperationException("NegLat index or neglon index <0")
             End If
 
-            If LatIndex > GetMaxLatindex(_GridGrain) OrElse LonIndex > GetMaxLonindex(_GridGrain) Then
-                Throw New InvalidOperationException("NegLat index or neglon index out of bound")
+            'If LatIndex > GetMaxLatindex(_GridGrain) OrElse LonIndex > GetMaxLonindex(_GridGrain) Then
+            If LatIndex > _MaxLat OrElse LonIndex > _MaxLon Then
+                Throw New InvalidOperationException("Lat index or lon index out of bound")
             End If
 
             If _LonData Is Nothing OrElse LonIndex > UBound(_LonData) Then

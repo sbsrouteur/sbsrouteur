@@ -5,8 +5,6 @@ Imports System.Threading
 
 Public Class GribManager
     Implements INotifyPropertyChanged
-    Private Const MAX_GRIB_05 As Integer = 180
-    Private Const MAX_GRIB_1 As Integer = 384
 
     Private Enum DirInterpolation As Integer
 
@@ -16,15 +14,23 @@ Public Class GribManager
 
     End Enum
 
+
+    Public Const GRIB_MAX_DAY As Integer = 16
+
+    Private Const MAX_GRIB_05 As Integer = 180
+    Private Const MAX_GRIB_1 As Integer = 384
     Private Const GRIB_OFFSET As Integer = -3
     Private Const GRIB_GRAIN_05 As Integer = 3
     Private Const GRIB_GRAIN_1 As Integer = 12
     Private Const GRIB_PERIOD As Integer = 6
-    Public Const NB_JOURS As Integer = 16
     Private Const MAX_INDEX_05 As Integer = CInt(MAX_GRIB_05 / GRIB_GRAIN_05)
     Private Const MAX_INDEX_1 As Integer = CInt((MAX_GRIB_1 - MAX_GRIB_05 - GRIB_GRAIN_1) / GRIB_GRAIN_1) + MAX_INDEX_05
     Private Const MAX_INDEX As Integer = MAX_INDEX_1
+
     Public Shared ZULU_OFFSET As Integer = -CInt(TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
+
+    Private Shared _GMT_Offset As Double = TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours
+    Private Shared _GribMonitor As New Object
 
     Private _MeteoArrays(MAX_INDEX) As MeteoArray
     Private _LastGribDate As DateTime
@@ -33,7 +39,6 @@ Public Class GribManager
     Private Const CORRECTION_LENGTH As Integer = 12
     Private _AnglePointer As Integer = 0
     Private _WindPointer As Integer = 0
-    Private Shared _GribMonitor As New Object
     Private WithEvents _Process As New Process
     Private _Evt As New AutoResetEvent(False)
 
@@ -130,7 +135,7 @@ Public Class GribManager
 
 
             While Not FileOK
-                Dim GribURL As String = GetGribURL(MeteoIndex, retries * GRIB_PERIOD, WLon, ELon, NLat, SLat, False)
+                Dim GribURL As String = GetGribURL(MeteoIndex, WLon, ELon, NLat, SLat, False)
                 'Dim Http As HttpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), HttpWebRequest)
                 Dim ftp As FtpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), FtpWebRequest)
                 Try
@@ -248,23 +253,23 @@ Public Class GribManager
 
     End Function
 
-    Private Function GetGribURL(ByVal MeteoIndex As Integer, ByVal Fallbackhours As Integer, ByVal WestLon As Integer, ByVal EastLon As Integer, ByVal NorthLat As Integer, ByVal SouthLat As Integer, ByVal UseHttp As Boolean) As String
+    Private Function GetGribURL(ByVal MeteoIndex As Integer, ByVal WestLon As Integer, ByVal EastLon As Integer, ByVal NorthLat As Integer, ByVal SouthLat As Integer, ByVal UseHttp As Boolean) As String
         Dim CurGrib As DateTime = GetCurGribDate(Now)
 
         Dim HourOffset As Double
-        Dim RequestDate As DateTime = CurGrib.AddHours(-Fallbackhours)
+        Dim RequestDate As DateTime = CurGrib
 
         If UseHttp Then
             Dim ReturnUrl As String
             If MeteoIndex < MAX_INDEX_05 Then
                 HourOffset = MeteoIndex * GRIB_GRAIN_05
                 ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_hd.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
-                        "z.mastergrb2f" & (HourOffset + Fallbackhours).ToString("00") & "&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
+                        "z.mastergrb2f" & (HourOffset).ToString("00") & "&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
                         & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH") & "%2Fmaster"
             Else
                 HourOffset = 192 + GRIB_GRAIN_1 * (MeteoIndex - MAX_INDEX_05)
                 ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
-                        "z.pgrbf" & (HourOffset + Fallbackhours).ToString("00") & ".grib2&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
+                        "z.pgrbf" & (HourOffset).ToString("00") & ".grib2&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
                         & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH")
             End If
 
@@ -272,20 +277,21 @@ Public Class GribManager
         Else
 
             Dim ReturnUrl As String = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs." & RequestDate.ToString("yyyyMMddHH") & "/gfs.t" & RequestDate.Hour.ToString("00") & _
-                        "z.master.grbf" & (HourOffset + Fallbackhours).ToString("00") & ".10m.uv.grib2"
+                        "z.master.grbf" & (HourOffset).ToString("00") & ".10m.uv.grib2"
             Return ReturnUrl
         End If
     End Function
 
-    Private Function GetIndexGrain(ByVal MeteoIndex As Integer) As Double
+    Private Shared ReadOnly Property GetIndexGrain(ByVal MeteoIndex As Integer) As Double
+        Get
+            If MeteoIndex < MAX_INDEX_05 Then
+                Return 0.5
+            Else
+                Return 2.5
+            End If
 
-        If MeteoIndex < MAX_INDEX_05 Then
-            Return 0.5
-        Else
-            Return 2.5
-        End If
-
-    End Function
+        End Get
+    End Property
 
     Private Function GetMeteoIndex(ByVal Dte As DateTime) As Integer
         Dim CurGrib As DateTime = GetCurGribDate(Now)
@@ -294,10 +300,10 @@ Public Class GribManager
             Return 0
         End If
 
-        Dim TotalHours As Double = Dte.AddHours(-TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours).Subtract(CurGrib).TotalHours
+        Dim TotalHours As Double = Dte.AddHours(-_GMT_Offset).Subtract(CurGrib).TotalHours
         Dim HourIndex As Integer
 
-        If totalhours < MAX_INDEX_05 * GRIB_GRAIN_05 Then
+        If TotalHours < MAX_INDEX_05 * GRIB_GRAIN_05 Then
             HourIndex = CInt(Math.Floor(TotalHours / GRIB_GRAIN_05))
         Else
             HourIndex = MAX_INDEX_05 + CInt(Math.Floor((TotalHours - 192) / GRIB_GRAIN_1))
@@ -318,8 +324,7 @@ Public Class GribManager
 
     Private Function GetMetoDateOffset(ByVal Dte As DateTime) As Double
         Dim CurGrib As DateTime = GetCurGribDate(Now)
-        Static GMT_Offset As Double = TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours
-        Dim TotalHours As Double = Dte.AddHours(-GMT_Offset).Subtract(CurGrib).TotalHours
+        Dim TotalHours As Double = Dte.AddHours(-_GMT_Offset).Subtract(CurGrib).TotalHours
 
         If TotalHours <= MAX_GRIB_05 Then
             Return TotalHours Mod GRIB_GRAIN_05
@@ -636,7 +641,7 @@ Public Class GribManager
         Dim WaitStart As DateTime
 
         While Not FileOK
-            Dim GribURL As String = GetGribURL(MeteoIndex, 0, WLon, ELon, NLat, SLat, True)
+            Dim GribURL As String = GetGribURL(MeteoIndex, WLon, ELon, NLat, SLat, True)
             Dim Http As HttpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), HttpWebRequest)
             Try
                 Http.Timeout = 10000
