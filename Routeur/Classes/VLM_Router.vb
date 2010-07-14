@@ -525,7 +525,7 @@ Public Class VLM_Router
     Public ReadOnly Property MeteoArrowDateEnd() As Long
         Get
             'FIXME Use meteo span const from grib manager!!
-            Return MeteoArrowDateStart + TimeSpan.TicksPerDay * GribManager.NB_JOURS
+            Return MeteoArrowDateStart + TimeSpan.TicksPerDay * GribManager.GRIB_MAX_DAY
         End Get
     End Property
 
