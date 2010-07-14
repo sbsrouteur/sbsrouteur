@@ -22,14 +22,14 @@
 				<Grid>
 					<Grid Visibility="{Binding HasDoubleValue, Mode=Default}">
 						<Grid.RowDefinitions>
-							<RowDefinition Height="*"/>
-							<RowDefinition Height="*"/>
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
 						</Grid.RowDefinitions>
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="*"/>
 							<ColumnDefinition Width="*"/>
 						</Grid.ColumnDefinitions>
-						<TextBox Text="{Binding RouteValue.Value, Mode=Default}" TextAlignment="Right" Style="{DynamicResource DoubleFormatCheckTextBox}" Grid.ColumnSpan="1"/>
+						<TextBox Text="{Binding RouteValue.Value, Mode=Default}" TextAlignment="Right" Style="{DynamicResource DoubleFormatCheckTextBox}" Grid.ColumnSpan="1" Margin="4,4,72.9616666666667,4" Width="60"/>
 					</Grid>
 					<Grid Visibility="{Binding HasWPValue, Mode=Default}">
 						<Grid.RowDefinitions>
@@ -43,7 +43,7 @@
 						</Grid.ColumnDefinitions>
 						<CheckBox Margin="{DynamicResource DefMargin}"  d:LayoutOverrides="Width, Height" Content="Go to Next WP" Grid.RowSpan="1" IsChecked="{Binding RouteValue.UseRaceWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 						<CheckBox Grid.Column="2" Content="Set bearing at WP" IsChecked="{Binding RouteValue.SetBearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-						<TextBox Grid.Row="1" Grid.Column="2" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" Visibility="{Binding RouteValue.SetBearingAtWP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Text="{Binding RouteValue.BearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+						<TextBox Grid.Row="1" Grid.Column="2" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" Visibility="{Binding RouteValue.SetBearingAtWP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Text="{Binding RouteValue.BearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource DoubleFormatCheckTextBox}" Width="60" HorizontalAlignment="Left"/>
 						<Image x:Name="image" Source="..\Graphics\Target-32.png" Stretch="Fill" Width="23" Height="23" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" ToolTip="Drag le to target point" HorizontalAlignment="Right" Margin="0,28.96,8,7.96" Grid.Column="2" Grid.Row="1"/>
 						<Grid Grid.Row="2" Visibility="{Binding RouteValue.UseCustomWP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}">
 							<Grid.ColumnDefinitions>
@@ -56,8 +56,8 @@
 							</Grid.RowDefinitions>
 							<TextBlock Text="Lat." Margin="{DynamicResource DefMargin}"/>
 							<TextBlock Text="Lon." Grid.Row="1" Margin="{DynamicResource DefMargin}"/>
-							<TextBox Grid.Column="1" Text="{Binding RouteValue.WPLat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
-							<TextBox Grid.Row="2" Text="{Binding RouteValue.WPLon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+							<TextBox Grid.Column="1" Text="{Binding RouteValue.WPLat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource DoubleFormatCheckTextBox}" Width="115" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+							<TextBox Grid.Row="2" Text="{Binding RouteValue.WPLon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Style="{DynamicResource DoubleFormatCheckTextBox}" Width="115" HorizontalAlignment="Center" VerticalAlignment="Top"/>
 							
 							
 						</Grid>

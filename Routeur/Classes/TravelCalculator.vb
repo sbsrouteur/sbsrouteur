@@ -47,10 +47,49 @@ Public Class TravelCalculator
                 Else
                     _Cap = (2 * Math.PI - A) / Math.PI * 180
                 End If
-                '_CapCached = True
+                ''_CapCached = True
+                ''dlon_W=mod(lon2-lon1,2*pi)
+                ''dlon_E=mod(lon1-lon2,2*pi)
+                ''              dphi = Log(Tan(lat2 / 2 + PI / 4) / Tan(lat1 / 2 + PI / 4))
+                ''if (abs(lat2-lat1) < sqrt(TOL)){
+                ''                  q = Cos(lat1)
+                ''} else {
+                ''                  q = (lat2 - lat1) / dphi
+                ''}
+                ''if (dlon_W < dlon_E){// Westerly rhumb line is the shortest
+                ''    tc=mod(atan2(-dlon_W,dphi),2*pi)
+                ''                      d = Sqrt(q ^ 2 * dlon_W ^ 2 + (lat2 - lat1) ^ 2)
+                ''} else{
+                ''    tc=mod(atan2(dlon_E,dphi),2*pi)
+                ''                      d = Sqrt(q ^ 2 * dlon_E ^ 2 + (lat2 - lat1) ^ 2)
+                ''    }
+                'Dim lat1 As Double = StartPoint.Lat
+                'Dim Lon1 As Double = StartPoint.Lon
+                'Dim lat2 As Double = EndPoint.Lat
+                'Dim Lon2 As Double = EndPoint.Lon
+
+                'Dim dlon_W As Double = (EndPoint.Lon - StartPoint.Lon) Mod (2 * PI)
+                'Dim dlon_E As Double = (Lon1 - Lon2) Mod (2 * PI)
+                'Dim dphi As Double = Log(Tan(lat2 / 2 + PI / 4) / Tan(lat1 / 2 + PI / 4))
+                'Dim q As Double
+
+                'If (Abs(lat2 - lat1) < Sqrt(0.000000000000001)) Then
+                '    q = Cos(lat1)
+                'Else
+                '    q = (lat2 - lat1) / dphi
+                'End If
+
+                'If (dlon_W < dlon_E) Then '{// Westerly rhumb line is the shortest
+                '    _Cap = Atan2(-dlon_W, dphi) Mod (2 * PI)
+                '    'd = Sqrt(q ^ 2 * dlon_W ^ 2 + (lat2 - lat1) ^ 2)
+                'Else
+                '    _Cap = Atan2(dlon_E, dphi) Mod (2 * PI)
+                '    'd = Sqrt(q ^ 2 * dlon_E ^ 2 + (lat2 - lat1) ^ 2)
+                'End If
+                '_Cap = (360 + _Cap / PI * 180) Mod 360
             End If
             Return _Cap
-            
+
         End Get
 
     End Property
@@ -104,6 +143,10 @@ Public Class TravelCalculator
         Dist /= Earth_Radius
         tc_deg = tc_deg / 180 * Math.PI
 
+        If StartPoint.Lon >= PI - 0.0001 Then
+            Dim i As Integer = 0
+        End If
+
         With retCoords
             .Lat = StartPoint.Lat + Dist * Cos(tc_deg)
             dPhi = Log(Tan(.Lat / 2 + Math.PI / 4) / Tan(StartPoint.Lat / 2 + Math.PI / 4))
@@ -113,7 +156,7 @@ Public Class TravelCalculator
                 q = (.Lat - StartPoint.Lat) / dPhi
             End If
             dlon = Dist * Sin(tc_deg) / q
-            .Lon = (StartPoint.Lon + dlon + PI Mod 2 * Math.PI) - PI
+            .Lon = ((StartPoint.Lon + dlon + PI) Mod (2 * Math.PI)) - PI
         End With
         Return retCoords
     End Function

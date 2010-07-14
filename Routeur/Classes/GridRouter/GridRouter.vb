@@ -378,7 +378,14 @@ Public Class GridRouter
             Return False
         End If
 
-        Dim Dx As Double = TC.EndPoint.Lon - TC.StartPoint.Lon
+        Dim Dx As Double
+
+        If TC.EndPoint.Lon * TC.StartPoint.Lon < 0 AndAlso Abs(TC.EndPoint.Lon * TC.StartPoint.Lon) > PI Then
+            Dx = (2 * PI + TC.EndPoint.Lon - TC.StartPoint.Lon) Mod (2 * PI)
+        Else
+            Dx = TC.EndPoint.Lon - TC.StartPoint.Lon
+        End If
+
         Dim Dy As Double = TC.EndPoint.Lat - TC.StartPoint.Lat
         Dim CurP As New Coords(TC.StartPoint)
         Dim SegmentStep As Integer
