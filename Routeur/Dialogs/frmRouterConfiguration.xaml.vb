@@ -14,8 +14,9 @@ Partial Public Class frmRouterConfiguration
     Private _ID As Integer
     Private _Owner As RouteurMain
     Private _bCapture As Boolean
-    Private _StartBrush As Brush
-    Shared _AlphaBrush As Brush = New SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 255, 255, 255))
+    'Private _StartBrush As Brush
+    'Shared _AlphaBrush As Brush = New SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 255, 255, 255))
+    Private _DragStart As Boolean
 
     Public Sub New()
         MyBase.New()
@@ -51,10 +52,12 @@ Partial Public Class frmRouterConfiguration
     End Sub
 
     Private Sub StartTargetCaptureGrab(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
-        _bCapture = Mouse.Capture(CType(e.Source, IInputElement))
-        _StartBrush = LayoutRoot.Background
-        LayoutRoot.Background = _AlphaBrush
+        _DragStart = sender Is Me.imageStart
         Mouse.OverrideCursor = Cursors.Cross
+        _bCapture = Mouse.Capture(CType(e.Source, IInputElement))
+        '_StartBrush = LayoutRoot.Background
+        'LayoutRoot.Background = _AlphaBrush
+
     End Sub
 
     Private Sub EndTargetCaptureGrab(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
@@ -62,7 +65,7 @@ Partial Public Class frmRouterConfiguration
         Mouse.Capture(Nothing)
         Mouse.OverrideCursor = Nothing
         _bCapture = Nothing
-        LayoutRoot.Background = _StartBrush
+        'LayoutRoot.Background = _StartBrush
     End Sub
 
     Private Sub AlternateDestCapture(ByVal sender As Object, ByVal e As System.Windows.Input.MouseEventArgs)
@@ -70,7 +73,13 @@ Partial Public Class frmRouterConfiguration
 
             Dim P As Point = _Owner.RenderCanvasCoords(e)
             Dim M As RouteurModel = CType(_Owner.FindResource("RouteurModel"), RouteurModel)
+            If _DragStart Then
+                _Context.RouteStart = M.CanvasToCoords(P)
+            Else
+                _Context.RouteDest = M.CanvasToCoords(P)
+            End If
             _Context.RouteDest = M.CanvasToCoords(P)
+
         End If
 
     End Sub

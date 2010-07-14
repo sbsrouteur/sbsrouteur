@@ -196,6 +196,7 @@ Public Class IsoRouter
         Dim MI As MeteoInfo = Nothing
         Dim i As Long
         Dim CurDate As DateTime
+        Dim TotalDist As Double = 0
         TC.StartPoint = Start.P
 
 
@@ -213,18 +214,21 @@ Public Class IsoRouter
             End If
 
             Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
-            TC.EndPoint = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Cap)
+            TotalDist += Speed / 60 * RouteurModel.VacationMinutes
+            TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
 
-            If Not GridRouter.CheckSegmentValid(TC) Then
-                Return Nothing
-            End If
 
-            TC.StartPoint = TC.EndPoint
+
+            'TC.StartPoint = TC.EndPoint
 
         Next
 
+        If Not GridRouter.CheckSegmentValid(TC) Then
+            Return Nothing
+        End If
+
         With RetPoint
-            .P = New Coords(TC.StartPoint)
+            .P = New Coords(TC.EndPoint)
             .T = CurDate
             .Speed = Speed
             .WindStrength = MI.Strength

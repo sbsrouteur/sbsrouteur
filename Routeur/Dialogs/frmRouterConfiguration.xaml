@@ -33,7 +33,7 @@
 
 	<Grid x:Name="LayoutRoot">
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="Auto" MinWidth="147.264"/>
+			<ColumnDefinition Width="150" />
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
@@ -45,11 +45,11 @@
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
-			<RowDefinition Height="0.89*"/>
+			<RowDefinition Height="1*"/>
 			<RowDefinition Height="Auto" MinHeight="36 "/>
 		</Grid.RowDefinitions>
-		<StackPanel Grid.Column="2" Grid.Row="10" Orientation="Horizontal" HorizontalAlignment="Right">
-			<Button x:Name="cmdCancel" Content="Cancel" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172" HorizontalAlignment="Left" Margin="4,0,0,0" d:LayoutOverrides="Height" Style="{DynamicResource DefaultButton}" Click="cmdCancelClick"/>
+		<StackPanel Grid.Column="2" Grid.Row="22" Orientation="Horizontal" HorizontalAlignment="Right">
+			<Button x:Name="cmdCancel" Content="Cancel" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172" HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" d:LayoutOverrides="Height" Style="{DynamicResource DefaultButton}" Click="cmdCancelClick"/>
 			<Button x:Name="cmdOK" Content="OK" Width="100" Height="42.172" HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" d:LayoutOverrides="Height" Style="{DynamicResource DefaultButton}" Click="cmdOKClick"/>
 		</StackPanel>
 		<TextBlock Text="Track forward Angle:" TextWrapping="Wrap" Grid.Row="1"/>
@@ -57,17 +57,10 @@
 		<TextBlock Text="Isochrones Step 24h-48h:" TextWrapping="Wrap" Grid.Row="3"/>
 		<TextBlock Text="Isochrones Step &gt;48h:" TextWrapping="Wrap" Grid.Row="4"/>
 		<TextBlock Text="Angle Step:" TextWrapping="Wrap" Grid.Row="5"/>
-		<TextBlock Text="Use alternate Dest:" TextWrapping="Wrap" Grid.Row="6"/>
-		<TextBlock Text="Route Dest:" TextWrapping="Wrap" Grid.Row="7" IsEnabled="{Binding UseCustomDest, Mode=Default}"/>
 		<TextBox Text="{Binding IsoStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="2" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
 		<TextBox Text="{Binding IsoStep_24, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="3" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
 		<TextBox Text="{Binding IsoStep_48, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="4" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
 		<TextBox Text="{Binding IsoAngleStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="5" Style="{DynamicResource DoubleFormatCheckTextBox}" />
-		<StackPanel Margin="{DynamicResource DefMargin}" Grid.Column="1" Grid.Row="6" Orientation="Horizontal" >
-			<CheckBox HorizontalAlignment="Left" Grid.Column="1" Grid.Row="6" IsChecked="{Binding UseCustomDest, Mode=Default}"/>
-			<Image x:Name="image" Source="/Routeur;Component/Graphics/Target-32.png" Stretch="Fill" Width="23" Height="23" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture"/>
-		</StackPanel>
-		<TextBox Text="{Binding RouteDest, Converter={StaticResource CoordsConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding UseCustomDest, Mode=Default}"  />
 		<Grid Grid.Column="1" Grid.Row="1 ">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="0.09*"/>
@@ -75,6 +68,42 @@
 			</Grid.ColumnDefinitions>
 			<TextBox Text="{Binding IsoLookupAngle, Mode=TwoWay, UpdateSourceTrigger=Default}" Style="{DynamicResource DoubleFormatCheckTextBox}" />
 			<Slider VerticalAlignment="Center" Grid.Column="1" Maximum="180" SmallChange="1" TickFrequency="10" TickPlacement="BottomRight" LargeChange="10" Value="{Binding IsoLookupAngle, Mode=TwoWay, UpdateSourceTrigger=Default}"/>
+		</Grid>
+		<Grid Grid.ColumnSpan="3" Grid.Row="7">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="150"/>
+				<ColumnDefinition Width="0.758*"/>
+			</Grid.ColumnDefinitions>
+			<TextBlock Text="Use alternate Dest:" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="29"/>
+			<TextBlock Text="Route Dest:" TextWrapping="Wrap" IsEnabled="{Binding UseCustomDest, Mode=Default}" VerticalAlignment="Bottom" Height="21.96" Grid.Row="1"/>
+			<StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Height="29" Grid.Column="1" >
+				<CheckBox HorizontalAlignment="Left" IsChecked="{Binding UseCustomDest, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
+				<Image x:Name="image" Source="/Routeur;Component/Graphics/Target-32.png" Stretch="Fill" Width="23" Height="23" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" Margin="0,0,0,6" ToolTip="Drag to set routing destination point"/>
+			</StackPanel>
+			<TextBox Text="{Binding RouteDest, Converter={StaticResource CoordsConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" IsEnabled="{Binding UseCustomDest, Mode=Default}" VerticalAlignment="Bottom" Height="21.96" Grid.Column="1" Grid.Row="2"  />
+		</Grid>
+		
+		<Grid Grid.ColumnSpan="2" Grid.Row="6" >
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="150"/>
+				<ColumnDefinition Width="0.758*"/>
+			</Grid.ColumnDefinitions>
+			<TextBlock Text="Use Alternate Start:" />
+			<TextBlock Text="Route Start:" Grid.Row="1" />
+			<StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Height="29" Grid.Column="1" >
+				<CheckBox HorizontalAlignment="Left" IsChecked="{Binding UseCustomStart, Mode=Default}"/>
+				<Image x:Name="imageStart" Source="/Routeur;Component/Graphics/Target-32.png" Stretch="Fill" Width="23" Height="23" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" Margin="0,0,0,6" ToolTip="Drag to set routing start point"/>
+			</StackPanel>
+			<TextBox Text="{Binding RouteStart, Converter={StaticResource CoordsConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" IsEnabled="{Binding UseCustomStart, Mode=Default}" VerticalAlignment="Bottom" Height="21.96" Grid.Column="1" Grid.Row="1" Margin="8,0,-2,3" d:LayoutOverrides="GridBox"  />
+
 		</Grid>
 		
 	</Grid>

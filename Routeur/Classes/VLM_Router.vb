@@ -2760,6 +2760,8 @@ Public Class VLM_Router
         If StartRouting Then
             Dim frm As New frmRouterConfiguration(Owner, _PlayerInfo.RaceInfo.idraces)
             Dim StartDate As DateTime
+            Dim StartCoords As Coords
+            Dim EndCoords As Coords
 
             If Not frm.ShowDialog() Then
                 Return
@@ -2789,11 +2791,18 @@ Public Class VLM_Router
             Dim Dest As Coords = GSHHS_Reader.PointToSegmentIntersect(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0) _
                                                                                  , _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1))
             If prefs.UseCustomDest Then
-                _iso.StartIsoRoute(start, prefs.RouteDest, StartDate)
+                EndCoords = prefs.RouteDest
             Else
-                _iso.StartIsoRoute(start, Dest, StartDate)
-
+                EndCoords = Dest
             End If
+
+            If prefs.UseCustomStart Then
+                StartCoords = prefs.RouteStart
+            Else
+                StartCoords = start
+            End If
+
+            _iso.StartIsoRoute(StartCoords, EndCoords, StartDate)
             'End If
         ElseIf Not _iso Is Nothing Then
             _iso.StopRoute()
