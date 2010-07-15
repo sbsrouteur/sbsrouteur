@@ -399,12 +399,12 @@ Public Class TravelCalculator
         If StartPoint Is Nothing Or EndPoint Is Nothing Then
             Return 0
         End If
-        Dim RetVal As Double = Math.Atan2(-StartPoint.Lon + EndPoint.Lon, Math.Log(Tan(EndPoint.Lat / 2 + Math.PI / 4) / Math.Tan(StartPoint.Lat / 2 + Math.PI / 4))) Mod 2 * PI
+        'Dim RetVal As Double = Math.Atan2(-StartPoint.Lon + EndPoint.Lon, Math.Log(Tan(EndPoint.Lat / 2 + Math.PI / 4) / Math.Tan(StartPoint.Lat / 2 + Math.PI / 4))) Mod 2 * PI
         
         'tc1=mod(atan2(sin(lon1-lon2)*cos(lat2),
         '   cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2)), 2*pi)
-        'Dim retval As Double = Atan2(Sin(StartPoint.Lon - EndPoint.Lon) * Cos(EndPoint.Lat), _
-        '             Cos(StartPoint.Lat) * Sin(EndPoint.Lat) - Sin(StartPoint.Lat) * Cos(EndPoint.Lat) * Cos(StartPoint.Lon - EndPoint.Lon))
+        Dim retval As Double = Atan2(Sin(-StartPoint.Lon + EndPoint.Lon) * Cos(EndPoint.Lat), _
+                     Cos(StartPoint.Lat) * Sin(EndPoint.Lat) - Sin(StartPoint.Lat) * Cos(EndPoint.Lat) * Cos(StartPoint.Lon - EndPoint.Lon))
 
         If Abs(EndPoint.Lon - StartPoint.Lon) > PI Then
             retval += PI
