@@ -404,11 +404,11 @@ Public Class TravelCalculator
         'tc1=mod(atan2(sin(lon1-lon2)*cos(lat2),
         '   cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2)), 2*pi)
         Dim retval As Double = Atan2(Sin(-StartPoint.Lon + EndPoint.Lon) * Cos(EndPoint.Lat), _
-                     Cos(StartPoint.Lat) * Sin(EndPoint.Lat) - Sin(StartPoint.Lat) * Cos(EndPoint.Lat) * Cos(StartPoint.Lon - EndPoint.Lon))
+                     Cos(StartPoint.Lat) * Sin(EndPoint.Lat) - Sin(StartPoint.Lat) * Cos(EndPoint.Lat) * Cos(-StartPoint.Lon + EndPoint.Lon))
 
-        If Abs(EndPoint.Lon - StartPoint.Lon) > PI Then
-            retval += PI
-        End If
+        'If Abs(EndPoint.Lon - StartPoint.Lon) > PI Then
+        '    retval += PI
+        'End If
         retval = retval Mod (2 * PI)
         Return RetVal
 
