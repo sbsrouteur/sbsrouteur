@@ -610,14 +610,14 @@ Public Class GridRouter
                 Dim FromAngle As Double = -1
                 If Not RG.From Is Nothing Then
                     TC.EndPoint = RG.From.P.P
-                    FromAngle = (TC.Cap + 180) Mod 360
+                    FromAngle = (TC.LoxoCap + 180) Mod 360
                 End If
 
                 For Each C In RG.Neighboors
                     If Not C Is Nothing Then
                         N = CType(_GridPointsList(C), RoutingGridPoint)
                         TC.EndPoint = N.P.P
-                        If FromAngle <> -1 AndAlso VLM_Router.WindAngle(TC.Cap, FromAngle) > 90 Then
+                        If FromAngle <> -1 AndAlso VLM_Router.WindAngle(TC.LoxoCap, FromAngle) > 90 Then
                             Continue For
                         End If
 
@@ -658,7 +658,7 @@ Public Class GridRouter
                                     _IsoChrones.AddLast(New IsoChrone(0.5))
                                 End While
                                 Dim Iso As IsoChrone = _IsoChrones(IsoIndex)
-                                Dim Alpha As Double = Iso.IndexFromAngle(TC.Cap)
+                                Dim Alpha As Double = Iso.IndexFromAngle(TC.LoxoCap)
 
                                 If PrevIsoIndex <> IsoIndex AndAlso Not _IsoChrones(PrevIsoIndex) Is Nothing AndAlso _IsoChrones(PrevIsoIndex).Data(Alpha) Is N.P Then
                                     _IsoChrones(PrevIsoIndex).Data(Alpha) = Nothing
