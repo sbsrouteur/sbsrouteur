@@ -383,9 +383,9 @@ Public Class TravelCalculator
     ''' <value></value>
     ''' <returns></returns>
     ''' <remarks></remarks>
-    Public ReadOnly Property TrueCap() As Double
+    Public ReadOnly Property OrthoCourse_Deg() As Double
         Get
-            Return (TrueCourse() / Math.PI * 180 + 360) Mod 360
+            Return (OrthoCourse_Rad() / Math.PI * 180 + 360) Mod 360
 
         End Get
     End Property
@@ -395,12 +395,12 @@ Public Class TravelCalculator
     ''' </summary>
     ''' <returns></returns>
     ''' <remarks></remarks>
-    Public Function TrueCourse() As Double
+    Public Function OrthoCourse_Rad() As Double
         If StartPoint Is Nothing Or EndPoint Is Nothing Then
             Return 0
         End If
         'Dim RetVal As Double = Math.Atan2(-StartPoint.Lon + EndPoint.Lon, Math.Log(Tan(EndPoint.Lat / 2 + Math.PI / 4) / Math.Tan(StartPoint.Lat / 2 + Math.PI / 4))) Mod 2 * PI
-        
+
         'tc1=mod(atan2(sin(lon1-lon2)*cos(lat2),
         '   cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2)), 2*pi)
         Dim retval As Double = Atan2(Sin(-StartPoint.Lon + EndPoint.Lon) * Cos(EndPoint.Lat), _

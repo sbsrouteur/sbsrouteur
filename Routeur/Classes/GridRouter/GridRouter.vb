@@ -131,7 +131,7 @@ Public Class GridRouter
         TC.StartPoint = From
         TC.EndPoint = Dest
 
-        Dim Cap As Double = TC.TrueCap
+        Dim Cap As Double = TC.OrthoCourse_Deg
         Dim ReachDist As Double = TC.SurfaceDistance
         Dim Mi As MeteoInfo
         Dim NoWindCount As Integer = 0
@@ -610,14 +610,14 @@ Public Class GridRouter
                 Dim FromAngle As Double = -1
                 If Not RG.From Is Nothing Then
                     TC.EndPoint = RG.From.P.P
-                    FromAngle = (TC.LoxoCap + 180) Mod 360
+                    FromAngle = (TC.LoxoCourse_Deg + 180) Mod 360
                 End If
 
                 For Each C In RG.Neighboors
                     If Not C Is Nothing Then
                         N = CType(_GridPointsList(C), RoutingGridPoint)
                         TC.EndPoint = N.P.P
-                        If FromAngle <> -1 AndAlso VLM_Router.WindAngle(TC.LoxoCap, FromAngle) > 90 Then
+                        If FromAngle <> -1 AndAlso VLM_Router.WindAngle(TC.LoxoCourse_Deg, FromAngle) > 90 Then
                             Continue For
                         End If
 
@@ -627,7 +627,7 @@ Public Class GridRouter
                             Dim PrevEta As DateTime = N.CurETA
                             N.CurETA = eta
                             N.From = RG
-                            N.P.Cap = (TC.TrueCap + 360) Mod 360
+                            N.P.Cap = (TC.OrthoCourse_Deg + 360) Mod 360
                             N.P.WindDir = mi.Dir
                             N.P.WindStrength = mi.Strength
                             N.P.Speed = CurSpeed
@@ -658,7 +658,7 @@ Public Class GridRouter
                                     _IsoChrones.AddLast(New IsoChrone(0.5))
                                 End While
                                 Dim Iso As IsoChrone = _IsoChrones(IsoIndex)
-                                Dim Alpha As Double = Iso.IndexFromAngle(TC.LoxoCap)
+                                Dim Alpha As Double = Iso.IndexFromAngle(TC.LoxoCourse_Deg)
 
                                 If PrevIsoIndex <> IsoIndex AndAlso Not _IsoChrones(PrevIsoIndex) Is Nothing AndAlso _IsoChrones(PrevIsoIndex).Data(Alpha) Is N.P Then
                                     _IsoChrones(PrevIsoIndex).Data(Alpha) = Nothing
