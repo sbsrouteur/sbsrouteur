@@ -27,7 +27,7 @@ Public Class TravelCalculator
     'Private _CapCached As Boolean = False
     'Private _DistanceCached As Boolean = False
 
-    Public ReadOnly Property Cap() As Double
+    Public ReadOnly Property LoxoCap() As Double
         Get
             'If _CapCached AndAlso Not Double.IsNaN(_Cap) Then
             '    Return _Cap

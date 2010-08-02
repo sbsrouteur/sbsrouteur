@@ -203,7 +203,7 @@ Public Class RoutingGridPoint
         Y = C.Lat_Deg
         tc.StartPoint = WP(0)(0)
         tc.EndPoint = WP(0)(1)
-        Dim WPCap As Double = tc.Cap
+        Dim WPCap As Double = tc.LoxoCap
         MinDist = tc.SurfaceDistance
         tc.EndPoint = CurBest
         tc2.StartPoint = CurBest
@@ -219,7 +219,7 @@ Public Class RoutingGridPoint
         End If
         tcCheck.StartPoint = P.P
         tcCheck.EndPoint = WP(0)(0)
-        BaseCap = tcCheck.Cap
+        BaseCap = tcCheck.LoxoCap
         tc.StartPoint = WP(0)(0)
         tc2.StartPoint = WP(0)(1)
 
@@ -254,11 +254,11 @@ Public Class RoutingGridPoint
                 Dim G As RoutingGridPoint
                 If tc.SurfaceDistance + tc2.SurfaceDistance <= MaxDist Then
 
-                    Dim DirAngle As Double = VLM_Router.WindAngle(BaseCap, tcCheck.Cap)
+                    Dim DirAngle As Double = VLM_Router.WindAngle(BaseCap, tcCheck.LoxoCap)
 
                     If (IgnoreAngle OrElse Math.Abs(DirAngle) <= 120) AndAlso GridRouter.CheckSegmentValid(tcCheck) Then
 
-                        If tcCheck.Cap = 180 Then
+                        If tcCheck.LoxoCap = 180 Then
                             Dim idebug As Integer = 23
                         End If
                         If Not Dictionnary.Contains(D) Then
@@ -282,10 +282,10 @@ Public Class RoutingGridPoint
                             G.CrossedLine = True
                         Else
                             If tc.SurfaceDistance < tcCheck.SurfaceDistance Then
-                                Dim C1 As Double = Math.Min(tcCheck.Cap, tc.Cap)
-                                Dim c2 As Double = Math.Min(tcCheck.Cap, tc2.Cap)
+                                Dim C1 As Double = Math.Min(tcCheck.LoxoCap, tc.LoxoCap)
+                                Dim c2 As Double = Math.Min(tcCheck.LoxoCap, tc2.LoxoCap)
 
-                                If C1 <> c2 AndAlso (C1 = tcCheck.Cap OrElse c2 = tcCheck.Cap) Then
+                                If C1 <> c2 AndAlso (C1 = tcCheck.LoxoCap OrElse c2 = tcCheck.LoxoCap) Then
                                     G.CrossedLine = True
                                 Else
                                     G.CrossedLine = False

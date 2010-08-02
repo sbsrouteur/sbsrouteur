@@ -719,13 +719,13 @@ Public Class GSHHS_Reader
         Dim tcSeg As New TravelCalculator With {.StartPoint = p1, .EndPoint = p2}
         Dim tcPoint As New TravelCalculator With {.StartPoint = p1, .EndPoint = P}
         Dim D As Double = 0
-        Dim Angle As Double = Abs(GribManager.CheckAngleInterp(tcSeg.Cap - tcPoint.Cap))
+        Dim Angle As Double = Abs(GribManager.CheckAngleInterp(tcSeg.LoxoCap - tcPoint.LoxoCap))
         If Angle >= 90 Then
             D = tcPoint.SurfaceDistance
         Else
             If tcPoint.SurfaceDistance * Cos(Angle / 180 * PI) <= tcSeg.SurfaceDistance Then
                 With tcSeg
-                    .EndPoint = tcSeg.ReachDistance(tcPoint.SurfaceDistance * Cos(Angle / 180 * PI), tcSeg.Cap)
+                    .EndPoint = tcSeg.ReachDistance(tcPoint.SurfaceDistance * Cos(Angle / 180 * PI), tcSeg.LoxoCap)
                     .StartPoint = P
                     D = .SurfaceDistance
                     .StartPoint = Nothing
@@ -804,7 +804,7 @@ Public Class GSHHS_Reader
         Dim tcSeg As New TravelCalculator With {.StartPoint = p1, .EndPoint = p2}
         Dim tcPoint As New TravelCalculator With {.StartPoint = p1, .EndPoint = P}
         Dim RetCoords As Coords
-        Dim Angle As Double = Abs(GribManager.CheckAngleInterp(tcSeg.Cap - tcPoint.Cap))
+        Dim Angle As Double = Abs(GribManager.CheckAngleInterp(tcSeg.LoxoCap - tcPoint.LoxoCap))
 
         If Angle >= 90 Then
             'ClosestPoint Is p1
@@ -813,7 +813,7 @@ Public Class GSHHS_Reader
             If tcPoint.SurfaceDistance * Cos(Angle / 180 * PI) <= tcSeg.SurfaceDistance Then
                 'Point is in segment
                 With tcSeg
-                    .EndPoint = tcSeg.ReachDistance(tcPoint.SurfaceDistance * Cos(Angle / 180 * PI), tcSeg.Cap)
+                    .EndPoint = tcSeg.ReachDistance(tcPoint.SurfaceDistance * Cos(Angle / 180 * PI), tcSeg.LoxoCap)
                     RetCoords = New Coords(.EndPoint)
                     .StartPoint = Nothing
                     .EndPoint = Nothing
