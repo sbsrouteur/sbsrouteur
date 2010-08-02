@@ -12,7 +12,7 @@ Public Class RoutePointView
         Angle = 2
         Ortho = 3
         VMG = 4
-        BVMG = 5
+        VBVMG = 5
 
     End Enum
 
@@ -220,7 +220,7 @@ Public Class RoutePointView
             Case EnumRouteMode.Angle, EnumRouteMode.Bearing
                 Data.Add("pip", CType(RouteValue, RoutePointDoubleValue).Value.ToString("f1", System.Globalization.CultureInfo.InvariantCulture))
 
-            Case EnumRouteMode.BVMG, EnumRouteMode.Ortho, EnumRouteMode.VMG
+            Case EnumRouteMode.VBVMG, EnumRouteMode.Ortho, EnumRouteMode.VMG
                 Dim WPData As New Dictionary(Of String, Object)
                 Dim WPValue As RoutePointWPValue = CType(RouteValue, RoutePointWPValue)
                 WPData.Add("targetlat", WPValue.WPLat)
