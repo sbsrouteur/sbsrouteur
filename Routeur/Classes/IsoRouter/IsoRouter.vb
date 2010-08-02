@@ -92,7 +92,7 @@ Public Class IsoRouter
                     Dim Loxo As Double
                     tc.StartPoint = rp.P
                     tc.EndPoint = _DestPoint
-                    Loxo = tc.LoxoCap
+                    Loxo = tc.LoxoCourse_Deg
                     tc.StartPoint = _StartPoint.P
                     For alpha = Loxo - _SearchAngle To Loxo + _SearchAngle Step _AngleStep
 
@@ -101,7 +101,7 @@ Public Class IsoRouter
                         If Not P Is Nothing Then
                             tc.EndPoint = P.P
                             If tc.SurfaceDistance > 0 Then
-                                alpha2 = tc.LoxoCap
+                                alpha2 = tc.LoxoCourse_Deg
 
                                 Index = RetIsoChrone.IndexFromAngle(alpha2)
                                 If Not OuterIso Is Nothing Then
@@ -146,7 +146,7 @@ Public Class IsoRouter
         TC.EndPoint = _DestPoint
         Dim CurDTF As Double = Double.MaxValue
 
-        Dim Loxo As Double = TC.LoxoCap
+        Dim Loxo As Double = TC.LoxoCourse_Deg
         Dim Dist As Double = TC.SurfaceDistance
 
         RaiseEvent Log("Isochrone router started at " & Start)
@@ -233,7 +233,7 @@ Public Class IsoRouter
             .Speed = Speed
             .WindStrength = MI.Strength
             .WindDir = MI.Dir
-            TC.EndPoint = _DestPoint
+            TC.StartPoint = _DestPoint
             .DTF = TC.SurfaceDistance
             .From = Start
             .Cap = Cap
@@ -251,7 +251,7 @@ Public Class IsoRouter
         Dim TC As New TravelCalculator
         TC.StartPoint = _StartPoint.P
         TC.EndPoint = C
-        Dim Loxo As Double = TC.LoxoCap
+        Dim Loxo As Double = TC.LoxoCourse_Deg
         Dim RP As clsrouteinfopoints = Nothing
         Try
             For Each iso As IsoChrone In _IsoChrones
