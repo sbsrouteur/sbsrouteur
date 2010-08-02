@@ -740,22 +740,25 @@ Public Class VLM_Router
                 Dim CurIndex As Integer = 0
                 Dim RouteComplete As Boolean = False
                 Dim CurWPDest As Coords = Nothing
+                Dim PrevMode As Integer = _UserInfo.position.ModePilote
+                Dim PrevWPDest As Coords = Nothing
+                Dim PrevWPNum As Integer = Nothing
 
                 If _PlayerInfo.RaceInfo.deptime > CurDate Then
                     'Race has not started, start route from race start time
                     CurDate = _PlayerInfo.RaceInfo.deptime
                 End If
 
-                If _WayPointDest.Lon = 0 AndAlso _WayPointDest.Lat = 0 Then
+                If (_WayPointDest.Lon = 0 AndAlso _WayPointDest.Lat = 0) Then
 
                     Dim Retries As Integer = 0
                     While Retries < 2
                         Try
                             If _CurUserWP = 0 Then
-                                CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0) _
+                                PrevWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0) _
                                                                                  , _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
                             Else
-                                CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP - 1).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP - 1).WPs(0)(1))
+                                PrevWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP - 1).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP - 1).WPs(0)(1))
                             End If
                             Exit While
                         Catch ex As Exception
@@ -770,11 +773,10 @@ Public Class VLM_Router
                     End While
 
                 Else
-                    CurWPDest = New Coords(_WayPointDest)
+                    PrevWPDest = New Coords(_WayPointDest)
 
                 End If
 
-                Dim PrevMode As Integer = _UserInfo.position.ModePilote
                 Dim PrevValue As Double
 
                 Dim OrderDate As Date
@@ -786,8 +788,6 @@ Public Class VLM_Router
                 Dim ModeAtWP As Integer = PrevMode
                 Dim WPDist As Double
                 Dim RouteToEnd As Boolean = False
-                Dim PrevWPDest As Coords = Nothing
-                Dim PrevWPNum As Integer = Nothing
 
                 PilototoRoute.Clear()
                 Select Case PrevMode
@@ -799,6 +799,10 @@ Public Class VLM_Router
                     Case 2
                         'Allure fixe
                         PrevValue = _UserInfo.position.AngleAllure
+
+                    Case 3, 4, 5
+                        'Route to a WP
+                        CurWPDest = PrevWPDest
 
                 End Select
 
@@ -849,7 +853,7 @@ Public Class VLM_Router
                                     Continue While
                                 End If
 
-                            Case EnumRouteMode.BVMG, EnumRouteMode.Ortho, EnumRouteMode.VMG
+                            Case EnumRouteMode.VBVMG, EnumRouteMode.Ortho, EnumRouteMode.VMG
 
                                 Dim Lon As Double = 0
                                 Dim Lat As Double = 0
@@ -857,7 +861,7 @@ Public Class VLM_Router
                                 If Fields(4).Contains("@") Then
                                     Double.TryParse(Fields(4).Substring(0, Fields(4).IndexOf("@"c)), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon)
                                     Double.TryParse(Fields(4).Substring(Fields(4).IndexOf("@"c) + 1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, CapAtWP)
-                                    ModeAtWP = 1
+                                    ModeAtWP = If(CapAtWP > 0, 1, OrderType)
                                 Else
                                     Double.TryParse(Fields(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Lon)
                                     ModeAtWP = OrderType
@@ -984,7 +988,7 @@ Public Class VLM_Router
 
                         End Select
 
-                        If PrevMode = 4 Or PrevMode = 5 Then
+                        If PrevMode = 3 OrElse PrevMode = 4 OrElse PrevMode = 5 Then
                             'Check WP completion
                             Tc.EndPoint = CurPos
                             If Tc.SurfaceDistance > WPDist Then

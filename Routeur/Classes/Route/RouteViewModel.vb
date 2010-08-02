@@ -118,7 +118,7 @@ Public Class RouteViewModel
                                 GetBearingAngleValue(Fields(FLD_ORDERVALUE), Value)
                                 PointView = New RoutePointView(IdUser, OrderID, OrderType, OrderDate, New RoutePointDoubleValue(Value))
 
-                            Case EnumRouteMode.BVMG, EnumRouteMode.Ortho, EnumRouteMode.VMG
+                            Case EnumRouteMode.VBVMG, EnumRouteMode.Ortho, EnumRouteMode.VMG
                                 Dim Lon As Double
                                 Dim Lat As Double
                                 Dim WithBearing As Boolean
