@@ -203,7 +203,7 @@ Public Class RoutingGridPoint
         Y = C.Lat_Deg
         tc.StartPoint = WP(0)(0)
         tc.EndPoint = WP(0)(1)
-        Dim WPCap As Double = tc.LoxoCap
+        Dim WPCap As Double = tc.LoxoCourse_Deg
         MinDist = tc.SurfaceDistance
         tc.EndPoint = CurBest
         tc2.StartPoint = CurBest
@@ -219,7 +219,7 @@ Public Class RoutingGridPoint
         End If
         tcCheck.StartPoint = P.P
         tcCheck.EndPoint = WP(0)(0)
-        BaseCap = tcCheck.LoxoCap
+        BaseCap = tcCheck.LoxoCourse_Deg
         tc.StartPoint = WP(0)(0)
         tc2.StartPoint = WP(0)(1)
 
@@ -254,11 +254,11 @@ Public Class RoutingGridPoint
                 Dim G As RoutingGridPoint
                 If tc.SurfaceDistance + tc2.SurfaceDistance <= MaxDist Then
 
-                    Dim DirAngle As Double = VLM_Router.WindAngle(BaseCap, tcCheck.LoxoCap)
+                    Dim DirAngle As Double = VLM_Router.WindAngle(BaseCap, tcCheck.LoxoCourse_Deg)
 
                     If (IgnoreAngle OrElse Math.Abs(DirAngle) <= 120) AndAlso GridRouter.CheckSegmentValid(tcCheck) Then
 
-                        If tcCheck.LoxoCap = 180 Then
+                        If tcCheck.LoxoCourse_Deg = 180 Then
                             Dim idebug As Integer = 23
                         End If
                         If Not Dictionnary.Contains(D) Then
@@ -266,7 +266,7 @@ Public Class RoutingGridPoint
                             SyncLock Dictionnary
                                 If Not Dictionnary.Contains(D) Then
                                     G = New RoutingGridPoint(D, 0, tcCheck.SurfaceDistance)
-                                    G.Ortho = ((tc.TrueCap + GribManager.CheckAngleInterp(tc2.TrueCap - tc.TrueCap) / 2) + 180) Mod 360
+                                    G.Ortho = ((tc.OrthoCourse_Deg + GribManager.CheckAngleInterp(tc2.OrthoCourse_Deg - tc.OrthoCourse_Deg) / 2) + 180) Mod 360
                                     G.Dist = GSHHS_Reader.HitDistance(G.P.P, WP, True)
                                     If G.Dist = Double.MaxValue Then
                                         G.Dist = Math.Min(tc2.SurfaceDistance, tc.SurfaceDistance)
@@ -282,10 +282,10 @@ Public Class RoutingGridPoint
                             G.CrossedLine = True
                         Else
                             If tc.SurfaceDistance < tcCheck.SurfaceDistance Then
-                                Dim C1 As Double = Math.Min(tcCheck.LoxoCap, tc.LoxoCap)
-                                Dim c2 As Double = Math.Min(tcCheck.LoxoCap, tc2.LoxoCap)
+                                Dim C1 As Double = Math.Min(tcCheck.LoxoCourse_Deg, tc.LoxoCourse_Deg)
+                                Dim c2 As Double = Math.Min(tcCheck.LoxoCourse_Deg, tc2.LoxoCourse_Deg)
 
-                                If C1 <> c2 AndAlso (C1 = tcCheck.LoxoCap OrElse c2 = tcCheck.LoxoCap) Then
+                                If C1 <> c2 AndAlso (C1 = tcCheck.LoxoCourse_Deg OrElse c2 = tcCheck.LoxoCourse_Deg) Then
                                     G.CrossedLine = True
                                 Else
                                     G.CrossedLine = False

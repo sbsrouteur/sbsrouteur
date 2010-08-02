@@ -380,7 +380,7 @@ Public Class VLM_Router
                     Tc.EndPoint = _PlayerInfo.RaceInfo.races_waypoints(_CurUserWP - 1).WPs(0)(0)
                 End If
 
-                Dim CapOrtho As Double = Tc.TrueCap
+                Dim CapOrtho As Double = Tc.OrthoCourse_Deg
 
 
                 Return CurVMGEnveloppe(Mi, P, CapOrtho, UserInfo.type)
@@ -912,7 +912,7 @@ Public Class VLM_Router
                             Case 3
                                 'Ortho
                                 Tc.EndPoint = CurWPDest
-                                Dim CapOrtho As Double = Tc.TrueCap
+                                Dim CapOrtho As Double = Tc.OrthoCourse_Deg
                                 BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, CapOrtho)
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
@@ -933,7 +933,7 @@ Public Class VLM_Router
                                 End If
 
                                 Tc.EndPoint = CurWPDest
-                                Dim CapOrtho As Double = Tc.TrueCap
+                                Dim CapOrtho As Double = Tc.OrthoCourse_Deg
                                 Dim Angle As Double
                                 Dim MaxSpeed As Double = 0
                                 Dim BestAngle As Double = 0
@@ -1149,7 +1149,7 @@ Public Class VLM_Router
         '267:
         Dim Tc As New TravelCalculator With {.StartPoint = Start, .EndPoint = Dest}
         Dim Dist As Double = Tc.SurfaceDistance
-        Dim CapOrtho As Double = Tc.TrueCap
+        Dim CapOrtho As Double = Tc.OrthoCourse_Deg
         '268	  dist = ortho_distance(aboat->latitude, aboat->longitude,
         '269	                        aboat->wp_latitude, aboat->wp_longitude);
         '270:
@@ -2717,7 +2717,7 @@ Public Class VLM_Router
             Dim P0 As Coords = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0)
             If GSHHS_Reader.HitTest(P0, 0, GSHHS_Reader.Polygons(P0), True) Then
                 Dim Tcl As New TravelCalculator With {.StartPoint = P0, .EndPoint = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1)}
-                Dim Cap As Double = Tcl.TrueCap
+                Dim Cap As Double = Tcl.OrthoCourse_Deg
 
                 Tcl.EndPoint = Nothing
                 While GSHHS_Reader.HitTest(P0, 0, GSHHS_Reader.Polygons(P0), True)
@@ -2730,7 +2730,7 @@ Public Class VLM_Router
             Dim P1 As Coords = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1)
             If GSHHS_Reader.HitTest(P1, 0, GSHHS_Reader.Polygons(P1), True) Then
                 Dim Tcl As New TravelCalculator With {.StartPoint = P1, .EndPoint = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0)}
-                Dim Cap As Double = Tcl.TrueCap
+                Dim Cap As Double = Tcl.OrthoCourse_Deg
 
                 Tcl.EndPoint = Tc.StartPoint
                 While GSHHS_Reader.HitTest(P1, 0, GSHHS_Reader.Polygons(P1), True)
