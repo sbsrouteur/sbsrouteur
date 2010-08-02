@@ -2545,7 +2545,7 @@ Public Class VLM_Router
                 _RouteToGoal.EndPoint = PlayerInfo.Route(PlayerInfo.Route.Count - 1)
             End If
 
-            VMG = _UserInfo.position.vitesse * Math.Cos((_UserInfo.position.cap - CurrentRoute.LoxoCap) / 180 * Math.PI)
+            VMG = _UserInfo.position.vitesse * Math.Cos((_UserInfo.position.cap - CurrentRoute.LoxoCourse_Deg) / 180 * Math.PI)
             If VMG <> 0 Then
                 ETA = Now.AddHours(CurrentRoute.SurfaceDistance / VMG)
             Else
