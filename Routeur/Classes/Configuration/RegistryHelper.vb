@@ -2,7 +2,12 @@
 
 Module RegistryHelper
 
+#If TESTING = 1 Then
+    Private Const BASE_REG_PATH As String = "Software\Sbs\Routeur\#Testing"
+#Else
     Private Const BASE_REG_PATH As String = "Software\Sbs\Routeur"
+#End If
+
     Private Const USER_SUB_KEY As String = "Users"
     Private Const USER_NICK As String = "Nick"
     Private Const USER_NUM As String = "NumBoat"

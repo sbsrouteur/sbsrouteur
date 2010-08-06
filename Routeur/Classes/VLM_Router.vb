@@ -2049,9 +2049,10 @@ Public Class VLM_Router
         RetUser.date = Now.AddSeconds(+Nup - RouteurModel.VacationMinutes * 60)
         RouteurModel.CurWP = BoatInfo.NWP
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
-        If BoatInfo.POS.IndexOf("/"c) >= 0 Then
-            RetUser.position.classement = CInt(BoatInfo.POS.Substring(0, BoatInfo.POS.IndexOf("/"c)))
-        End If
+        'If BoatInfo.POS.IndexOf("/"c) >= 0 Then
+        '    RetUser.position.classement = CInt(BoatInfo.POS.Substring(0, BoatInfo.POS.IndexOf("/"c)))
+        'End If
+        RetUser.position.classement = BoatInfo.RNK
         RetUser.position.wind_angle = BoatInfo.TWD
         RetUser.position.wind_speed = BoatInfo.TWS
         _Pilototo(0) = BoatInfo.PIL1
