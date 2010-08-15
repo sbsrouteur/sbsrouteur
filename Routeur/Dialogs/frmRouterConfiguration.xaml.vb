@@ -78,7 +78,6 @@ Partial Public Class frmRouterConfiguration
             Else
                 _Context.RouteDest = M.CanvasToCoords(P)
             End If
-            _Context.RouteDest = M.CanvasToCoords(P)
 
         End If
 
