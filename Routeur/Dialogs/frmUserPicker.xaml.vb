@@ -130,4 +130,7 @@ Partial Public Class frmUserPicker
     End Sub
 
 
+    Private Sub frmUserPicker_Closing(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles Me.Closing
+        e.Cancel = True
+    End Sub
 End Class

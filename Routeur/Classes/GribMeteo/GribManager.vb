@@ -653,6 +653,8 @@ Public Class GribManager
                     Return False
                 ElseIf ex2.Message.Contains("404") Then
                     retries += 1
+                Else
+                    Return False
                 End If
             Catch ex As Exception
                 Dim i As Integer = 0
