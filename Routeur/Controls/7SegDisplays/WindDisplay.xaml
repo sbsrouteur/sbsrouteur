@@ -1,0 +1,69 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	xmlns:local="clr-namespace:Routeur"
+	x:Class="WindDisplay"
+	x:Name="UserControl" Width="566" Height="454">
+	<UserControl.Resources>
+		
+	</UserControl.Resources>
+
+	<Grid x:Name="LayoutRoot">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="31.667"/>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="32"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="39.667"/>
+			<RowDefinition/>
+			<RowDefinition Height="40"/>
+		</Grid.RowDefinitions>
+		<Rectangle Grid.ColumnSpan="3" Grid.RowSpan="3" RadiusX="13" RadiusY="13" StrokeThickness="31" Margin="0,8" >
+			<Rectangle.Stroke>
+				<ImageBrush ImageSource="..\..\Graphics\Aluminium1.jpg" Stretch="UniformToFill"/>
+			</Rectangle.Stroke>
+		</Rectangle>
+		<Grid Grid.Row="1" Grid.Column="1">
+			<Grid.Background>
+				<ImageBrush ImageSource="..\..\Graphics\LCD.png"/>
+			</Grid.Background>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" MinWidth="87.037"/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="0.176*"/>
+				<RowDefinition Height="0.176*"/>
+				<RowDefinition Height="Auto" MinHeight="56.094"/>
+				<RowDefinition Height="0.647*"/>
+			</Grid.RowDefinitions>
+			<Rectangle Grid.ColumnSpan="2" Grid.RowSpan="4" RadiusX="13" RadiusY="13" StrokeThickness="13" Margin="-14,-14,-12,-13.667" >
+				<Rectangle.Stroke>
+					<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" MappingMode="RelativeToBoundingBox">
+						<LinearGradientBrush.RelativeTransform>
+							<TransformGroup>
+								<ScaleTransform CenterX="0.5" CenterY="0.5"/>
+								<SkewTransform CenterX="0.5" CenterY="0.5"/>
+								<RotateTransform Angle="45" CenterX="0.5" CenterY="0.5"/>
+								<TranslateTransform/>
+							</TransformGroup>
+						</LinearGradientBrush.RelativeTransform>
+						<GradientStop Color="#88000000" Offset="0"/>
+						<GradientStop Color="#54080000" Offset="1"/>
+					</LinearGradientBrush>
+				</Rectangle.Stroke>
+			</Rectangle>
+		
+			<TextBlock Text="Wind Dir" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16"/>
+			<TextBlock Text="Wind Strength" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
+			<local:NumberDisplay d:Value="168.2" Value="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" Grid.Column="2"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="1"/>
+			<local:NumberDisplay Value="715" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2"/>
+	
+		</Grid>
+	</Grid>
+</UserControl>

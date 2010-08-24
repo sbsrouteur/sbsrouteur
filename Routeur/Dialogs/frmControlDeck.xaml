@@ -1,0 +1,15 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="clr-namespace:Routeur"
+	x:Class="frmControlDeck"
+	x:Name="Window"
+	Title="frmControlDeck"
+	Width="640" Height="480">
+
+	<Grid x:Name="LayoutRoot">
+		<StackPanel Margin="0,0,0,44">
+			<local:WindDisplay Margin="29,0" Height="384"/>
+		</StackPanel>
+	</Grid>
+</Window>

@@ -267,7 +267,7 @@
 					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.classement, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="2"/>
 					<TextBlock Text="Cap" TextWrapping="Wrap" Grid.Column="2" Grid.Row="3"/>
 					<TextBlock Text="Vitesse" TextWrapping="Wrap" Grid.Column="2" Grid.Row="4"/>
-					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="3"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="3" Margin="6,4,2,4"/>
 					<GridSplitter Width="4" Grid.Column="1" Grid.RowSpan="11"/>
 					<GridSplitter Width="4" Grid.RowSpan="11"/>
 					<GridSplitter Width="4" Grid.Column="2" Grid.RowSpan="11"/>
@@ -460,6 +460,9 @@
 						</Custom:DataGrid.Columns>
 					</Custom:DataGrid>
 				</Grid>
+			</TabItem>
+			<TabItem>
+				<Routeur:WindDisplay d:LayoutOverrides="Margin" HorizontalAlignment="Left" VerticalAlignment="Top" Width="174" Height="101"/>
 			</TabItem>
          </TabControl>
     	
