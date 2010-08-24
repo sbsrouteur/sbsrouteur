@@ -22,6 +22,7 @@ Partial Public Class RouteurMain
     Private _DragStartPoint As Point
     Private _ZoomIn As Boolean = False
     Private WithEvents _RouteForm As frmRouteViewer
+    Private WithEvents _frmControlDeck As New frmControlDeck
 
     Public Shared ReadOnly TravelCalculatorProperty As DependencyProperty = _
                            DependencyProperty.Register("TravelCalculator", _
@@ -59,6 +60,10 @@ Partial Public Class RouteurMain
         M.VorHandler.Owner = Me
         CenterOnBoat(Me, Nothing)
         UpdateCoordsExtent(M, False, False)
+        _frmControlDeck.DataContext = M
+        _frmControlDeck.Owner = Me
+        _frmControlDeck.Show()
+
 
     End Sub
 
