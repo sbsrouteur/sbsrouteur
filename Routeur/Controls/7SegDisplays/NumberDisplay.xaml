@@ -7,7 +7,7 @@
 	mc:Ignorable="d"
 	x:Class="NumberDisplay"
 	x:Name="UserControl"
-	d:DesignWidth="640" d:DesignHeight="480">
+	d:DesignWidth="100" d:DesignHeight="100">
 	
     <UserControl.Resources >
 	    <DataTemplate DataType="{x:Type local:Digit}">
@@ -21,6 +21,6 @@
     </UserControl.Resources>
 
 	<Grid x:Name="LayoutRoot">
-		<ItemsControl ItemsSource="{Binding Digits, ElementName=UserControl, Mode=Default}" ItemsPanel="{DynamicResource ItemsPanelTemplate1}" VerticalContentAlignment="Stretch" HorizontalAlignment="Right"/>
+		<ItemsControl ItemsSource="{Binding Digits, ElementName=UserControl, Mode=Default}" ItemsPanel="{DynamicResource ItemsPanelTemplate1}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Right" Margin="{DynamicResource DefMargin}"/>
 	</Grid>
 </UserControl>

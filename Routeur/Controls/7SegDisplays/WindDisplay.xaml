@@ -6,7 +6,7 @@
 	mc:Ignorable="d"
 	xmlns:local="clr-namespace:Routeur"
 	x:Class="WindDisplay"
-	x:Name="UserControl" Width="566" Height="454">
+	x:Name="UserControl" Width="404" Height="272">
 	<UserControl.Resources>
 		
 	</UserControl.Resources>
@@ -22,7 +22,7 @@
 			<RowDefinition/>
 			<RowDefinition Height="40"/>
 		</Grid.RowDefinitions>
-		<Rectangle Grid.ColumnSpan="3" Grid.RowSpan="3" RadiusX="13" RadiusY="13" StrokeThickness="31" Margin="0,8" >
+		<Rectangle Grid.ColumnSpan="3" Grid.RowSpan="3" RadiusX="13" RadiusY="13" StrokeThickness="31" Margin="0,8,0,18.667" >
 			<Rectangle.Stroke>
 				<ImageBrush ImageSource="..\..\Graphics\Aluminium1.jpg" Stretch="UniformToFill"/>
 			</Rectangle.Stroke>
@@ -36,19 +36,20 @@
 				<ColumnDefinition/>
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
-				<RowDefinition Height="0.176*"/>
-				<RowDefinition Height="0.176*"/>
-				<RowDefinition Height="Auto" MinHeight="56.094"/>
-				<RowDefinition Height="0.647*"/>
+				<RowDefinition Height="Auto" MinHeight="35"/>
+				<RowDefinition Height="Auto" MinHeight="35"/>
+				<RowDefinition Height="Auto" MinHeight="35"/>
+				<RowDefinition Height="Auto" MinHeight="35"/>
+				<RowDefinition Height="Auto" MinHeight="35"/>
 			</Grid.RowDefinitions>
-			<Rectangle Grid.ColumnSpan="2" Grid.RowSpan="4" RadiusX="13" RadiusY="13" StrokeThickness="13" Margin="-14,-14,-12,-13.667" >
+			<Rectangle Grid.ColumnSpan="2" Grid.RowSpan="5" RadiusX="13" RadiusY="13" StrokeThickness="13" Margin="-14,-14,-12,-25.667" >
 				<Rectangle.Stroke>
 					<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" MappingMode="RelativeToBoundingBox">
 						<LinearGradientBrush.RelativeTransform>
 							<TransformGroup>
 								<ScaleTransform CenterX="0.5" CenterY="0.5"/>
 								<SkewTransform CenterX="0.5" CenterY="0.5"/>
-								<RotateTransform Angle="45" CenterX="0.5" CenterY="0.5"/>
+								<RotateTransform Angle="-146" CenterX="0.5" CenterY="0.5"/>
 								<TranslateTransform/>
 							</TransformGroup>
 						</LinearGradientBrush.RelativeTransform>
@@ -60,9 +61,14 @@
 		
 			<TextBlock Text="Wind Dir" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16"/>
 			<TextBlock Text="Wind Strength" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
-			<local:NumberDisplay d:Value="168.2" Value="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" Grid.Column="2"/>
+			<TextBlock Text="Wind Angle" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="2"/>
+			<local:NumberDisplay d:Value="168.2" Value="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox"/>
 			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="1"/>
-			<local:NumberDisplay Value="715" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2"/>
+			<TextBlock Text="Boat Speed" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="3"/>
+			<TextBlock Text="Boat Bearing" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="4"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.vitesse, Mode=Default}" Grid.Column="1" Grid.Row="3" d:LayoutOverrides="GridBox"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.cap, Mode=Default}" Grid.Column="1" Grid.Row="5" d:LayoutOverrides="GridBox"/>
 	
 		</Grid>
 	</Grid>
