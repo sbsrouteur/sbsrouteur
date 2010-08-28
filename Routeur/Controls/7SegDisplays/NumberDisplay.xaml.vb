@@ -22,6 +22,26 @@ Partial Public Class NumberDisplay
 
 
 
+
+    Public Property StringFormat() As String
+        Get
+            Return CStr(GetValue(StringFormatProperty))
+        End Get
+
+        Set(ByVal value As String)
+            SetValue(StringFormatProperty, value)
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("StringFormat"))
+        End Set
+    End Property
+
+    Public Shared ReadOnly StringFormatProperty As DependencyProperty = _
+                           DependencyProperty.Register("StringFormat", _
+                           GetType(String), GetType(NumberDisplay), _
+                           New FrameworkPropertyMetadata(Nothing, AddressOf OnValueFormatChanged))
+
+
+
+
     Public Property Value() As Double
         Get
             Return CDbl(GetValue(ValueProperty))
@@ -36,7 +56,7 @@ Partial Public Class NumberDisplay
     Public Shared ReadOnly ValueProperty As DependencyProperty = _
                            DependencyProperty.Register("Value", _
                            GetType(Double), GetType(NumberDisplay), _
-                           New FrameworkPropertyMetadata(0.0, AddressOf OnValueChanged))
+                           New FrameworkPropertyMetadata(0.0, AddressOf OnValueFormatChanged))
 
 
 
@@ -48,17 +68,6 @@ Partial Public Class NumberDisplay
         ' Insérez le code requis pour la création d’objet sous ce point.
     End Sub
 
-    Public Property Format() As String
-        Get
-            Return _Format
-        End Get
-        Set(ByVal value As String)
-            _Format = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Format"))
-            UpdateNumber()
-        End Set
-    End Property
-
     Public Property Digits() As ObservableCollection(Of Digit)
         Get
             Return _digits
@@ -68,16 +77,16 @@ Partial Public Class NumberDisplay
         End Set
     End Property
 
-    Private Shared Sub OnValueChanged(ByVal O As DependencyObject, ByVal e As DependencyPropertyChangedEventArgs)
 
-        CType(O, NumberDisplay).SetValue(ValueProperty, e.NewValue)
+    Private Shared Sub OnValueFormatChanged(ByVal O As DependencyObject, ByVal e As DependencyPropertyChangedEventArgs)
+
         CType(O, NumberDisplay).UpdateNumber()
 
     End Sub
 
     Private Sub UpdateNumber()
 
-        Dim str As String = Value.ToString(Format)
+        Dim str As String = Value.ToString(StringFormat)
 
         Digits.Clear()
         For Each C As Char In str
@@ -87,9 +96,9 @@ Partial Public Class NumberDisplay
             ElseIf Digits.Count > 0 Then
                 Digits(Digits.Count - 1).Dot = True
             End If
+
         Next
 
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Digits"))
 
     End Sub
 

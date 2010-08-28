@@ -2019,7 +2019,10 @@ Public Class VLM_Router
         If BoatInfo.PIM = 2 Then
             RetUser.position.AngleAllure = CDbl(BoatInfo.PIP)
             'Double.TryParse(BoatInfo.PIP, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.AngleAllure)
+        Else
+            RetUser.position.AngleAllure = BoatInfo.TWA
         End If
+
         RetUser.type = BoatInfo.POL
         BoatType = BoatInfo.POL
 

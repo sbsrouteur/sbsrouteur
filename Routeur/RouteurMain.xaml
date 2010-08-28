@@ -461,9 +461,6 @@
 					</Custom:DataGrid>
 				</Grid>
 			</TabItem>
-			<TabItem>
-				<Routeur:WindDisplay d:LayoutOverrides="Margin" HorizontalAlignment="Left" VerticalAlignment="Top" Width="174" Height="101"/>
-			</TabItem>
          </TabControl>
     	
         
