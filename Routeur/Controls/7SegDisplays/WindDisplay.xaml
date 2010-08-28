@@ -5,9 +5,12 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
 	xmlns:local="clr-namespace:Routeur"
+	xmlns:System="clr-namespace:System;assembly=mscorlib"
 	x:Class="WindDisplay"
-	x:Name="UserControl" Width="404" Height="272">
+	x:Name="UserControl" Width="342.154">
 	<UserControl.Resources>
+		
+		<System:String x:Key="FmtDig">0.0</System:String>
 		
 	</UserControl.Resources>
 
@@ -42,34 +45,34 @@
 				<RowDefinition Height="Auto" MinHeight="35"/>
 				<RowDefinition Height="Auto" MinHeight="35"/>
 			</Grid.RowDefinitions>
-			<Rectangle Grid.ColumnSpan="2" Grid.RowSpan="5" RadiusX="13" RadiusY="13" StrokeThickness="13" Margin="-14,-14,-12,-25.667" >
-				<Rectangle.Stroke>
-					<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" MappingMode="RelativeToBoundingBox">
-						<LinearGradientBrush.RelativeTransform>
-							<TransformGroup>
-								<ScaleTransform CenterX="0.5" CenterY="0.5"/>
-								<SkewTransform CenterX="0.5" CenterY="0.5"/>
-								<RotateTransform Angle="-146" CenterX="0.5" CenterY="0.5"/>
-								<TranslateTransform/>
-							</TransformGroup>
-						</LinearGradientBrush.RelativeTransform>
-						<GradientStop Color="#88000000" Offset="0"/>
-						<GradientStop Color="#54080000" Offset="1"/>
-					</LinearGradientBrush>
-				</Rectangle.Stroke>
-			</Rectangle>
 		
 			<TextBlock Text="Wind Dir" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16"/>
 			<TextBlock Text="Wind Strength" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
 			<TextBlock Text="Wind Angle" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="2"/>
-			<local:NumberDisplay d:Value="168.2" Value="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="1"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="{DynamicResource FmtDig}"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="1" StringFormat="{DynamicResource FmtDig}"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.AngleAllure, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2" StringFormat="{DynamicResource FmtDig}"/>
 			<TextBlock Text="Boat Speed" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="3"/>
 			<TextBlock Text="Boat Bearing" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="4"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.vitesse, Mode=Default}" Grid.Column="1" Grid.Row="3" d:LayoutOverrides="GridBox"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.cap, Mode=Default}" Grid.Column="1" Grid.Row="5" d:LayoutOverrides="GridBox"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.vitesse, Mode=Default}" Grid.Column="1" Grid.Row="3" d:LayoutOverrides="GridBox" StringFormat="{DynamicResource FmtDig}"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.cap, Mode=Default}" Grid.Column="1" Grid.Row="5" d:LayoutOverrides="GridBox" ContentStringFormat="" StringFormat="{DynamicResource FmtDig}"/>
 	
 		</Grid>
+		<Rectangle RadiusX="13" RadiusY="13" StrokeThickness="13" Margin="-14,-13,-13,-13" MinWidth="0.3" Grid.Column="1" Grid.Row="1" >
+			<Rectangle.Stroke>
+				<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" MappingMode="RelativeToBoundingBox">
+					<LinearGradientBrush.RelativeTransform>
+						<TransformGroup>
+							<ScaleTransform CenterX="0.5" CenterY="0.5"/>
+							<SkewTransform CenterX="0.5" CenterY="0.5"/>
+							<RotateTransform Angle="149" CenterX="0.5" CenterY="0.5"/>
+							<TranslateTransform/>
+						</TransformGroup>
+					</LinearGradientBrush.RelativeTransform>
+					<GradientStop Color="#88FFFFFF" Offset="0"/>
+					<GradientStop Color="#54080000" Offset="1"/>
+				</LinearGradientBrush>
+			</Rectangle.Stroke>
+		</Rectangle>
 	</Grid>
 </UserControl>
