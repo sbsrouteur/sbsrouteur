@@ -215,14 +215,11 @@ Public Class IsoRouter
 
             Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
             TotalDist += Speed / 60 * RouteurModel.VacationMinutes
-            TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
-
-
 
             'TC.StartPoint = TC.EndPoint
-
         Next
 
+        TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
         If Not GridRouter.CheckSegmentValid(TC) Then
             Return Nothing
         End If

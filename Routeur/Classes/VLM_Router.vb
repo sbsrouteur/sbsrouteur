@@ -697,7 +697,7 @@ Public Class VLM_Router
         Try
             Dim C As New Coords With {.Lat_deg = _UserInfo.position.latitude, .Lon_Deg = _UserInfo.position.longitude}
             Dim Mi As MeteoInfo
-            Dim Dte As DateTime = Now
+            Dim Dte As DateTime = _UserInfo.date.AddMinutes(RouteurModel.VacationMinutes)
             Dim Speed As Double = 0
             Dim TC As New TravelCalculator
             _AllureRoute.Clear()
@@ -732,7 +732,7 @@ Public Class VLM_Router
             Try
                 Computing = True
 
-                Dim CurDate As DateTime = Now
+                Dim CurDate As DateTime = _UserInfo.date.AddMinutes(RouteurModel.VacationMinutes)
                 Dim CurPos As Coords = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
                 Dim P As clsrouteinfopoints
                 Dim Mi As MeteoInfo = Nothing
@@ -950,13 +950,13 @@ Public Class VLM_Router
                                         BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho + Angle * dir, Mi.Dir), Mi.Strength)
 
                                         If BoatSpeed * Math.Cos(Angle / 180 * Math.PI) > MaxSpeed Then
-                                            MaxSpeed = BoatSpeed * Math.Cos(Angle / 180 * Math.PI)
+                                            MaxSpeed = BoatSpeed '* Math.Cos(Angle / 180 * Math.PI)
                                             BestAngle = CapOrtho + Angle * dir
                                         End If
                                     Next
 
                                 Next
-                                CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
+                                CurPos = Tc.ReachDistance(MaxSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
 
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
 
@@ -1042,6 +1042,10 @@ Public Class VLM_Router
                     End If
 
                 End While
+
+            Catch ex As Exception
+
+                AddLog("Exception in ComputePilototo : " & ex.Message)
 
             Finally
                 Computing = False

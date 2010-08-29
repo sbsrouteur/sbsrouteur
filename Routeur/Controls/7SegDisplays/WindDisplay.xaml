@@ -7,10 +7,11 @@
 	xmlns:local="clr-namespace:Routeur"
 	xmlns:System="clr-namespace:System;assembly=mscorlib"
 	x:Class="WindDisplay"
-	x:Name="UserControl" Width="342.154">
+	x:Name="UserControl" MinWidth="320" MinHeight="259">
 	<UserControl.Resources>
 		
 		<System:String x:Key="FmtDig">0.0</System:String>
+		<ImageBrush x:Key="AluBrush" ImageSource="..\..\Graphics\Aluminium1.jpg" Stretch="UniformToFill"/>
 		
 	</UserControl.Resources>
 
@@ -25,11 +26,7 @@
 			<RowDefinition/>
 			<RowDefinition Height="40"/>
 		</Grid.RowDefinitions>
-		<Rectangle Grid.ColumnSpan="3" Grid.RowSpan="3" RadiusX="13" RadiusY="13" StrokeThickness="31" Margin="0,8,0,18.667" >
-			<Rectangle.Stroke>
-				<ImageBrush ImageSource="..\..\Graphics\Aluminium1.jpg" Stretch="UniformToFill"/>
-			</Rectangle.Stroke>
-		</Rectangle>
+		<Rectangle Grid.ColumnSpan="3" Grid.RowSpan="3" RadiusX="13" RadiusY="13" StrokeThickness="31" Margin="0,8,0,18.667" Stroke="{DynamicResource AluBrush}" />
 		<Grid Grid.Row="1" Grid.Column="1">
 			<Grid.Background>
 				<ImageBrush ImageSource="..\..\Graphics\LCD.png"/>
