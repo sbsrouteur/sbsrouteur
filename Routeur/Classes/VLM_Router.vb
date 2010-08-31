@@ -2024,7 +2024,7 @@ Public Class VLM_Router
             RetUser.position.AngleAllure = CDbl(BoatInfo.PIP)
             'Double.TryParse(BoatInfo.PIP, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.AngleAllure)
         Else
-            RetUser.position.AngleAllure = BoatInfo.TWA
+            RetUser.position.AngleAllure = WindAngleWithSign(BoatInfo.HDG, BoatInfo.TWD)
         End If
 
         RetUser.type = BoatInfo.POL
@@ -2059,6 +2059,8 @@ Public Class VLM_Router
         'If BoatInfo.POS.IndexOf("/"c) >= 0 Then
         '    RetUser.position.classement = CInt(BoatInfo.POS.Substring(0, BoatInfo.POS.IndexOf("/"c)))
         'End If
+        RetUser.position.WP_latitude = BoatInfo.WPLAT
+        RetUser.position.WP_longitude = BoatInfo.WPLON
         RetUser.position.classement = BoatInfo.RNK
         RetUser.position.wind_angle = BoatInfo.TWD
         RetUser.position.wind_speed = BoatInfo.TWS
@@ -2889,6 +2891,18 @@ Public Class VLM_Router
         Return I
 
     End Function
+
+    Public Shared Function WindAngleWithSign(ByVal heading As Double, ByVal Wind As Double) As Double
+
+        Dim V As Double = WindAngle(heading, Wind)
+
+        If (heading + V) Mod 360 = Wind Then
+            Return -V
+        Else
+            Return V
+        End If
+    End Function
+
 
     Public Property WindChangeDate() As DateTime
         Get

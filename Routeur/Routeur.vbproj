@@ -125,7 +125,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\7SegDisplays\NavDisplay.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\7SegDisplays\NumberDisplay.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\7SegDisplays\PosDisplay.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -270,8 +278,14 @@
     <Compile Include="Classes\VLM_Router.vb" />
     <Compile Include="Classes\WS\WS_Wrapper.vb" />
     <Compile Include="Controls\7SegDisplays\Digit.vb" />
+    <Compile Include="Controls\7SegDisplays\NavDisplay.xaml.vb">
+      <DependentUpon>NavDisplay.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\7SegDisplays\NumberDisplay.xaml.vb">
       <DependentUpon>NumberDisplay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\7SegDisplays\PosDisplay.xaml.vb">
+      <DependentUpon>PosDisplay.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\7SegDisplays\SegmentDigit.xaml.vb">
       <DependentUpon>SegmentDigit.xaml</DependentUpon>

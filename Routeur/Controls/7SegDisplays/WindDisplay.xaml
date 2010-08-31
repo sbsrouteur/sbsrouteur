@@ -7,7 +7,7 @@
 	xmlns:local="clr-namespace:Routeur"
 	xmlns:System="clr-namespace:System;assembly=mscorlib"
 	x:Class="WindDisplay"
-	x:Name="UserControl" MinWidth="320" MinHeight="259">
+	x:Name="UserControl">
 	<UserControl.Resources>
 		
 		<System:String x:Key="FmtDig">0.0</System:String>
@@ -17,45 +17,17 @@
 
 	<Grid x:Name="LayoutRoot">
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="31.667"/>
+			<ColumnDefinition Width="20"/>
 			<ColumnDefinition/>
-			<ColumnDefinition Width="32"/>
+			<ColumnDefinition Width="20"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="39.667"/>
+			<RowDefinition Height="20"/>
 			<RowDefinition/>
-			<RowDefinition Height="40"/>
+			<RowDefinition Height="20"/>
 		</Grid.RowDefinitions>
-		<Rectangle Grid.ColumnSpan="3" Grid.RowSpan="3" RadiusX="13" RadiusY="13" StrokeThickness="31" Margin="0,8,0,18.667" Stroke="{DynamicResource AluBrush}" />
-		<Grid Grid.Row="1" Grid.Column="1">
-			<Grid.Background>
-				<ImageBrush ImageSource="..\..\Graphics\LCD.png"/>
-			</Grid.Background>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto" MinWidth="87.037"/>
-				<ColumnDefinition/>
-			</Grid.ColumnDefinitions>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" MinHeight="35"/>
-				<RowDefinition Height="Auto" MinHeight="35"/>
-				<RowDefinition Height="Auto" MinHeight="35"/>
-				<RowDefinition Height="Auto" MinHeight="35"/>
-				<RowDefinition Height="Auto" MinHeight="35"/>
-			</Grid.RowDefinitions>
-		
-			<TextBlock Text="Wind Dir" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16"/>
-			<TextBlock Text="Wind Strength" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
-			<TextBlock Text="Wind Angle" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="2"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="{DynamicResource FmtDig}"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="1" StringFormat="{DynamicResource FmtDig}"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.AngleAllure, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2" StringFormat="{DynamicResource FmtDig}"/>
-			<TextBlock Text="Boat Speed" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="3"/>
-			<TextBlock Text="Boat Bearing" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="4"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.vitesse, Mode=Default}" Grid.Column="1" Grid.Row="3" d:LayoutOverrides="GridBox" StringFormat="{DynamicResource FmtDig}"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.cap, Mode=Default}" Grid.Column="1" Grid.Row="5" d:LayoutOverrides="GridBox" ContentStringFormat="" StringFormat="{DynamicResource FmtDig}"/>
-	
-		</Grid>
-		<Rectangle RadiusX="13" RadiusY="13" StrokeThickness="13" Margin="-14,-13,-13,-13" MinWidth="0.3" Grid.Column="1" Grid.Row="1" >
+		<Rectangle Grid.ColumnSpan="3" RadiusX="13" RadiusY="13" StrokeThickness="31" Stroke="{DynamicResource AluBrush}" Grid.RowSpan="3" />
+		<Rectangle RadiusX="13" RadiusY="13" StrokeThickness="13" MinWidth="0.3" Grid.ColumnSpan="3" Grid.RowSpan="3" >
 			<Rectangle.Stroke>
 				<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" MappingMode="RelativeToBoundingBox">
 					<LinearGradientBrush.RelativeTransform>
@@ -71,5 +43,33 @@
 				</LinearGradientBrush>
 			</Rectangle.Stroke>
 		</Rectangle>
+		<Grid Grid.Row="1" Grid.Column="1">
+			<Grid.Background>
+				<ImageBrush ImageSource="..\..\Graphics\LCD.png"/>
+			</Grid.Background>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" MinWidth="87.037"/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+			</Grid.RowDefinitions>
+		
+			<TextBlock Text="Wind Dir" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16"/>
+			<TextBlock Text="Wind Strength" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
+			<TextBlock Text="Wind Angle" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="2"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="{DynamicResource FmtDig}"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="1" StringFormat="{DynamicResource FmtDig}"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.AngleAllure, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2" StringFormat="{DynamicResource FmtDig}"/>
+			<TextBlock Text="Boat Speed" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="3"/>
+			<TextBlock Text="Boat Bearing" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="4"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.vitesse, Mode=Default}" Grid.Column="1" Grid.Row="3" d:LayoutOverrides="GridBox" StringFormat="{DynamicResource FmtDig}"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.cap, Mode=Default}" Grid.Column="1" Grid.Row="5" d:LayoutOverrides="GridBox" ContentStringFormat="" StringFormat="{DynamicResource FmtDig}"/>
+	
+		</Grid>
 	</Grid>
 </UserControl>

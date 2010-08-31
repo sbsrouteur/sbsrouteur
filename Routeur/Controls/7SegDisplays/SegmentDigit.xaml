@@ -6,7 +6,7 @@
 	mc:Ignorable="d"
 	xmlns:local="clr-namespace:Routeur"
 	x:Class="SegmentDigit"
-	x:Name="UserControl" RenderTransformOrigin="0.5,0.5" Width="{Binding ActualHeight, ElementName=UserControl, Mode=Default}">
+	x:Name="UserControl" RenderTransformOrigin="0.5,0.5" Width="{Binding ActualHeight, ElementName=UserControl, Mode=Default}" Effect="{DynamicResource DigitShadow}">
 
 
 	<UserControl.Resources>
@@ -27,7 +27,8 @@
 	<Grid x:Name="LayoutRoot" >
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width=".2*"/>
-			<ColumnDefinition Width=".40*"/>
+			<ColumnDefinition Width=".2*"/>
+			<ColumnDefinition Width=".2*"/>
 			<ColumnDefinition Width=".2*"/>
 			<ColumnDefinition Width=".2*"/>
 			<ColumnDefinition Width=".2*"/>
@@ -42,14 +43,20 @@
 			<RowDefinition Height="0.082*"/>
 			<RowDefinition Height="0.085*"/>
 		</Grid.RowDefinitions>
-		<Ellipse x:Name="Dot" Grid.Column="4" Grid.Row="7" Visibility="{Binding ShowDot, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=UserControl, Mode=Default}" Fill="{DynamicResource DefaultBgDigit}" StrokeThickness="2" Effect="{DynamicResource DigitShadow}"/>
-		<Path Fill="{DynamicResource DefaultBgDigit}" Stretch="Fill" Margin="-0.026,0.746,0.259,-2.453" Data="M16.615559,18.974096 L16.599178,21.475732 18.985577,19.387459" Grid.Column="4" Grid.Row="7" Effect="{DynamicResource DigitShadow}" Visibility="{Binding ShowDot, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=UserControl, Mode=Default}"/>
-		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=0, ElementName=UserControl, Mode=Default}" StrokeThickness="2" Effect="{DynamicResource DigitShadow}"/>
-		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=1, ElementName=UserControl, Mode=Default}" Grid.Row="3" StrokeThickness="2" Effect="{DynamicResource DigitShadow}"/>
-		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=2, ElementName=UserControl, Mode=Default}" Grid.Row="6" StrokeThickness="2" Effect="{DynamicResource DigitShadow}"/>
-		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=3, ElementName=UserControl, Mode=Default}" Grid.Row="1" Grid.RowSpan="3" StrokeThickness="2" Effect="{DynamicResource DigitShadow}"/>
-		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=4, ElementName=UserControl, Mode=Default}" Grid.Row="1" Grid.RowSpan="3" Grid.Column="3" StrokeThickness="2" Effect="{DynamicResource DigitShadow}"/>
-		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=5, ElementName=UserControl, Mode=Default}" Grid.Row="5" Grid.RowSpan="2" StrokeThickness="2" Effect="{DynamicResource DigitShadow}" />
-		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=6, ElementName=UserControl, Mode=Default}" Grid.Row="5" Grid.RowSpan="2"  Grid.Column="3" StrokeThickness="2" Effect="{DynamicResource DigitShadow}"/>
+		<Ellipse x:Name="Dot" Grid.Column="5" Grid.Row="7" Visibility="{Binding ShowDot, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=UserControl, Mode=Default}" Fill="{DynamicResource DefaultBgDigit}" StrokeThickness="2"/>
+		<Path Fill="{DynamicResource DefaultBgDigit}" Stretch="Fill" Margin="-0.026,0.746,0.259,-2.453" Data="M16.615559,18.974096 L16.599178,21.475732 18.985577,19.387459" Grid.Column="5" Grid.Row="7" Visibility="{Binding ShowDot, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=UserControl, Mode=Default}"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="3" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=0, ElementName=UserControl, Mode=Default}" StrokeThickness="2"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="3" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=1, ElementName=UserControl, Mode=Default}" Grid.Row="3" StrokeThickness="2"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="3" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=2, ElementName=UserControl, Mode=Default}" Grid.Row="6" StrokeThickness="2"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=3, ElementName=UserControl, Mode=Default}" Grid.Row="1" Grid.RowSpan="3" StrokeThickness="2"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=4, ElementName=UserControl, Mode=Default}" Grid.Row="1" Grid.RowSpan="3" Grid.Column="4" StrokeThickness="2"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=5, ElementName=UserControl, Mode=Default}" Grid.Row="5" Grid.RowSpan="2" StrokeThickness="2" />
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=6, ElementName=UserControl, Mode=Default}" Grid.Row="5" Grid.RowSpan="2"  Grid.Column="4" StrokeThickness="2"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=7, ElementName=UserControl, Mode=Default}" Grid.RowSpan="9" StrokeThickness="2"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=8, ElementName=UserControl, Mode=Default}" StrokeThickness="2" Grid.Column="1" Grid.Row="2"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=9, ElementName=UserControl, Mode=Default}" StrokeThickness="2" Grid.Column="3" Grid.Row="5"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=10, ElementName=UserControl, Mode=Default}" StrokeThickness="2" Grid.Column="2" Grid.Row="3" Grid.RowSpan="2" Grid.ColumnSpan="3"/>
+		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=11, ElementName=UserControl, Mode=Default}" StrokeThickness="2" Grid.Column="2" Grid.Row="5" Grid.RowSpan="2"/>
+		
 	</Grid>
 </UserControl>

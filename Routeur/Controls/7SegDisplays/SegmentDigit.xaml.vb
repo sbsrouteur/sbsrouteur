@@ -25,17 +25,17 @@ Partial Public Class SegmentDigit
 
     Public Shared ReadOnly DigValueProperty As DependencyProperty = _
                            DependencyProperty.Register("DigValue", _
-                           GetType(Integer), GetType(SegmentDigit), _
-                           New FrameworkPropertyMetadata(0))
+                           GetType(Char), GetType(SegmentDigit), _
+                           New FrameworkPropertyMetadata("0"c))
 
 
 
-    Public Property DigValue() As Integer
+    Public Property DigValue() As Char
         Get
-            Return CInt(GetValue(DigValueProperty))
+            Return CChar(GetValue(DigValueProperty))
         End Get
 
-        Set(ByVal value As Integer)
+        Set(ByVal value As Char)
             SetValue(DigValueProperty, value)
         End Set
     End Property
@@ -65,50 +65,91 @@ End Class
 Public Class SegmentVisiblityConverter
     Implements IValueConverter
 
+    Private Enum MapLookup As Byte
+        l0 = 0
+        l1 = 1
+        l2 = 2
+        l3 = 3
+        l4 = 4
+        l5 = 5
+        l6 = 6
+        l7 = 7
+        l8 = 8
+        l9 = 9
+        lminus = 10
+        lA = 11
+        lZ = lA + 25
+        lSpace = 37
+
+    End Enum
+
+    Private Shared _Maps() As Integer = New Integer() {&H7D, &H50, &H37, &H57, &H5A, &H4F, &H6F, &H51, &H7F, &H5F, &H2, _
+                                                       &H7B, &H6E, &H2D, &HAA, &H2F, &H27, &H4C5, &H7A, &H50, &H53, &H0, &H84, &H79, &H378, _
+                                                       &H7D, &H37, &H0, &H293, &H4F, &H0, &H7C, &H0, &H87C, &H0, &H0, &H0, _
+                                                       &H0}
+
+
     Public Function Convert(ByVal value As Object, ByVal targetType As System.Type, ByVal parameter As Object, ByVal culture As System.Globalization.CultureInfo) As Object Implements System.Windows.Data.IValueConverter.Convert
         Dim ret As Visibility = Visibility.Hidden
-        Dim IVal As Integer = CInt(value)
+        Dim CVal As Char = CChar(value)
+        Dim MapIndex As Integer
 
-        Select Case CInt(parameter)
-            Case 0
+        If CVal >= "0"c AndAlso CVal <= "9"c Then
+            MapIndex = MapLookup.l0 + AscW(CVal) - AscW("0"c)
+        ElseIf CVal >= "A"c AndAlso CVal <= "Z"c Then
+            MapIndex = MapLookup.lA + AscW(CVal) - AscW("A"c)
+        ElseIf CVal = "-"c Then
+            MapIndex = MapLookup.lminus
+        ElseIf CVal = " " Then
+            MapIndex = MapLookup.lSpace
+        Else
+            Return ret
+        End If
 
-                If Not IVal = 1 AndAlso Not IVal = 4 Then
-                    ret = Visibility.Visible
-                End If
+        If ((1 << CInt(parameter)) And _Maps(MapIndex)) <> 0 Then
+            ret = Visibility.Visible
+        End If
 
-            Case 1
+        'Select Case CInt(parameter)
+        'Case 0
 
-                If Not IVal = 1 AndAlso Not IVal = 7 AndAlso Not IVal = 0 Then
-                    ret = Visibility.Visible
-                End If
+        '    If Not CVal = "1"c AndAlso Not CVal = "4"c Then
+        '        ret = Visibility.Visible
+        '    End If
 
-            Case 2
+        'Case 1
 
-                If Not IVal = 1 AndAlso Not IVal = 4 AndAlso Not IVal = 7 Then
-                    ret = Visibility.Visible
-                End If
+        '    If Not CVal = "1"c AndAlso Not CVal = "7"c AndAlso Not CVal = "0"c AndAlso Not CVal = "-"c Then
+        '        ret = Visibility.Visible
+        '    End If
 
-            Case 3
-                If Not IVal = 1 AndAlso Not IVal = 2 AndAlso Not IVal = 3 AndAlso Not IVal = 7 Then
-                    ret = Visibility.Visible
-                End If
+        'Case 2
 
-            Case 4
-                If Not IVal = 5 AndAlso Not IVal = 6 Then
-                    ret = Visibility.Visible
-                End If
+        '    If Not CVal = "1"c AndAlso Not CVal = "4"c AndAlso Not CVal = "7"c Then
+        '        ret = Visibility.Visible
+        '    End If
 
-            Case 5
-                If Not IVal = 1 AndAlso Not IVal = 3 AndAlso Not IVal = 4 AndAlso Not IVal = 5 AndAlso Not IVal = 7 AndAlso Not IVal = 9 Then
-                    ret = Visibility.Visible
-                End If
+        'Case 3
+        '    If Not CVal = "1"c AndAlso Not CVal = "2"c AndAlso Not CVal = "3"c AndAlso Not CVal = "7"c Then
+        '        ret = Visibility.Visible
+        '    End If
 
-            Case 6
-                If Not IVal = 2 Then
-                    ret = Visibility.Visible
-                End If
+        'Case 4
+        '    If Not CVal = "5"c AndAlso Not CVal = "6"c Then
+        '        ret = Visibility.Visible
+        '    End If
 
-        End Select
+        'Case 5
+        '    If Not CVal = "1"c AndAlso Not CVal = "3"c AndAlso Not CVal = "4"c AndAlso Not CVal = "5"c AndAlso Not CVal = "7"c AndAlso Not CVal = "9"c Then
+        '        ret = Visibility.Visible
+        '    End If
+
+        'Case 6
+        '    If Not CVal = "2"c Then
+        '        ret = Visibility.Visible
+        '    End If
+
+        'End Select
 
         Return ret
     End Function
