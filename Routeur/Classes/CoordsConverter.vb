@@ -47,7 +47,7 @@ Public Class CoordsConverter
                     Dim Degs As Integer = CInt(Math.Floor(D))
                     Dim Mins As Integer = CInt(Math.Floor((D - Degs) * 60))
                     Dim secs As Double = (D - Degs - Mins / 60) * 3600
-                    Return Degs.ToString & "° " & Mins.ToString & "' " & secs.ToString("0.000") & """"
+                    Return Degs.ToString & "° " & Mins.ToString & "' " & secs.ToString("0") & """"
 
                 Case Else
                     Return D.ToString

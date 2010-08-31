@@ -4,9 +4,12 @@
 	xmlns:local="clr-namespace:Routeur"
 	x:Class="frmControlDeck"
 	x:Name="Window"
-	Title="frmControlDeck" Width="349" Height="297">
+	Title="frmControlDeck" Width="326" >
 
-	<Grid x:Name="LayoutRoot">
+	<StackPanel x:Name="LayoutRoot">
+	
 		<local:WindDisplay/>
-	</Grid>
+		<local:PosDisplay/>
+		<local:NavDisplay />
+	</StackPanel>
 </Window>

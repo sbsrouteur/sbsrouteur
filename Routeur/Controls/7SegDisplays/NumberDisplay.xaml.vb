@@ -86,13 +86,39 @@ Partial Public Class NumberDisplay
 
     Private Sub UpdateNumber()
 
-        Dim str As String = Value.ToString(StringFormat)
+        Dim str As String
+
+        If StringFormat = "lon" Then
+            Dim cv As New CoordsConverter
+            str = CStr(cv.Convert(Value, GetType(String), 1, System.Threading.Thread.CurrentThread.CurrentUICulture))
+            If Value >= 0 Then
+                str &= " E"
+            Else
+                str &= " W"
+            End If
+            
+        ElseIf StringFormat = "lat" Then
+            Dim cv As New CoordsConverter
+            str = CStr(cv.Convert(Value, GetType(String), 1, System.Threading.Thread.CurrentThread.CurrentUICulture))
+            If Value >= 0 Then
+                str &= " N"
+            Else
+                str &= " S"
+            End If
+
+        Else
+            str = Value.ToString(StringFormat)
+
+        End If
+        str = str.ToUpperInvariant
 
         Digits.Clear()
         For Each C As Char In str
 
-            If C >= "0"c And C <= "9" Then
-                Digits.Add(New Digit() With {.Digit = AscW(C) - AscW("0"c), .Dot = False})
+            If (C >= "0"c And C <= "9") OrElse (C >= "A"c And C <= "Z"c) OrElse C = " "c Then
+                Digits.Add(New Digit() With {.Digit = C, .Dot = False})
+            ElseIf C = "-"c Then
+                Digits.Add(New Digit() With {.Digit = C, .Dot = False})
             ElseIf Digits.Count > 0 Then
                 Digits(Digits.Count - 1).Dot = True
             End If

@@ -444,9 +444,13 @@ Partial Public Class userPosition
     Implements System.ComponentModel.INotifyPropertyChanged
     
     Private latitudeField As Double
-    
+
     Private longitudeField As Double
-    
+
+    Private _WP_latitude As Double
+
+    Private _WP_longitude As Double
+
     Private spiField As Byte
     
     Private voileField As UShort
@@ -920,6 +924,26 @@ Partial Public Class userPosition
             propertyChanged(Me, New System.ComponentModel.PropertyChangedEventArgs(propertyName))
         End If
     End Sub
+    Public Property WP_latitude() As Double
+        Get
+            Return _WP_latitude
+        End Get
+        Set(ByVal value As Double)
+            _WP_latitude = value
+            Me.RaisePropertyChanged("WP_latitude")
+        End Set
+    End Property
+
+    Public Property WP_longitude() As Double
+        Get
+            Return _WP_longitude
+        End Get
+        Set(ByVal value As Double)
+            _WP_longitude = value
+            Me.RaisePropertyChanged("WP_longitude")
+        End Set
+    End Property
+
 End Class
 
 '''<remarks/>
