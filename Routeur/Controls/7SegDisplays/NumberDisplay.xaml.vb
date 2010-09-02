@@ -117,7 +117,7 @@ Partial Public Class NumberDisplay
 
             If (C >= "0"c And C <= "9") OrElse (C >= "A"c And C <= "Z"c) OrElse C = " "c Then
                 Digits.Add(New Digit() With {.Digit = C, .Dot = False})
-            ElseIf C = "-"c Then
+            ElseIf C = "-"c OrElse C = "°"c Then
                 Digits.Add(New Digit() With {.Digit = C, .Dot = False})
             ElseIf Digits.Count > 0 Then
                 Digits(Digits.Count - 1).Dot = True

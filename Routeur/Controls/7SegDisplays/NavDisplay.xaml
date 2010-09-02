@@ -13,6 +13,7 @@
 		<ImageBrush x:Key="AluBrush" ImageSource="..\..\Graphics\Aluminium1.jpg" Stretch="UniformToFill"/>
 		
 		<System:String x:Key="FmtDig">0.0</System:String>
+		<ImageBrush x:Key="LCDBackBrush" ImageSource="..\..\Graphics\LCD.png"/>
 	</UserControl.Resources>
 
 	<Grid x:Name="LayoutRoot">
@@ -44,9 +45,11 @@
 			</Rectangle.Stroke>
 		</Rectangle>
 		<Grid Grid.Row="1" Grid.Column="1">
-			<Grid.Background>
-				<ImageBrush ImageSource="..\..\Graphics\LCD.png"/>
-			</Grid.Background>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+		<Grid Background="{DynamicResource LCDBackBrush}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto" MinWidth="30"/>
 				<ColumnDefinition Width="*" />
@@ -56,13 +59,36 @@
 				<RowDefinition Height="Auto" MinHeight="25"/>
 				<RowDefinition Height="Auto" MinHeight="25"/>
 			</Grid.RowDefinitions>
-		
-			<TextBlock Text="Nav" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" Grid.ColumnSpan="2" HorizontalAlignment="Center"/>
+			<local:NumberDisplay Value="{Binding VorHandler.PIM, Mode=Default}" StringFormat="nav"/>
+			<TextBlock TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" Grid.ColumnSpan="2" HorizontalAlignment="Center"><Run Text="Nav"/></TextBlock>
+			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" StrokeThickness="2" Effect="{DynamicResource DigitShadow}"/>
 			<TextBlock Text="WP Lat" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
 			<TextBlock Text="WP Lon" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="2"/>
 			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.WP_latitude, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="lat" Grid.Row="1"/>
 			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.WP_longitude, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2" StringFormat="lon"/>
 	
+		</Grid>
+		<Grid Grid.Row="1" Background="{DynamicResource LCDBackBrush}">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="0.33*"/>
+				<ColumnDefinition Width="0.33*" />
+				<ColumnDefinition Width="0.33*"/>
+
+				
+			</Grid.ColumnDefinitions>
+			<TextBlock Text="Ortho" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center"/>
+			<TextBlock Text="Loxo" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Grid.Column="1"/>
+			<TextBlock Text="Dist to WP" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Grid.Column="2"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.Ortho, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.Loxo, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center" Grid.Column="1"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.DNM, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center" Grid.Column="2"/>
+
+		</Grid>
 		</Grid>
 	</Grid>
 </UserControl>

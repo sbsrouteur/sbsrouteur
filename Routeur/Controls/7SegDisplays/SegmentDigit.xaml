@@ -10,10 +10,13 @@
 
 
 	<UserControl.Resources>
-		<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-		<local:SegmentVisiblityConverter x:Key="SegmentVisiblityConverter"/>
-		<SolidColorBrush x:Key="DefaultBgDigit" Color="#FF212020"/>
-		<DropShadowEffect x:Key="DigitShadow" Direction="-45" Opacity="0.5"/>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="7DigResources.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+			<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+			<local:SegmentVisiblityConverter x:Key="SegmentVisiblityConverter"/>
+		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.RenderTransform>
 		<TransformGroup>
@@ -31,7 +34,7 @@
 			<ColumnDefinition Width=".2*"/>
 			<ColumnDefinition Width=".2*"/>
 			<ColumnDefinition Width=".2*"/>
-			<ColumnDefinition Width=".2*"/>
+			<ColumnDefinition Width=".25*"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="0.082*"/>
@@ -57,6 +60,7 @@
 		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=9, ElementName=UserControl, Mode=Default}" StrokeThickness="2" Grid.Column="3" Grid.Row="5"/>
 		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=10, ElementName=UserControl, Mode=Default}" StrokeThickness="2" Grid.Column="2" Grid.Row="3" Grid.RowSpan="2" Grid.ColumnSpan="3"/>
 		<Rectangle Fill="{DynamicResource DefaultBgDigit}" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=11, ElementName=UserControl, Mode=Default}" StrokeThickness="2" Grid.Column="2" Grid.Row="5" Grid.RowSpan="2"/>
+		<Ellipse  Grid.Column="5" Visibility="{Binding DigValue, Converter={StaticResource SegmentVisiblityConverter}, ConverterParameter=12, ElementName=UserControl, Mode=Default}" Stroke="{DynamicResource DefaultBgDigit}" Width="3.33333333333334" Grid.RowSpan="2"/>
 		
 	</Grid>
 </UserControl>

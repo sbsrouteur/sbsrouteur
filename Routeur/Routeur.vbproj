@@ -58,7 +58,7 @@
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314</NoWarn>
     <DebugType>Full</DebugType>
-    <DefineConstants>BSP_STATS=1 , GRID_STATS=0, NO_MAP=0,TESTING=0</DefineConstants>
+    <DefineConstants>BSP_STATS=1 , GRID_STATS=0, NO_MAP=0,TESTING=1</DefineConstants>
     <PlatformTarget>x86</PlatformTarget>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -122,6 +122,10 @@
     <Reference Include="System.Xml" />
     <Reference Include="WPFToolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Page Include="Controls\2D Viewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\7SegDisplays\7DigResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
