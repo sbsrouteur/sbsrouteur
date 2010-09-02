@@ -519,6 +519,19 @@ Partial Public Class userPosition
 
     Private dateField As String
 
+    Private _ortho As Double
+    Private _loxo As Double
+    Private _DNM As Double 
+
+    Public Property DNM() As Double
+        Get
+            Return _DNM
+        End Get
+        Set(ByVal value As Double)
+            _DNM = value
+            Me.RaisePropertyChanged("DNM")
+        End Set
+    End Property
     '''<remarks/>
     Public Property latitude() As Double
         Get
@@ -538,6 +551,26 @@ Partial Public Class userPosition
         Set(ByVal value As Double)
             Me.longitudeField = value
             Me.RaisePropertyChanged("longitude")
+        End Set
+    End Property
+
+    Public Property Loxo() As Double
+        Get
+            Return _loxo
+        End Get
+        Set(ByVal value As Double)
+            _loxo = value
+            Me.RaisePropertyChanged("Loxo")
+        End Set
+    End Property
+
+    Public Property Ortho() As Double
+        Get
+            Return _ortho
+        End Get
+        Set(ByVal value As Double)
+            _ortho = value
+            Me.RaisePropertyChanged("Ortho")
         End Set
     End Property
 

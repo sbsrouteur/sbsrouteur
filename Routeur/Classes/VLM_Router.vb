@@ -2064,6 +2064,10 @@ Public Class VLM_Router
         RetUser.position.classement = BoatInfo.RNK
         RetUser.position.wind_angle = BoatInfo.TWD
         RetUser.position.wind_speed = BoatInfo.TWS
+        RetUser.position.ortho = BoatInfo.ORT
+        RetUser.position.loxo = BoatInfo.LOX
+        RetUser.position.DNM = BoatInfo.DNM
+
         _Pilototo(0) = BoatInfo.PIL1
         _Pilototo(1) = BoatInfo.PIL2
         _Pilototo(2) = BoatInfo.PIL3

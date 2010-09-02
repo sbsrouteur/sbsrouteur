@@ -80,13 +80,14 @@ Public Class SegmentVisiblityConverter
         lA = 11
         lZ = lA + 25
         lSpace = 37
+        lDeg = 38
 
     End Enum
 
     Private Shared _Maps() As Integer = New Integer() {&H7D, &H50, &H37, &H57, &H5A, &H4F, &H6F, &H51, &H7F, &H5F, &H2, _
                                                        &H7B, &H6E, &H2D, &HAA, &H2F, &H27, &H4C5, &H7A, &H50, &H53, &H0, &H84, &H79, &H378, _
                                                        &H7D, &H37, &H0, &H293, &H4F, &H0, &H7C, &H0, &H87C, &H0, &H0, &H0, _
-                                                       &H0}
+                                                       &H0, &H1000}
 
 
     Public Function Convert(ByVal value As Object, ByVal targetType As System.Type, ByVal parameter As Object, ByVal culture As System.Globalization.CultureInfo) As Object Implements System.Windows.Data.IValueConverter.Convert
@@ -102,6 +103,8 @@ Public Class SegmentVisiblityConverter
             MapIndex = MapLookup.lminus
         ElseIf CVal = " " Then
             MapIndex = MapLookup.lSpace
+            'ElseIf CVal = "°"c Then
+            '    MapIndex = MapLookup.lDeg
         Else
             Return ret
         End If
