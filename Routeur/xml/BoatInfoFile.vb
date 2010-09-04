@@ -521,7 +521,16 @@ Partial Public Class userPosition
 
     Private _ortho As Double
     Private _loxo As Double
-    Private _DNM As Double 
+    Private _DNM As Double
+
+    Private _PIM As Integer
+    Private _PIM_Angle As Boolean
+    Private _PIM_Bearing As Boolean
+    Private _PIM_Ortho As Boolean
+    Private _PIM_VMG As Boolean
+    Private _PIM_VBVMG As Boolean
+    Private _PIM_WP As Boolean
+
 
     Public Property DNM() As Double
         Get
@@ -571,6 +580,76 @@ Partial Public Class userPosition
         Set(ByVal value As Double)
             _ortho = value
             Me.RaisePropertyChanged("Ortho")
+        End Set
+    End Property
+
+    Public Property PIM() As Integer
+        Get
+            Return _PIM
+        End Get
+        Set(ByVal value As Integer)
+            _PIM = value
+            RaisePropertyChanged("PIM")
+        End Set
+    End Property
+
+    Public Property PIM_Angle() As Boolean
+        Get
+            Return _PIM_Angle
+        End Get
+        Set(ByVal value As Boolean)
+            _PIM_Angle = value
+            RaisePropertyChanged("PIM_Angle")
+        End Set
+    End Property
+
+    Public Property PIM_Bearing() As Boolean
+        Get
+            Return _PIM_Bearing
+        End Get
+        Set(ByVal value As Boolean)
+            _PIM_Bearing = value
+            RaisePropertyChanged("PIM_Bearing")
+        End Set
+    End Property
+
+    Public Property PIM_Ortho() As Boolean
+        Get
+            Return _PIM_Ortho
+        End Get
+        Set(ByVal value As Boolean)
+            _PIM_Ortho = value
+            RaisePropertyChanged("PIM_Ortho")
+        End Set
+    End Property
+
+    Public Property PIM_VBVMG() As Boolean
+        Get
+            Return _PIM_VBVMG
+        End Get
+        Set(ByVal value As Boolean)
+            _PIM_VBVMG = value
+            RaisePropertyChanged("PIM_VBVMG")
+        End Set
+    End Property
+
+    Public Property PIM_VMG() As Boolean
+        Get
+            Return _PIM_VMG
+        End Get
+        Set(ByVal value As Boolean)
+            _PIM_VMG = value
+            RaisePropertyChanged("PIM_VMG")
+        End Set
+    End Property
+
+    Public Property PIM_WP() As Boolean
+        Get
+            Return _PIM_WP
+        End Get
+        Set(ByVal value As Boolean)
+            _PIM_WP = value
+            RaisePropertyChanged("PIM_WP")
         End Set
     End Property
 

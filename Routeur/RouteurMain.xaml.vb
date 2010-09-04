@@ -402,10 +402,15 @@ Partial Public Class RouteurMain
     End Sub
 
 
-
-
     Private Sub _RouteForm_RequestRouteReload() Handles _RouteForm.RequestRouteReload
         ReloadPilototo(Nothing, Nothing)
         _RouteForm.RefreshRoute()
+    End Sub
+
+    Private Sub OnContextMenuOpening(ByVal sender As System.Object, ByVal e As System.Windows.Controls.ContextMenuEventArgs)
+
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+        M.VorHandler.RefreshActionMenu()
+
     End Sub
 End Class

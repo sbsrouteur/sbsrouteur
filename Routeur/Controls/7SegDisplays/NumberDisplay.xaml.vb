@@ -106,9 +106,18 @@ Partial Public Class NumberDisplay
                 str &= " S"
             End If
 
+        ElseIf StringFormat = "nav" Then
+            If Value = 3 Then
+                str = "Ortho"
+            ElseIf Value = 4 Then
+                str = "VMG"
+            ElseIf Value = 5 Then
+                str = "vbvmg"
+            Else
+                str = ""
+            End If
         Else
             str = Value.ToString(StringFormat)
-
         End If
         str = str.ToUpperInvariant
 

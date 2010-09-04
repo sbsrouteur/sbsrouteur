@@ -85,8 +85,8 @@ Public Class SegmentVisiblityConverter
     End Enum
 
     Private Shared _Maps() As Integer = New Integer() {&H7D, &H50, &H37, &H57, &H5A, &H4F, &H6F, &H51, &H7F, &H5F, &H2, _
-                                                       &H7B, &H6E, &H2D, &HAA, &H2F, &H27, &H4C5, &H7A, &H50, &H53, &H0, &H84, &H79, &H378, _
-                                                       &H7D, &H37, &H0, &H293, &H4F, &H0, &H7C, &H0, &H87C, &H0, &H0, &H0, _
+                                                       &H7B, &H6E, &H2D, &H476, &H2F, &H83, &H4C5, &H7A, &H50, &H6801, &H0, &H84, &H79, &H378, _
+                                                       &H7D, &H93, &H0, &H293, &H4F, &H801, &H7C, &H294, &H87C, &H0, &H0, &H37, _
                                                        &H0, &H1000}
 
 
