@@ -116,6 +116,11 @@ Public Class VLM_Router
     Private _EnableManualRefresh As Boolean = True
     Private _ManualRefreshCount As Integer = 0
 
+    Private _BearingETA As DateTime
+
+
+
+
     Public Shared BoatType As String
 
 
@@ -556,6 +561,9 @@ Public Class VLM_Router
             End If
         End Set
     End Property
+
+
+
     Public Shared ReadOnly Property TimeArrowDateSmallTick() As Long
         Get
             Return TimeSpan.TicksPerMinute * 5
@@ -1490,6 +1498,39 @@ Public Class VLM_Router
         End Set
     End Property
 
+    Private Sub ETAToPointBearing(ByVal state As Object)
+
+        Dim TC As New TravelCalculator
+        TC.StartPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+        TC.EndPoint = New Coords(_CurMousePos)
+        Dim StartDate As DateTime = Now.AddMinutes(RouteurModel.VacationMinutes)
+        Dim TargetDist As Double = TC.SurfaceDistance
+        Dim Bearing As Double = TC.LoxoCourse_Deg
+        Dim mi As MeteoInfo
+        Dim tc2 As New TravelCalculator
+
+        TC.EndPoint = TC.StartPoint
+        tc2.StartPoint = TC.StartPoint
+        While TC.SurfaceDistance < TargetDist
+            mi = _Meteo.GetMeteoToDate(TC.EndPoint, StartDate, False)
+            If mi Is Nothing Then
+                Return
+            End If
+
+            Dim Speed As Double = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(Bearing, mi.Dir), mi.Strength)
+
+            TC.EndPoint = tc2.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Bearing)
+            tc2.StartPoint = TC.EndPoint
+            StartDate = StartDate.AddMinutes(RouteurModel.VacationMinutes)
+        End While
+
+        _BearingETA = StartDate
+
+
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointBearingMsg"))
+
+    End Sub
+
     Private Delegate Sub dlgthreadsafesetter(ByVal Pv As ObservableCollection(Of clsrouteinfopoints), ByVal Value As ObservableCollection(Of clsrouteinfopoints), ByVal e As PropertyChangedEventArgs, ByVal RefreshBoatInfo As Boolean, ByVal meteo As clsMeteoOrganizer)
 
     Private Sub ThreadSafeSetter(ByVal Pv As ObservableCollection(Of clsrouteinfopoints), ByVal Value As ObservableCollection(Of clsrouteinfopoints), ByVal e As PropertyChangedEventArgs, ByVal RefreshBoatInfo As Boolean, ByVal meteo As clsMeteoOrganizer)
@@ -1689,6 +1730,21 @@ Public Class VLM_Router
 
 
         End Get
+    End Property
+
+    Public ReadOnly Property GoToPointBearingMsg() As String
+        Get
+            Dim TC As New TravelCalculator
+            TC.StartPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+            TC.EndPoint = New Coords(_CurMousePos)
+            If _BearingETA.Ticks = 0 Then
+                System.Threading.ThreadPool.QueueUserWorkItem(AddressOf ETAToPointBearing, Nothing)
+                Return "Go to point fixed bearing : " & TC.LoxoCourse_Deg.ToString("0.0°") & " computing ETA..."
+            Else
+                Return "Go to point fixed bearing : " & TC.LoxoCourse_Deg.ToString("0.0°") & " ETA:" & _BearingETA.ToString
+            End If
+        End Get
+
     End Property
 
     Private Sub MeteoArrowDeferred(ByVal state As Object)
@@ -2077,6 +2133,13 @@ Public Class VLM_Router
         _WayPointDest.Lat_Deg = BoatInfo.WPLAT
         _WayPointDest.Lon_Deg = BoatInfo.WPLON
 
+        RetUser.position.PIM_WP = BoatInfo.PIM >= 3
+        RetUser.position.PIM_Angle = BoatInfo.PIM = 2
+        RetUser.position.PIM_Bearing = BoatInfo.PIM = 1
+        RetUser.position.PIM_Ortho = BoatInfo.PIM = 3
+        RetUser.position.PIM_VBVMG = BoatInfo.PIM = 5
+        RetUser.position.PIM_VMG = BoatInfo.PIM = 4
+        RetUser.position.PIM = BoatInfo.PIM
 
         If RetUser.Loch = 0 Then
             RetUser.date = Now
@@ -2483,6 +2546,14 @@ Public Class VLM_Router
         If Not _gr Is Nothing Then
             _gr.StepGrid()
         End If
+
+    End Sub
+
+    Public Sub RefreshActionMenu()
+
+        _BearingETA = New DateTime(0)
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointBearingMsg"))
+        Return
 
     End Sub
 

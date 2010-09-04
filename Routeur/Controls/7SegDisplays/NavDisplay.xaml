@@ -10,6 +10,7 @@
 	d:DesignWidth="640" d:DesignHeight="480">
 
 	<UserControl.Resources>
+		<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 		<ImageBrush x:Key="AluBrush" ImageSource="..\..\Graphics\Aluminium1.jpg" Stretch="UniformToFill"/>
 		
 		<System:String x:Key="FmtDig">0.0</System:String>
@@ -59,9 +60,9 @@
 				<RowDefinition Height="Auto" MinHeight="25"/>
 				<RowDefinition Height="Auto" MinHeight="25"/>
 			</Grid.RowDefinitions>
-			<local:NumberDisplay Value="{Binding VorHandler.PIM, Mode=Default}" StringFormat="nav"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.PIM, Mode=Default}" StringFormat="nav"/>
 			<TextBlock TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" Grid.ColumnSpan="2" HorizontalAlignment="Center"><Run Text="Nav"/></TextBlock>
-			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" StrokeThickness="2" Effect="{DynamicResource DigitShadow}"/>
+			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" StrokeThickness="2" Effect="{DynamicResource DigitShadow}" Visibility="{Binding VorHandler.UserInfo.position.PIM_WP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 			<TextBlock Text="WP Lat" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
 			<TextBlock Text="WP Lon" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="2"/>
 			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.WP_latitude, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="lat" Grid.Row="1"/>
