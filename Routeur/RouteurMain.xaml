@@ -170,9 +170,14 @@
 			</ThicknessAnimationUsingKeyFrames>
 		</Storyboard>
 		<SolidColorBrush x:Key="DefTextBlockMenuForeColor" Color="#FF040012"/>
+		<ContextMenu x:Key="CtxNavMenu">
+			<MenuItem Header="{Binding VorHandler.GoToPointBearingMsg, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetBearingMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
+			<MenuItem Header="{Binding VorHandler.SetWindAngleMsg, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetWindAngleMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"/>
+			<MenuItem Header="{Binding VorHandler.GoToPointWindAngleMsg, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetWindAngleMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"/>
+		</ContextMenu>
 		
 	</Window.Resources>
-    
+
 	<Grid >
     
     	<Grid.RowDefinitions>
@@ -326,12 +331,7 @@
 						
 					</Canvas>
 					<Canvas Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
-						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Center" VerticalAlignment="Center" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" Canvas.Top="0" ContextMenuOpening="OnContextMenuOpening">
-							<Routeur:_2D_Viewer.ContextMenu>
-								<ContextMenu>
-									<MenuItem Header="{Binding VorHandler.GoToPointBearingMsg, Mode=Default}"/>
-								</ContextMenu>
-							</Routeur:_2D_Viewer.ContextMenu>
+						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Center" VerticalAlignment="Center" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" Canvas.Top="0" ContextMenuOpening="OnContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}">
 							<Routeur:_2D_Viewer.RenderTransform>
 								<TransformGroup>
 									<ScaleTransform ScaleX="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ScaleY="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

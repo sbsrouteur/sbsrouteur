@@ -261,6 +261,7 @@
     <Compile Include="Classes\ListMgr\CoordsComparer.vb" />
     <Compile Include="Classes\ListMgr\GridList.vb" />
     <Compile Include="Classes\ListMgr\ICoords.vb" />
+    <Compile Include="Classes\MenuCommands\CommandManager.vb" />
     <Compile Include="Classes\Meteo\MeteoDrawer.vb" />
     <Compile Include="Classes\PolyClipper\PolyClipper.vb" />
     <Compile Include="Classes\Polygon\Polygon.vb" />

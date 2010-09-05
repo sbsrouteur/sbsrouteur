@@ -60,24 +60,6 @@ Module WS_Wrapper
         Return "SbsRouteur/" & My.Application.Info.Version.ToString
     End Function
 
-    Private Function RequestPage(ByVal URL As String) As String
-
-        Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)
-        Http.Credentials = New NetworkCredential(_LastUser, _LastPassword)
-        Dim wr As WebResponse
-        'Dim Encoder As New System.Text.ASCIIEncoding
-        Dim rs As System.IO.StreamReader
-        Dim Response As String
-        Http.UserAgent = GetRouteurUserAgent()
-        Http.CookieContainer = _Cookies
-        wr = Http.GetResponse()
-        rs = New System.IO.StreamReader(wr.GetResponseStream())
-        Response = rs.ReadToEnd
-
-        Return Response
-
-    End Function
-
     Public Function PostBoatSetup(ByVal Verb As String, ByVal Data As String) As Boolean
 
         Dim RetVal As Boolean = False
@@ -107,10 +89,56 @@ Module WS_Wrapper
         Dim Response As String = rs.ReadToEnd
         rs.Close()
 
-        Return Response.Contains("""Success"":True")
+        Return Response.Contains("""success"":true")
 
 
     End Function
+
+
+    Private Function RequestPage(ByVal URL As String) As String
+
+        Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)
+        Http.Credentials = New NetworkCredential(_LastUser, _LastPassword)
+        Dim wr As WebResponse
+        'Dim Encoder As New System.Text.ASCIIEncoding
+        Dim rs As System.IO.StreamReader
+        Dim Response As String
+        Http.UserAgent = GetRouteurUserAgent()
+        Http.CookieContainer = _Cookies
+        wr = Http.GetResponse()
+        rs = New System.IO.StreamReader(wr.GetResponseStream())
+        Response = rs.ReadToEnd
+
+        Return Response
+
+    End Function
+
+    Public Function SetBoatHeading(ByVal idu As Integer, ByVal Heading As Double) As Boolean
+
+        Dim RetValue As Boolean = False
+        Dim Request As New Dictionary(Of String, Object)
+        Dim verb As String = "pilot_set"
+        Request.Add("idu", idu)
+        Request.Add("pim", 1)
+        Request.Add("pip", Heading)
+
+        Return WS_Wrapper.PostBoatSetup(verb, GetStringFromJsonObject(Request))
+
+
+    End Function
+
+    Public Function SetWindAngle(ByVal idu As Integer, ByVal Angle As Double) As Boolean
+
+        Dim RetValue As Boolean = False
+        Dim Request As New Dictionary(Of String, Object)
+        Dim verb As String = "pilot_set"
+        Request.Add("idu", idu)
+        Request.Add("pim", 2)
+        Request.Add("pip", Angle)
+
+        Return WS_Wrapper.PostBoatSetup(verb, GetStringFromJsonObject(Request))
+    End Function
+
 
 
 

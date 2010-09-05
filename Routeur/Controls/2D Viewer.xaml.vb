@@ -21,7 +21,7 @@ Partial Public Class _2D_Viewer
     Private Const XBMP_RES As Integer = 360
     Private Const YBMP_RES As Integer = 180
     Public Const DEFINITION As Integer = 10
-    
+
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
 
@@ -233,12 +233,12 @@ Render1:
         Dim WP As VLM_RaceWaypoint
 
         For Each WP In WPs
-            p0.X = LonToCanvas(WP.WPs(0)(0).Lon_Deg)
-            p0.Y = LatToCanvas(WP.WPs(0)(0).Lat_Deg)
+            P0.X = LonToCanvas(WP.WPs(0)(0).Lon_Deg)
+            P0.Y = LatToCanvas(WP.WPs(0)(0).Lat_Deg)
             P1.X = LonToCanvas(WP.WPs(0)(1).Lon_Deg)
             P1.Y = LatToCanvas(WP.WPs(0)(1).Lat_Deg)
 
-            SafeDrawLine(DC, WP.WPs(0)(0), WP.WPs(0)(1), WPPen, p0, P1)
+            SafeDrawLine(DC, WP.WPs(0)(0), WP.WPs(0)(1), WPPen, P0, P1)
         Next
 
         DC.Close()
@@ -845,4 +845,5 @@ Render1:
             _Scale = value
         End Set
     End Property
+
 End Class
