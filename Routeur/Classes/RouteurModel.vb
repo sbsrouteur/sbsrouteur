@@ -2,6 +2,7 @@
 Imports System.Collections.ObjectModel
 Imports System.IO
 Imports Routeur.RacePrefs
+Imports Routeur.Commands
 
 Public Class RouteurModel
 
@@ -179,7 +180,7 @@ Public Class RouteurModel
             _2DViewer.Scale = Scale
             _2DViewer.LonOffset = _LonOffset
             _2DViewer.LatOffset = _LatOffset
-            _2DViewer.clearBgMap()
+            _2DViewer.ClearBgMap()
         End If
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPsPath"))
     End Sub
@@ -489,7 +490,7 @@ Public Class RouteurModel
         End If
         Dim Info As Dictionary(Of String, Object) = Nothing
         Try
-            info = Parse(RaceInfo)
+            Info = Parse(RaceInfo)
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Exception loading Json formatted race info!!")
         End Try
@@ -727,5 +728,33 @@ Public Class RouteurModel
     Public Sub OnWPListUpdate()
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
     End Sub
+
+#Region "ContextMenuHandlers"
+
+    Private _BearingMenu As New DelegateCommand(Of Object)(AddressOf OnSetBearingHandler, Function(o) True)
+    Private _WindAngleMenu As New DelegateCommand(Of Object)(AddressOf OnSetWindAngleHandler, Function(o) True)
+
+    Public ReadOnly Property SetBearingMenu() As ICommand
+        Get
+            Return _BearingMenu
+        End Get
+    End Property
+
+    Public ReadOnly Property SetWindAngleMenu() As ICommand
+        Get
+            Return _WindAngleMenu
+        End Get
+    End Property
+
+    Private Sub OnSetBearingHandler(ByVal O As Object)
+        VorHandler.SetBearing()
+    End Sub
+
+    Private Sub OnSetWindAngleHandler(ByVal o As Object)
+        VorHandler.SetWindAngle()
+    End Sub
+
+
+#End Region
 
 End Class

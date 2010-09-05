@@ -9,6 +9,7 @@ Imports System.Windows.Media.Animation
 Imports System.Windows.Navigation
 Imports System.ComponentModel
 Imports System.Threading
+Imports Routeur.WPF
 
 Partial Public Class RouteurMain
 
@@ -29,7 +30,7 @@ Partial Public Class RouteurMain
                            GetType(TravelCalculator), GetType(RouteurMain), _
                            New FrameworkPropertyMetadata(Nothing, AddressOf TravelCalculatorChanged))
 
-    
+
 
 
     Public Sub New()
@@ -43,14 +44,14 @@ Partial Public Class RouteurMain
 
     Private Sub FormLoaded(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
-        
+
         Dim M = CType(FindResource("RouteurModel"), RouteurModel)
         M.Init()
 
         If M.The2DViewer Is Nothing Then
             M.The2DViewer = Me.VOR2DViewer
             M.The2DViewer.InitViewer(Me)
-            
+
         End If
 
         Dim sApp As String = System.IO.Path.Combine(My.Application.Info.DirectoryPath, My.Application.Info.AssemblyName & ".exe")
@@ -321,7 +322,7 @@ Partial Public Class RouteurMain
 
     End Sub
 
-    Private Sub _2D_Renderer_MouseMoveHandler(ByVal sender as Object, ByVal e as System.Windows.Input.MouseEventArgs)
+    Private Sub _2D_Renderer_MouseMoveHandler(ByVal sender As Object, ByVal e As System.Windows.Input.MouseEventArgs)
         Dim P As New Point
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
         P.X = e.GetPosition(Me._2D_Renderer_NOZoom).X + 1
@@ -331,7 +332,7 @@ Partial Public Class RouteurMain
 
     End Sub
 
-    Private Sub ReloadPilototo(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+    Private Sub ReloadPilototo(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         M.VorHandler.getboatinfo(True)
@@ -406,6 +407,7 @@ Partial Public Class RouteurMain
         ReloadPilototo(Nothing, Nothing)
         _RouteForm.RefreshRoute()
     End Sub
+
 
     Private Sub OnContextMenuOpening(ByVal sender As System.Object, ByVal e As System.Windows.Controls.ContextMenuEventArgs)
 
