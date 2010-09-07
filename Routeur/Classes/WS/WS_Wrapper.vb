@@ -139,6 +139,27 @@ Module WS_Wrapper
         Return WS_Wrapper.PostBoatSetup(verb, GetStringFromJsonObject(Request))
     End Function
 
+    Public Function SetWP(ByVal Idu As Integer, ByVal WP As Coords) As Boolean
+
+        If WP Is Nothing Then
+            WP = New Coords
+        End If
+        '"pip":{"targetlat":42.8,"targetlong":-7,"targetandhdg":180}
+        Dim pip As New Dictionary(Of String, Object)
+        pip.Add("targetlat", WP.Lat)
+        pip.Add("targetlong", WP.Lon)
+        pip.Add("targetandhdg", -1)
+
+        Dim Request As New Dictionary(Of String, Object)
+        Dim verb As String = "pilot_set"
+        Request.Add("idu", Idu)
+        Request.Add("pip", pip)
+        Request.Add("debug", True)
+
+        Return WS_Wrapper.PostBoatSetup(verb, GetStringFromJsonObject(Request))
+
+    End Function
+
 
 
 

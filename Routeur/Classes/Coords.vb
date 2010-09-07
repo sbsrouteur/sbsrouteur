@@ -147,13 +147,18 @@ Public Class Coords
 
     Public Sub New(ByVal C As ICoords)
 
+        If C Is Nothing Then
+            Return
+        End If
         Lat = C.Lat
         Lon = C.Lon
 
     End Sub
 
     Public Sub New(ByVal C As Coords)
-
+        If C Is Nothing Then
+            Return
+        End If
         Lat = C.Lat
         Lon = C.Lon
 

@@ -733,6 +733,7 @@ Public Class RouteurModel
 
     Private _BearingMenu As New DelegateCommand(Of Object)(AddressOf OnSetBearingHandler, Function(o) True)
     Private _WindAngleMenu As New DelegateCommand(Of Object)(AddressOf OnSetWindAngleHandler, Function(o) True)
+    Private _SetNAVWPMenu As New DelegateCommand(Of Object)(AddressOf OnSetWPNAVMenuHandler, Function(o) True)
 
     Public ReadOnly Property SetBearingMenu() As ICommand
         Get
@@ -746,12 +747,31 @@ Public Class RouteurModel
         End Get
     End Property
 
+    Public ReadOnly Property SetNAVWPMenu() As ICommand
+        Get
+            Return _SetNAVWPMenu
+        End Get
+    End Property
+
     Private Sub OnSetBearingHandler(ByVal O As Object)
         VorHandler.SetBearing()
     End Sub
 
     Private Sub OnSetWindAngleHandler(ByVal o As Object)
-        VorHandler.SetWindAngle()
+        If o Is Nothing Then
+            VorHandler.SetWindAngle()
+        ElseIf TypeOf o Is String AndAlso CStr(o) = "WP" Then
+            VorHandler.SetWPWindAngle()
+        End If
+    End Sub
+
+    Private Sub OnSetWPNAVMenuHandler(ByVal o As Object)
+
+        If o Is Nothing Then
+            VorHandler.SetNAVWP(False)
+        ElseIf TypeOf o Is String AndAlso CStr(o) = "RAZ" Then
+            VorHandler.SetNAVWP(True)
+        End If
     End Sub
 
 
