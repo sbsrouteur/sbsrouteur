@@ -120,7 +120,9 @@ Public Class VLM_Router
     Private _MenuBearing As Double
     Private _MenuWindAngleValid As Boolean
     Private _MenuWindAngle As Double
+    Private _MenuWPAngle As Double
     Private _WindAngleETA As DateTime
+    Private _NAVWP As Coords
 
 
 
@@ -1550,14 +1552,14 @@ Public Class VLM_Router
         While Not Found
             CurETA = GetNextCrankingDate()
             TC.EndPoint = TC.StartPoint
-            TC.StartPoint = TC.StartPoint
+            tc2.StartPoint = TC.StartPoint
             While TC.SurfaceDistance < RefDistance
                 mi = _Meteo.GetMeteoToDate(TC.EndPoint, CurETA, False)
                 If mi Is Nothing Then
                     Exit While
                 End If
                 If TC.SurfaceDistance = 0 Then
-                    RefAngle = WindAngleWithSign(RefAngle, mi.Dir) + Correction
+                    RefAngle = WindAngleWithSign(RefLoxo, mi.Dir) + Correction
                 End If
                 Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
 
@@ -1571,13 +1573,14 @@ Public Class VLM_Router
             ElseIf Abs(TC.LoxoCourse_Deg - RefLoxo) < 0.01 Then
                 Found = True
             Else
-                Correction += TC.LoxoCourse_Deg - RefLoxo
+                Correction -= WindAngleWithSign(TC.LoxoCourse_Deg, RefLoxo)
 
             End If
         End While
 
         If Found Then
-            _MenuWindAngle = RefAngle
+            _WindAngleETA = CurETA
+            _MenuWPAngle = RefAngle
             _MenuWindAngleValid = True
         End If
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointWindAngleMsg"))
@@ -1801,6 +1804,26 @@ Public Class VLM_Router
 
     End Property
 
+    Public ReadOnly Property GoToPointNAVORTHOMSG() As String
+        Get
+            Return "Go to " & _CurMousePos.ToString & " in ortho ETA..."
+        End Get
+    End Property
+
+    Public ReadOnly Property GoToPointNAVVMGMSG() As String
+        Get
+            Return "Go to " & _CurMousePos.ToString & " in VMG ETA..."
+        End Get
+    End Property
+
+    Public ReadOnly Property GoToPointNAVVBVMGMSG() As String
+        Get
+            Return "Go to " & _CurMousePos.ToString & " in VBVMG ETA..."
+        End Get
+    End Property
+
+
+
     Public ReadOnly Property GoToPointWindAngleMsg() As String
         Get
             If _WindAngleETA.Ticks = 0 Then
@@ -1808,7 +1831,7 @@ Public Class VLM_Router
                 System.Threading.ThreadPool.QueueUserWorkItem(AddressOf ETAToPointWindAngle, Nothing)
                 Return "Computing Angle and ETA..."
             ElseIf _MenuWindAngleValid Then
-                Return "Go to point fixed windangle: " & _MenuWindAngle.ToString("0.0°") & " ETA:" & _WindAngleETA.ToString
+                Return "Go to point fixed windangle: " & _MenuWPAngle.ToString("0.0°") & " ETA:" & _WindAngleETA.ToString
             Else
                 Return "Point not reachable with fixed wind angle and current weather information."
             End If
@@ -2630,8 +2653,12 @@ Public Class VLM_Router
     Public Sub RefreshActionMenu()
 
         _BearingETA = New DateTime(0)
+        _WindAngleETA = New DateTime(0)
+        _MenuWindAngleValid = False
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointBearingMsg"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("SetWindAngleMsg"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointWindAngleMsg"))
+
         Return
 
     End Sub
@@ -2763,6 +2790,7 @@ Public Class VLM_Router
         End If
     End Sub
 
+
     Public Sub SetWindAngle()
 
         If _MenuWindAngleValid Then
@@ -2791,6 +2819,46 @@ Public Class VLM_Router
 
         End Get
     End Property
+
+    Public Sub SetNAVWP(ByVal Reset As Boolean)
+        Dim Ret As Boolean
+        If Not Reset Then
+            Ret = WS_Wrapper.SetWP(_PlayerInfo.NumBoat, _NAVWP)
+        Else
+            Ret = WS_Wrapper.SetWP(_PlayerInfo.NumBoat, Nothing)
+        End If
+
+        If Ret Then
+            getboatinfo(True)
+        Else
+            MessageBox.Show("Update failed!!")
+
+        End If
+    End Sub
+
+    Public ReadOnly Property SetNAV_WPMsg() As String
+        Get
+            _NAVWP = New Coords(_CurMousePos)
+            Return "Set WP to " & _NAVWP.ToString
+        End Get
+    End Property
+
+    Public ReadOnly Property SetNAV_WPRAZMsg() As String
+        Get
+            Return "RAZ WP"
+        End Get
+    End Property
+    Public Sub SetWPWindAngle()
+
+        If _MenuWindAngleValid Then
+            If WS_Wrapper.SetWindAngle(_PlayerInfo.NumBoat, _MenuWPAngle) Then
+                getboatinfo(True)
+            Else
+                MessageBox.Show("Update failed!!")
+            End If
+        End If
+    End Sub
+
 
     Public Property UserInfo() As user
         Get
