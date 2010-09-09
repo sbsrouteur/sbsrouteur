@@ -734,6 +734,8 @@ Public Class RouteurModel
     Private _BearingMenu As New DelegateCommand(Of Object)(AddressOf OnSetBearingHandler, Function(o) True)
     Private _WindAngleMenu As New DelegateCommand(Of Object)(AddressOf OnSetWindAngleHandler, Function(o) True)
     Private _SetNAVWPMenu As New DelegateCommand(Of Object)(AddressOf OnSetWPNAVMenuHandler, Function(o) True)
+    Private _SetNAVModeMenu As New DelegateCommand(Of Object)(AddressOf OnSetNAVMenuHandler, Function(o) True)
+    Private _SetNAVToMenu As New DelegateCommand(Of Object)(AddressOf OnSetNAVToMenuHandler, Function(o) True)
 
     Public ReadOnly Property SetBearingMenu() As ICommand
         Get
@@ -744,6 +746,18 @@ Public Class RouteurModel
     Public ReadOnly Property SetWindAngleMenu() As ICommand
         Get
             Return _WindAngleMenu
+        End Get
+    End Property
+
+    Public ReadOnly Property SetNAVModeMenu() As ICommand
+        Get
+            Return _SetNAVModeMenu
+        End Get
+    End Property
+
+    Public ReadOnly Property SetNAVToMenu() As ICommand
+        Get
+            Return _SetNAVToMenu
         End Get
     End Property
 
@@ -763,6 +777,37 @@ Public Class RouteurModel
         ElseIf TypeOf o Is String AndAlso CStr(o) = "WP" Then
             VorHandler.SetWPWindAngle()
         End If
+    End Sub
+
+    Private Sub OnSetNAVMenuHandler(ByVal o As Object)
+        If Not TypeOf o Is String Then
+            Return
+        End If
+
+        Select Case CStr(o)
+            Case "ORTHO", "VMG", "VBVMG"
+                VorHandler.SetNAV(CStr(o))
+
+            Case Else
+                Return
+        End Select
+
+    End Sub
+
+    Private Sub OnSetNAVToMenuHandler(ByVal o As Object)
+        If Not TypeOf o Is String Then
+            Return
+        End If
+
+        Select Case CStr(o)
+            Case "ORTHO", "VMG", "VBVMG"
+                VorHandler.SetNAVWP(False, CStr(o))
+
+
+            Case Else
+                Return
+        End Select
+
     End Sub
 
     Private Sub OnSetWPNAVMenuHandler(ByVal o As Object)
