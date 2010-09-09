@@ -177,11 +177,16 @@
 			<Separator/>
 			<MenuItem Header="{Binding VorHandler.SetNAV_WPMsg, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVWPMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
 			<MenuItem Header="{Binding VorHandler.SetNAV_WPRAZMsg, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVWPMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="RAZ"/>
+			<MenuItem Header="Set Nav Mode">
+				<MenuItem Header="Ortho" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVModeMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="ORTHO"/>
+				<MenuItem Header="VMG" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVModeMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="VMG"/>
+				<MenuItem Header="VBVMG" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVModeMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="VBVMG"/>
+			</MenuItem>
 			
 			<Separator/>
-			<MenuItem Header="{Binding VorHandler.GoToPointNAVORTHOMSG, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="ORTHO"/>
-			<MenuItem Header="{Binding VorHandler.GoToPointNAVVMGMSG, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="VMG"/>
-			<MenuItem Header="{Binding VorHandler.GoToPointNAVVBVMGMSG, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="VBVMG"/>
+			<MenuItem Header="{Binding VorHandler.GoToPointNAVORTHOMSG, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVToMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="ORTHO"/>
+			<MenuItem Header="{Binding VorHandler.GoToPointNAVVMGMSG, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVToMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="VMG"/>
+			<MenuItem Header="{Binding VorHandler.GoToPointNAVVBVMGMSG, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetNAVToMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="VBVMG"/>
 			
 		</ContextMenu>
 		

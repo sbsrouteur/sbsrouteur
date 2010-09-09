@@ -127,6 +127,18 @@ Module WS_Wrapper
 
     End Function
 
+    Public Function SetPIM(ByVal idu As Integer, ByVal PIM As Integer) As Boolean
+
+        Dim RetValue As Boolean = False
+        Dim Request As New Dictionary(Of String, Object)
+        Dim verb As String = "pilot_set"
+        Request.Add("idu", idu)
+        Request.Add("pim", PIM)
+
+        Return WS_Wrapper.PostBoatSetup(verb, GetStringFromJsonObject(Request))
+    End Function
+
+
     Public Function SetWindAngle(ByVal idu As Integer, ByVal Angle As Double) As Boolean
 
         Dim RetValue As Boolean = False

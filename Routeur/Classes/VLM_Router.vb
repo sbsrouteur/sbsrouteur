@@ -2684,6 +2684,10 @@ Public Class VLM_Router
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointBearingMsg"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("SetWindAngleMsg"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointWindAngleMsg"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("SetNAV_WPMsg"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointNAVORTHOMSG"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointNAVVMGMSG"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointNAVVBVMGMSG"))
 
         Return
 
@@ -2846,20 +2850,44 @@ Public Class VLM_Router
         End Get
     End Property
 
-    Public Sub SetNAVWP(ByVal Reset As Boolean)
+    Public Sub SetNAVWP(ByVal Reset As Boolean, Optional ByVal NavMode As String = "")
         Dim Ret As Boolean
         If Not Reset Then
             Ret = WS_Wrapper.SetWP(_PlayerInfo.NumBoat, _NAVWP)
         Else
             Ret = WS_Wrapper.SetWP(_PlayerInfo.NumBoat, Nothing)
         End If
-
-        If Ret Then
+        If Ret And NavMode <> "" Then
+            SetNav(NavMode)
+        ElseIf Ret Then
             getboatinfo(True)
         Else
             MessageBox.Show("Update failed!!")
 
         End If
+    End Sub
+
+    Public Sub SetNav(ByVal Mode As String)
+        Dim pim As Integer
+
+        Select Case Mode
+            Case "ORTHO"
+                pim = 3
+
+            Case "VMG"
+                pim = 4
+
+            Case "VBVMG"
+                pim = 5
+        End Select
+
+        If WS_Wrapper.SetPIM(_PlayerInfo.NumBoat, pim) Then
+            getboatinfo(True)
+        Else
+            MessageBox.Show("Update failed!!")
+        End If
+
+
     End Sub
 
     Public ReadOnly Property SetNAV_WPMsg() As String
