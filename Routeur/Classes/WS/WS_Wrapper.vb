@@ -146,12 +146,12 @@ Module WS_Wrapper
         End If
         '"pip":{"targetlat":42.8,"targetlong":-7,"targetandhdg":180}
         Dim pip As New Dictionary(Of String, Object)
-        pip.Add("targetlat", WP.Lat)
-        pip.Add("targetlong", WP.Lon)
+        pip.Add("targetlat", WP.Lat_Deg)
+        pip.Add("targetlong", WP.Lon_Deg)
         pip.Add("targetandhdg", -1)
 
         Dim Request As New Dictionary(Of String, Object)
-        Dim verb As String = "pilot_set"
+        Dim verb As String = "target_set"
         Request.Add("idu", Idu)
         Request.Add("pip", pip)
         Request.Add("debug", True)

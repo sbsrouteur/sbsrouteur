@@ -119,6 +119,7 @@ Public Class VLM_Router
     Private _BearingETA As DateTime
     Private _MenuBearing As Double
     Private _MenuWindAngleValid As Boolean
+    Private _MenuWPWindAngleValid As Boolean
     Private _MenuWindAngle As Double
     Private _MenuWPAngle As Double
     Private _WindAngleETA As DateTime
@@ -1546,45 +1547,69 @@ Public Class VLM_Router
         Dim mi As MeteoInfo = Nothing
         Dim RefAngle As Double
         Dim Speed As Double
+        Dim PrevDelta As Double
 
-        Dim Found As Boolean = False
-        Dim Correction As Double = 0
-        While Not Found
-            CurETA = GetNextCrankingDate()
-            TC.EndPoint = TC.StartPoint
-            tc2.StartPoint = TC.StartPoint
-            While TC.SurfaceDistance < RefDistance
-                mi = _Meteo.GetMeteoToDate(TC.EndPoint, CurETA, False)
+        _WindAngleETA = Now
+        Try
+
+        
+        If Double.IsNaN(RefLoxo) Then
+                Return
+            End If
+            Dim Found As Boolean = False
+            Dim Correction As Double = 0
+            PrevDelta = 0
+            While Not Found
+                CurETA = GetNextCrankingDate()
+
+                TC.EndPoint = TC.StartPoint
+                tc2.StartPoint = TC.StartPoint
+                Dim LoopCount = 0
+                While TC.SurfaceDistance < RefDistance AndAlso LoopCount < 1500
+                    LoopCount += 1
+                    mi = _Meteo.GetMeteoToDate(TC.EndPoint, CurETA, False)
+                    If mi Is Nothing Then
+                        Exit While
+                    End If
+                    If TC.SurfaceDistance = 0 Then
+                        RefAngle = WindAngleWithSign(RefLoxo, mi.Dir) + Correction
+                    End If
+                    Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
+
+                    TC.EndPoint = tc2.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, RefAngle + mi.Dir)
+                    tc2.StartPoint = TC.EndPoint
+                    CurETA = CurETA.AddMinutes(RouteurModel.VacationMinutes)
+                End While
+
+                If Double.IsNaN(TC.LoxoCourse_Deg) Then
+                    Return
+                End If
+
+                Dim NewDelta As Double = WindAngleWithSign(TC.LoxoCourse_Deg, RefLoxo)
+
                 If mi Is Nothing Then
+                    _WindAngleETA = Now
+                    Exit While
+                ElseIf Abs(TC.LoxoCourse_Deg - RefLoxo) < 0.01 OrElse (NewDelta * PrevDelta < 0 AndAlso NewDelta * PrevDelta > -3) Then
+                    Found = True
+                ElseIf Correction = 0 OrElse PrevDelta = 0 OrElse Abs(PrevDelta) > Abs(NewDelta) Then
+                    Correction -= NewDelta
+                Else
                     Exit While
                 End If
-                If TC.SurfaceDistance = 0 Then
-                    RefAngle = WindAngleWithSign(RefLoxo, mi.Dir) + Correction
-                End If
-                Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
 
-                TC.EndPoint = tc2.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, RefAngle + mi.Dir)
-                tc2.StartPoint = TC.EndPoint
-                CurETA = CurETA.AddMinutes(RouteurModel.VacationMinutes)
+                PrevDelta = NewDelta
+
             End While
-            If mi Is Nothing Then
-                _WindAngleETA = Now
-                Exit While
-            ElseIf Abs(TC.LoxoCourse_Deg - RefLoxo) < 0.01 Then
-                Found = True
-            Else
-                Correction -= WindAngleWithSign(TC.LoxoCourse_Deg, RefLoxo)
 
+            If Found Then
+                _WindAngleETA = CurETA
+                _MenuWPAngle = RefAngle
+                _MenuWPWindAngleValid = True
             End If
-        End While
-
-        If Found Then
-            _WindAngleETA = CurETA
-            _MenuWPAngle = RefAngle
-            _MenuWindAngleValid = True
-        End If
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointWindAngleMsg"))
-
+        Finally
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointWindAngleMsg"))
+        End Try
     End Sub
 
     Private Delegate Sub dlgthreadsafesetter(ByVal Pv As ObservableCollection(Of clsrouteinfopoints), ByVal Value As ObservableCollection(Of clsrouteinfopoints), ByVal e As PropertyChangedEventArgs, ByVal RefreshBoatInfo As Boolean, ByVal meteo As clsMeteoOrganizer)
@@ -1827,10 +1852,10 @@ Public Class VLM_Router
     Public ReadOnly Property GoToPointWindAngleMsg() As String
         Get
             If _WindAngleETA.Ticks = 0 Then
-                _MenuWindAngleValid = False
+                _MenuWPWindAngleValid = False
                 System.Threading.ThreadPool.QueueUserWorkItem(AddressOf ETAToPointWindAngle, Nothing)
                 Return "Computing Angle and ETA..."
-            ElseIf _MenuWindAngleValid Then
+            ElseIf _MenuWPWindAngleValid Then
                 Return "Go to point fixed windangle: " & _MenuWPAngle.ToString("0.0°") & " ETA:" & _WindAngleETA.ToString
             Else
                 Return "Point not reachable with fixed wind angle and current weather information."
@@ -2655,6 +2680,7 @@ Public Class VLM_Router
         _BearingETA = New DateTime(0)
         _WindAngleETA = New DateTime(0)
         _MenuWindAngleValid = False
+        _MenuWPWindAngleValid = False
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointBearingMsg"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("SetWindAngleMsg"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointWindAngleMsg"))
@@ -2850,7 +2876,7 @@ Public Class VLM_Router
     End Property
     Public Sub SetWPWindAngle()
 
-        If _MenuWindAngleValid Then
+        If _MenuWPWindAngleValid Then
             If WS_Wrapper.SetWindAngle(_PlayerInfo.NumBoat, _MenuWPAngle) Then
                 getboatinfo(True)
             Else
