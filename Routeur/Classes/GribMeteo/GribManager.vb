@@ -652,7 +652,8 @@ Public Class GribManager
                     'Meteo is not available for that date (two late??)
                     Return False
                 ElseIf ex2.Message.Contains("404") Then
-                    retries += 1
+                    'retries += 1
+                    Return False
                 Else
                     Return False
                 End If
