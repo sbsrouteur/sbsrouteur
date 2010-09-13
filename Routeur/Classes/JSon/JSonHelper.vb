@@ -82,6 +82,22 @@ Module JSonHelper
 
     End Function
 
+    Public Function GetJSonBoolValue(ByVal JSon As Object, ByVal ValueKey As String) As Boolean
+
+        Dim O As Object = GetJSonObjectValue(JSon, ValueKey)
+        Dim tmpBool As Boolean = False
+        If O Is Nothing Then
+            Return False
+        ElseIf TypeOf O Is Boolean Then
+            Return CBool(O)
+        ElseIf Boolean.TryParse(O.ToString, tmpBool) Then
+            Return tmpBool
+        Else
+            Return False
+        End If
+
+
+    End Function
 
 
     Public Function GetJSonDoubleValue(ByVal JSon As Object, ByVal ValueKey As String) As Double
@@ -114,29 +130,36 @@ Module JSonHelper
 
     End Function
 
-    Public Sub LoadJSonDataToObject(ByVal O As Object, ByVal Data As Object)
+    Public Sub LoadJSonDataToObject(ByVal O As Object, ByVal JSonData As Object)
 
         Dim Props() As PropertyInfo = O.GetType.GetProperties
 
         For Each P In Props
 
+            If Not P.CanWrite Then
+                Continue For
+            End If
+
             Dim T = P.PropertyType
             Dim Value As Object = Nothing
             If T Is GetType(Integer) Then
-                Value = GetJSonIntValue(Data, P.Name)
+                Value = GetJSonIntValue(JSonData, P.Name)
             ElseIf T Is GetType(Double) Then
-                Value = GetJSonDoubleValue(Data, P.Name)
-                LoadJSonDataToObject(Value, Data)
+                Value = GetJSonDoubleValue(JSonData, P.Name)
+                LoadJSonDataToObject(Value, JSonData)
             ElseIf T Is GetType(Object) Then
-                Value = GetJSonObjectValue(Data, P.Name)
-                LoadJSonDataToObject(Value, Data)
+                Value = GetJSonObjectValue(JSonData, P.Name)
+                If Value Is Nothing Then
+                    Continue For
+                End If
+                LoadJSonDataToObject(Value, JSonData)
             ElseIf T Is GetType(String) Then
-                Value = GetJSonStringValue(Data, P.Name)
+                Value = GetJSonStringValue(JSonData, P.Name)
                 If CStr(Value) = "" Then
                     Value = Nothing
                 End If
             ElseIf T Is GetType(DateTime) Then
-                Dim epoch As Integer = GetJSonIntValue(Data, P.Name)
+                Dim epoch As Integer = GetJSonIntValue(JSonData, P.Name)
                 If epoch <> 0 Then
                     Dim D As DateTime = New Date(1970, 1, 1).AddSeconds(epoch)
                     D = CDate(D).AddHours(System.TimeZone.CurrentTimeZone.GetUtcOffset(D).TotalHours)
@@ -145,7 +168,7 @@ Module JSonHelper
                     Value = Nothing
                 End If
             ElseIf T Is GetType(List(Of VLM_RaceWaypoint)) Then
-                Dim WPL As Dictionary(Of String, Object) = CType(GetJSonObjectValue(Data, P.Name), Dictionary(Of String, Object))
+                Dim WPL As Dictionary(Of String, Object) = CType(GetJSonObjectValue(JSonData, P.Name), Dictionary(Of String, Object))
 
                 If WPL IsNot Nothing Then
                     Dim L As List(Of VLM_RaceWaypoint) = CType(P.GetValue(O, Nothing), List(Of VLM_RaceWaypoint))
