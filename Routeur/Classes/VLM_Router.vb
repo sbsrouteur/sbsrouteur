@@ -68,7 +68,7 @@ Public Class VLM_Router
 
     Private _Opponents As New Dictionary(Of String, BoatInfo)
     Private _FriendsGraph As New Dictionary(Of String, SortedList(Of String, String))
-    Private _BoatsToTest(NB_WORKERS) As eHashTable
+    'Private _BoatsToTest(NB_WORKERS) As eHashTable
     Private Const NB_WORKERS As Integer = 0 '15
     Private _VMGStarted As Integer
     Private _HasPosition As Boolean = False
@@ -1435,18 +1435,9 @@ Public Class VLM_Router
 
         Dim i As Integer
 
-
-        For i = 0 To NB_WORKERS
-            _BoatsToTest(i) = New eHashTable
-        Next
-
-        'Init the boats to test list
-
         SyncLock _Opponents
             _Opponents.Clear()
         End SyncLock
-
-
 
         For i = 0 To NB_WORKERS
             System.Threading.ThreadPool.QueueUserWorkItem(AddressOf DrawBoatMapWorker, i)
@@ -1461,21 +1452,47 @@ Public Class VLM_Router
         Dim PageEmpty As Boolean = False
         Dim wc As New WebClient
         Dim Cookies As CookieContainer = Login()
+        Dim JSonRanking As Dictionary(Of String, Object) = WS_Wrapper.GetRankings(_PlayerInfo.RaceInfo.idraces)
+        If JSonRanking Is Nothing Then
+            Do
 
-        Do
+                Dim Page As String = GetHTTPResponse(RouteurModel.BASE_GAME_URL & "/races.php?lang=fr&type=arrived&idraces=" & _PlayerInfo.RaceInfo.idraces, Cookies)
+                Dim ArrivedOffset As Integer = GetArrivedCount(Page)
 
-            Dim Page As String = GetHTTPResponse(RouteurModel.BASE_GAME_URL & "/races.php?lang=fr&type=arrived&idraces=" & _PlayerInfo.RaceInfo.idraces, Cookies)
-            Dim ArrivedOffset As Integer = GetArrivedCount(Page)
+                'Get the current positions
+                Page = GetHTTPResponse(RouteurModel.BASE_GAME_URL & "/races.php?lang=fr&type=racing&idraces=" & _PlayerInfo.RaceInfo.idraces & "&startnum=" & CurFistBoat, Cookies)
 
-            'Get the current positions
-            Page = GetHTTPResponse(RouteurModel.BASE_GAME_URL & "/races.php?lang=fr&type=racing&idraces=" & _PlayerInfo.RaceInfo.idraces & "&startnum=" & CurFistBoat, Cookies)
+                PageEmpty = ParseRanking(Page, ArrivedOffset, Cookies)
 
-            PageEmpty = ParseRanking(Page, ArrivedOffset, Cookies)
-
-            CurFistBoat += 100
+                CurFistBoat += 100
 
 
-        Loop Until PageEmpty
+            Loop Until PageEmpty
+        Else
+            Dim BI As BoatInfo
+            For Each BoatID As String In JSonRanking.Keys
+                Dim BoatJson As New VLMBoatRanking
+
+                JSonHelper.LoadJSonDataToObject(BoatJson, JSonRanking(BoatID))
+                BI = New BoatInfo
+                With BI
+                    .Classement = BoatJson.rank
+                    .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
+
+                    If Not BoatInfo.ImgList.ContainsKey(BoatJson.country) Then
+
+                        BoatInfo.ImgList.Add(BoatJson.country, Nothing)
+
+                    End If
+
+                    .FlagName = BoatJson.country
+                    .Name = BoatJson.boatpseudo
+
+                End With
+            Next
+
+        End If
+
 
         AddLog("Worker " & Id & " complete")
         OnBoatWorkerComplete()

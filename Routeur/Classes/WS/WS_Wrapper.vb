@@ -56,6 +56,39 @@ Module WS_Wrapper
         Return Nothing
     End Function
 
+    Public Function GetRankings(ByVal IdRace As Integer) As Dictionary(Of String, Object)
+
+        Dim RetJSon As New Dictionary(Of String, Object)
+        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/raceinfo/ranking.php?idr=" & IdRace
+
+        Dim Retstring As String = ""
+        Try
+            Retstring = RequestPage(URL)
+            RetJSon = JSonParser.Parse(Retstring)
+            Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
+            If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
+                CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("ranking") Then
+                Return CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "ranking"), Dictionary(Of String, Object))
+            Else
+                Return Nothing
+            End If
+            Return RetJSon
+        Catch wex As WebException
+            If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+                'Login error
+                Return Nothing
+            ElseIf CType(wex.Response, HttpWebResponse).StatusCode = 404 Then
+                'Page not found (not yet implemented in VLM, testing only)
+                Return Nothing
+            Else
+                MessageBox.Show(wex.Response.ToString)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
+        End Try
+        Return Nothing
+    End Function
+
     Public Function GetRouteurUserAgent() As String
         Return "SbsRouteur/" & My.Application.Info.Version.ToString
     End Function

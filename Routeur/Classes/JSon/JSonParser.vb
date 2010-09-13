@@ -68,7 +68,7 @@ Module JSonParser
         SB.Length = 0
         While Not Complete
             Select Case Data(CurIndex)
-                Case ","c
+                Case ","c, "]"c, "}"c
                     Complete = True
 
                 Case Else
@@ -214,6 +214,19 @@ Module JSonParser
                     Throw New InvalidOperationException("Unsupported JSon Value type")
 
                 End If
+
+            Case "f"c, "t"c
+                If Data.Substring(0, 4) = "true" Then
+                    Value = True
+                    Index = 4
+                ElseIf Data.Substring(0, 5) = "false" Then
+                    Value = False
+                    Index = 5
+                Else
+                    Throw New InvalidOperationException("Unsupported JSon Value type")
+                End If
+
+
 
             Case Else
                 Throw New InvalidOperationException("Unsupported JSon Value type")
