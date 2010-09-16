@@ -11,8 +11,14 @@ Module WS_Wrapper
     Public Function GetBoatInfo(ByVal Player As clsPlayerInfo) As Dictionary(Of String, Object)
 
         If _LastPassword <> Player.Password OrElse _LastUser <> Player.Nick Then
-            _LastPassword = Player.Password
-            _LastUser = Player.Nick
+            If Player.IDPlayer = "" Then
+                'old style login
+                _LastPassword = Player.Password
+                _LastUser = Player.Nick
+            Else
+                _LastPassword = Player.Password
+                _LastUser = Player.IDPlayer
+            End If
             _Cookies = New CookieContainer
         End If
         Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatinfo.php?forcefmt=json"

@@ -10,11 +10,11 @@ Module RegistryHelper
 
     Private Const USER_SUB_KEY As String = "Users"
     Private Const USER_NICK As String = "Nick"
-    Private Const USER_NUM As String = "NumBoat"
+    Private Const USER_NUMBOAT As String = "NumBoat"
     Private Const USER_PASSWORD As String = "Password"
     Private Const USER_MINE As String = "ISMINE"
     Private Const KEY_LAST_BOAT As String = "LastBoat"
-
+    Private Const USER_IDP As String = "IDPlayer"
 
     Public Sub DeleteUser(ByVal P As RegistryPlayerInfo)
 
@@ -101,8 +101,9 @@ Module RegistryHelper
         End If
 
         With User
+            .IDP = CStr(Reg.GetValue(USER_IDP, ""))
             .Nick = BoatNick
-            .BoatNum = CInt(Reg.GetValue(USER_NUM, 0))
+            .IDU = CInt(Reg.GetValue(USER_NUMBOAT, 0))
             .IsMine = CInt(Reg.GetValue(USER_MINE, 0)) = 1
             .PasswordDecrypt = CType(Reg.GetValue(USER_PASSWORD, Nothing), Byte())
         End With
@@ -124,9 +125,10 @@ Module RegistryHelper
 
         With User
 
-            Reg.SetValue(USER_NUM, .BoatNum, RegistryValueKind.DWord)
+            Reg.SetValue(USER_NUMBOAT, .IDU, RegistryValueKind.DWord)
             Reg.SetValue(USER_MINE, If(.IsMine, 1, 0), RegistryValueKind.DWord)
             Reg.SetValue(USER_PASSWORD, .PasswordEncrypt, RegistryValueKind.Binary)
+            Reg.SetValue(USER_IDP, .IDP, RegistryValueKind.String)
         End With
 
         Return

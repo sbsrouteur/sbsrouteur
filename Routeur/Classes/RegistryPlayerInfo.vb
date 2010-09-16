@@ -8,7 +8,7 @@ Public Class RegistryPlayerInfo
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
     Private _Nick As String
-    Private _BoatNum As Integer
+    Private _idu As Integer
     Private _IsMine As Boolean
     Private _Password As String
     Private _IsLoaded As Boolean = False
@@ -16,25 +16,46 @@ Public Class RegistryPlayerInfo
     Private _IsRacing As Boolean = False
     Private _IsPasswordOK As Boolean = False
     Private _RaceNum As Integer
+    Private _NewStyle As Boolean = False
+    Private _IDP As String
 
     Public Sub New(ByVal Name As String)
-        _Nick = Name
+
+        NewStyle = Name.Contains("@"c)
+        If NewStyle Then
+            _IDP = Name
+            _Nick = "@" 'Dummy placeholder in case no boat is yet associated
+        Else
+            _Nick = Name
+        End If
+
     End Sub
 
-    Public Property BoatNum() As Integer
+    Public Property IDP() As String
+        Get
+            Return _IDP
+        End Get
+        Set(ByVal value As String)
+            _IDP = value
+        End Set
+    End Property
+
+    Public Property IDU() As Integer
         Get
             If Not _IsLoaded Then
                 Load()
             End If
-            Return _BoatNum
+            Return _idu
         End Get
         Set(ByVal value As Integer)
 
-            If _BoatNum <> value Then
-                _BoatNum = value
+            If _idu <> value Then
+                _idu = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatNum"))
                 SaveUserInfo(Me)
             End If
+
+
         End Set
     End Property
 
@@ -42,6 +63,15 @@ Public Class RegistryPlayerInfo
         Get
             Return _IsPasswordOK
         End Get
+    End Property
+
+    Public Property NewStyle() As Boolean
+        Get
+            Return _NewStyle
+        End Get
+        Set(ByVal value As Boolean)
+            _NewStyle = value
+        End Set
     End Property
 
     Public ReadOnly Property RaceInfo() As String
@@ -75,7 +105,7 @@ Public Class RegistryPlayerInfo
             With Ret
                 .Nick = Nick
                 .Password = Password
-                .NumBoat = BoatNum
+                .NumBoat = IDU
             End With
             Return Ret
         End Get
@@ -155,9 +185,9 @@ Public Class RegistryPlayerInfo
             cstream.Write(value, 0, value.Count)
             cstream.Flush()
             cstream.Close()
-            
+
             _Password = System.Text.Encoding.Unicode.GetString(MemStream.ToArray)
-            
+
         End Set
     End Property
 
@@ -206,7 +236,7 @@ Public Class RegistryPlayerInfo
             _IsRacing = False
         ElseIf JSonData.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
 
-            BoatNum = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "IDU")
+            IDU = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "IDU")
             _IsPasswordOK = True
             _RaceInfo = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAN")
             _RaceNum = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAC")
