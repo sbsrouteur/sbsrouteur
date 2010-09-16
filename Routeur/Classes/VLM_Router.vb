@@ -2547,6 +2547,11 @@ Public Class VLM_Router
             UserInfo(meteo) = ParseVLMBoatInfoString()
 
             If RouteurModel.CurWP <> prevwp Then
+                'If CurUserWP = 0 Then
+                'Force userwaypoint to other then 0 to refresh the list
+                CurUserWP = RouteurModel.CurWP() - 1
+                CurUserWP = 0
+                'End If
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
             End If
 
