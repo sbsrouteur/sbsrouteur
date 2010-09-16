@@ -5,28 +5,17 @@ Public Class clsPlayerInfo
     Implements INotifyPropertyChanged
 
 
-    Private _AutoRouting As Boolean
     Private _Nick As String
     Private _Email As String
     Private _Password As String
     Private _NumBoat As Integer
     Private _RaceInfo As New VLMRaceInfo
+    Private _IDPlayer As String = ""
 
 
     'Private _Route() As Coords
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
-
-
-    Public Property AutoRouting() As Boolean
-        Get
-            Return _AutoRouting
-        End Get
-        Set(ByVal value As Boolean)
-            _AutoRouting = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("AutoRouting"))
-        End Set
-    End Property
 
     Public Property Email() As String
         Get
@@ -34,6 +23,15 @@ Public Class clsPlayerInfo
         End Get
         Set(ByVal value As String)
             _Email = value
+        End Set
+    End Property
+
+    Public Property IDPlayer() As String
+        Get
+            Return _IDPlayer
+        End Get
+        Set(ByVal value As String)
+            _IDPlayer = value
         End Set
     End Property
 

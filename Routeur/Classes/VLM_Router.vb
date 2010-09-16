@@ -329,36 +329,10 @@ Public Class VLM_Router
         Get
             Dim i As Integer = 0
 
-            'If _CurUserWP <> 0 AndAlso _CurUserWP < RouteurModel.WPList.Count Then
-
-            '    Return RouteurModel.WPList(_CurUserWP)
-            'ElseIf _CurUserWP = 0 AndAlso RouteurModel.WPList.Count > 0 Then
-            '    Return RouteurModel.WPList(0)
-            'Else
-            '    Return "??"
-            'End If
             Return _CurUserWP
         End Get
 
         Set(ByVal value As Integer)
-            'Dim Index As Integer = 0
-
-            'If value.StartsWith("<Auto>") Then
-            '    Index = 0
-            'ElseIf value.StartsWith("WP") Then
-
-            '    Dim MinIndex As Integer = value.IndexOf("-"c)
-            '    Integer.TryParse(value.Substring(2, MinIndex - 2), Index)
-            'Else
-            '    Return
-            'End If
-
-            ''While RouteurModel.WPList(Index) <> value
-            ''    Index += 1
-            ''    If Index >= RouteurModel.WPList.Count Then
-            ''        Return
-            ''    End If
-            ''End While
             If _CurUserWP <> value Then
                 'Reset the router last start when changing dest
                 _CurUserWP = value
@@ -435,12 +409,7 @@ Public Class VLM_Router
                 X = Speed * Cos((CapOrtho + i - 90) / 180 * PI) '- 150
                 Y = Speed * Sin((CapOrtho + i - 90) / 180 * PI) '- 150
                 RetString &= (X).ToString("f2").Replace(",", ".") & "," & (Y).ToString("f2").Replace(",", ".")
-                'If i Mod 5 = 0 And i <> 0 Then
 
-                '    RetString &= " L " & ((2 + Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((2 + Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
-                '    RetString &= " L " & ((Speed) * Cos((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".") & "," & ((Speed) * Sin((CapOrtho + i - 90) / 180 * PI)).ToString("f2").Replace(",", ".")
-
-                'End If
             Next
 
             Return RetString
@@ -3254,15 +3223,6 @@ Public Class VLM_Router
         End Set
     End Property
 
-
-
-
-    Private Sub _PlayerInfo_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _PlayerInfo.PropertyChanged
-
-        If e.PropertyName = "AutoRouting" And _PlayerInfo.AutoRouting Then
-            getboatinfo(_Meteo)
-        End If
-    End Sub
 
 
     Private Sub _gr_Log(ByVal Str As String) Handles _gr.Log
