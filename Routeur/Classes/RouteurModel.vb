@@ -407,10 +407,10 @@ Public Class RouteurModel
             Return _CurWP
         End Get
         Set(ByVal value As Integer)
-            If WPList.Count >= 1 AndAlso _CurWP > 0 AndAlso _CurWP < WPList.Count AndAlso _CurWP <> value Then
-                _WPList(0) = "<Auto> " & _P_Info(0).RaceInfo.races_waypoints(_CurWP - 1).ToString
-            End If
             _CurWP = value
+            If WPList.Count >= 1 AndAlso _CurWP > 0 AndAlso _CurWP < WPList.Count Then
+                _WPList(0) = "<Auto> " & _P_Info(0).RaceInfo.races_waypoints(_CurWP).ToString
+            End If
 
         End Set
 
@@ -659,6 +659,7 @@ Public Class RouteurModel
                 tmrRefresh.Enabled = True
 
             Case "WPList"
+                CurWP = CurWP
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
 
             Case Else
