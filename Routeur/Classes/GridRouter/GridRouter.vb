@@ -119,6 +119,10 @@ Public Class GridRouter
         Dim NbLoop As Long = 0
 
 #If GRID_STAT Then
+        Static _GetETATotalTicks As Long
+        Static _GetETATotalLoops As Long
+        Static _GetETACount As Long
+
 
         Dim StartTick As DateTime = Now
         Try
@@ -366,6 +370,10 @@ Public Class GridRouter
 
         Static Px As Double = RouteurModel.GridGrain / 180 / BspRect.GRID_GRAIN_OVERSAMPLE * Math.PI * 2
 #If GRID_STAT Then
+        Static _CheckTCTickCount As Long = 0
+        Static _CheckTCCount As Long = 0
+        Static _CheckTCTotalTicks As Long = 0
+
         Dim StartTick As DateTime = Now
         Try
 #End If
@@ -543,7 +551,8 @@ Public Class GridRouter
 
 
 #If GRID_STAT Then
-
+        Static _ProcessTotalTicks As Long
+        Static _ProcessCount As Long
         Dim StartTick As DateTime = Now
 
         Try

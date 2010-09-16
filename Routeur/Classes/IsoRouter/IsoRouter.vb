@@ -220,27 +220,28 @@ Public Class IsoRouter
         Next
 
         TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
-        If Not GridRouter.CheckSegmentValid(TC) Then
-            Return Nothing
-        End If
+        If GridRouter.CheckSegmentValid(TC) Then
+        
+            With RetPoint
+                .P = New Coords(TC.EndPoint)
+                .T = CurDate
+                .Speed = Speed
+                .WindStrength = MI.Strength
+                .WindDir = MI.Dir
+                TC.StartPoint = _DestPoint
+                .DTF = TC.SurfaceDistance
+                .From = Start
+                .Cap = Cap
+            End With
 
-        With RetPoint
-            .P = New Coords(TC.EndPoint)
-            .T = CurDate
-            .Speed = Speed
-            .WindStrength = MI.Strength
-            .WindDir = MI.Dir
-            TC.StartPoint = _DestPoint
-            .DTF = TC.SurfaceDistance
-            .From = Start
-            .Cap = Cap
-        End With
+        End If
 
         TC.StartPoint = Nothing
         TC.EndPoint = Nothing
         TC = Nothing
 
         Return RetPoint
+
     End Function
 
     Public Function RouteToPoint(ByVal C As Coords) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
