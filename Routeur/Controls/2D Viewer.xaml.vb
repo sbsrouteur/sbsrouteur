@@ -506,7 +506,7 @@ Render1:
                                 Dim PrevIndex As Integer
                                 Dim CurP As Coords
                                 For index = 0 To MaxIndex
-                                    If Not iso.Data(index) Is Nothing Then
+                                    If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
                                         CurP = iso.Data(index).P
                                         P1.X = LonToCanvas(CurP.Lon_Deg)
                                         P1.Y = LatToCanvas(CurP.Lat_Deg)

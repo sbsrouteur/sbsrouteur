@@ -260,6 +260,10 @@ Public Class VLM_Router
 
         Public Overrides Function ToString() As String
 
+            If P Is Nothing Then
+                Return "No Coords"
+            End If
+
             Return T.ToString("dd-MMM HH:mm") & " ; " & Cap.ToString("f1") & " ; " & DTF.ToString("f1") & " ; " & P.ToString & " ; " & WindDir.ToString("f2") & " ; " & WindStrength.ToString("f2")
 
         End Function

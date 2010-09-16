@@ -190,6 +190,10 @@ Public Class IsoRouter
 
     Private Function ReachPoint(ByVal Start As clsrouteinfopoints, ByVal Cap As Double, ByVal Duration As TimeSpan) As clsrouteinfopoints
 
+        If Start Is Nothing OrElse Start.P Is Nothing Then
+            Return Nothing
+        End If
+
         Dim RetPoint As New clsrouteinfopoints
         Dim TC As New TravelCalculator
         Dim Speed As Double
