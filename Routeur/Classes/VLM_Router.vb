@@ -125,6 +125,9 @@ Public Class VLM_Router
     Private _WindAngleETA As DateTime
     Private _NAVWP As Coords
 
+    Private _XTRRoute As Collection(Of clsrouteinfopoints)
+    Private _XTRAssessmentON As Boolean = False
+    Private _XTRStart As DateTime
 
 
 
@@ -327,6 +330,62 @@ Public Class VLM_Router
             _AllureRoute = value
         End Set
     End Property
+
+    Private Sub AssessXTR()
+
+        If Not _XTRAssessmentON OrElse _XTRRoute Is Nothing OrElse _XTRRoute.Count = 0 Then
+            _XTRAssessmentON = False
+            Return
+        End If
+
+        While _XTRRoute.Count > 0 AndAlso _XTRRoute(0).T < _UserInfo.date
+            _XTRRoute.RemoveAt(0)
+        End While
+
+        If _XTRRoute.Count = 0 Then
+            _XTRAssessmentON = False
+            Return
+        End If
+
+        Dim PosError As Boolean = False
+        Dim WindError As Boolean = False
+        Dim SpeedError As Boolean = False
+
+        Dim mi As MeteoInfo = _Meteo.GetMeteoToDate(_XTRRoute(0).P, _XTRRoute(0).T, True)
+        If mi Is Nothing Then
+            AddLog("Meteo not available XTR aborted")
+            Return
+        End If
+
+        With _XTRRoute(0)
+            Const MAX_ERROR_POS As Double = 0.001
+            Const MAX_ERROR_WIND As Double = 0.01
+
+            If Abs(.P.Lon_Deg - _UserInfo.position.longitude) > MAX_ERROR_POS OrElse Abs(.P.Lat_Deg - _UserInfo.position.latitude) > MAX_ERROR_POS Then
+                PosError = True
+            End If
+
+            If Abs(mi.Strength - .WindStrength) > MAX_ERROR_WIND OrElse Abs(mi.Dir - .WindDir) > MAX_ERROR_WIND Then
+                WindError = True
+            End If
+
+            If PosError Then
+                Dim tc As New TravelCalculator With {.StartPoint = _XTRRoute(0).P, .EndPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)}
+                AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " position error " & tc.SurfaceDistance & " angle : " & tc.LoxoCourse_Deg & "°")
+            End If
+
+            If WindError Then
+                AddLog(("XTR Error after " & Now.Subtract(_XTRStart).ToString & " Wind error " & (mi.Dir - .WindDir).ToString("f3") & "° " & (mi.Strength - .WindStrength).ToString("f3") & "kts"))
+            End If
+
+            If Not PosError And Not WindError Then
+                AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " none")
+            End If
+        End With
+
+        Return
+
+    End Sub
 
 
     Public Property CurUserWP() As Integer
@@ -2638,6 +2697,10 @@ Public Class VLM_Router
             PilototoThread.Start()
             ComputeAllure()
 
+            If _XTRAssessmentON Then
+                AssessXTR()
+            End If
+
         Catch ex As Exception
             AddLog("GetboartInfo : " & ex.Message)
         End Try
@@ -3130,6 +3193,14 @@ Public Class VLM_Router
             _iso.StopRoute()
 
         End If
+    End Sub
+
+    Public Sub StartXTRAssessment()
+
+        _XTRRoute = New ObservableCollection(Of clsrouteinfopoints)(PilototoRoute)
+        _XTRAssessmentON = True
+        _XTRStart = _UserInfo.date
+
     End Sub
 
     Private Sub AddLog(ByVal Log As String)

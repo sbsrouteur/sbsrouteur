@@ -415,4 +415,11 @@ Partial Public Class RouteurMain
         M.VorHandler.RefreshActionMenu()
 
     End Sub
+
+    Private Sub ComputeRouteXTR(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+
+        M.VorHandler.StartXTRAssessment()
+    End Sub
 End Class
