@@ -218,7 +218,7 @@
 				<Separator></Separator>
 	            <MenuItem Header="Quit" Click="AppQuit" ></MenuItem>
 			</MenuItem>
-			<MenuItem Header="Information" VerticalAlignment="Center">
+			<MenuItem Header="Information" VerticalAlignment="Center" Click="ComputeRouteXTR">
 				<TextBlock Text="{Binding MeteoValidSpan, Mode=OneWay, StringFormat={} Meteo update in {0:HH}}" VerticalAlignment="Center" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
 				<Separator />
 				<ComboBox IsSynchronizedWithCurrentItem="True" x:Name="comboBox" 
@@ -226,6 +226,8 @@
 				<Separator />
 				<TextBlock Text="{Binding RacePrefs.MapLevel, StringFormat=MapLevel {0}, Mode=OneWay}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
 				<TextBlock Text="{Binding RacePrefs.GridGrain, StringFormat=GridGrain {0:F2}, Mode=OneWay}" IsEnabled="False" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
+				<Separator />
+				<MenuItem Header="Freeze Pilototo Route and Assess computation Errors" />
 			</MenuItem>
 			<MenuItem Header="Display" VerticalAlignment="Center">
 				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}" HorizontalAlignment="Left"/>
