@@ -359,7 +359,7 @@ Public Class VLM_Router
 
         With _XTRRoute(0)
             Const MAX_ERROR_POS As Double = 0.001
-            Const MAX_ERROR_WIND As Double = 0.01
+            Const MAX_ERROR_WIND As Double = 0.075
 
             If Abs(.P.Lon_Deg - _UserInfo.position.longitude) > MAX_ERROR_POS OrElse Abs(.P.Lat_Deg - _UserInfo.position.latitude) > MAX_ERROR_POS Then
                 PosError = True

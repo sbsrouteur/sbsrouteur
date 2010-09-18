@@ -52,6 +52,7 @@ Partial Public Class _2D_Viewer
     Private _Scale As Double
     Private _LonOffset As Double
     Private _LatOffset As Double
+    Private Shared _CenterOnAnteMeridien As Boolean = False
 
 
     Public Sub New()
@@ -86,8 +87,13 @@ Partial Public Class _2D_Viewer
     End Function
 
     Public Function LonToCanvas(ByVal V As Double) As Double
-        Return 180 * DEFINITION + (V - LonOffset) * Scale
 
+        If CenterOnAnteMeridien AndAlso V < 0 Then
+            Return 180 * DEFINITION + (V - LonOffset + 360) * Scale
+        Else
+            Return 180 * DEFINITION + (V - LonOffset) * Scale
+        End If
+        
     End Function
 
     Private Sub RenDerBackDrop(ByVal D As DrawingVisual)
@@ -280,14 +286,20 @@ Render1:
     Private Sub SafeDrawLine(ByVal dc As DrawingContext, ByVal PrevP As Coords, ByVal P As Coords, ByVal pe As Pen, ByVal Prevpoint As Point, ByVal NewP As Point)
         If (PrevP.Lon * P.Lon < 0 AndAlso Math.Abs(P.Lon - PrevP.Lon) >= Math.PI) Then
             Dim Pint As Point
-
+            Dim DLon As Double
+            Dim LonSpan As Double
             If PrevP.Lon < 0 Then
                 Pint.X = LonToCanvas(-179.99)
+                DLon = 180 + PrevP.Lon_Deg
+                LonSpan = PrevP.Lon_Deg + 360 - P.Lon_Deg
             Else
                 Pint.X = LonToCanvas(179.99)
+                DLon = 180 - PrevP.Lon_Deg
+                LonSpan = Abs(-180 - P.Lon_Deg) + 180 - PrevP.Lon_Deg
             End If
 
-            Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
+            'Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
+            Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * DLon / LonSpan)
             dc.DrawLine(pe, Prevpoint, Pint)
 
             If P.Lon < 0 Then
@@ -787,6 +799,20 @@ Render1:
         _ClearBgMap = True
 
     End Sub
+
+    Public Property CenterOnAnteMeridien() As Boolean
+        Get
+            Return _CenterOnAnteMeridien
+        End Get
+        Set(ByVal value As Boolean)
+            _CenterOnAnteMeridien = value
+            If value Then
+                LonOffset -= 180
+            Else
+                LonOffset += 180
+            End If
+        End Set
+    End Property
 
     Public Property CurCoords() As Coords
         Get
