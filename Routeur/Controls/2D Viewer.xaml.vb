@@ -666,8 +666,8 @@ Render1:
                                     'Else
                                     '    DC.DrawLine(PathPen, PrevPoint, P1)
                                     'End If
-                                    Pnt.Lon = lon
-                                    Pnt.Lat = lat
+                                    Pnt.Lon_Deg = lon
+                                    Pnt.Lat_Deg = lat
 
                                     SafeDrawLine(DC, PrevP, Pnt, PathPen, PrevPoint, P1)
                                 End If
