@@ -237,6 +237,7 @@
 				<Separator/>
 				<MenuItem Header="Center on Boat!" Click="CenterOnBoat"></MenuItem>
 				<Separator/>
+				<CheckBox Content="Center Map on 180°E/W" IsChecked="{Binding VorHandler.CenterMapOnAnteMeridien, Mode=Default}" />
 				<MenuItem Header="Rescale Map" Click="ReScaleMap" ></MenuItem>
 				<MenuItem Header="Restore Race Zone Map Scale" Click="RestoreMapScale" ></MenuItem>
 			</MenuItem>

@@ -139,24 +139,31 @@ Public Class TravelCalculator
         Dim dPhi As Double
         Dim q As Double
         Dim dlon As Double
+        Dim tc_rad As Double
 
-        Dist /= Earth_Radius
-        tc_deg = tc_deg / 180 * Math.PI
+        Dim DistAngle As Double = Dist / Earth_Radius
+        tc_rad = tc_deg / 180 * Math.PI
 
         If StartPoint.Lon >= PI - 0.0001 Then
             Dim i As Integer = 0
         End If
 
         With retCoords
-            .Lat = StartPoint.Lat + Dist * Cos(tc_deg)
+            .Lat = StartPoint.Lat + DistAngle * Cos(tc_rad)
             dPhi = Log(Tan(.Lat / 2 + Math.PI / 4) / Tan(StartPoint.Lat / 2 + Math.PI / 4))
             If (Abs(.Lat - StartPoint.Lat) < Sqrt(EPSILON)) Then
                 q = Cos(StartPoint.Lat)
             Else
                 q = (.Lat - StartPoint.Lat) / dPhi
             End If
-            dlon = Dist * Sin(tc_deg) / q
+            dlon = DistAngle * Sin(tc_rad) / q
             .Lon = ((StartPoint.Lon + dlon + PI) Mod (2 * Math.PI)) - PI
+
+            If .Lon < -PI Then
+                .Lon += 2 * PI
+            ElseIf .Lon > PI Then
+                .Lon -= 2 * PI
+            End If
         End With
         Return retCoords
     End Function

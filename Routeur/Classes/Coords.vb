@@ -57,11 +57,11 @@ Public Class Coords
         Set(ByVal value As Double)
 
             While value > Math.PI
-                value -= Math.PI * Math.Floor(value / Math.PI)
+                value -= 2 * Math.PI
             End While
 
             While value < -Math.PI
-                value += Math.PI
+                value += 2 * Math.PI
 
             End While
             _Lon = value
