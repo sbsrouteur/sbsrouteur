@@ -337,8 +337,9 @@ Public Class VLM_Router
             _XTRAssessmentON = False
             Return
         End If
+        Dim trimmeddate As DateTime = _UserInfo.date.AddSeconds(-_UserInfo.date.Second)
 
-        While _XTRRoute.Count > 0 AndAlso _XTRRoute(0).T < _UserInfo.date
+        While _XTRRoute.Count > 0 AndAlso _XTRRoute(0).T.AddSeconds(_XTRRoute(0).T.Second) < _UserInfo.date
             _XTRRoute.RemoveAt(0)
         End While
 
@@ -3140,7 +3141,7 @@ Public Class VLM_Router
 
     End Sub
 
-    Public Sub StartIsoRoute(ByVal Owner As RouteurMain, ByVal StartRouting As Boolean)
+    Public Function StartIsoRoute(ByVal Owner As RouteurMain, ByVal StartRouting As Boolean) As Boolean
 
         If StartRouting Then
             Dim frm As New frmRouterConfiguration(Owner, _PlayerInfo.RaceInfo.idraces)
@@ -3149,7 +3150,7 @@ Public Class VLM_Router
             Dim EndCoords As Coords
 
             If Not frm.ShowDialog() Then
-                Return
+                Return False
             End If
             Dim prefs As RacePrefs = CType(frm.DataContext, RacePrefs)
 
@@ -3187,13 +3188,20 @@ Public Class VLM_Router
                 StartCoords = start
             End If
 
+            If prefs.UseCustomStartDate Then
+                StartDate = prefs.CustomStartDate
+            End If
+
             _iso.StartIsoRoute(StartCoords, EndCoords, StartDate)
             'End If
+
         ElseIf Not _iso Is Nothing Then
             _iso.StopRoute()
-
+            Return False
         End If
-    End Sub
+
+        Return True
+    End Function
 
     Public Sub StartXTRAssessment()
 

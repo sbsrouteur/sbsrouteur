@@ -49,6 +49,10 @@ Public Class RacePrefs
     Private _UseCustomStart As Boolean = False
     Private _RouteStart As Coords
 
+    'Routing Start Date
+    Private _UseCustomStartDate As Boolean = False
+    Private _CustomStartDate As DateTime
+
 
 
     Public Shared Function GetRaceInfo(ByVal RaceID As Integer) As RacePrefs
@@ -92,7 +96,8 @@ Public Class RacePrefs
                 .IsoStep_48 = New TimeSpan(12, 0, 0)
                 .UseCustomDest = False
                 .RouteDest = Nothing
-
+                .UseCustomStartDate = False
+                .CustomStartDate = Now
             End With
 
         End If
@@ -111,6 +116,17 @@ Public Class RacePrefs
                 _CourseExtensionHours = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CourseExtensionHours"))
             End If
+        End Set
+    End Property
+
+    <XmlAttribute("CustomStartDate")> _
+    Public Property CustomStartDate() As DateTime
+        Get
+            Return _CustomStartDate
+        End Get
+        Set(ByVal value As DateTime)
+            _CustomStartDate = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CustomStartDate"))
         End Set
     End Property
 
@@ -320,6 +336,16 @@ Public Property IsoStep48String() As String
         Set(ByVal value As Boolean)
             _UseCustomStart = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("UseCustomStart"))
+        End Set
+    End Property
+
+    Public Property UseCustomStartDate() As Boolean
+        Get
+            Return _UseCustomStartDate
+        End Get
+        Set(ByVal value As Boolean)
+            _UseCustomStartDate = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("UseCustomStartDate"))
         End Set
     End Property
 
