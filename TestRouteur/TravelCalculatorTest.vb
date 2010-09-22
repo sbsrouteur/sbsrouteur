@@ -117,7 +117,7 @@ Public Class TravelCalculatorTest
         Dim TC1Span As New TimeSpan(0)
         Dim tc2span As New TimeSpan(0)
 
-        While LoopCount < 50000
+        While LoopCount < 50010
             T1 = Now
             Dim Ret1 As Coords = TC1.ReachDistanceAviat(4, 105)
             t2 = Now
