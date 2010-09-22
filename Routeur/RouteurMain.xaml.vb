@@ -272,7 +272,10 @@ Partial Public Class RouteurMain
     Private Sub CheckIsoRoute(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
-        M.VorHandler.StartIsoRoute(Me, CBool(chkIsoRoute.IsChecked))
+        If Not M.VorHandler.StartIsoRoute(Me, CBool(chkIsoRoute.IsChecked)) Then
+            chkIsoRoute.IsChecked = False
+        End If
+
     End Sub
 
 
