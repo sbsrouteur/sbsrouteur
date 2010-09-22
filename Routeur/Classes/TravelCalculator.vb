@@ -134,6 +134,15 @@ Public Class TravelCalculator
     End Property
 
     Public Function ReachDistance(ByVal Dist As Double, ByVal tc_deg As Double) As Coords
+        Const USE_AVIAT As Boolean = True
+        If USE_AVIAT Then
+            Return ReachDistanceAviat(Dist, tc_deg)
+        Else
+            Return ReachDistanceVLM(Dist, tc_deg)
+        End If
+    End Function
+
+    Private Function ReachDistanceAviat(ByVal Dist As Double, ByVal tc_deg As Double) As Coords
 
         Dim retCoords As New Coords
         Dim dPhi As Double
@@ -166,6 +175,42 @@ Public Class TravelCalculator
             End If
         End With
         Return retCoords
+    End Function
+
+    Private Function ReachDistanceVLM(ByVal Dist As Double, ByVal tc_deg As Double) As Coords
+        Dim RetCoords As New Coords
+
+        '        /* vac_duration in seconds */
+        '48	void move_boat_loxo(boat *aboat) {
+        '49	  double speed;
+        '50	  double latitude, t_lat;
+        '51	  double vac_l, d;
+        '52	  double longitude;
+        '53	  int vac_duration;
+        '54	  wind_info *wind;
+        '55:
+        '56	  vac_duration = aboat->in_race->vac_duration;
+        '57	  /* compute the heading based on the function used */
+        '58	  aboat->set_heading_func(aboat);
+        '59	  wind = &aboat->wind;
+        '60:
+        '61	  speed = find_speed(aboat, wind->speed, wind->angle - aboat->heading);
+        '62:
+        '63	  vac_l = speed*(vac_duration/3600.0);
+        '64:
+        '65	  d = degToRad(vac_l/60.0);
+        Dim d As Double = Dist / Earth_Radius
+        Dim tc_rad As Double = tc_deg / 180 * PI
+
+        '66	  latitude = aboat->latitude + d*cos(aboat->heading);
+        RetCoords.Lat = StartPoint.Lat + d * Cos(tc_rad)
+
+        '68	  t_lat = (latitude + aboat->latitude) / 2;
+        Dim t_lat As Double = (RetCoords.Lat + StartPoint.Lat) / 2
+        '69	  longitude = aboat->longitude + (d*sin(aboat->heading))/cos(t_lat);
+        RetCoords.Lon = StartPoint.Lon + (d * Sin(tc_rad)) / Cos(t_lat)
+        
+        Return RetCoords
     End Function
 
     'Public Function ReachDistanceGC(ByVal Dist As Double) As Coords
