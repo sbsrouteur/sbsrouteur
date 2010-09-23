@@ -167,15 +167,25 @@ Public Class RouteurModel
 
     Public Sub UpdateRaceScale(ByVal C1 As Coords, ByVal C2 As Coords)
         'ReDim RouteurModel._RaceRect(3)
-        If The2DViewer IsNot Nothing AndAlso The2DViewer.CenterOnAnteMeridien Then
-            _LonOffset = C2.Lon_Deg
+        If The2DViewer IsNot Nothing AndAlso The2DViewer.CenterMapOnAnteMeridien andalso  (C1.Lon * C2.Lon) < 0 Then
+            _LonOffset = 180 + (C2.Lon_Deg + C1.Lon_Deg) / 2
+            If C1.Lon <> -C2.Lon Then
+                Scale = 360 / Math.Abs(C1.Lon_Deg + C2.Lon_Deg)
+            Else
+                Scale = 1
+            End If
 
         Else
+            If The2DViewer IsNot Nothing AndAlso The2DViewer.CenterMapOnAnteMeridien = True Then
+                The2DViewer.CenterMapOnAnteMeridien = False
+
+            End If
             _LonOffset = (C1.Lon_Deg + C2.Lon_Deg) / 2
+            Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
 
         End If
         _LatOffset = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
-        Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
+
         Dim Scale2 As Double = 180 / 1.1 / Math.Abs(C1.Mercator_Y_Deg - C2.Mercator_Y_Deg)
         If Scale2 < Scale Then
             Scale = Scale2

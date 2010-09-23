@@ -134,7 +134,7 @@ Public Class TravelCalculator
     End Property
 
     Public Function ReachDistance(ByVal Dist As Double, ByVal tc_deg As Double) As Coords
-        Const USE_AVIAT As Boolean = False
+        Const USE_AVIAT As Boolean = truz
         If USE_AVIAT Then
             Return ReachDistanceAviat(Dist, tc_deg)
         Else
