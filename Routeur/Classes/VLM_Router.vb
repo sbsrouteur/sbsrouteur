@@ -351,6 +351,7 @@ Public Class VLM_Router
         Dim PosError As Boolean = False
         Dim WindError As Boolean = False
         Dim SpeedError As Boolean = False
+        Dim BoatSpeedError As Boolean = False
 
         Dim mi As MeteoInfo = _Meteo.GetMeteoToDate(_XTRRoute(0).P, _XTRRoute(0).T, True)
         If mi Is Nothing Then
@@ -361,6 +362,7 @@ Public Class VLM_Router
         With _XTRRoute(0)
             Const MAX_ERROR_POS As Double = 0.001
             Const MAX_ERROR_WIND As Double = 0.075
+            Const MAX_ERROR_SPEED As Double = 0.01
 
             If Abs(.P.Lon_Deg - _UserInfo.position.longitude) > MAX_ERROR_POS OrElse Abs(.P.Lat_Deg - _UserInfo.position.latitude) > MAX_ERROR_POS Then
                 PosError = True
@@ -370,9 +372,17 @@ Public Class VLM_Router
                 WindError = True
             End If
 
+            If Abs(_UserInfo.position.vitesse - .Speed) > MAX_ERROR_SPEED Then
+                BoatSpeedError = True
+            End If
+
             If PosError Then
                 Dim tc As New TravelCalculator With {.StartPoint = _XTRRoute(0).P, .EndPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)}
                 AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " position error " & tc.SurfaceDistance & " angle : " & tc.LoxoCourse_Deg & "°")
+            End If
+
+            If BoatSpeedError Then
+                AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " boat speed error " & _UserInfo.position.vitesse - .Speed & "°")
             End If
 
             If WindError Then
@@ -951,13 +961,13 @@ Public Class VLM_Router
                                 'Cap fixe
                                 BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(PrevValue, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, PrevValue)
-                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
 
                             Case 2
                                 'Angle fixe
                                 BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(PrevValue), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + PrevValue))
-                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
 
                             Case 3
                                 'Ortho
@@ -965,7 +975,7 @@ Public Class VLM_Router
                                 Dim CapOrtho As Double = Tc.OrthoCourse_Deg
                                 BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, CapOrtho)
-                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
 
                             Case 4
 
@@ -1004,7 +1014,7 @@ Public Class VLM_Router
                                 Next
                                 CurPos = Tc.ReachDistance(MaxSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
 
-                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = MaxSpeed}
 
 
 
@@ -1026,7 +1036,7 @@ Public Class VLM_Router
 
                                 BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(angle, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, angle)
-                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength}
+                                P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
 
 
                             Case Else
