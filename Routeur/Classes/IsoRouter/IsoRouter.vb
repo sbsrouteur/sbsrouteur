@@ -21,7 +21,8 @@ Public Class IsoRouter
     Private _CancelRequested As Boolean
 
     Private _StartPoint As clsrouteinfopoints
-    Private _DestPoint As Coords
+    Private _DestPoint1 As Coords
+    Private _DestPoint2 As Coords
     Private _TC As New TravelCalculator
     Private _Meteo As GribManager
     Private _SailManager As clsSailManager
@@ -91,7 +92,12 @@ Public Class IsoRouter
                     End If
                     Dim Loxo As Double
                     tc.StartPoint = rp.P
-                    tc.EndPoint = _DestPoint
+                    If _DestPoint2 IsNot Nothing Then
+                        tc.EndPoint = GSHHS_Reader.PointToSegmentIntersect(rp.P, _DestPoint1, _DestPoint2)
+                    Else
+                        tc.EndPoint = _DestPoint1
+                    End If
+
                     Loxo = tc.LoxoCourse_Deg
                     tc.StartPoint = _StartPoint.P
                     For alpha = Loxo - _SearchAngle To Loxo + _SearchAngle Step _AngleStep
@@ -143,7 +149,7 @@ Public Class IsoRouter
         Dim P As clsrouteinfopoints = Nothing
         Dim TC As New TravelCalculator
         TC.StartPoint = _StartPoint.P
-        TC.EndPoint = _DestPoint
+        TC.EndPoint = _DestPoint1
         Dim CurDTF As Double = Double.MaxValue
 
         Dim Loxo As Double = TC.LoxoCourse_Deg
@@ -225,15 +231,20 @@ Public Class IsoRouter
 
         TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
         If GridRouter.CheckSegmentValid(TC) Then
-        
+
             With RetPoint
                 .P = New Coords(TC.EndPoint)
                 .T = CurDate
                 .Speed = Speed
                 .WindStrength = MI.Strength
                 .WindDir = MI.Dir
-                TC.StartPoint = _DestPoint
-                .DTF = TC.SurfaceDistance
+                If _DestPoint2 Is Nothing Then
+                    TC.StartPoint = _DestPoint1
+                    .DTF = TC.SurfaceDistance
+                Else
+                    TC.StartPoint = GSHHS_Reader.PointToSegmentIntersect(.P, _DestPoint1, _DestPoint2)
+                    .DTF = TC.SurfaceDistance
+                End If
                 .From = Start
                 .Cap = Cap
             End With
@@ -338,14 +349,14 @@ Public Class IsoRouter
 
 
 
-    Public Sub StartIsoRoute(ByVal From As Coords, ByVal Dest As Coords, ByVal StartDate As Date)
+    Public Sub StartIsoRoute(ByVal From As Coords, ByVal WP1 As Coords, ByVal WP2 As Coords, ByVal StartDate As Date)
 
         If _IsoRouteThread Is Nothing Then
             _IsoRouteThread = New Thread(AddressOf IsoRouteThread)
             _CancelRequested = False
             _StartPoint = New VLM_Router.clsrouteinfopoints
             _TC.StartPoint = From
-            _TC.EndPoint = Dest
+            _TC.EndPoint = WP1
 
 
             Dim mi As MeteoInfo = Nothing
@@ -361,7 +372,8 @@ Public Class IsoRouter
                 .WindStrength = mi.Strength
             End With
 
-            _DestPoint = New Coords(Dest)
+            _DestPoint1 = New Coords(WP1)
+            _DestPoint2 = New Coords(WP2)
             _IsoChrones.Clear()
             _IsoRouteThread.Start()
         Else
