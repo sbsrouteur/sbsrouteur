@@ -88,12 +88,12 @@ Partial Public Class _2D_Viewer
 
     Public Function LonToCanvas(ByVal V As Double) As Double
 
-        If CenterOnAnteMeridien AndAlso V < 0 Then
+        If CenterMapOnAnteMeridien AndAlso V < 0 Then
             Return 180 * DEFINITION + (V - LonOffset + 360) * Scale
         Else
             Return 180 * DEFINITION + (V - LonOffset) * Scale
         End If
-        
+
     End Function
 
     Private Sub RenDerBackDrop(ByVal D As DrawingVisual)
@@ -800,7 +800,7 @@ Render1:
 
     End Sub
 
-    Public Property CenterOnAnteMeridien() As Boolean
+    Public Property CenterMapOnAnteMeridien() As Boolean
         Get
             Return _CenterOnAnteMeridien
         End Get
@@ -811,6 +811,7 @@ Render1:
             Else
                 LonOffset += 180
             End If
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CenterMapOnAnteMeridien"))
         End Set
     End Property
 
