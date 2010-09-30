@@ -161,6 +161,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Dialogs\frmNewBoat.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Dialogs\frmRouterConfiguration.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -304,6 +308,9 @@
     </Compile>
     <Compile Include="Dialogs\frmControlDeck.xaml.vb">
       <DependentUpon>frmControlDeck.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\frmNewBoat.xaml.vb">
+      <DependentUpon>frmNewBoat.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\frmRouterConfiguration.xaml.vb">
       <DependentUpon>frmRouterConfiguration.xaml</DependentUpon>
