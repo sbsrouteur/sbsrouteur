@@ -46,36 +46,64 @@ Partial Public Class frmUserPicker
     End Property
 
     Private Sub AddUser(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
-        'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
-
+        Dim BoatName As String
         Dim R As RouteurModel = CType(DataContext, RouteurModel)
 
-        If R.RegisteredPlayers.Count >= 5 Then
-            MessageBox.Show("Application is limited to 5 boats")
-            Return
-        End If
-        Dim PName As String = InputBox("VLM Login Name", "New Boat registration", "Enter boat name here")
+        'If sender IsNot cmdAddNewOldStyle Then
 
-        If PName <> "" Then
+        Dim frm As New frmNewBoat
+
+        If frm.ShowDialog Then
+            Dim IDP As String = frm.UserName
+            Dim IDU As Integer = frm.Boat.idu
+            BoatName = frm.Boat.boatpseudo
+            Dim Password As String = frm.Password
+
             Dim P As RegistryPlayerInfo
 
             For Each P In R.RegisteredPlayers
-                If P.Nick = PName Then
+                If P.Nick = BoatName Then
                     MessageBox.Show("This boat is already declared, use another name")
                     Return
                 End If
             Next
 
-            P = New RegistryPlayerInfo(PName)
+            P = New RegistryPlayerInfo(BoatName)
+            P.NewStyle = True
+            P.Email = IDP
+            P.IDU = IDU
+            P.Password = Password
             SaveUserInfo(P)
             R.RegisteredPlayersUpdated()
-
         End If
+        'Else
 
+
+        ''If R.RegisteredPlayers.Count >= 5 Then
+        ''    MessageBox.Show("Application is limited to 5 boats")
+        ''    Return
+        ''End If
+        'BoatName = InputBox("VLM Login Name", "New User registration", "Enter user name here")
+
+        'If BoatName <> "" Then
+        '    Dim P As RegistryPlayerInfo
+
+        '    For Each P In R.RegisteredPlayers
+        '        If P.Nick = BoatName Then
+        '            MessageBox.Show("This boat is already declared, use another name")
+        '            Return
+        '        End If
+        '    Next
+
+        '    P = New RegistryPlayerInfo(BoatName)
+        '    SaveUserInfo(P)
+        '    R.RegisteredPlayersUpdated()
+
+        'End If
+        'End If
     End Sub
 
-    Private Sub PassLostFocus(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
-        'TODO : ajoutez ici l’implémentation du gestionnaire d’événements.
+    Private Sub PassLostFocus(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
 
         Dim P As RegistryPlayerInfo = CType(CType(sender, PasswordBox).DataContext, RegistryPlayerInfo)
 
@@ -114,6 +142,7 @@ Partial Public Class frmUserPicker
 
         If MessageBox.Show("Are you sure you want to delete " & P.Nick & " boat information?", "Delete Boat Info", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No, MessageBoxOptions.None) = MessageBoxResult.Yes Then
             DeleteUser(P)
+            P.deleted = True
             Dim R As RouteurModel = CType(DataContext, RouteurModel)
             R.RegisteredPlayers.Remove(P)
         End If
@@ -133,4 +162,5 @@ Partial Public Class frmUserPicker
     Private Sub frmUserPicker_Closing(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles Me.Closing
         e.Cancel = True
     End Sub
+
 End Class

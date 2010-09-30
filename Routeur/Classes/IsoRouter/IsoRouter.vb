@@ -51,7 +51,6 @@ Public Class IsoRouter
         Dim PrevIndex As Integer
         Dim OldP As clsrouteinfopoints
         Dim AStep As Double
-        'Dim tc2 As New TravelCalculator
 
         If Iso Is Nothing Then
             'Special Case for startpoint
@@ -92,7 +91,6 @@ Public Class IsoRouter
                         RetIsoChrone = New IsoChrone(AStep)
                     End If
                     Dim Loxo As Double
-                    'Set destination on closest point of gate if routing to gate from current point on isochrone
                     tc.StartPoint = rp.P
                     If _DestPoint2 IsNot Nothing Then
                         tc.EndPoint = GSHHS_Reader.PointToSegmentIntersect(rp.P, _DestPoint1, _DestPoint2)
@@ -101,11 +99,7 @@ Public Class IsoRouter
                     End If
 
                     Loxo = tc.LoxoCourse_Deg
-
-                    'set TC startpoint to routing start point
                     tc.StartPoint = _StartPoint.P
-                    'tc2.StartPoint = _StartPoint.P
-                    'Loop around loxo to destination
                     For alpha = Loxo - _SearchAngle To Loxo + _SearchAngle Step _AngleStep
 
                         'If WindAngle(Ortho, alpha) < _SearchAngle Then
@@ -113,28 +107,17 @@ Public Class IsoRouter
                         If Not P Is Nothing Then
                             tc.EndPoint = P.P
                             If tc.SurfaceDistance > 0 Then
-                                'Get loxo to point reached from routing start position
                                 alpha2 = tc.LoxoCourse_Deg
 
                                 Index = RetIsoChrone.IndexFromAngle(alpha2)
                                 If Not OuterIso Is Nothing Then
                                     PrevIndex = OuterIso.IndexFromAngle(alpha2)
                                 End If
-                                'Get current point from IsoChrone at this index
                                 OldP = RetIsoChrone.Data(Index)
-                                'If OldP IsNot Nothing Then
-                                'tc2.EndPoint = OldP.P
-                                'End If
-                                'If OldP Is Nothing OrElse (P.DTF < OldP.DTF AndAlso tc2.SurfaceDistance > tc.SurfaceDistance) Then
                                 If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
-                                    'if new point is closer to dest than previous for this isochrone
-                                    RetIsoChrone.Data(Index) = P
-                                    If OuterIso Is Nothing OrElse OuterIso.Data(PrevIndex) Is Nothing _
-                                        OrElse (Not OuterIso.Data(PrevIndex) Is Nothing AndAlso _
-                                                (P.DistFromPos > OuterIso.Data(PrevIndex).DistFromPos OrElse P.DTF <= OuterIso.Data(PrevIndex).DTF)) Then
-                                        'if the point improve the outer-isochrone then use it; ignore otherwise
+                                    If OuterIso Is Nothing OrElse OuterIso.Data(PrevIndex) Is Nothing OrElse (Not OuterIso.Data(PrevIndex) Is Nothing AndAlso P.DTF <= OuterIso.Data(PrevIndex).DTF) Then
+                                        RetIsoChrone.Data(Index) = P
                                         If Not OuterIso Is Nothing Then
-                                            'Update outer isochrone
                                             OuterIso.Data(PrevIndex) = P
                                         End If
                                     End If
@@ -168,7 +151,6 @@ Public Class IsoRouter
         TC.StartPoint = _StartPoint.P
         TC.EndPoint = _DestPoint1
         Dim CurDTF As Double = Double.MaxValue
-        Dim CurBestEta As DateTime = New Date(3000, 1, 1)
 
         Dim Loxo As Double = TC.LoxoCourse_Deg
         Dim Dist As Double = TC.SurfaceDistance
@@ -182,10 +164,9 @@ Public Class IsoRouter
                 _IsoChrones.AddLast(CurIsoChrone)
                 For Each rp As clsrouteinfopoints In CurIsoChrone.Data
                     If Not rp Is Nothing Then
-                        If (CurDTF < 1 AndAlso P IsNot Nothing AndAlso P.T < CurBestEta) OrElse (CurDTF > rp.DTF) Then
+                        If (CurDTF > rp.DTF) Then
                             P = rp
                             CurDTF = P.DTF
-                            CurBestEta = P.T
                         End If
                     End If
                 Next
@@ -203,7 +184,7 @@ Public Class IsoRouter
             ElseIf Not CurIsoChrone.Data(Loxo) Is Nothing Then
                 TC.EndPoint = CurIsoChrone.Data(Loxo).P
                 If TC.SurfaceDistance >= Dist Then
-                    'RouteComplete = True
+                    RouteComplete = True
                 End If
             End If
             RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
@@ -257,7 +238,6 @@ Public Class IsoRouter
                 .Speed = Speed
                 .WindStrength = MI.Strength
                 .WindDir = MI.Dir
-                .DistFromPos = TC.SurfaceDistance
                 If _DestPoint2 Is Nothing Then
                     TC.StartPoint = _DestPoint1
                     .DTF = TC.SurfaceDistance

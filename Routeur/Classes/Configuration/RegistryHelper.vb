@@ -15,6 +15,8 @@ Module RegistryHelper
     Private Const USER_MINE As String = "ISMINE"
     Private Const KEY_LAST_BOAT As String = "LastBoat"
     Private Const USER_IDP As String = "IDPlayer"
+    Private Const USER_NEWSTYLE As String = "NewStyle"
+    Private Const USER_EMAIL As String = "Email"
 
     Public Sub DeleteUser(ByVal P As RegistryPlayerInfo)
 
@@ -101,11 +103,15 @@ Module RegistryHelper
         End If
 
         With User
+            .IsLoading = True
             .IDP = CStr(Reg.GetValue(USER_IDP, ""))
             .Nick = BoatNick
             .IDU = CInt(Reg.GetValue(USER_NUMBOAT, 0))
             .IsMine = CInt(Reg.GetValue(USER_MINE, 0)) = 1
             .PasswordDecrypt = CType(Reg.GetValue(USER_PASSWORD, Nothing), Byte())
+            .Email = CStr(Reg.GetValue(USER_EMAIL, ""))
+            .NewStyle = CInt(Reg.GetValue(USER_NEWSTYLE, 0)) = 1
+            .IsLoading = False
         End With
 
         Return
@@ -128,7 +134,13 @@ Module RegistryHelper
             Reg.SetValue(USER_NUMBOAT, .IDU, RegistryValueKind.DWord)
             Reg.SetValue(USER_MINE, If(.IsMine, 1, 0), RegistryValueKind.DWord)
             Reg.SetValue(USER_PASSWORD, .PasswordEncrypt, RegistryValueKind.Binary)
-            Reg.SetValue(USER_IDP, .IDP, RegistryValueKind.String)
+            If Not .IDP Is Nothing Then
+                Reg.SetValue(USER_IDP, .IDP, RegistryValueKind.String)
+            End If
+            If Not .Email Is Nothing Then
+                Reg.SetValue(USER_EMAIL, .Email, RegistryValueKind.String)
+            End If
+            Reg.SetValue(USER_NEWSTYLE, If(.NewStyle, 1, 0), RegistryValueKind.DWord)
         End With
 
         Return

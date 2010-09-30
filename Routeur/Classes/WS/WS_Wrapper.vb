@@ -11,17 +11,20 @@ Module WS_Wrapper
     Public Function GetBoatInfo(ByVal Player As clsPlayerInfo) As Dictionary(Of String, Object)
 
         If _LastPassword <> Player.Password OrElse _LastUser <> Player.Nick Then
-            If Player.IDPlayer = "" Then
+            If Not Player.NewStyle Then
                 'old style login
                 _LastPassword = Player.Password
                 _LastUser = Player.Nick
             Else
                 _LastPassword = Player.Password
-                _LastUser = Player.IDPlayer
+                _LastUser = Player.Email
             End If
             _Cookies = New CookieContainer
         End If
         Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatinfo.php?forcefmt=json"
+        If Player.NewStyle Then
+            URL &= "&select_idu=" & Player.NumBoat
+        End If
         Dim Retstring As String = ""
         Try
             Retstring = RequestPage(URL)
@@ -97,6 +100,43 @@ Module WS_Wrapper
 
     Public Function GetRouteurUserAgent() As String
         Return "SbsRouteur/" & My.Application.Info.Version.ToString
+    End Function
+
+    Public Function GetUserFleetInfo(ByVal UserName As String, ByVal Password As String) As Dictionary(Of String, Object)
+
+        If _LastPassword <> Password OrElse _LastUser <> UserName Then
+            If Not UserName.Contains("@"c) Then
+                'old style login not supported for fleet
+                Return Nothing
+            Else
+                _LastPassword = Password
+                _LastUser = UserName
+            End If
+            _Cookies = New CookieContainer
+        End If
+        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/playerinfo/fleet_private.php"
+        Dim Retstring As String = ""
+        Try
+            Retstring = RequestPage(URL)
+            Dim RetObject As Dictionary(Of String, Object) = Parse(Retstring)
+            If RetObject IsNot Nothing AndAlso RetObject.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
+                Return CType(RetObject(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object))
+            Else
+                Return RetObject
+            End If
+        Catch wex As WebException
+            If wex.Response Is Nothing OrElse CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+                'Login error
+                Return Nothing
+            Else
+                MessageBox.Show(wex.Response.ToString)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
+        End Try
+
+        Return Nothing
+
     End Function
 
     Public Function PostBoatSetup(ByVal Verb As String, ByVal Data As String) As Boolean

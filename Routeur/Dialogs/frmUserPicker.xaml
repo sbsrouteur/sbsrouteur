@@ -7,7 +7,7 @@
 	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" 
 	x:Class="frmUserPicker"
 	x:Name="Window"
-	Title="Select player name"
+	Title="Select User/Boat name"
 	Width="640" Height="480" SizeToContent="WidthAndHeight" Icon="/Routeur;Component/Graphics/sailor.ico">
     
     <Window.Resources >
@@ -31,26 +31,28 @@
     				<Grid.RowDefinitions>
     					<RowDefinition Height="Auto" />
     					<RowDefinition Height="Auto" />
-    					<RowDefinition Height="Auto"  />
-    					<RowDefinition Height="Auto"  />
+    					<RowDefinition Height="Auto" />
+    					<RowDefinition Height="Auto" />
+    					<RowDefinition Height="Auto"/>
     					<RowDefinition Height="Auto"/>
     				</Grid.RowDefinitions>
     				
-    				<TextBlock Text="Login" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}" FontWeight="Bold"/>
-    				<TextBlock Text="Password" TextWrapping="Wrap" Grid.Row="1" Margin="{DynamicResource DefMargin}" FontWeight="Bold"/>
-    				<CheckBox  Grid.Row="2" Width="Auto" Grid.Column="1" Content="Boat is Mine" IsChecked="{Binding IsMine}"/>
-    				<TextBlock Text="Race Info" TextWrapping="Wrap" Grid.Row="3" Margin="{DynamicResource DefMargin}" VerticalAlignment="Center" FontWeight="Bold"/>
-    				<TextBox Text="{Binding Nick, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Stretch" Height="Auto" Margin="{DynamicResource DefMargin}" VerticalContentAlignment="Top" Grid.ColumnSpan="2"/>
-    				<PasswordBox x:Name="txtPWD"  Grid.Column="1" VerticalAlignment="Stretch" Height="Auto" Grid.Row="1" Margin="{DynamicResource DefMargin}" LostFocus="PassLostFocus" Grid.ColumnSpan="1"/>
-    				<TextBlock Text="{Binding RaceInfo, IsAsync=true, Mode=OneWay}" TextWrapping="Wrap" Grid.Row="4" VerticalAlignment="Bottom" Height="Auto" Margin="4,0,4,4" Grid.ColumnSpan="3" FontWeight="Bold" FontSize="16"/>
-    				<StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="40.5">
+    				<TextBlock Text="User Name" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}" FontWeight="Bold" Visibility="{Binding NewStyle, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Grid.Row="0"/>
+    				<TextBlock Text="Password" TextWrapping="Wrap" Grid.Row="2" Margin="{DynamicResource DefMargin}" FontWeight="Bold"/>
+    				<TextBlock Text="Boat" TextWrapping="Wrap" Grid.Row="1" Margin="{DynamicResource DefMargin}" FontWeight="Bold" />
+    				<CheckBox  Grid.Row="3" Width="Auto" Grid.Column="1" Content="Boat is Mine" IsChecked="{Binding IsMine}"/>
+    				<TextBlock Text="Race Info" TextWrapping="Wrap" Grid.Row="4" Margin="{DynamicResource DefMargin}" VerticalAlignment="Center" FontWeight="Bold"/>
+    				<TextBox Text="{Binding Nick, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Stretch" Height="Auto" Margin="{DynamicResource DefMargin}" VerticalContentAlignment="Top" Grid.ColumnSpan="2" Grid.Row="1"/>
+    				<PasswordBox x:Name="txtPWD"  Grid.Column="1" VerticalAlignment="Stretch" Height="Auto" Grid.Row="2" Margin="{DynamicResource DefMargin}" LostFocus="PassLostFocus" Grid.ColumnSpan="1"/>
+    				<TextBlock Text="{Binding RaceInfo, IsAsync=true, Mode=OneWay}" TextWrapping="Wrap" Grid.Row="5" VerticalAlignment="Bottom" Height="Auto" Margin="4,0,4,4" Grid.ColumnSpan="3" FontWeight="Bold" FontSize="16"/>
+    				<StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1" VerticalAlignment="Top" Height="40.5">
     					<Image HorizontalAlignment="Left" Width="Auto" Grid.Column="1" Grid.Row="3" Grid.RowSpan="1" Source="/Routeur;Component/Graphics/Sailingship-32.png" Visibility="{Binding IsRacing, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
     					<Image HorizontalAlignment="Left" Width="Auto" Grid.Column="1" Grid.Row="3" Grid.RowSpan="1" Source="/Routeur;Component/Graphics/Ponton sbs.jpg" Visibility="{Binding IsNotRacing, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
     					<Button Width="Auto" ToolTip="Delete Boat" Template="{DynamicResource ButtonBaseControlTemplate1}" Click="DeleteBoat" Margin="{DynamicResource DefMargin}"/>
     					<Button Width="Auto" ToolTip="Race properties..." Template="{DynamicResource ButtonBaseControlTemplate2}" Click="ShowRacePrefs" Visibility="{Binding IsRacing, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
     				</StackPanel>
-    				<Image x:Name="ImgPwdOK" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="2" Grid.Row="1" Grid.RowSpan="1" Source="/Routeur;Component/Graphics/OKShield-48.png" Visibility="{Binding IsPasswordOK, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
-					
+    				<Image x:Name="ImgPwdOK" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="2" Grid.Row="2" Grid.RowSpan="1" Source="/Routeur;Component/Graphics/OKShield-48.png" Visibility="{Binding IsPasswordOK, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
+					<TextBox Margin="3" Width="Auto" Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Stretch"  Visibility="{Binding NewStyle, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=Default}" />
     			</Grid>
 				</GroupBox>
 				</Grid>

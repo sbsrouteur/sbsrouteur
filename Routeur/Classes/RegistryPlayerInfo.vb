@@ -1,6 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports System.Security.Cryptography
 Imports System.IO
+Imports System.Collections.ObjectModel
 
 Public Class RegistryPlayerInfo
     Implements INotifyPropertyChanged
@@ -11,25 +12,61 @@ Public Class RegistryPlayerInfo
     Private _idu As Integer
     Private _IsMine As Boolean
     Private _Password As String
-    Private _IsLoaded As Boolean = False
+    'Private _IsLoaded As Boolean = False
     Private _RaceInfo As String = ""
     Private _IsRacing As Boolean = False
     Private _IsPasswordOK As Boolean = False
     Private _RaceNum As Integer
     Private _NewStyle As Boolean = False
     Private _IDP As String
+    Private _Email As String
+    Private _BoatList As ObservableCollection(Of BoatInfo) = Nothing
+    Private _isLoading As Boolean = False
+    Private _Deleted As Boolean = False
+
+    Public Class BoatInfo
+        Public IDB As Integer
+        Public BoatName As String
+        Public Info As Dictionary(Of String, Object)
+    End Class
 
     Public Sub New(ByVal Name As String)
 
-        NewStyle = Name.Contains("@"c)
-        If NewStyle Then
-            _IDP = Name
-            _Nick = "@" 'Dummy placeholder in case no boat is yet associated
-        Else
-            _Nick = Name
-        End If
+        _Nick = Name
+        Load()
 
     End Sub
+
+    Public Property BoatList() As ObservableCollection(Of BoatInfo)
+        Get
+            If NewStyle AndAlso _BoatList Is Nothing Then
+                Dim Objet As Dictionary(Of String, Object) = WS_Wrapper.GetUserFleetInfo(Playerinfo.Email, Playerinfo.Password)
+
+            End If
+            Return _BoatList
+        End Get
+        Set(ByVal value As ObservableCollection(Of BoatInfo))
+            _BoatList = value
+        End Set
+    End Property
+
+    Public Property Deleted() As Boolean
+        Get
+            Return _Deleted
+        End Get
+        Set(ByVal value As Boolean)
+            _Deleted = value
+        End Set
+    End Property
+
+    Public Property Email() As String
+        Get
+            Return _Email
+        End Get
+        Set(ByVal value As String)
+            _Email = value
+        End Set
+    End Property
 
     Public Property IDP() As String
         Get
@@ -42,20 +79,28 @@ Public Class RegistryPlayerInfo
 
     Public Property IDU() As Integer
         Get
-            If Not _IsLoaded Then
-                Load()
-            End If
+            'If Not _IsLoaded Then
+            'Load()
+            'End If
             Return _idu
         End Get
         Set(ByVal value As Integer)
 
             If _idu <> value Then
                 _idu = value
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatNum"))
-                SaveUserInfo(Me)
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IDU"))
             End If
 
 
+        End Set
+    End Property
+
+    Public Property IsLoading() As Boolean
+        Get
+            Return _isLoading
+        End Get
+        Set(ByVal value As Boolean)
+            _isLoading = value
         End Set
     End Property
 
@@ -65,20 +110,22 @@ Public Class RegistryPlayerInfo
         End Get
     End Property
 
+    
     Public Property NewStyle() As Boolean
         Get
             Return _NewStyle
         End Get
         Set(ByVal value As Boolean)
             _NewStyle = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("NewStyle"))
         End Set
     End Property
 
     Public ReadOnly Property RaceInfo() As String
         Get
-            If Not _IsLoaded Then
-                Load()
-            End If
+            'If Not _IsLoaded Then
+            'Load()
+            'End If
             Return _RaceInfo
         End Get
 
@@ -86,9 +133,9 @@ Public Class RegistryPlayerInfo
 
     Public ReadOnly Property IsRacing() As Boolean
         Get
-            If Not _IsLoaded Then
-                Load()
-            End If
+            'If Not _IsLoaded Then
+            'Load()
+            'End If
             Return _IsRacing
         End Get
     End Property
@@ -103,9 +150,11 @@ Public Class RegistryPlayerInfo
         Get
             Dim Ret As New clsPlayerInfo
             With Ret
+                .Email = email
+                .NumBoat = IDU
                 .Nick = Nick
                 .Password = Password
-                .NumBoat = IDU
+                .NewStyle = NewStyle
             End With
             Return Ret
         End Get
@@ -113,25 +162,24 @@ Public Class RegistryPlayerInfo
 
     Public Property IsMine() As Boolean
         Get
-            If Not _IsLoaded Then
-                Load()
-            End If
+            'If Not _IsLoaded Then
+            'Load()
+            'End If
             Return _IsMine
         End Get
         Set(ByVal value As Boolean)
             If _IsMine <> value Then
                 _IsMine = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsMine"))
-                SaveUserInfo(Me)
             End If
         End Set
     End Property
 
     Public Property Nick() As String
         Get
-            If Not _IsLoaded Then
-                Load()
-            End If
+            'If Not _IsLoaded Then
+            'Load()
+            'End If
             Return _Nick
         End Get
         Set(ByVal value As String)
@@ -139,16 +187,15 @@ Public Class RegistryPlayerInfo
             If _Nick <> value Then
                 _Nick = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Nick"))
-                SaveUserInfo(Me)
             End If
         End Set
     End Property
 
     Public Property Password() As String
         Get
-            If Not _IsLoaded Then
-                Load()
-            End If
+            'If Not _IsLoaded Then
+            'Load()
+            'End If
             Return _Password
         End Get
         Set(ByVal value As String)
@@ -226,33 +273,50 @@ Public Class RegistryPlayerInfo
 
     Private Sub Load()
 
+        'If _IsLoaded OrElse IsLoading Then
+        If IsLoading Then
+            Return
+        End If
+
         LoadUserInfo(Me, _Nick)
-        _IsLoaded = True
+        '_IsLoaded = True
 
         Dim JSonData = GetBoatInfo(Playerinfo)
         If JSonData Is Nothing Then
             _IsPasswordOK = False
             _RaceInfo = "Invalid password or username"
             _IsRacing = False
+            _NewStyle = False
         ElseIf JSonData.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
 
-            IDU = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "IDU")
+            _IDP = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "IDP")
+            _idu = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "IDU")
             _IsPasswordOK = True
             _RaceInfo = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAN")
             _RaceNum = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAC")
             _IsRacing = _RaceNum <> 0
+            If Not NewStyle Then
+                _Email = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "EML")
+            End If
+            '_NewStyle = _IDP.Contains("@"c)
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsRacing"))
-        Else
-            _IsPasswordOK = True
-            _IsRacing = False
-            _RaceInfo = "Not Racing"
-        End If
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsRacing"))
-
+            Else
+                _IsPasswordOK = True
+                _IsRacing = False
+                _RaceInfo = "Not Racing"
+            End If
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsRacing"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IDU"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IDP"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("NewStyle"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Email"))
+            If NewStyle Then
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatList"))
+            End If
 
 
     End Sub
@@ -264,6 +328,10 @@ Public Class RegistryPlayerInfo
     End Property
 
 
-
-
+    Protected Overrides Sub Finalize()
+        If Not Deleted Then
+            SaveUserInfo(Me)
+        End If
+        MyBase.Finalize()
+    End Sub
 End Class
