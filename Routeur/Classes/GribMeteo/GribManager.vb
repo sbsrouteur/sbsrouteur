@@ -398,7 +398,7 @@ Public Class GribManager
     End Sub
 
 
-    Private Function GetMeteoToIndex(ByVal MeteoIndex As Integer, ByRef Dir As DirInterpolation, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
+    Private Function GetMeteoToIndexSelectiveTWSA(ByVal MeteoIndex As Integer, ByRef Dir As DirInterpolation, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
 
         Dim Lon0 As Integer = MeteoArray.GetLonArrayIndex(Lon, GetIndexGrain(MeteoIndex))
         Dim Lat0 As Integer = MeteoArray.GetLatArrayIndex(Lat, GetIndexGrain(MeteoIndex))
@@ -479,7 +479,76 @@ Public Class GribManager
         End If
     End Function
 
-    Public Function GetMeteoToDate(ByVal Dte As DateTime, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
+    Private Function GetMeteoToIndexUV(ByVal MeteoIndex As Integer, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
+
+        Dim Lon0 As Integer = MeteoArray.GetLonArrayIndex(Lon, GetIndexGrain(MeteoIndex))
+        Dim Lat0 As Integer = MeteoArray.GetLatArrayIndex(Lat, GetIndexGrain(MeteoIndex))
+        Dim dX As Double = ((Lon - MeteoArray.GetArrayIndexLon(Lon0, GetIndexGrain(MeteoIndex))) Mod 360) / GetIndexGrain(MeteoIndex)
+        Dim dY As Double = (Lat - MeteoArray.GetArrayIndexLat(Lat0, GetIndexGrain(MeteoIndex))) / GetIndexGrain(MeteoIndex)
+
+
+        If Not CheckGribData(MeteoIndex, Lon0, Lat0, NoLock) Then
+            Return Nothing
+        End If
+        'While Not CheckGribData(MeteoIndex, Lon0, Lat0) AndAlso MeteoIndex > 0
+        '    MeteoIndex -= 1
+        'End While
+
+        If MeteoIndex < 0 Then
+            Return Nothing
+        End If
+
+
+
+
+        Dim Lon1 As Integer = (Lon0 + MeteoArray.GetMaxLonindex(GetIndexGrain(MeteoIndex)) + 1) Mod (MeteoArray.GetMaxLonindex(GetIndexGrain(MeteoIndex)))
+        Dim Lat1 As Integer = (Lat0 + MeteoArray.GetMaxLatindex(GetIndexGrain(MeteoIndex)) + 1) Mod (MeteoArray.GetMaxLatindex(GetIndexGrain(MeteoIndex)))
+
+        If Not CheckGribData(MeteoIndex, Lon0, Lat1, NoLock) OrElse _
+            Not CheckGribData(MeteoIndex, Lon1, Lat0, NoLock) OrElse _
+            Not CheckGribData(MeteoIndex, Lon1, Lat1, NoLock) Then
+            Return Nothing
+        End If
+        If _MeteoArrays(MeteoIndex).Data(Lon1, Lat0) Is Nothing Then
+            Dim i As Long = 0
+            i = Now.Ticks
+        End If
+        Dim U00 As Double = _MeteoArrays(MeteoIndex).Data(Lon0, Lat0).UGRD
+        Dim U01 As Double = _MeteoArrays(MeteoIndex).Data(Lon0, Lat1).UGRD
+        Dim U10 As Double = _MeteoArrays(MeteoIndex).Data(Lon1, Lat0).UGRD
+        Dim U11 As Double = _MeteoArrays(MeteoIndex).Data(Lon1, Lat1).UGRD
+
+        Dim V00 As Double = _MeteoArrays(MeteoIndex).Data(Lon0, Lat0).VGRD
+        Dim V01 As Double = _MeteoArrays(MeteoIndex).Data(Lon0, Lat1).VGRD
+        Dim V10 As Double = _MeteoArrays(MeteoIndex).Data(Lon1, Lat0).VGRD
+        Dim V11 As Double = _MeteoArrays(MeteoIndex).Data(Lon1, Lat1).VGRD
+
+        Dim retmeteo As New MeteoInfo() With {.UGRD = QuadraticAverage(U00, U01, U10, U11, dX, dY), _
+                                         .VGRD = QuadraticAverage(V00, V01, V10, V11, dX, dY)}
+
+        If retmeteo.Dir < 0 Then
+            retmeteo.Dir += 360
+        ElseIf retmeteo.Dir > 360 Then
+            retmeteo.Dir -= 360
+        End If
+        'Dir = If(Angle1 >= 0, DirInterpolation.Pos, DirInterpolation.Neg)
+        Return retmeteo
+
+    End Function
+
+    Public Function GetMeteoToDate(ByVal dte As DateTime, ByVal lon As Double, ByVal lat As Double, ByVal nolock As Boolean) As MeteoInfo
+
+#Const METEO = 1
+
+#If METEO = 0 Then
+        Return GetMeteoToDateSelectiveTWSA(dte, lon, lat, nolock)
+#ElseIf METEO = 1 Then
+        Return GetMeteoToDateUV(dte, lon, lat, nolock)
+#End If
+
+    End Function
+
+    Private Function GetMeteoToDateSelectiveTWSA(ByVal Dte As DateTime, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
 
         Dim MeteoIndex = GetMeteoIndex(Dte)
         Dim NextMeteoIndex = MeteoIndex + 1
@@ -499,8 +568,8 @@ Public Class GribManager
         Dim Dir0 As DirInterpolation
         Dim Dir1 As DirInterpolation
 
-        Dim M0 As MeteoInfo = GetMeteoToIndex(MeteoIndex, Dir0, Lon, Lat, NoLock)
-        Dim M1 As MeteoInfo = GetMeteoToIndex(NextMeteoIndex, Dir1, Lon, Lat, NoLock)
+        Dim M0 As MeteoInfo = GetMeteoToIndexSelectiveTWSA(MeteoIndex, Dir0, Lon, Lat, NoLock)
+        Dim M1 As MeteoInfo = GetMeteoToIndexSelectiveTWSA(NextMeteoIndex, Dir1, Lon, Lat, NoLock)
 
         If M0 Is Nothing OrElse M1 Is Nothing Then
             Return Nothing
@@ -524,6 +593,44 @@ Public Class GribManager
 
         End If
 
+        If RetInfo.Dir < 0 Then
+            RetInfo.Dir += 360
+        ElseIf RetInfo.Dir >= 360 Then
+            RetInfo.Dir -= 360
+        End If
+        Return RetInfo
+    End Function
+
+    Private Function GetMeteoToDateUV(ByVal Dte As DateTime, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
+
+        Dim MeteoIndex = GetMeteoIndex(Dte)
+        Dim NextMeteoIndex = MeteoIndex + 1
+        Dim DteOffset As Double = GetMetoDateOffset(Dte) ' - GRIB_GRAIN * MeteoIndex
+        Dim GribGrain As Double
+
+        If NextMeteoIndex > MAX_INDEX Then
+            NextMeteoIndex = MAX_INDEX
+        End If
+
+        If NextMeteoIndex < MAX_INDEX_05 Then
+            GribGrain = GRIB_GRAIN_05
+        Else
+            GribGrain = GRIB_GRAIN_1
+        End If
+
+        
+        Dim M0 As MeteoInfo = GetMeteoToIndexUV(MeteoIndex, Lon, Lat, NoLock)
+        Dim M1 As MeteoInfo = GetMeteoToIndexUV(NextMeteoIndex, Lon, Lat, NoLock)
+
+        If M0 Is Nothing OrElse M1 Is Nothing Then
+            Return Nothing
+        End If
+
+        Dim RetInfo As New MeteoInfo
+
+        RetInfo.Dir = M0.Dir + DteOffset / GribGrain * CheckAngleInterp(M1.Dir - M0.Dir)
+        RetInfo.Strength = M0.Strength + DteOffset / GribGrain * (M1.Strength - M0.Strength)
+        
         If RetInfo.Dir < 0 Then
             RetInfo.Dir += 360
         ElseIf RetInfo.Dir >= 360 Then
