@@ -602,7 +602,7 @@ Public Class GribManager
 
     Public Function GetMeteoToDate(ByVal dte As DateTime, ByVal lon As Double, ByVal lat As Double, ByVal nolock As Boolean) As MeteoInfo
 
-#Const METEO = 1
+#Const METEO = 2
 
 #If METEO = 0 Then
         Return GetMeteoToDateSelectiveTWSA(dte, lon, lat, nolock)

@@ -28,6 +28,7 @@ Public Class IsoRouter
     Private _SailManager As clsSailManager
     Private _BoatType As String
     Private _CurBest As clsrouteinfopoints
+    Private _DTFRatio As Double = 0.4
 
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan)
@@ -114,8 +115,8 @@ Public Class IsoRouter
                                     PrevIndex = OuterIso.IndexFromAngle(alpha2)
                                 End If
                                 OldP = RetIsoChrone.Data(Index)
-                                If OldP Is Nothing OrElse P.DTF < OldP.DTF Then
-                                    If OuterIso Is Nothing OrElse OuterIso.Data(PrevIndex) Is Nothing OrElse (Not OuterIso.Data(PrevIndex) Is Nothing AndAlso P.DTF <= OuterIso.Data(PrevIndex).DTF) Then
+                                If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio) Then
+                                    If OuterIso Is Nothing OrElse OuterIso.Data(PrevIndex) Is Nothing OrElse (Not OuterIso.Data(PrevIndex) Is Nothing AndAlso P.Improve(OuterIso.Data(PrevIndex), _DTFRatio)) Then
                                         RetIsoChrone.Data(Index) = P
                                         If Not OuterIso Is Nothing Then
                                             OuterIso.Data(PrevIndex) = P
@@ -238,6 +239,7 @@ Public Class IsoRouter
                 .Speed = Speed
                 .WindStrength = MI.Strength
                 .WindDir = MI.Dir
+                .loch = TC.SurfaceDistance
                 If _DestPoint2 Is Nothing Then
                     TC.StartPoint = _DestPoint1
                     .DTF = TC.SurfaceDistance
