@@ -159,7 +159,7 @@ Module JSonParser
                         Case "t"c
                             SB.Append(vbTab)
                         Case "u"c
-                            SB.Append(Chr(CInt("&h" & Data.Substring(CurIndex + 2, 4))))
+                            SB.Append(ChrW(CInt("&h" & Data.Substring(CurIndex + 2, 4))))
                         Case Else
                             Throw New InvalidOperationException("Unsupported JSon string")
                     End Select
