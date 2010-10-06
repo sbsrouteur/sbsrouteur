@@ -437,23 +437,26 @@ Render1:
 
                 'debug bsp grid
                 '
+#Const DEBUG_BSP_GRID = 0
 
-                'Dim x As Double
-                'Dim y As Double
+#If DEBUG_BSP_GRID = 1 Then
+                Dim x As Double
+                Dim y As Double
 
-                'For y = 19 To 23.5 Step 0.05
-                '    For x = -73.5 To -83.5 Step -0.1
-                '        P1.X = LonToCanvas(x)
-                '        P1.Y = LatToCanvas(y)
-                '        Dim c As New Coords(y, x)
-                '        If GSHHS_Reader.HitTest(c, 0, GSHHS_Reader.Polygons(c), True) Then
-                '            DC.DrawEllipse(Nothing, opponentPenOption, P1, 1, 1)
-                '        Else
+                For y = 36 To 38 Step 0.005
+                    For x = 23 To 25 Step 0.005
+                        P1.X = LonToCanvas(x)
+                        P1.Y = LatToCanvas(y)
+                        Dim c As New Coords(y, x)
+                        If GSHHS_Reader.HitTest(c, 0, GSHHS_Reader.Polygons(c), True) Then
+                            DC.DrawEllipse(Nothing, opponentPenOption, P1, 1, 1)
+                        Else
 
-                '            DC.DrawEllipse(Nothing, opponentPenNoOption, P1, 1, 1)
-                '        End If
-                '    Next
-                'Next
+                            DC.DrawEllipse(Nothing, opponentPenNoOption, P1, 1, 1)
+                        End If
+                    Next
+                Next
+#End If
 
                 '
                 ' Draw opponents map

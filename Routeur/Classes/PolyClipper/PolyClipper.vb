@@ -34,16 +34,16 @@
         Select Case clip
 
             Case ClipPlane.North
-                TargetLat = p1.Lat + RouteurModel.GridGrain / 180 * Math.PI
+                TargetLat = p1.Lat + RouteurModel.GridGrain / 180 * Math.PI / 2
 
             Case ClipPlane.South
-                TargetLat = p2.Lat - RouteurModel.GridGrain / 180 * Math.PI
+                TargetLat = p2.Lat - RouteurModel.GridGrain / 180 * Math.PI / 2
 
             Case ClipPlane.East
-                TargetLon = p1.Lon + RouteurModel.GridGrain / 180 * Math.PI
+                TargetLon = p1.Lon + RouteurModel.GridGrain / 180 * Math.PI / 2
 
             Case ClipPlane.West
-                TargetLon = p2.Lon - RouteurModel.GridGrain / 180 * Math.PI
+                TargetLon = p2.Lon - RouteurModel.GridGrain / 180 * Math.PI / 2
 
         End Select
 

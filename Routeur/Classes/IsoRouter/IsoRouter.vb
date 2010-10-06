@@ -165,7 +165,7 @@ Public Class IsoRouter
                 _IsoChrones.AddLast(CurIsoChrone)
                 For Each rp As clsrouteinfopoints In CurIsoChrone.Data
                     If Not rp Is Nothing Then
-                        If (CurDTF > rp.DTF) Then
+                        If rp.Improve(P, _DTFRatio) Then
                             P = rp
                             CurDTF = P.DTF
                         End If
@@ -250,6 +250,9 @@ Public Class IsoRouter
                 .From = Start
                 .Cap = Cap
             End With
+
+        Else
+            Dim bp As Integer = 0
 
         End If
 

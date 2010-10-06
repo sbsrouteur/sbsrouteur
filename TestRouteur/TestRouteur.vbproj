@@ -75,6 +75,7 @@
     <Import Include="System.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="clsSailManagerTest.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="TravelCalculatorTest.vb" />
   </ItemGroup>

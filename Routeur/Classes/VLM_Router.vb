@@ -107,6 +107,8 @@ Public Class VLM_Router
     Private _MeteoHeight As Double
     Private _MeteoPath As String
 
+    Private _PixelSize As Double
+
     Private _CurMousePos As Coords
 
 
@@ -254,6 +256,11 @@ Public Class VLM_Router
         End Property
 
         Public Function Improve(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double) As Boolean
+
+
+            If P Is Nothing Then
+                Return True
+            End If
 
 #Const IMPROVE_MODE = 1
 #If IMPROVE_MODE = 0 Then
@@ -1220,6 +1227,7 @@ Public Class VLM_Router
         _MeteoWidth = Width
         _MeteoHeight = Height
         'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+        _PixelSize = Max((C2.Lon_Deg - C1.Lon_Deg) / Width * 60, (C2.Lat_Deg - C1.Lat_Deg) / Width * 60)
         UpdateMeteoArrows()
     End Sub
 
@@ -1631,6 +1639,7 @@ Public Class VLM_Router
                     .Name = BoatJson.boatpseudo
 
                 End With
+                _Opponents.Add(BI.Classement.ToString, BI)
             Next
 
         End If
@@ -2092,7 +2101,7 @@ Public Class VLM_Router
             SyncLock _Opponents
                 For Each O In Opponents.Values
                     TC.EndPoint = O.CurPos
-                    If TC.SurfaceDistance < 1 Then
+                    If TC.SurfaceDistance < 3 * _PixelSize Then
                         _BoatUnderMouse.Add(O)
                     End If
 
@@ -2550,7 +2559,7 @@ Public Class VLM_Router
             For Each P In Points
 
                 TC.EndPoint = P.P
-                If CurDist > TC.SurfaceDistance OrElse (Abs(CurDist - TC.SurfaceDistance) < 5 AndAlso CurT > P.T) Then
+                If CurDist > TC.SurfaceDistance OrElse (Abs(CurDist - TC.SurfaceDistance) < 3 * _PixelSize AndAlso CurT > P.T) Then
                     CurDist = TC.SurfaceDistance
                     CurT = P.T
                     BestP = P
@@ -2583,6 +2592,11 @@ Public Class VLM_Router
         Dim C As Coords = CType(O, Coords)
         Dim RetC As clsrouteinfopoints = Nothing
         Dim P As RoutePointInfo
+
+        If Not BestRouteAtPoint Is Nothing AndAlso BestRouteAtPoint.Count > 0 Then
+            P = New RoutePointInfo("This Point: ", BestRouteAtPoint(BestRouteAtPoint.Count - 1))
+            RoutePoints.Add(P)
+        End If
 
         If GetRoutePointAtCoords(PlannedRoute, C, RetC) Then
             P = New RoutePointInfo("Planned", RetC)
