@@ -198,13 +198,13 @@ Public Class GSHHS_Reader
                     If InZone OrElse IgnoredPoints > 2000 Then 'HasPointsInZone  Then
 
                         ActivePoints += 1
-                        If InZone Then
-                            _Tree.InSert(RetPoints(ActivePoints), BspRect.inlandstate.InLand, RouteurModel.GridGrain)
-                        End If
+                        'If InZone Then
+                        '_Tree.InSert(RetPoints(ActivePoints), BspRect.inlandstate.InLand, RouteurModel.GridGrain)
+                        'End If
                         IgnoredPoints = 0
-                    Else
-                        IgnoredPoints += 1
-                    End If
+                Else
+                    IgnoredPoints += 1
+                End If
                 End If
 
             End If

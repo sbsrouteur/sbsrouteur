@@ -330,22 +330,24 @@
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
 							<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
 						</Grid>
-						<GroupBox  x:Name="BoatInfoGroupBox"  Header="" Background="#6DFFFFFF" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" Visibility="{Binding VorHandler.BoatInfoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" RenderTransformOrigin="0.5,0.5" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-							<GroupBox.BitmapEffect>
-								<DropShadowBitmapEffect/>
-							</GroupBox.BitmapEffect>
-							<Grid x:Name="grid1" >
-								<StackPanel Width="Auto" Height="Auto" >
-									<ItemsControl ItemsSource="{Binding VorHandler.BoatInfoList, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route" />
-								</StackPanel>
-							</Grid>
-						</GroupBox>
-						<GroupBox x:Name="grpRoutesUnderMouse" Margin="0" Header="" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" Visibility="{Binding VorHandler.RoutesUnderMouse, Converter={StaticResource NumberVisibilityConverter}, Mode=Default}" Background="#70FFFFFF">
-							<Grid>
-								<ItemsControl ItemsSource="{Binding VorHandler.RoutesUnderMouse, Mode=Default}"/>
-							</Grid>
-						</GroupBox>
+						<StackPanel Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}">
+							<GroupBox x:Name="grpRoutesUnderMouse" Margin="0" Header=""  Visibility="{Binding VorHandler.RoutesUnderMouse, Converter={StaticResource NumberVisibilityConverter}, Mode=Default}" Background="#70FFFFFF">
+								<Grid>
+									<ItemsControl ItemsSource="{Binding VorHandler.RoutesUnderMouse, Mode=Default}"/>
+								</Grid>
+							</GroupBox>
+							<GroupBox  x:Name="BoatInfoGroupBox"  Header="" Background="#6DFFFFFF"  Visibility="{Binding VorHandler.BoatInfoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" RenderTransformOrigin="0.5,0.5" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+								<GroupBox.BitmapEffect>
+									<DropShadowBitmapEffect/>
+								</GroupBox.BitmapEffect>
+								<Grid x:Name="grid1" >
+									<StackPanel Width="Auto" Height="Auto" >
+										<ItemsControl ItemsSource="{Binding VorHandler.BoatInfoList, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route" />
+									</StackPanel>
+								</Grid>
+							</GroupBox>
 						
+						</StackPanel>
 					</Canvas>
 					<Canvas Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
 						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Center" VerticalAlignment="Center" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" Canvas.Top="0" ContextMenuOpening="OnContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}">

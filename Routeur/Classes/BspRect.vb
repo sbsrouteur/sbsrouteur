@@ -88,7 +88,7 @@ Public Class BspRect
                             If P(0) IsNot Nothing Then
 
                                 Dim PRet As Polygon = PolyClipper.ClipPolygon(P1, P2, P)
-                                If Not PRet Is Nothing AndAlso PRet.Count > 1 Then
+                                If Not PRet Is Nothing AndAlso PRet.Count > 2 Then
                                     _PolyGons.AddLast(PRet)
                                 End If
 
