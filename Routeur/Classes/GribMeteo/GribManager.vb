@@ -643,7 +643,15 @@ Public Class GribManager
 
         Dim RetInfo As New MeteoInfo
 
-        RetInfo.Dir = M0.Dir + DteOffset / GribGrain * CheckAngleInterp(M1.Dir - M0.Dir)
+        Dim u0 As Double
+        Dim v0 As Double
+        Dim u1 As Double
+        Dim v1 As Double
+
+
+
+        RetInfo.UGRD = u0 + DteOffset / GribGrain * (u1 - u0)
+        RetInfo.VGRD = v0 + DteOffset / GribGrain * (v1 - v0)
         RetInfo.Strength = tws0 + DteOffset / GribGrain * (tws1 - tws0)
 
         If RetInfo.Dir < 0 Then
