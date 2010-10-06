@@ -82,4 +82,17 @@ Public Class clsSailManagerTest
         actual = target.GetSpeed(BoatType, SailMode, WindAngle, WindSpeed)
         Assert.AreEqual(expected, actual)
     End Sub
+
+    <TestMethod()> _
+    Public Sub GetSpeedTestC5G3_70d_55Kts()
+        Dim target As clsSailManager = New clsSailManager ' TODO : initialisez à une valeur appropriée
+        Dim BoatType As String = "boat_C5g3" ' TODO : initialisez à une valeur appropriée
+        Dim SailMode As clsSailManager.EnumSail = clsSailManager.EnumSail.OneSail  ' TODO : initialisez à une valeur appropriée
+        Dim WindAngle As Double = 70.0 ' TODO : initialisez à une valeur appropriée
+        Dim WindSpeed As Double = 55 ' TODO : initialisez à une valeur appropriée
+        Dim expected As Double = 11.670000000000002 ' TODO : initialisez à une valeur appropriée
+        Dim actual As Double
+        actual = target.GetSpeed(BoatType, SailMode, WindAngle, WindSpeed)
+        Assert.AreEqual(expected, actual)
+    End Sub
 End Class

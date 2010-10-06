@@ -373,7 +373,7 @@ Public Class VLM_Router
                 Return "No Coords"
             End If
 
-            Return T.ToString("dd-MMM HH:mm") & " ; " & Cap.ToString("f1") & " ; " & DTF.ToString("f1") & " ; " & P.ToString & " ; " & WindDir.ToString("f2") & " ; " & WindStrength.ToString("f2")
+            Return T.ToString("dd-MMM-yyyy HH:mm") & " ; " & Cap.ToString("f1") & " ; " & DTF.ToString("f1") & " ; " & P.ToString & " ; " & WindDir.ToString("f2") & " ; " & WindStrength.ToString("f2")
 
         End Function
 
