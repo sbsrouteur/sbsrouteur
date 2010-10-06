@@ -159,6 +159,10 @@ Public Class clsMeteoOrganizer
 
         Dim Start As DateTime = Now
 
+        If Double.IsNaN(C.Lon_Deg) OrElse Double.IsNaN(C.Lat_Deg) Then
+            Return Nothing
+        End If
+
         Dim Ret As MeteoInfo = GribMeteo.GetMeteoToDate(D, C.Lon_Deg, C.Lat_Deg, NoLock)
 
         If Ret IsNot Nothing Then

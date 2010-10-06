@@ -643,10 +643,10 @@ Public Class GribManager
 
         Dim RetInfo As New MeteoInfo
 
-        Dim u0 As Double
-        Dim v0 As Double
-        Dim u1 As Double
-        Dim v1 As Double
+        Dim u0 As Double = M0.UGRD
+        Dim v0 As Double = M0.VGRD
+        Dim u1 As Double = M1.UGRD
+        Dim v1 As Double = M1.VGRD
 
 
 
