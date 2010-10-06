@@ -1619,28 +1619,34 @@ Public Class VLM_Router
 
             Loop Until PageEmpty
         Else
-            Dim BI As BoatInfo
-            For Each BoatID As String In JSonRanking.Keys
-                Dim BoatJson As New VLMBoatRanking
+            SyncLock _Opponents
+                Dim BI As BoatInfo
 
-                JSonHelper.LoadJSonDataToObject(BoatJson, JSonRanking(BoatID))
-                BI = New BoatInfo
-                With BI
-                    .Classement = BoatJson.rank
-                    .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
+                _Opponents.Clear()
 
-                    If Not BoatInfo.ImgList.ContainsKey(BoatJson.country) Then
+                For Each BoatID As String In JSonRanking.Keys
+                    Dim BoatJson As New VLMBoatRanking
 
-                        BoatInfo.ImgList.Add(BoatJson.country, Nothing)
+                    JSonHelper.LoadJSonDataToObject(BoatJson, JSonRanking(BoatID))
+                    BI = New BoatInfo
+                    With BI
+                        .Classement = BoatJson.rank
+                        .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
 
-                    End If
+                        If Not BoatInfo.ImgList.ContainsKey(BoatJson.country) Then
 
-                    .FlagName = BoatJson.country
-                    .Name = BoatJson.boatpseudo
+                            BoatInfo.ImgList.Add(BoatJson.country, Nothing)
 
-                End With
-                _Opponents.Add(BI.Classement.ToString, BI)
-            Next
+                        End If
+
+                        .FlagName = BoatJson.country
+                        .Name = BoatJson.boatpseudo
+
+                    End With
+                    _Opponents.Add(BI.Classement.ToString, BI)
+                Next
+            End SyncLock
+
 
         End If
 
