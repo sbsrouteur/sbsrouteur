@@ -118,7 +118,7 @@ Public Class clsSailManager
 
 
         'WindSpeed = Math.Floor(WindSpeed)
-        WindAngle = Math.Floor(WindAngle + 0.5)
+        'WindAngle = Math.Floor(WindAngle + 0.5)
 
         'If (SailMode And brokensails) <> 0 Then
         '    Return 0
@@ -133,8 +133,8 @@ Public Class clsSailManager
 
         Dim WMin As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, True)
         Dim WMax As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, False)
-        Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), CInt(WindAngle), True)
-        Dim AMax As Integer = GetArrayIndex(_TWAList(SailIndex), CInt(WindAngle), False)
+        Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, True)
+        Dim AMax As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, False)
         'Dim amax As Integer = AMin
 
         If WMin = WMax AndAlso WMin = 0 Then
