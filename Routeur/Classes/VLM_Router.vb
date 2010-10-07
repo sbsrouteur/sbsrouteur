@@ -468,13 +468,13 @@ Public Class VLM_Router
         With _XTRRoute(0)
             Const MAX_ERROR_POS As Double = 0.001
             Const MAX_ERROR_WIND As Double = 0.075
-            Const MAX_ERROR_SPEED As Double = 0.01
+            Const MAX_ERROR_SPEED As Double = 0.02
 
             If Abs(.P.Lon_Deg - _UserInfo.position.longitude) > MAX_ERROR_POS OrElse Abs(.P.Lat_Deg - _UserInfo.position.latitude) > MAX_ERROR_POS Then
                 PosError = True
             End If
 
-            If Abs(mi.Strength - .WindStrength) > MAX_ERROR_WIND OrElse Abs(mi.Dir - .WindDir) > MAX_ERROR_WIND Then
+            If Abs(mi.Strength - _UserInfo.position.wind_speed) > MAX_ERROR_WIND OrElse Abs(mi.Dir - _UserInfo.position.wind_angle) > MAX_ERROR_WIND Then
                 WindError = True
             End If
 
@@ -1052,7 +1052,7 @@ Public Class VLM_Router
                     CurIndex += 1
 
                     While Not RouteComplete AndAlso (CurDate < OrderDate OrElse RouteToEnd)
-                        Mi = _Meteo.GetMeteoToDate(CurPos, CurDate.AddMinutes(-RouteurModel.VacationMinutes), True)
+                        Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
                         If Mi Is Nothing Then
                             'If there is no meteo, try on the next loop
                             AddLog("Pilototo route aborted, not enough meteo yet, try again later (meteo date : " & CurDate & " )")
