@@ -488,14 +488,14 @@ Public Class VLM_Router
             End If
 
             If BoatSpeedError Then
-                AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " boat speed error " & _UserInfo.position.vitesse - .Speed & "°")
+                AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " boat speed error " & _UserInfo.position.vitesse - .Speed & "kts")
             End If
 
             If WindError Then
                 AddLog(("XTR Error after " & Now.Subtract(_XTRStart).ToString & " Wind error " & (mi.Dir - .WindDir).ToString("f3") & "° " & (mi.Strength - .WindStrength).ToString("f3") & "kts"))
             End If
 
-            If Not PosError And Not WindError Then
+            If Not PosError And Not WindError And Not BoatSpeedError Then
                 AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " none")
             End If
         End With
@@ -1052,7 +1052,7 @@ Public Class VLM_Router
                     CurIndex += 1
 
                     While Not RouteComplete AndAlso (CurDate < OrderDate OrElse RouteToEnd)
-                        Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
+                        Mi = _Meteo.GetMeteoToDate(CurPos, CurDate.AddMinutes(-RouteurModel.VacationMinutes), True)
                         If Mi Is Nothing Then
                             'If there is no meteo, try on the next loop
                             AddLog("Pilototo route aborted, not enough meteo yet, try again later (meteo date : " & CurDate & " )")
