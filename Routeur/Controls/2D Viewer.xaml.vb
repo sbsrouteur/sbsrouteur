@@ -269,7 +269,8 @@ Render1:
             _Frm = New frmRoutingProgress(100) With {.DataContext = _Progress}
             Dim TH As New System.Threading.Thread(AddressOf GSHHS_Reader.Read)
             Dim SI As New GSHHS_StartInfo With {.PolyGons = _RacePolygons, .StartPath = "..\gshhs\gshhs_" & RouteurModel.MapLevel & ".b", _
-                                                .ProgressWindows = _Progress, .CompleteCallBack = AddressOf LoadPolygonComplete}
+                                                .ProgressWindows = _Progress, .CompleteCallBack = AddressOf LoadPolygonComplete, _
+                                                .NoExclusionZone = RouteurModel.NoExclusionZone}
             _Frm.Show(owner, _Progress)
             TH.Start(SI)
             'GSHHS_Reader.Read(", RacePolygons, "Map")

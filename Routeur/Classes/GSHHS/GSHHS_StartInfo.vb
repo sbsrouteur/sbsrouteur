@@ -6,5 +6,6 @@
     Public PolyGons As LinkedList(Of Polygon)
     Public ProgressWindows As MapProgressContext
     Public CompleteCallBack As LoadCompleteDelegate
+    Public NoExclusionZone As Boolean
 
 End Class
