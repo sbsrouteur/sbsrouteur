@@ -33,6 +33,7 @@ Public Class RacePrefs
     Private _RaceID As Integer
     Private _EllipseExtFactor As Double
     Private _CourseExtensionHours As Double
+    Private _NoExclusionZone As Boolean
 
     'IsoChrones Prefs
     Private _IsoLookupAngle As Double
@@ -261,6 +262,16 @@ Public Property IsoStep48String() As String
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MapLevel"))
             End If
 
+        End Set
+    End Property
+
+    Public Property NoExclusionZone() As Boolean
+        Get
+            Return _NoExclusionZone
+        End Get
+        Set(ByVal value As Boolean)
+            _NoExclusionZone = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("NoExclusionZone"))
         End Set
     End Property
 

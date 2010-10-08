@@ -72,6 +72,7 @@ Public Class RouteurModel
     Public Shared EastTrimList() As Integer = New Integer() {}
     Public Shared WestTrimList() As Integer = New Integer() {}
 
+    Public Shared NoExclusionZone As Boolean = False
     Public Shared Exclusions()() As Double
 
     Public Shared HasCurrents As Boolean = False
@@ -473,6 +474,7 @@ Public Class RouteurModel
         MapLevel = RacePrefs.MapLevel.ToString.Substring(0, 1)
         EllipseFactor = RacePrefs.EllipseExtFactor
         CourseExtensionHours = RacePrefs.CourseExtensionHours
+        NoExclusionZone = RacePrefs.NoExclusionZone
         Dim i As Integer
 
         For i = 0 To 3

@@ -79,20 +79,21 @@ Public Class GSHHS_Reader
             S.Close()
 
             ExclusionCount = 0
-            For Each excl In RouteurModel.Exclusions
-                'ReDim A(CInt(excl.Count / 2) - 1)
-                A = New Polygon
-                For i = 0 To excl.Count - 1 Step 2
-                    Dim c As New Coords(excl(i + 1), excl(i))
-                    A.Add(c)
+            If Not SI.NoExclusionZone Then
+                For Each excl In RouteurModel.Exclusions
+                    'ReDim A(CInt(excl.Count / 2) - 1)
+                    A = New Polygon
+                    For i = 0 To excl.Count - 1 Step 2
+                        Dim c As New Coords(excl(i + 1), excl(i))
+                        A.Add(c)
+                    Next
+                    _PolyGons.AddFirst(A)
+                    ExclusionCount += 1
+                    '_UseFullPolygon.Add(A)
+                    '_usefullboxes.Add(UpdateBox(A))
+
                 Next
-                _PolyGons.AddFirst(A)
-                ExclusionCount += 1
-                '_UseFullPolygon.Add(A)
-                '_usefullboxes.Add(UpdateBox(A))
-
-            Next
-
+            End If
 #End If
 
         Catch ex As Exception
