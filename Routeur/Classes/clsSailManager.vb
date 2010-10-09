@@ -35,7 +35,7 @@ Public Class clsSailManager
     Private _NbWinds() As Integer
     Private _NbAngles As Integer
 
-    Private _Polar(1800, 600) As Single
+    Private _Polar(1800, 6000) As UInt16
 
 
     Private Function GetSailIndex(ByVal SailMode As EnumSail) As Integer
@@ -116,7 +116,7 @@ Public Class clsSailManager
     Public Function GetSpeed(ByVal BoatType As String, ByVal SailMode As EnumSail, ByVal WindAngle As Double, ByVal WindSpeed As Double) As Double
 
         Dim D As Integer = CInt(10 * ((WindAngle + 360) Mod 180))
-        Dim F As Integer = CInt(10 * WindSpeed)
+        Dim F As Integer = CInt(100 * WindSpeed)
 
 #Const POLAR_STAT = 0
 #If POLAR_STAT = 1 Then
@@ -128,13 +128,13 @@ Public Class clsSailManager
 #End If
         If SailMode = EnumSail.OneSail Then
 
-            If _Polar(D, F) <> -1 Then
+            If _Polar(D, F) <> 65535 Then
 
 #If POLAR_STAT = 1 Then
                 NbCallCached += 1
                 Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
 #End If
-                Return CDbl(_Polar(D, F))
+                Return _Polar(D, F) / 1000
             End If
         End If
 
@@ -195,7 +195,7 @@ Public Class clsSailManager
             RetVal = V1
         End If
 
-        _Polar(D, F) = CSng(RetVal)
+        _Polar(D, F) = CUShort(RetVal * 1000)
 #If POLAR_STAT = 1 Then
         Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
 #End If
@@ -437,8 +437,8 @@ Public Class clsSailManager
         ReDim _WindList(NB_SAILS - 1)
 
         For i = 0 To 1800
-            For j = 0 To 600
-                _Polar(i, j) = -1
+            For j = 0 To 6000
+                _Polar(i, j) = 65535
             Next
         Next
     End Sub
