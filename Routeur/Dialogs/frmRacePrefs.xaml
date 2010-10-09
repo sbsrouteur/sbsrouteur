@@ -18,6 +18,7 @@
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="*" MinHeight="24"/>
+			<RowDefinition Height="auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="14.319"/>
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
@@ -37,6 +38,8 @@
 		<TextBox Text="{Binding EllipseExtFactor, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
 		<TextBlock Grid.Row="2" TextWrapping="Wrap"><Run Text="Ellipse Ext. Factor"/></TextBlock>
 		<TextBlock  Grid.Row="3" Text="Race Zone Extension"/>
+		<TextBlock  Grid.Row="4" Text="NO 60°S Exclusion Zone"/>
+		<CheckBox  Grid.Row="4" Grid.Column="1" IsChecked="{Binding NoExclusionZone}" />
 		<ComboBox ItemsSource="{Binding ListMapLevels, Mode=Default}" Grid.Column="1" Grid.Row="1" SelectedValue="{Binding MapLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" />
 		<Grid Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2">
 			<Grid.ColumnDefinitions>
@@ -56,7 +59,7 @@
 			<TextBox Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding EastOffset, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.RowSpan="3" ToolTip="Extension to East" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
 			
 		</Grid>
-		<StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" Margin="24,0,0,0" d:LayoutOverrides="Width, GridBox">
+		<StackPanel Grid.Row="6" Grid.Column="2" Orientation="Horizontal" Margin="24,0,0,0" d:LayoutOverrides="Width, GridBox">
 			<Button x:Name="cmdCancel" Content="Cancel" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172" Click="cmdCancelClick" Style="{DynamicResource DefaultButton}"/>
 			<Button x:Name="cmdOK" Content="OK" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdOKClick" Style="{DynamicResource DefaultButton}"/>
 		</StackPanel>
