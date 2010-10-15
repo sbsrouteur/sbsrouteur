@@ -1621,6 +1621,7 @@ Public Class VLM_Router
         Else
             SyncLock _Opponents
                 Dim BI As BoatInfo
+                Dim RankingOffset As Integer = 0
 
                 _Opponents.Clear()
 
@@ -1628,22 +1629,29 @@ Public Class VLM_Router
                     Dim BoatJson As New VLMBoatRanking
 
                     JSonHelper.LoadJSonDataToObject(BoatJson, JSonRanking(BoatID))
-                    BI = New BoatInfo
-                    With BI
-                        .Classement = BoatJson.rank
-                        .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
+                    If BoatJson.deptime <> -1 Then
+                        BI = New BoatInfo
+                        With BI
+                            .Classement = BoatJson.rank - RankingOffset
+                            .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
 
-                        If Not BoatInfo.ImgList.ContainsKey(BoatJson.country) Then
+                            If Not BoatInfo.ImgList.ContainsKey(BoatJson.country) Then
 
-                            BoatInfo.ImgList.Add(BoatJson.country, Nothing)
+                                BoatInfo.ImgList.Add(BoatJson.country, Nothing)
 
+                            End If
+
+                            .FlagName = BoatJson.country
+                            .Name = BoatJson.boatpseudo
+
+                        End With
+                        _Opponents.Add(BI.Classement.ToString, BI)
+                    Else
+                        If BoatJson.rank > RankingOffset Then
+                            RankingOffset = BoatJson.rank
                         End If
+                    End If
 
-                        .FlagName = BoatJson.country
-                        .Name = BoatJson.boatpseudo
-
-                    End With
-                    _Opponents.Add(BI.Classement.ToString, BI)
                 Next
             End SyncLock
 
