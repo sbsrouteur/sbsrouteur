@@ -51,7 +51,7 @@ Public Class IsoChrone
 
     Public ReadOnly Property IndexFromAngle(ByVal Angle As Double) As Integer
         Get
-            Return CInt((Angle Mod 360) / _AngleStep)
+            Return CInt(((Angle + 360) Mod 360) / _AngleStep)
         End Get
     End Property
 

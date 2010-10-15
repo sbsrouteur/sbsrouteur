@@ -57,7 +57,7 @@ Public Class IsoRouter
             'Special Case for startpoint
             RetIsoChrone = New IsoChrone(_AngleStep)
             For alpha = 0 To 360 - _AngleStep Step _AngleStep
-                P = ReachPoint(_StartPoint, alpha, _IsoStep)
+                P = ReachPoint(_StartPoint, alpha, _IsoStep, 0)
                 If Not P Is Nothing Then
                     Index = RetIsoChrone.IndexFromAngle(alpha)
                     OldP = RetIsoChrone.Data(Index)
@@ -100,11 +100,36 @@ Public Class IsoRouter
                     End If
 
                     Loxo = tc.LoxoCourse_Deg
+                    tc.EndPoint = _StartPoint.P
+
+                    Dim RefAlpha As Double = (tc.LoxoCourse_Deg + 180) Mod 360
+                    Dim MinAngle As Double = Loxo - _SearchAngle
+                    'Index = OuterIso.IndexFromAngle(RefAlpha - _AngleStep)
+                    'If Not OuterIso.Data(Index) Is Nothing Then
+                    '    tc.EndPoint = OuterIso.Data(Index).P
+                    '    Dim Beta As Double = WindAngle(tc.LoxoCourse_Deg, (RefAlpha + 180) Mod 360)
+                    '    If RefAlpha - Beta > MinAngle Then
+                    '        MinAngle = RefAlpha - Beta
+                    '    End If
+                    'End If
+
+                    Dim MaxAngle As Double = Loxo + _SearchAngle
+                    'Index = OuterIso.IndexFromAngle(RefAlpha + _AngleStep)
+                    'If Not OuterIso.Data(Index) Is Nothing Then
+                    '    tc.EndPoint = OuterIso.Data(Index).P
+                    '    Dim Beta As Double = WindAngle(tc.LoxoCourse_Deg, (RefAlpha + 800) Mod 360)
+                    '    If RefAlpha + Beta < MaxAngle Then
+                    '        MaxAngle = RefAlpha + Beta
+                    '    End If
+                    'End If
+
                     tc.StartPoint = _StartPoint.P
-                    For alpha = Loxo - _SearchAngle To Loxo + _SearchAngle Step _AngleStep
+
+                    Dim DistCutOff As Double = 0
+                    For alpha = MinAngle To MaxAngle Step _AngleStep
 
                         'If WindAngle(Ortho, alpha) < _SearchAngle Then
-                        P = ReachPoint(rp, alpha, CurStep)
+                        P = ReachPoint(rp, alpha, CurStep, DistCutOff)
                         If Not P Is Nothing Then
                             tc.EndPoint = P.P
                             If tc.SurfaceDistance > 0 Then
@@ -195,7 +220,7 @@ Public Class IsoRouter
         RaiseEvent RouteComplete()
     End Sub
 
-    Private Function ReachPoint(ByVal Start As clsrouteinfopoints, ByVal Cap As Double, ByVal Duration As TimeSpan) As clsrouteinfopoints
+    Private Function ReachPoint(ByVal Start As clsrouteinfopoints, ByVal Cap As Double, ByVal Duration As TimeSpan, ByRef DistCutOff As Double) As clsrouteinfopoints
 
         If Start Is Nothing OrElse Start.P Is Nothing Then
             Return Nothing
@@ -230,6 +255,14 @@ Public Class IsoRouter
             'TC.StartPoint = TC.EndPoint
         Next
 
+        If DistCutOff > 0 And TotalDist < DistCutOff Then
+            Return Nothing
+        End If
+
+        If TotalDist * 0.3 > DistCutOff Then
+            DistCutOff = 0.3 * TotalDist
+        End If
+
         TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
         If GridRouter.CheckSegmentValid(TC) Then
 
@@ -239,7 +272,7 @@ Public Class IsoRouter
                 .Speed = Speed
                 .WindStrength = MI.Strength
                 .WindDir = MI.Dir
-                .loch = TC.SurfaceDistance
+                .Loch = TC.SurfaceDistance
                 If _DestPoint2 Is Nothing Then
                     TC.StartPoint = _DestPoint1
                     .DTF = TC.SurfaceDistance

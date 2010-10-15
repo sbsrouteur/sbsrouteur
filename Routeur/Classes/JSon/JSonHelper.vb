@@ -130,6 +130,19 @@ Module JSonHelper
 
     End Function
 
+    Public Function GetJSonLongValue(ByVal JSon As Object, ByVal ValueKey As String) As Long
+        Dim O As Object = GetJSonObjectValue(JSon, ValueKey)
+        If O Is Nothing Then
+            Return 0
+        ElseIf IsNumeric(O) Then
+            Return CLng(O)
+        Else
+            Return 0
+        End If
+
+
+    End Function
+
     Public Sub LoadJSonDataToObject(ByVal O As Object, ByVal JSonData As Object)
 
         Dim Props() As PropertyInfo = O.GetType.GetProperties
@@ -147,6 +160,8 @@ Module JSonHelper
             ElseIf T Is GetType(Double) Then
                 Value = GetJSonDoubleValue(JSonData, P.Name)
                 LoadJSonDataToObject(Value, JSonData)
+            ElseIf T Is GetType(Long) Then
+                Value = GetJSonLongValue(JSonData, P.Name)
             ElseIf T Is GetType(Object) Then
                 Value = GetJSonObjectValue(JSonData, P.Name)
                 If Value Is Nothing Then

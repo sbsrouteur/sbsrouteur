@@ -116,8 +116,7 @@ Partial Public Class frmNewBoat
         Dim FleetInfo As Dictionary(Of String, Object) = WS_Wrapper.GetUserFleetInfo(UserName, Password)
         Dim i As Integer = 0
         Dim UserFleet As Dictionary(Of String, Object) = CType(FleetInfo("fleet"), Dictionary(Of String, Object))
-        Dim UserBoatSeatFleet As Dictionary(Of String, Object) = CType(FleetInfo("fleet_boatsit"), Dictionary(Of String, Object))
-
+        
         For Each o As String In UserFleet.Keys
             Dim B As New boatinfo
 
@@ -126,14 +125,17 @@ Partial Public Class frmNewBoat
 
         Next
 
-        For Each o As String In UserBoatSeatFleet.Keys
-            Dim B As New boatinfo
+        If TypeOf FleetInfo("fleet_boatsit") Is Dictionary(Of String, Object) Then
+            Dim UserBoatSeatFleet As Dictionary(Of String, Object) = CType(FleetInfo("fleet_boatsit"), Dictionary(Of String, Object))
 
-            JSonHelper.LoadJSonDataToObject(B, UserBoatSeatFleet(o))
-            Fleet.Add(B)
+            For Each o As String In UserBoatSeatFleet.Keys
+                Dim B As New boatinfo
 
-        Next
+                JSonHelper.LoadJSonDataToObject(B, UserBoatSeatFleet(o))
+                Fleet.Add(B)
 
+            Next
+        End If
     End Sub
 
     Private Sub DlgClose(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
