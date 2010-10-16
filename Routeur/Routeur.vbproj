@@ -344,6 +344,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="TestFriends.vb" />
     <Compile Include="xml\BoatInfoFile.vb">
       <DependentUpon>BoatInfoFile.xsd</DependentUpon>
     </Compile>
