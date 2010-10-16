@@ -53,6 +53,8 @@ Partial Public Class _2D_Viewer
     Private _LonOffset As Double
     Private _LatOffset As Double
     Private Shared _CenterOnAnteMeridien As Boolean = False
+    Private _HideIsochrones As Boolean = False
+    Private _EraseIsoChrones As Boolean = False
 
 
     Public Sub New()
@@ -496,65 +498,78 @@ Render1:
                 '
                 ' Draw IsoChrones
                 '
-                Try
-                    If WindBrushes Is Nothing Then
-                        ReDim WindBrushes(70)
+                If Not HideIsochrones Then
+                    Dim StartIsochrone As DateTime = Now
+                    Try
+                        If WindBrushes Is Nothing Then
+                            ReDim WindBrushes(70)
 
-                        For i = 0 To 69
-                            WindBrushes(i) = New Pen(New SolidColorBrush(WindColors.GetColor(i)), 0.5)
-                            WindBrushes(i).Freeze()
-                        Next
-
-
-                    End If
-
-                    If ClearGrid Then
-                        _GridBmp.Clear()
-                    End If
+                            For i = 0 To 69
+                                WindBrushes(i) = New Pen(New SolidColorBrush(WindColors.GetColor(i)), 0.5)
+                                WindBrushes(i).Freeze()
+                            Next
 
 
-                    If Not IsoChrones Is Nothing Then
-                        For Each iso As IsoChrone In IsoChrones
-                            FirstPoint = True
-                            If Not iso.Drawn Or ForceIsoRedraw Then
-                                Dim MaxIndex As Integer = iso.MaxIndex
-                                Dim index As Integer
-                                Dim PrevIndex As Integer
-                                Dim CurP As Coords
+                        End If
+
+                        If ClearGrid Then
+                            _GridBmp.Clear()
+                        End If
+
+
+                        If Not IsoChrones Is Nothing Then
+                            For Each iso As IsoChrone In IsoChrones
                                 FirstPoint = True
-                                For index = 0 To MaxIndex
-                                    If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
-                                        CurP = iso.Data(index).P
-                                        P1.X = LonToCanvas(CurP.Lon_Deg)
-                                        P1.Y = LatToCanvas(CurP.Lat_Deg)
+                                If Not iso.Drawn Or ForceIsoRedraw Then
+                                    Dim MaxIndex As Integer = iso.MaxIndex
+                                    Dim index As Integer
+                                    Dim PrevIndex As Integer
+                                    Dim CurP As Coords
+                                    FirstPoint = True
+                                    For index = 0 To MaxIndex
+                                        If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
+                                            CurP = iso.Data(index).P
+                                            P1.X = LonToCanvas(CurP.Lon_Deg)
+                                            P1.Y = LatToCanvas(CurP.Lat_Deg)
 
-                                        If Not FirstPoint And index - PrevIndex < 20 Then
-                                            SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
-                                        Else
-                                            FirstPoint = False
+                                            If Not FirstPoint And index - PrevIndex < 20 Then
+                                                SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
+                                            Else
+                                                FirstPoint = False
+                                            End If
+                                            PrevIndex = index
+                                            PrevP.Lon = CurP.Lon
+                                            PrevP.Lat = CurP.Lat
+                                            PrevPoint = P1
+
+                                            'Else
                                         End If
-                                        PrevIndex = index
-                                        PrevP.Lon = CurP.Lon
-                                        PrevP.Lat = CurP.Lat
-                                        PrevPoint = P1
+                                    Next
+                                    iso.Drawn = True
+                                End If
 
-                                        'Else
-                                    End If
-                                Next
-                                iso.Drawn = True
-                            End If
+                                If Now.Subtract(Start).TotalMilliseconds > 100 Then
+                                    Exit For
+                                End If
+                            Next
+                        End If
 
+                    Catch ex As Exception
+                    Finally
+                        DC.Close()
+                        _GridBmp.Render(D)
+                        DC = D.RenderOpen
+
+                    End Try
+                ElseIf _EraseIsoChrones Then
+                    _GridBmp.Clear()
+                    _EraseIsoChrones = False
+                    If IsoChrones IsNot Nothing Then
+                        For Each iso In IsoChrones
+                            iso.Drawn = False
                         Next
                     End If
-
-                Catch ex As Exception
-                Finally
-                    DC.Close()
-                    _GridBmp.Render(D)
-                    DC = D.RenderOpen
-
-                End Try
-
+                End If
                 '
                 ' Draw routing grid
                 '
@@ -828,6 +843,17 @@ Render1:
             Static evtprops As New PropertyChangedEventArgs("CurCoords")
             _CurCoords = value
             RaiseEvent PropertyChanged(Me, evtprops)
+        End Set
+    End Property
+
+    Public Property HideIsochrones() As Boolean
+        Get
+            Return _HideIsochrones
+        End Get
+        Set(ByVal value As Boolean)
+            _HideIsochrones = value
+            _EraseIsoChrones = True
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("HideIsochrones"))
         End Set
     End Property
 

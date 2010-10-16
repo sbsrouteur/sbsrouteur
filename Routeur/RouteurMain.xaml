@@ -240,6 +240,9 @@
 				<CheckBox Content="Center Map on 180°E/W" IsChecked="{Binding The2DViewer.CenterMapOnAnteMeridien, Mode=Default}" />
 				<MenuItem Header="Rescale Map" Click="ReScaleMap" ></MenuItem>
 				<MenuItem Header="Restore Race Zone Map Scale" Click="RestoreMapScale" ></MenuItem>
+				<Separator/>
+				<CheckBox Content="Hide Isochrones" IsChecked="{Binding The2DViewer.HideIsochrones, Mode=Default}"/>
+				
 			</MenuItem>
 			<MenuItem Header="Meteo" VerticalAlignment="Center">
 				<CheckBox IsChecked="{Binding VorHandler.MeteoVisible, Mode=Default}" Content="Meteo Data Visible" ></CheckBox>
