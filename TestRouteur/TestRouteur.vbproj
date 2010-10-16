@@ -78,6 +78,7 @@
     <Compile Include="clsSailManagerTest.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="TravelCalculatorTest.vb" />
+    <Compile Include="WS_WrapperTest.vb" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AuthoringTests.txt" />

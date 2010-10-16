@@ -5,7 +5,7 @@ Imports System.Collections.ObjectModel
 
 Public Class IsoRouter
     Implements INotifyPropertyChanged
-
+    
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
     Public Event Log(ByVal msg As String)
     Public Event RouteComplete()
@@ -28,7 +28,7 @@ Public Class IsoRouter
     Private _SailManager As clsSailManager
     Private _BoatType As String
     Private _CurBest As clsrouteinfopoints
-    Private _DTFRatio As Double = 0.4
+    Private _DTFRatio As Double = 0.3
 
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan)
@@ -89,7 +89,7 @@ Public Class IsoRouter
                         CurStep = _IsoStep
                     End If
                     If RetIsoChrone Is Nothing Then
-                        RetIsoChrone = New IsoChrone(AStep)
+                        RetIsoChrone = New IsoChrone(_AngleStep)
                     End If
                     Dim Loxo As Double
                     tc.StartPoint = rp.P

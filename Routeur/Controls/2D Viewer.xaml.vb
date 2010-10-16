@@ -521,6 +521,7 @@ Render1:
                                 Dim index As Integer
                                 Dim PrevIndex As Integer
                                 Dim CurP As Coords
+                                FirstPoint = True
                                 For index = 0 To MaxIndex
                                     If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
                                         CurP = iso.Data(index).P
@@ -537,8 +538,7 @@ Render1:
                                         PrevP.Lat = CurP.Lat
                                         PrevPoint = P1
 
-                                    Else
-                                        FirstPoint = True
+                                        'Else
                                     End If
                                 Next
                                 iso.Drawn = True

@@ -99,7 +99,11 @@ Module WS_Wrapper
     End Function
 
     Public Function GetRouteurUserAgent() As String
-        Return "SbsRouteur/" & My.Application.Info.Version.ToString
+        If My.Application IsNot Nothing Then
+            Return "SbsRouteur/" & My.Application.Info.Version.ToString
+        Else
+            Return "SbsRouteur/??"
+        End If
     End Function
 
     Public Function GetUserFleetInfo(ByVal UserName As String, ByVal Password As String) As Dictionary(Of String, Object)
@@ -206,6 +210,11 @@ Module WS_Wrapper
 
     End Function
 
+    Public Sub SetCredential(ByVal User As String, ByVal Password As String)
+        _LastPassword = Password
+        _LastUser = User
+
+    End Sub
     Public Function SetPIM(ByVal idu As Integer, ByVal PIM As Integer) As Boolean
 
         Dim RetValue As Boolean = False
