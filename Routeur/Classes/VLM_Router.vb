@@ -276,6 +276,10 @@ Public Class VLM_Router
 
         Private Function ImproveMixDTF_TS(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double) As Boolean
 
+            If T < P.T Then
+                Return True
+            End If
+
             Dim PAvgSpeed As Double = P.AvgSpeed()
             Dim PAvgVMG As Double = P.AvgVMG
             Dim RetVal As Boolean = (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed) > (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
