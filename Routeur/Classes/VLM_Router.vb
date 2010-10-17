@@ -1750,6 +1750,7 @@ Public Class VLM_Router
 
                 TC.EndPoint = TC.StartPoint
                 tc2.StartPoint = TC.StartPoint
+
                 Dim LoopCount = 0
                 While TC.SurfaceDistance < RefDistance AndAlso LoopCount < 1500
                     LoopCount += 1
@@ -1757,7 +1758,7 @@ Public Class VLM_Router
                     If mi Is Nothing Then
                         Exit While
                     End If
-                    If TC.SurfaceDistance = 0 Then
+                    If LoopCount = 1 Then
                         RefAngle = WindAngleWithSign(RefLoxo, mi.Dir) + Correction
                     End If
                     Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
@@ -1773,10 +1774,11 @@ Public Class VLM_Router
 
                 Dim NewDelta As Double = WindAngleWithSign(TC.LoxoCourse_Deg, RefLoxo)
 
-                If mi Is Nothing Then
-                    _WindAngleETA = Now
-                    Exit While
-                ElseIf Abs(TC.LoxoCourse_Deg - RefLoxo) < 0.01 OrElse (NewDelta * PrevDelta < 0 AndAlso NewDelta * PrevDelta > -3) Then
+                'If mi Is Nothing Then
+                '    _WindAngleETA = Now
+                '    Exit While
+                'Else
+                If Abs(TC.LoxoCourse_Deg - RefLoxo) < 0.01 OrElse (NewDelta * PrevDelta < 0 AndAlso NewDelta * PrevDelta > -3) Then
                     Found = True
                 ElseIf Correction = 0 OrElse PrevDelta = 0 OrElse Abs(PrevDelta) > Abs(NewDelta) Then
                     Correction -= NewDelta
