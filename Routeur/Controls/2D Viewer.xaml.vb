@@ -187,14 +187,16 @@ Partial Public Class _2D_Viewer
                             'p0.Y = LatToCanvas(C_Array(i - 1).Lat_Deg)
                             P1.X = LonToCanvas(C_Array(i).Lon_Deg)
                             P1.Y = LatToCanvas(C_Array(i).Lat_Deg)
+                            If CInt(P0.X) <> CInt(P1.X) OrElse CInt(P0.Y) <> CInt(P1.Y) Then
 
-                            SafeDrawLine(DC, C_Array(PrevIndex), C_Array(i), Pen, P0, P1)
+                                SafeDrawLine(DC, C_Array(PrevIndex), C_Array(i), Pen, P0, P1)
 
-                            LineCount += 1
-                            drawn = True
-                            P0.X = P1.X
-                            P0.Y = P1.Y
-                            PrevIndex = i
+                                LineCount += 1
+                                drawn = True
+                                P0.X = P1.X
+                                P0.Y = P1.Y
+                                PrevIndex = i
+                            End If
                         End If
 
                     End If
