@@ -282,7 +282,7 @@ Public Class VLM_Router
 
             Dim PAvgSpeed As Double = P.AvgSpeed()
             Dim PAvgVMG As Double = P.AvgVMG
-            Dim RetVal As Boolean = (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed) > (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
+            Dim RetVal As Boolean = DTF / (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed) < P.DTF / (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
             Return RetVal
 
         End Function
