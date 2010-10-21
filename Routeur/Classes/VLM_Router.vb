@@ -1649,7 +1649,7 @@ Public Class VLM_Router
                             .Name = BoatJson.boatpseudo
 
                         End With
-                        _Opponents.Add(BI.Classement.ToString, BI)
+                        _Opponents.Add(BoatJson.idusers.ToString, BI)
                     Else
                         If BoatJson.rank > RankingOffset Then
                             RankingOffset = BoatJson.rank

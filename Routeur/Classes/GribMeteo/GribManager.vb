@@ -659,6 +659,9 @@ Public Class GribManager
         ElseIf RetInfo.Dir >= 360 Then
             RetInfo.Dir -= 360
         End If
+        If RetInfo.Strength < 0 Then
+            Dim i As Integer = 0
+        End If
         Return RetInfo
     End Function
 
