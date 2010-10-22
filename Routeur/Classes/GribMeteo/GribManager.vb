@@ -326,7 +326,9 @@ Public Class GribManager
         Dim CurGrib As DateTime = GetCurGribDate(Now)
         Dim TotalHours As Double = Dte.AddHours(-_GMT_Offset).Subtract(CurGrib).TotalHours
 
-        If TotalHours <= MAX_GRIB_05 Then
+        If TotalHours < 0 Then
+            Dim i As Int16 = 0
+        ElseIf TotalHours <= MAX_GRIB_05 Then
             Return TotalHours Mod GRIB_GRAIN_05
         Else
             Return TotalHours Mod GRIB_GRAIN_1
@@ -456,6 +458,7 @@ Public Class GribManager
         ElseIf retmeteo.Dir > 360 Then
             retmeteo.Dir -= 360
         End If
+
         'Dir = If(Angle1 >= 0, DirInterpolation.Pos, DirInterpolation.Neg)
         Return retmeteo
 

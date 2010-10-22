@@ -3144,14 +3144,22 @@ Public Class VLM_Router
         End If
     End Sub
 
-    Public Sub UpdateWPDist(ByVal c As Coords)
+    Private _UpdatingWPDist As Boolean = False
+    Public Sub DeferedUpdateWPDist(ByVal state As Object)
+        If Not _UpdatingWPDist Then
+            _UpdatingWPDist = True
+            UpdateWPDist(CType(state, Coords))
+        End If
+    End Sub
+
+    Private Sub UpdateWPDist(ByVal c As Coords)
 
         If Not _gr Is Nothing Then
             BestRouteAtPoint = _gr.RouteToPoint(c)
         End If
 
         If Not _iso Is Nothing Then
-            BestRouteAtPoint = _iso.RouteToPoint(c)
+            BestRouteAtPoint = _iso.RouteToPoint(c, _PixelSize)
         End If
 
         'todo make this safe
@@ -3181,6 +3189,8 @@ Public Class VLM_Router
             TC = Nothing
         End If
         CurWPDist = D
+
+        _UpdatingWPDist = False
 
     End Sub
 

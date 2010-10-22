@@ -297,7 +297,7 @@ Public Class IsoRouter
 
     End Function
 
-    Public Function RouteToPoint(ByVal C As Coords) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
+    Public Function RouteToPoint(ByVal C As Coords, ByVal PixelSize As Double) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
 
         Dim TC As New TravelCalculator
         TC.StartPoint = _StartPoint.P
@@ -310,7 +310,7 @@ Public Class IsoRouter
 
                 If Not iso.Data(index) Is Nothing Then
                     TC.StartPoint = iso.Data(index).P
-                    If TC.SurfaceDistance < 1 Then
+                    If TC.SurfaceDistance < 4 * PixelSize Then
                         RP = iso.Data(index)
                         Exit For
                     End If

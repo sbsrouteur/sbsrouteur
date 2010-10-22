@@ -693,7 +693,7 @@ Public Class RouteurModel
                 _Busy = False
             End SyncLock
         ElseIf e.PropertyName = "CurCoords" Then
-            VorHandler.UpdateWPDist(_2DViewer.CurCoords)
+            System.Threading.ThreadPool.QueueUserWorkItem(AddressOf VorHandler.DeferedUpdateWPDist, _2DViewer.CurCoords)
             VorHandler.MouseOver(_2DViewer.CurCoords)
 
         End If
