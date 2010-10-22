@@ -352,7 +352,8 @@ Render1:
         End If
 
         Try
-
+            'Static StartPath As DateTime = Now
+            ' Const MAX_DRAW_MS As Integer = 100
             If Not _RacePolygonsInited Then
                 Return
             End If
@@ -494,7 +495,7 @@ Render1:
                     DC.Close()
                     _OpponentsBmp.Render(D)
                     DC = D.RenderOpen
-
+                    'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
                 End If
 
                 '
@@ -572,6 +573,7 @@ Render1:
                         Next
                     End If
                 End If
+                'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
                 '
                 ' Draw routing grid
                 '
@@ -632,7 +634,7 @@ Render1:
                     _GridBmp.Render(D)
                     DC = D.RenderOpen
                     'Debug.WriteLine("Grid : " & ShownPoints)
-
+                    'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
                 End If
 
                 If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
@@ -711,7 +713,7 @@ Render1:
 
                     Next
                 End If
-
+                'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
 
                 '
                 ' Draw the other routes
@@ -765,6 +767,7 @@ Render1:
                             '    _RBmp.Render(D)
                             '    DC = D.RenderOpen
                             'End If
+                            'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Exit For
                         Next
                     Catch
                     End Try
