@@ -1,6 +1,6 @@
 ﻿Public Class VLMRaceInfo
 
-    Private _idraces As Integer
+    Private _idraces As String
     Private _RaceName As String
     Private _StartLon As Integer
     Private _StartLat As Integer
@@ -18,11 +18,11 @@
         End Set
     End Property
 
-    Public Property idraces() As Integer
+    Public Property idraces() As String
         Get
             Return _idraces
         End Get
-        Set(ByVal value As Integer)
+        Set(ByVal value As String)
             _idraces = value
         End Set
     End Property

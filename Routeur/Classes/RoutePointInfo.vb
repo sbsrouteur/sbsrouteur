@@ -9,6 +9,10 @@ Public Class RoutePointInfo
     Private _RouteName As String
     Private _P As VLM_Router.clsrouteinfopoints
 
+    Public Sub New()
+
+    End Sub
+
     Public Sub New(ByVal Name As String, ByVal P As VLM_Router.clsrouteinfopoints)
 
         _RouteName = Name

@@ -9,6 +9,7 @@ Public Class VLM_Router
 
 
     Implements INotifyPropertyChanged
+    Public Const KEY_ROUTE_THIS_POINT As String = "This Point: "
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
     Public Event bruted()
@@ -2614,7 +2615,7 @@ Public Class VLM_Router
         Dim P As RoutePointInfo
 
         If Not BestRouteAtPoint Is Nothing AndAlso BestRouteAtPoint.Count > 0 Then
-            P = New RoutePointInfo("This Point: ", BestRouteAtPoint(BestRouteAtPoint.Count - 1))
+            P = New RoutePointInfo(KEY_ROUTE_THIS_POINT, BestRouteAtPoint(BestRouteAtPoint.Count - 1))
             RoutePoints.Add(P)
         End If
 

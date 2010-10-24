@@ -11,7 +11,7 @@ Imports System.Windows.Navigation
 Partial Public Class frmRouterConfiguration
 
     Private _Context As RacePrefs
-    Private _ID As Integer
+    Private _ID As String
     Private _Owner As RouteurMain
     Private _bCapture As Boolean
     'Private _StartBrush As Brush
@@ -26,7 +26,7 @@ Partial Public Class frmRouterConfiguration
         ' Insérez le code requis pour la création d’objet sous ce point.
     End Sub
 
-    Public Sub New(ByVal Parent As RouteurMain, ByVal ID As Integer)
+    Public Sub New(ByVal Parent As RouteurMain, ByVal ID As String)
 
         Me.New()
         _ID = ID

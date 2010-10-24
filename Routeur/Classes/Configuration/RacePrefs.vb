@@ -56,7 +56,7 @@ Public Class RacePrefs
 
 
 
-    Public Shared Function GetRaceInfo(ByVal RaceID As Integer) As RacePrefs
+    Public Shared Function GetRaceInfo(ByVal RaceID As String) As RacePrefs
 
         Dim RetValue As RacePrefs = Nothing
         Dim fName As String = RouteurModel.BaseFileDir & "\ri_" & RaceID & ".xml"
@@ -408,7 +408,7 @@ Public Property IsoStep48String() As String
         End Get
     End Property
 
-    Public Shared Sub Save(ByVal RaceID As Integer, ByVal Data As RacePrefs)
+    Public Shared Sub Save(ByVal RaceID As String, ByVal Data As RacePrefs)
 
         Dim fName As String = RouteurModel.BaseFileDir & "\ri_" & RaceID & ".xml"
         Dim Ser As New System.Xml.Serialization.XmlSerializer(Data.GetType)
