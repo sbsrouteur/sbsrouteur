@@ -271,6 +271,8 @@
     <Compile Include="Classes\Polygon\Polygon.vb" />
     <Compile Include="Classes\Polygon\PolygonEnumerator.vb" />
     <Compile Include="Classes\ProgressContext.vb" />
+    <Compile Include="Classes\RouteManager\RecordedRoute.vb" />
+    <Compile Include="Classes\RouteManager\RouteManager.vb" />
     <Compile Include="Classes\RoutePointInfo.vb" />
     <Compile Include="Classes\Route\RouteConverters.vb" />
     <Compile Include="Classes\Route\RoutePointValueBase.vb" />

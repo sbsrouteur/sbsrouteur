@@ -16,7 +16,7 @@ Public Class RegistryPlayerInfo
     Private _RaceInfo As String = ""
     Private _IsRacing As Boolean = False
     Private _IsPasswordOK As Boolean = False
-    Private _RaceNum As Integer
+    Private _RaceNum As String
     Private _NewStyle As Boolean = False
     Private _IDP As String
     Private _Email As String
@@ -293,8 +293,8 @@ Public Class RegistryPlayerInfo
             _idu = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "IDU")
             _IsPasswordOK = True
             _RaceInfo = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAN")
-            _RaceNum = JSonHelper.GetJSonIntValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAC")
-            _IsRacing = _RaceNum <> 0
+            _RaceNum = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAC")
+            _IsRacing = _RaceNum <> ""
             If Not NewStyle Then
                 _Email = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "EML")
             End If
@@ -321,7 +321,7 @@ Public Class RegistryPlayerInfo
 
     End Sub
 
-    Public ReadOnly Property RaceNum() As Integer
+    Public ReadOnly Property RaceNum() As String
         Get
             Return _RaceNum
         End Get

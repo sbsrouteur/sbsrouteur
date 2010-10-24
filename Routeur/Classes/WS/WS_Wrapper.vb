@@ -44,9 +44,9 @@ Module WS_Wrapper
 
     End Function
 
-    Public Function GetRaceInfo(ByVal RAN As Integer) As String
+    Public Function GetRaceInfo(ByVal RAN As String) As String
 
-        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/raceinfo.php?forcefmt=json&idrace=" & RAN.ToString
+        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/raceinfo.php?forcefmt=json&idrace=" & RAN
         Dim Retstring As String = ""
         Try
             Retstring = RequestPage(URL)
@@ -65,7 +65,7 @@ Module WS_Wrapper
         Return Nothing
     End Function
 
-    Public Function GetRankings(ByVal IdRace As Integer) As Dictionary(Of String, Object)
+    Public Function GetRankings(ByVal IdRace As String) As Dictionary(Of String, Object)
 
         Dim RetJSon As New Dictionary(Of String, Object)
         Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/raceinfo/ranking.php?idr=" & IdRace

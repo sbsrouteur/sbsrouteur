@@ -11,7 +11,7 @@ Imports System.Windows.Navigation
 Partial Public Class frmRouterPrefs
 
     Private _Context As RacePrefs
-    Private _ID As Integer
+    Private _ID As String
 
     Public Sub New()
         MyBase.New()
@@ -22,7 +22,7 @@ Partial Public Class frmRouterPrefs
 
     End Sub
 
-    Public Sub New(ByVal ID As Integer)
+    Public Sub New(ByVal ID As String)
 
         Me.New()
         _ID = ID

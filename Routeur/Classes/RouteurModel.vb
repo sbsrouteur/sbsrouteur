@@ -115,6 +115,8 @@ Public Class RouteurModel
     Private _Width As Double
     Private _Height As Double
 
+    Private _RouteManager As New RouteManager
+
 
     Public Function CanvasToCoords(ByVal X As Double, ByVal Y As Double) As Coords
 
@@ -488,7 +490,7 @@ Public Class RouteurModel
 
     Private Sub LoadRaceInfo(ByVal P As RegistryPlayerInfo)
 
-        Dim RaceNum As Integer = P.RaceNum
+        Dim RaceNum As String = P.RaceNum
         Dim RaceFileName As String = BaseFileDir & "\RI_" & RaceNum & ".ini"
         Dim RaceInfo As String
 
@@ -756,6 +758,8 @@ Public Class RouteurModel
     Private _SetNAVModeMenu As New DelegateCommand(Of Object)(AddressOf OnSetNAVMenuHandler, Function(o) True)
     Private _SetNAVToMenu As New DelegateCommand(Of Object)(AddressOf OnSetNAVToMenuHandler, Function(o) True)
 
+    Private _RecordRoute As New DelegateCommand(Of Object)(AddressOf OnRecordRouteMenuHandler, Function(o) True)
+
     Public ReadOnly Property SetBearingMenu() As ICommand
         Get
             Return _BearingMenu
@@ -785,6 +789,24 @@ Public Class RouteurModel
             Return _SetNAVWPMenu
         End Get
     End Property
+
+    Private Sub OnRecordRouteMenuHandler(ByVal o As Object)
+        Dim RouteIndex As Integer = 0
+
+        If VorHandler.RoutesUnderMouse Is Nothing OrElse VorHandler.RoutesUnderMouse.Count = 0 Then
+            Return
+        End If
+        Dim Index As Integer
+        For Each R In VorHandler.RoutesUnderMouse
+            If R.RouteName = VLM_Router.KEY_ROUTE_THIS_POINT Then
+                RouteIndex = Index
+                Exit For
+            End If
+            Index += 1
+        Next
+
+        _RouteManager.AddNewRoute(_P_Info(0).RaceInfo.idraces, _P_Info(0).RaceInfo.racename, VorHandler.RoutesUnderMouse(RouteIndex))
+    End Sub
 
     Private Sub OnSetBearingHandler(ByVal O As Object)
         VorHandler.SetBearing()
@@ -841,4 +863,8 @@ Public Class RouteurModel
 
 #End Region
 
+    Protected Overrides Sub Finalize()
+        _RouteManager.Save()
+        MyBase.Finalize()
+    End Sub
 End Class

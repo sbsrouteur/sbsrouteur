@@ -171,6 +171,8 @@
 		</Storyboard>
 		<SolidColorBrush x:Key="DefTextBlockMenuForeColor" Color="#FF040012"/>
 		<ContextMenu x:Key="CtxNavMenu">
+			<MenuItem Header="Record Route to this point" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.FreezeRoute, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
+			<Separator/>
 			<MenuItem Header="{Binding VorHandler.GoToPointBearingMsg, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetBearingMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
 			<MenuItem Header="{Binding VorHandler.SetWindAngleMsg, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetWindAngleMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"/>
 			<MenuItem Header="{Binding VorHandler.GoToPointWindAngleMsg, Mode=Default}" Command="{Binding Path=(ContextMenu.PlacementTarget).DataContext.SetWindAngleMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="WP"/>
