@@ -425,4 +425,12 @@ Partial Public Class RouteurMain
 
         M.VorHandler.StartXTRAssessment()
     End Sub
+
+    Private Sub ShowRouteMgr(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+        Dim frm As New frmRoutesManager
+        Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
+        M.RouteManager.FilterRaceID = M.P_Info(0).RaceInfo.idraces
+        frm.ShowForm(M.RouteManager, Me)
+
+    End Sub
 End Class
