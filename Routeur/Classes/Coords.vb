@@ -2,6 +2,7 @@
 Imports System.Collections.ObjectModel
 Imports System.Xml
 Imports System.Math
+Imports System.Xml.Serialization
 
 
 
@@ -39,6 +40,7 @@ Public Class Coords
         End Set
     End Property
 
+    <XmlIgnore()> _
     Public Property Lat_Deg() As Double
         Get
             Return _Lat * 180 / Math.PI
@@ -70,6 +72,7 @@ Public Class Coords
         End Set
     End Property
 
+    <XmlIgnore()> _
     Public Property Lon_Deg() As Double
         Get
             Return _Lon * 180 / Math.PI
@@ -121,6 +124,7 @@ Public Class Coords
         Return
 
     End Sub
+
 
     Public ReadOnly Property Mercator_X_Deg() As Double
         Get
