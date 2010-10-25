@@ -603,6 +603,11 @@ Public Class RouteurModel
         End Set
     End Property
 
+    Public ReadOnly Property RouteManager() As RouteManager
+        Get
+            Return _RouteManager
+        End Get
+    End Property
     Public Property Scale() As Double
         Get
             Return _Scale
@@ -812,7 +817,7 @@ Public Class RouteurModel
             Index += 1
         Next
 
-        _RouteManager.AddNewRoute(_P_Info(0).RaceInfo.idraces, _P_Info(0).RaceInfo.racename, VorHandler.RoutesUnderMouse(RouteIndex))
+        RouteManager.AddNewRoute(_P_Info(0).RaceInfo.idraces, _P_Info(0).RaceInfo.racename, VorHandler.RoutesUnderMouse(RouteIndex))
     End Sub
 
     Private Sub OnSetBearingHandler(ByVal O As Object)
@@ -871,7 +876,7 @@ Public Class RouteurModel
 #End Region
 
     Protected Overrides Sub Finalize()
-        _RouteManager.Save()
+        RouteManager.Save()
         MyBase.Finalize()
     End Sub
 End Class

@@ -10,6 +10,7 @@ Public Class RouteManager
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
     Private _Routes As New ObservableCollection(Of RecordedRoute)
+    Private _FilterRaceID As String
 
     Public Sub AddNewRoute(ByVal RaceID As String, ByVal RaceName As String, ByVal Route As RoutePointInfo)
 
@@ -43,6 +44,44 @@ Public Class RouteManager
         End If
 
     End Function
+
+    Private Function FilterCourseRoute(ByVal o As Object) As Boolean
+
+        If Not TypeOf o Is RecordedRoute Then
+            Return True
+        Else
+            Return CType(o, RecordedRoute).RaceID = _FilterRaceID
+        End If
+
+    End Function
+
+    Public Property FilterRaceID() As String
+        Get
+            Return _FilterRaceID
+        End Get
+        Set(ByVal value As String)
+            _FilterRaceID = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("FilterRaceID"))
+        End Set
+    End Property
+
+    Public ReadOnly Property RoutesInRace() As ICollectionView
+        Get
+            Dim lv As ICollectionView = CollectionViewSource.GetDefaultView(Routes)
+
+            If FilterRaceID <> "" Then
+                lv.Filter = AddressOf FilterCourseRoute
+            Else
+                lv.Filter = Nothing
+            End If
+
+
+            Return lv
+
+        End Get
+
+    End Property
+
 
     Public Property Routes() As ObservableCollection(Of RecordedRoute)
         Get
