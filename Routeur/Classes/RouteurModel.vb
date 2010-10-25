@@ -115,7 +115,7 @@ Public Class RouteurModel
     Private _Width As Double
     Private _Height As Double
 
-    Private _RouteManager As New RouteManager
+    Private _RouteManager As RouteManager
 
 
     Public Function CanvasToCoords(ByVal X As Double, ByVal Y As Double) As Coords
@@ -227,6 +227,7 @@ Public Class RouteurModel
             End
         End If
 
+        _RouteManager = RouteManager.Load()
         _P_Info(0) = frm.PlayerInfo.Playerinfo
         LoadRaceInfo(frm.PlayerInfo)
         LoadParams()
@@ -433,6 +434,12 @@ Public Class RouteurModel
 
         End Set
 
+    End Property
+
+    Public ReadOnly Property RecordRoute() As DelegateCommand(Of Object)
+        Get
+            Return _RecordRoute
+        End Get
     End Property
 
     Public ReadOnly Property RegisteredPlayers() As ObservableCollection(Of RegistryPlayerInfo)

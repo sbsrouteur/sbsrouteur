@@ -22,6 +22,28 @@ Public Class RouteManager
 
     End Sub
 
+    Public Shared Function Load() As RouteManager
+
+        Dim RetValue As RouteManager = Nothing
+        Dim XMLS As New Xml.Serialization.XmlSerializer(GetType(RouteManager))
+        Try
+            Dim fname As String = RouteurModel.BaseFileDir & "\Routes.xml"
+            If System.IO.File.Exists(fname) Then
+                Dim o As New FileStream(fname, FileMode.Open)
+                RetValue = CType(XMLS.Deserialize(o), RouteManager)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Failed to recover routes " & ex.Message)
+        End Try
+
+        If RetValue Is Nothing Then
+            Return New RouteManager
+        Else
+            Return RetValue
+        End If
+
+    End Function
+
     Public Property Routes() As ObservableCollection(Of RecordedRoute)
         Get
             Return _Routes
@@ -39,7 +61,7 @@ Public Class RouteManager
 
         Dim XMLS As New Xml.Serialization.XmlSerializer(Me.GetType)
         Try
-            Dim o As New FileStream(RouteurModel.BaseFileDir & "Routes.xml", FileMode.CreateNew)
+            Dim o As New FileStream(RouteurModel.BaseFileDir & "\Routes.xml", FileMode.Create)
             XMLS.Serialize(o, Me)
         Catch ex As Exception
             MessageBox.Show("Failed to store routes " & ex.Message)

@@ -323,6 +323,7 @@ Public Class VLM_Router
                 RaiseEvent PropertyChanged(Me, PProps)
             End Set
         End Property
+
         Public Property Sail() As clsSailManager.EnumSail
             Get
                 Return _Sail
