@@ -128,7 +128,7 @@ Public Class clsSailManager
 #End If
         If SailMode = EnumSail.OneSail Then
 
-            If _Polar(D, F) <> 65535 Then
+            If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
 
 #If POLAR_STAT = 1 Then
                 NbCallCached += 1

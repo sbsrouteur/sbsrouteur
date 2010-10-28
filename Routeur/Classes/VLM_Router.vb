@@ -283,7 +283,8 @@ Public Class VLM_Router
 
             Dim PAvgSpeed As Double = P.AvgSpeed()
             Dim PAvgVMG As Double = P.AvgVMG
-            Dim RetVal As Boolean = DTF / (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed) < P.DTF / (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
+            'Dim RetVal As Boolean = DTF / (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed) < P.DTF / (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
+            Dim RetVal As Boolean = (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed) > (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
             Return RetVal
 
         End Function
@@ -301,15 +302,16 @@ Public Class VLM_Router
         Public Function LochFromStart(ByRef TotalTime As TimeSpan) As Double
             Dim Ret As Double = 0
             Dim p As clsrouteinfopoints = Me
-            Dim TotalTicks As Long = 0
-
+            Dim TotalTicks As Long = p.T.Ticks
+            Dim EndTicks As Long
 
             Do
                 Ret += p.Loch
-                TotalTicks += CLng(TimeSpan.TicksPerMinute * RouteurModel.VacationMinutes)
+                EndTicks = p.T.Ticks
+
                 p = p.From
             Loop Until p Is Nothing
-            TotalTime = New TimeSpan(TotalTicks)
+            TotalTime = New TimeSpan(TotalTicks - EndTicks)
             Return Ret
 
         End Function
@@ -346,21 +348,18 @@ Public Class VLM_Router
 
         Public Function StartDTF(ByRef TimeSpan As TimeSpan) As Double
 
-            Dim VacCount As Integer = 1
-            Dim P As clsrouteinfopoints = Me
 
+            Dim P As clsrouteinfopoints = Me
+            Dim Start As DateTime = T
+            Dim endTime As DateTime
             While P.From IsNot Nothing
                 P = P.From
-                VacCount += 1
+                endtime = P.T
+                
             End While
 
-            If VacCount = 1 Then
-                TimeSpan = New TimeSpan(0)
-                Return DTF
-            Else
-                TimeSpan = New TimeSpan(CLng(TimeSpan.TicksPerMinute * RouteurModel.VacationMinutes))
-                Return P.DTF
-            End If
+            TimeSpan = Start.Subtract(endTime)
+
         End Function
 
 

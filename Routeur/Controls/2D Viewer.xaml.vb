@@ -535,7 +535,7 @@ Render1:
                                             P1.X = LonToCanvas(CurP.Lon_Deg)
                                             P1.Y = LatToCanvas(CurP.Lat_Deg)
 
-                                            If Not FirstPoint And index - PrevIndex < 20 Then
+                                            If Not FirstPoint And index - PrevIndex < 2 Then
                                                 SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
                                             Else
                                                 FirstPoint = False

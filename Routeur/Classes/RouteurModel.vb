@@ -3,6 +3,7 @@ Imports System.Collections.ObjectModel
 Imports System.IO
 Imports Routeur.RacePrefs
 Imports Routeur.Commands
+Imports System.Threading
 
 Public Class RouteurModel
 
@@ -28,7 +29,7 @@ Public Class RouteurModel
     Private Shared _PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
     Private Shared _RouteExtensionHours As Double = RacePrefs.RACE_COURSE_EXTENSION_HOURS
 
-
+    Public Shared DebugEvt As New AutoResetEvent(True)
     Private Shared _BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
 
 
@@ -170,7 +171,7 @@ Public Class RouteurModel
 
     Public Sub UpdateRaceScale(ByVal C1 As Coords, ByVal C2 As Coords)
         'ReDim RouteurModel._RaceRect(3)
-        If The2DViewer IsNot Nothing AndAlso The2DViewer.CenterMapOnAnteMeridien andalso  (C1.Lon * C2.Lon) < 0 Then
+        If The2DViewer IsNot Nothing AndAlso The2DViewer.CenterMapOnAnteMeridien AndAlso (C1.Lon * C2.Lon) < 0 Then
             _LonOffset = 180 + (C2.Lon_Deg + C1.Lon_Deg) / 2
             If C1.Lon <> -C2.Lon Then
                 Scale = 360 / Math.Abs(C1.Lon_Deg + C2.Lon_Deg)
@@ -839,7 +840,7 @@ Public Class RouteurModel
 
         Select Case CStr(o)
             Case "ORTHO", "VMG", "VBVMG"
-                VorHandler.SetNAV(CStr(o))
+                VorHandler.SetNav(CStr(o))
 
             Case Else
                 Return
@@ -876,7 +877,9 @@ Public Class RouteurModel
 #End Region
 
     Protected Overrides Sub Finalize()
-        RouteManager.Save()
+        If Not RouteManager Is Nothing Then
+            RouteManager.Save()
+        End If
         MyBase.Finalize()
     End Sub
 End Class

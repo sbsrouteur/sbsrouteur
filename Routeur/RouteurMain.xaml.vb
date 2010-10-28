@@ -433,4 +433,9 @@ Partial Public Class RouteurMain
         frm.ShowForm(M.RouteManager, Me)
 
     End Sub
+
+    Private Sub EvtSet(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+
+        RouteurModel.DebugEvt.Set()
+    End Sub
 End Class
