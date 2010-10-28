@@ -218,6 +218,7 @@
 	            <Button Width="Auto" Height="26.92" Content="Redraw" Click="RedrawClick" Margin="4,0"/>
 				<MenuItem Header="Refresh From VLM" Click="Refresh" Visibility="Collapsed"></MenuItem>
 				<Separator></Separator>
+				<MenuItem Header="Evt Set" Click="EvtSet" ></MenuItem>
 	            <MenuItem Header="Quit" Click="AppQuit" ></MenuItem>
 			</MenuItem>
 			<MenuItem Header="Information" VerticalAlignment="Center" Click="ComputeRouteXTR">
