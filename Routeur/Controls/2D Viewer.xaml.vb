@@ -285,7 +285,7 @@ Render1:
     End Sub
 
     Private Delegate Sub UpdatePathDelegate(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VLM_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
-                                                ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint))
+                                                ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
 
 
     Private Sub SafeDrawLine(ByVal dc As DrawingContext, ByVal PrevP As Coords, ByVal P As Coords, ByVal pe As Pen, ByVal Prevpoint As Point, ByVal NewP As Point)
@@ -321,7 +321,7 @@ Render1:
         End If
     End Sub
     Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VLM_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
-                          ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint))
+                          ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
 
         Static Invoking As Integer = 0
         Static lastinvoke As DateTime = New DateTime(0)
@@ -340,7 +340,7 @@ Render1:
             '    End If
             '    lastinvoke = Now
             Dim R As System.Windows.Threading.DispatcherOperation = Dispatcher.BeginInvoke(dlg, New Object() {PathString, Routes, _
-                                                                                Opponents, Grid, ClearGrid, ClearBoats, IsoChrones, WPs})
+                                                                                Opponents, Grid, ClearGrid, ClearBoats, IsoChrones, WPs, ManagedRoutes})
 
             While Q.Count > 0
                 Dim R2 As System.Windows.Threading.DispatcherOperation = CType(Q.Dequeue, System.Windows.Threading.DispatcherOperation)
@@ -463,6 +463,24 @@ Render1:
                     Next
                 Next
 #End If
+                If Not ManagedRoutes Is Nothing Then
+                    'Dim StartRoutes As DateTime = Now
+                    For Each route In ManagedRoutes
+                        Dim Pe As New Pen(route.ColorBrush, 1)
+                        For i As Integer = 1 To route.Route.Route.Count - 1
+
+                            Dim PrevPt As Point
+                            Dim CurPt As Point
+                            PrevPt.X = LonToCanvas(route.Route.Route(i - 1).P.Lon_Deg)
+                            PrevPt.Y = LatToCanvas(route.Route.Route(i - 1).P.Lat_Deg)
+                            CurPt.X = LonToCanvas(route.Route.Route(i).P.Lon_Deg)
+                            CurPt.Y = LatToCanvas(route.Route.Route(i).P.Lat_Deg)
+
+                            SafeDrawLine(DC, route.Route.Route(i - 1).P, route.Route.Route(i).P, Pen, PrevPt, CurPt)
+
+                        Next
+                    Next
+                End If
 
                 '
                 ' Draw opponents map
