@@ -108,4 +108,13 @@ Public Class RouteManager
 
     End Sub
 
+    Public ReadOnly Property VisibleRoutes() As IList(Of RecordedRoute)
+        Get
+
+            Dim R = (From rt In _Routes Where rt.Visible).ToList
+            Return R
+
+        End Get
+    End Property
+
 End Class
