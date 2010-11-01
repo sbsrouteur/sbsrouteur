@@ -32,6 +32,7 @@ Partial Public Class _2D_Viewer
     Private _BackDropBmp As RenderTargetBitmap
     Private _OpponentsBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
     Private _GridBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+    Private _RoutesBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
     'Private _gshhs As New GSHHS_Reader
     Private _CurCoords As New Coords
     Private _P As Point
@@ -464,22 +465,29 @@ Render1:
                 Next
 #End If
                 If Not ManagedRoutes Is Nothing Then
+                    _RoutesBmp.Clear()
                     'Dim StartRoutes As DateTime = Now
                     For Each route In ManagedRoutes
-                        Dim Pe As New Pen(route.ColorBrush, 1)
-                        For i As Integer = 1 To route.Route.Route.Count - 1
 
-                            Dim PrevPt As Point
-                            Dim CurPt As Point
-                            PrevPt.X = LonToCanvas(route.Route.Route(i - 1).P.Lon_Deg)
-                            PrevPt.Y = LatToCanvas(route.Route.Route(i - 1).P.Lat_Deg)
-                            CurPt.X = LonToCanvas(route.Route.Route(i).P.Lon_Deg)
-                            CurPt.Y = LatToCanvas(route.Route.Route(i).P.Lat_Deg)
+                        If route.Visible Then
+                            Dim Pe As New Pen(route.ColorBrush, 1)
+                            For i As Integer = 1 To route.Route.Route.Count - 1
 
-                            SafeDrawLine(DC, route.Route.Route(i - 1).P, route.Route.Route(i).P, Pen, PrevPt, CurPt)
+                                Dim PrevPt As Point
+                                Dim CurPt As Point
+                                PrevPt.X = LonToCanvas(route.Route.Route(i - 1).P.Lon_Deg)
+                                PrevPt.Y = LatToCanvas(route.Route.Route(i - 1).P.Lat_Deg)
+                                CurPt.X = LonToCanvas(route.Route.Route(i).P.Lon_Deg)
+                                CurPt.Y = LatToCanvas(route.Route.Route(i).P.Lat_Deg)
 
-                        Next
+                                SafeDrawLine(DC, route.Route.Route(i - 1).P, route.Route.Route(i).P, Pen, PrevPt, CurPt)
+
+                            Next
+                        End If
                     Next
+                    DC.Close()
+                    _RoutesBmp.Render(D)
+                    DC = D.RenderOpen
                 End If
 
                 '
@@ -658,6 +666,7 @@ Render1:
                 If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
                     DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
                 End If
+                DC.DrawImage(_RoutesBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
                 DC.DrawImage(_OpponentsBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
                 DC.DrawImage(_GridBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
 

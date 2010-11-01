@@ -10,7 +10,7 @@
 	<Window.Resources >
 	<DataTemplate DataType="{x:Type Routeur:RecordedRoute}">
 		<Grid>
-		<TextBox Text="{Binding Route.RouteName, Mode=Default}"  />
+		<TextBlock Text="{Binding Route.RouteName, Mode=Default}"  />
 		</Grid>
 	</DataTemplate>
 	</Window.Resources>
@@ -20,13 +20,13 @@
 			<ColumnDefinition Width="0.732*"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="0.122*"/>
-			<RowDefinition Height="0.77*"/>
+			<RowDefinition Height="0.207*"/>
+			<RowDefinition Height="0.685*"/>
 			<RowDefinition Height="0.108*"/>
 		</Grid.RowDefinitions>
-		<ListBox x:Name="listBox" Grid.Row="1" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RoutesInRace, Mode=Default}"/>
+		<ListBox x:Name="RaceList" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RoutesInRace, Mode=Default}" Grid.RowSpan="2"/>
 		<Button HorizontalAlignment="Right" Margin="0,8.952,8,8" Width="75" Content="Close" Grid.Column="1" Grid.Row="2" Click="OnClose"/>
-		<GridSplitter HorizontalAlignment="Left" Width="8.768" Grid.Column="1" Grid.Row="1" Foreground="{x:Null}" Background="Red">
+		<GridSplitter HorizontalAlignment="Left" Width="8.768" Grid.Column="1" Foreground="{x:Null}" Background="Red" Margin="-4,0,0,0" Grid.RowSpan="4">
 			<GridSplitter.OpacityMask>
 				<RadialGradientBrush>
 					<GradientStop Color="#00000000" Offset="0"/>
@@ -34,6 +34,43 @@
 				</RadialGradientBrush>
 			</GridSplitter.OpacityMask>
 		</GridSplitter>
-		<ListBox Margin="{DynamicResource DefMargin}" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding SelectedItem.Route.Route, ElementName=listBox, Mode=Default}"/>
+		<ListView x:Name="listBox1" Margin="8.768,4,-0.768,4" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding SelectedItem.Route.Route, ElementName=RaceList, Mode=Default}">
+			<ListView.View>
+				<GridView>
+					<GridViewColumn/>
+					<GridViewColumn Header="Date"/>
+					<GridViewColumn Header="Action"/>
+					<GridViewColumn Header="Paramters"/>
+				</GridView>
+			</ListView.View>
+		</ListView>
+		<Grid Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="0.284*"/>
+				<ColumnDefinition Width="0.716*"/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" MinHeight="14"/>
+				<RowDefinition Height="0.563*"/>
+				<RowDefinition Height="0.437*"/>
+			</Grid.RowDefinitions>
+			<TextBlock Text="Route Name" TextWrapping="Wrap"/>
+			<TextBlock Grid.Row="2" Text="Route Color" TextWrapping="Wrap"/>
+			<TextBox Grid.Column="1" Text="{Binding Route.RouteName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap"/>
+			<CheckBox Grid.Row="1" Grid.Column="1" Content="Route is Visible on map" IsChecked="{Binding Visible, Mode=TwoWay}" />
+			<Grid Grid.Row="2" Grid.Column="1">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="0.1*"/>
+					<ColumnDefinition Width="0.1*"/>
+					<ColumnDefinition Width="0.1*"/>
+					<ColumnDefinition Width="0.1*"/>
+				</Grid.ColumnDefinitions>
+				<Rectangle Fill="{Binding ColorBrush, Mode=Default}" />
+				<TextBox Text="{Binding ColorR, Mode=TwoWay}" Grid.Column="1" />
+				<TextBox Text="{Binding ColorG, Mode=TwoWay}" Grid.Column="2" />
+				<TextBox Text="{Binding ColorB, Mode=TwoWay}" Grid.Column="3" />
+			</Grid>
+			
+		</Grid>
 	</Grid>
 </Window>

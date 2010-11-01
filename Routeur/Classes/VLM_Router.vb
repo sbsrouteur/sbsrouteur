@@ -1626,7 +1626,7 @@ Public Class VLM_Router
         Else
             SyncLock _Opponents
                 Dim BI As BoatInfo
-                Dim RankingOffset As Integer = 0
+                'Dim RankingOffset As Integer = 0
 
                 _Opponents.Clear()
 
@@ -1637,7 +1637,7 @@ Public Class VLM_Router
                     If BoatJson.deptime <> -1 Then
                         BI = New BoatInfo
                         With BI
-                            .Classement = BoatJson.rank - RankingOffset
+                            .Classement = BoatJson.rank '- RankingOffset
                             .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
 
                             If Not BoatInfo.ImgList.ContainsKey(BoatJson.country) Then
@@ -1651,10 +1651,10 @@ Public Class VLM_Router
 
                         End With
                         _Opponents.Add(BoatJson.idusers.ToString, BI)
-                    Else
-                        If BoatJson.rank > RankingOffset Then
-                            RankingOffset = BoatJson.rank
-                        End If
+                        'Else
+                        '    If BoatJson.rank > RankingOffset Then
+                        '        RankingOffset = BoatJson.rank
+                        '    End If
                     End If
 
                 Next

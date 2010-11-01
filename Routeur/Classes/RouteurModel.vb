@@ -737,6 +737,8 @@ Public Class RouteurModel
                 _ClearBoats = False
             End If
             System.Threading.Monitor.Exit(Me)
+        Else
+            tmrRefresh.Start()
         End If
     End Sub
 
