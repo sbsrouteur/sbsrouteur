@@ -158,14 +158,15 @@ Public Class IsoRouter
 
                                 Index = RetIsoChrone.IndexFromAngle(alpha2)
                                 'If Not OuterIso Is Nothing Then
-                                'PrevIndex = OuterIso.IndexFromAngle(alpha2)
+                                '    PrevIndex = OuterIso.IndexFromAngle(alpha2)
                                 'End If
                                 OldP = RetIsoChrone.Data(Index)
                                 If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio) Then
-                                    'If OldP Is Nothing OrElse OuterIso Is Nothing OrElse OuterIso.Data(PrevIndex) Is Nothing OrElse (Not OuterIso.Data(PrevIndex) Is Nothing AndAlso P.Improve(OuterIso.Data(PrevIndex), _DTFRatio)) Then
+                                    'If OuterIso Is Nothing OrElse OuterIso.Data(PrevIndex) Is Nothing OrElse _
+                                    '    (Not OuterIso.Data(PrevIndex) Is Nothing AndAlso P.Improve(OuterIso.Data(PrevIndex), _DTFRatio)) Then
                                     RetIsoChrone.Data(Index) = P
                                     'If Not OuterIso Is Nothing Then
-                                    'OuterIso.Data(PrevIndex) = P
+                                    '    OuterIso.Data(PrevIndex) = P
                                     'End If
                                     'End If
                                 End If
@@ -212,7 +213,6 @@ Public Class IsoRouter
         RaiseEvent Log("Isochrone router started at " & Start)
         While Not RouteComplete AndAlso Not _CancelRequested
             P = Nothing
-            'RouteurModel.DebugEvt.WaitOne()
             'CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone, OuterIsochrone)
             CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
             'RouteComplete = CheckCompletion(CurIsoChrone)
