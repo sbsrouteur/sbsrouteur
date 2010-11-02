@@ -283,8 +283,19 @@ Public Class VLM_Router
 
             Dim PAvgSpeed As Double = P.AvgSpeed()
             Dim PAvgVMG As Double = P.AvgVMG
-            'Dim RetVal As Boolean = DTF / (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed) < P.DTF / (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
-            Dim RetVal As Boolean = (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed) > (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
+            Dim Fact As Double = (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed)
+            Dim Fact2 As Double = (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
+            Dim RetVal As Boolean = False
+            If Fact * Fact2 > 0 Then
+                RetVal = DTF / Fact < P.DTF / Fact2
+            ElseIf Fact2 = 0 OrElse Fact2 = 0 Then
+
+                Return Fact2 = 0
+            Else
+                Return Fact > 0
+
+            End If
+            'Dim RetVal As Boolean = (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed) > (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
             Return RetVal
 
         End Function
@@ -359,6 +370,7 @@ Public Class VLM_Router
             End While
 
             TimeSpan = Start.Subtract(endTime)
+            Return P.DTF
 
         End Function
 
