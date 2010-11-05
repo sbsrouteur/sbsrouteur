@@ -58,102 +58,6 @@ Public Class clsMeteoOrganizer
     End Sub
 
 
-    Private Function GetMeteoData(ByVal Key As PrevDateInfo) As Boolean
-        Try
-
-
-            Dim ErrorCount As Integer = 0
-            Dim ResponseString As String
-            Dim Co As New Coords
-            Dim DateIndex As Integer
-
-            Dim MI As MeteoInfo
-
-            'Dim s As New System.IO.StreamReader(_WebClient.OpenRead(MeteoRequestString(Key)))
-            'ResponseString = s.ReadToEnd
-            Debug.WriteLine("Query meteo " & MeteoRequestString(Key) & " " & _MeteoArray(0).Count)
-            ResponseString = _WebClient.DownloadString(MeteoRequestString(Key))
-            _FallBAckToGrib = False
-            Dim memstream As New System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(ResponseString))
-            Try
-                Dim MeteoSerializer As New XmlSerializer(GetType(Routeur.PREVISIONS))
-                Dim M As PREVISIONS = Nothing
-                While ErrorCount < 2
-                    Try
-                        M = CType(MeteoSerializer.Deserialize(memstream), PREVISIONS)
-                        Exit While
-                    Catch ex As Exception
-
-                        ErrorCount += 1
-                    End Try
-
-                End While
-
-                If Not M Is Nothing Then
-
-                    For Each P In M.PREVISION
-
-                        If CDate(P.DATE) > _MaxDate Then
-                            _MaxDate = CDate(P.DATE)
-                        End If
-                        If CDate(P.DATE) < _MeteoStartDate Then
-                            _MeteoStartDate = CDate(P.DATE)
-                        End If
-
-                        DateIndex = DateArrayIndex(CDate(P.DATE).AddHours(2))
-
-                        Dim D As Date = New DateTime(CDate(P.DATE).Ticks, DateTimeKind.Utc)
-
-                        For Each Mes In P.M
-
-                            MI = New MeteoInfo() With {.Dir = Mes.D, .Strength = Mes.V * 0.54}
-
-                            Key = New PrevDateInfo
-                            With Key
-                                .Lat = Mes.LAT
-                                If RouteurModel.InvertMeteoLon Then
-                                    .lon = -Mes.LON
-                                Else
-                                    .lon = Mes.LON
-                                End If
-                            End With
-
-                            Try
-                                If Not _MeteoArray(DateIndex).Keys.Contains(Key) Then
-                                    _MeteoArray(DateIndex).Add(Key, MI)
-                                End If
-                                'Debug.WriteLine("Added " & Key.ToString & " " & MI.Dir & " " & MI.Strength)
-                            Catch ex As Exception
-                                Debug.WriteLine(" MeteoArray.add " & ex.Message)
-                            End Try
-
-                        Next
-
-                    Next
-                End If
-
-                Return True
-
-            Catch ex As Exception
-                'MessageBox.Show("GetboartInfo : " & ex.Message)
-            End Try
-
-
-        Catch webex As WebException When webex.Message.Contains("404")
-
-            _FirstFallbackDate = Now
-            _FallBAckToGrib = True
-            Return False
-
-        Catch ex As Exception
-
-            'MessageBox.Show("GetboartInfo : " & ex.Message)
-            Debug.WriteLine(ex.Message)
-        End Try
-
-        Return False
-    End Function
-
 
     Public Function GetMeteoToDate(ByVal C As Coords, ByVal D As Date, ByVal NoLock As Boolean) As MeteoInfo
 
@@ -174,39 +78,6 @@ Public Class clsMeteoOrganizer
 
     End Function
 
-    Private Function MeteoRequestString(ByVal Key As PrevDateInfo) As String
-
-        'Static C As New Coords
-        Dim Lat As Double
-        Dim Lon As Double
-        Dim s As String
-        Const GRID_SIZE As Integer = RouteurModel.METEO_GIRD_SIZE
-        Const GRID_STEP As Double = RouteurModel.METEO_GRID_STEP
-
-        'If Key.Lat < 0 Then
-        '    C.Lat_Deg = Math.Ceiling(Key.Lat / 5) * 5
-        'Else
-        '    C.Lat_Deg = Math.Ceiling(Key.Lat / 5) * 5
-        'End If
-
-        'If Key.lon > 0 Then
-        '    C.Lon_Deg = -Math.Ceiling(Key.lon / 5) * 5
-        'Else
-        '    C.Lon_Deg = -Math.Ceiling(Key.lon / 5) * 5
-        'End If
-        Lat = Math.Ceiling(Key.Lat / GRID_SIZE / GRID_STEP) * GRID_STEP * GRID_SIZE
-        If RouteurModel.InvertMeteoLon Then
-            Lon = -Math.Ceiling(Key.lon / GRID_SIZE / GRID_STEP) * GRID_STEP * GRID_SIZE
-        Else
-            Lon = (Math.Ceiling(Key.lon / GRID_SIZE / GRID_STEP) * GRID_STEP - 1) * GRID_SIZE
-        End If
-
-        's = RouteurModel.BASE_GAME_URL & "/resources/winds/meteo_" & C.Lon_Deg.ToString("0.#") & "_" & C.Lat_Deg.ToString("0.#") & ".xml?ver=17_10_" & Math.Floor(Rnd() * 999999)
-        s = RouteurModel.BASE_GAME_URL & "/resources/winds/meteo_" & Lon.ToString("0.#") & "_" & Lat.ToString("0.#") & ".xml?ver=17_" & RouteurModel.URL_Version & "_" & Math.Floor(Rnd() * 999999)
-        Return s
-
-    End Function
-
 
     Public Sub New()
 
@@ -216,6 +87,7 @@ Public Class clsMeteoOrganizer
             _MeteoArray(i) = New Dictionary(Of PrevDateInfo, MeteoInfo)(KeyComparer)
         Next
     End Sub
+
     Public Property BestDate() As DateTime
         Get
             Return _BestDate

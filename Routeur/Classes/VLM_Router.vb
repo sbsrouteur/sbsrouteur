@@ -2335,38 +2335,6 @@ Public Class VLM_Router
         Return RetVal
     End Function
 
-    Private Function ParseVersionAndPass(ByVal rs As String) As Boolean
-
-        Dim i1 As Integer = rs.IndexOf("application.swf?version=")
-
-        Dim i As Integer = rs.IndexOf("&id_user=")
-        If i = -1 Then
-            Return False
-        End If
-
-        Dim vString As String = rs.Substring(i1 + 24, i - i1 - 24)
-
-        Dim S As String = rs.Substring(i + 9)
-        Dim i2 As Integer = S.IndexOf("&pass")
-        If i2 = -1 Then
-            Return False
-        End If
-        Dim i3 As Integer = S.Substring(i2 + 6).IndexOf("&")
-        If i3 = -1 Then
-            Return False
-        End If
-        RouteurModel.URL_Version = CInt(vString)
-        _Version = "17"
-        _Pass = S.Substring(i2 + 6, i3)
-        Dim i4 As Integer = S.IndexOf("&U=")
-        Dim i5 As Integer = S.IndexOf("""")
-        If i4 = -1 Or i5 = -1 Then
-            Return False
-        End If
-        _U = S.Substring(i4 + 3, i5 - i4 - 3)
-        Return True
-
-    End Function
 
     Private Function ParseVLMBoatInfoString() As user
 
@@ -2406,16 +2374,9 @@ Public Class VLM_Router
 
         Nup = BoatInfo.NUP
         If Nup < -10 AndAlso RetUser.Loch > 0 Then
-            If RouteurModel.BASE_GAME_URL = RouteurModel.S10_SERVER Then
-                RouteurModel.BASE_GAME_URL = RouteurModel.S11_SERVER
-                AddLog(TmpDbl & "NUP Wrong switch to S11 : " & Nup)
-                _CookiesContainer = Nothing
-            Else
-                RouteurModel.BASE_GAME_URL = RouteurModel.S10_SERVER
-                AddLog(TmpDbl & "NUP Wrong switch to S10" & Nup)
-                _CookiesContainer = Nothing
-            End If
-
+            AddLog(TmpDbl & "Wrong NUP Wrong switching server " & Nup)
+            _CookiesContainer = Nothing
+        
             NbSwitch += 1
             Nup = 5 * 2 ^ NbSwitch
 
