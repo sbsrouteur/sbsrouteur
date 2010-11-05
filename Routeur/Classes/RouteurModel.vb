@@ -48,9 +48,9 @@ Public Class RouteurModel
 
 #End If
 
-    Public Shared BASE_GAME_URL As String = S11_SERVER
-    Public Shared BASE_SAIL_URL As String = BASE_GAME_URL & "/Polaires/"
-
+    Private Shared _Servers As String() = New String() {S10_SERVER, S11_SERVER}
+    'Private Shared _BASE_GAME_URL As String = S11_SERVER
+   
     Public Shared VacationMinutes As Double = 5
     Public Shared MapLevel As String = "l"
 
@@ -61,8 +61,7 @@ Public Class RouteurModel
     Public Shared START_LON As Double = 1.186
     Public Shared START_LAT As Double = 46.142
 
-    Public Shared URL_Version As Integer = 7
-
+    
     Public Shared _RaceRect As New Polygon
 
 
@@ -335,6 +334,29 @@ Public Class RouteurModel
         UpdateRaceScale(C1, C2)
 
     End Sub
+
+    Public Shared ReadOnly Property Base_Game_Url() As String
+        Get
+            If _Servers Is Nothing Then
+                Return S10_SERVER
+            End If
+            Static index As Integer = 0
+
+            index += 1
+            If index > 50000 Then
+                index = 0
+            End If
+            Return _Servers(index Mod _Servers.Length)
+        End Get
+    End Property
+
+    Public Shared ReadOnly Property BASE_SAIL_URL() As String
+        Get
+            Return Base_Game_Url & "/Polaires/"
+        End Get
+    End Property
+
+
 
     Public Shared ReadOnly Property BaseFileDir() As String
         Get
