@@ -10,7 +10,7 @@ Public Class IsoChrone
 
     Public Sub New(ByVal AngleStep As Double)
         _AngleStep = AngleStep
-        ReDim _Data(CInt(360 / _AngleStep))
+        ReDim _Data(MaxIndex)
 
     End Sub
 
@@ -51,13 +51,13 @@ Public Class IsoChrone
 
     Public ReadOnly Property IndexFromAngle(ByVal Angle As Double) As Integer
         Get
-            Return CInt(((Angle + 360) Mod 360) / _AngleStep)
+            Return CInt(Math.Floor(((Angle + 360) Mod 360) / _AngleStep))
         End Get
     End Property
 
     Public ReadOnly Property MaxIndex() As Integer
         Get
-            Return CInt((360 - _AngleStep) / _AngleStep)
+            Return CInt(Math.Floor((360 - _AngleStep) / _AngleStep))
         End Get
     End Property
 

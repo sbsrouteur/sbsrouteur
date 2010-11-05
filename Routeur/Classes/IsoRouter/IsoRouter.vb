@@ -28,7 +28,7 @@ Public Class IsoRouter
     Private _SailManager As clsSailManager
     Private _BoatType As String
     Private _CurBest As clsrouteinfopoints
-    Private _DTFRatio As Double = 0.75
+    Private _DTFRatio As Double = 0.85
 
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan)
@@ -43,14 +43,14 @@ Public Class IsoRouter
     End Sub
 
 
-    'Private Function ComputeNextIsoChrone(ByVal Iso As IsoChrone, ByVal OuterIso As IsoChrone) As IsoChrone
-    Private Function ComputeNextIsoChrone(ByVal Iso As IsoChrone) As IsoChrone
+    Private Function ComputeNextIsoChrone(ByVal Iso As IsoChrone, ByVal OuterIso As IsoChrone) As IsoChrone
+        'Private Function ComputeNextIsoChrone(ByVal Iso As IsoChrone) As IsoChrone
 
         Dim RetIsoChrone As IsoChrone = Nothing
         Dim alpha As Double
         Dim P As clsrouteinfopoints
         Dim Index As Integer
-        'Dim PrevIndex As Integer
+        Dim PrevIndex As Integer
         Dim OldP As clsrouteinfopoints
         Dim AStep As Double
 
@@ -94,14 +94,15 @@ Public Class IsoRouter
                     If RetIsoChrone Is Nothing Then
                         RetIsoChrone = New IsoChrone(_AngleStep)
 
-                        'For alpha = 0 To RetIsoChrone.Data.Count - 1
-                        '    Index = Iso.IndexFromAngle(360 * alpha / (RetIsoChrone.Data.Count - 1))
+                        'For alpha = 0 To 360 Step _AngleStep
+                        '    Index = Iso.IndexFromAngle(alpha)
                         '    Dim Src As clsrouteinfopoints = Iso.Data(Index)
-                        '    If Src IsNot Nothing Then
-                        '        RetIsoChrone.Data(alpha) = New clsrouteinfopoints
-                        '        With RetIsoChrone.Data(alpha)
+                        '    Index = RetIsoChrone.IndexFromAngle(alpha)
+                        '    If Src IsNot Nothing AndAlso RetIsoChrone.Data(Index) Is Nothing Then
+                        '        RetIsoChrone.Data(Index) = New clsrouteinfopoints
+                        '        With RetIsoChrone.Data(Index)
                         '            .P = New Coords(Src.P)
-                        '            .T = Src.T.Add(CurStep)
+                        '            .T = Src.T.AddMinutes(CurStep.TotalMinutes)
                         '            .WindStrength = -1
                         '            .WindDir = -1
                         '            .Loch = Src.Loch
@@ -153,37 +154,53 @@ Public Class IsoRouter
                         P = ReachPoint(rp, alpha, CurStep)
                         If Not P Is Nothing Then
                             tc.EndPoint = P.P
-                            If tc.SurfaceDistance > 0.001 Then
-                                alpha2 = tc.LoxoCourse_Deg
+                            alpha2 = tc.LoxoCourse_Deg
 
-                                Index = RetIsoChrone.IndexFromAngle(alpha2)
-                                'If Not OuterIso Is Nothing Then
-                                '    PrevIndex = OuterIso.IndexFromAngle(alpha2)
-                                'End If
-                                OldP = RetIsoChrone.Data(Index)
-                                If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio) Then
-                                    'If OuterIso Is Nothing OrElse OuterIso.Data(PrevIndex) Is Nothing OrElse _
-                                    '    (Not OuterIso.Data(PrevIndex) Is Nothing AndAlso P.Improve(OuterIso.Data(PrevIndex), _DTFRatio)) Then
-                                    RetIsoChrone.Data(Index) = P
-                                    'If Not OuterIso Is Nothing Then
-                                    '    OuterIso.Data(PrevIndex) = P
-                                    'End If
-                                    'End If
-                                End If
-                            Else
-                                Dim br2 As Integer = 0
+                            Index = RetIsoChrone.IndexFromAngle(alpha2)
+                            If Not OuterIso Is Nothing Then
+                                PrevIndex = OuterIso.IndexFromAngle(alpha2)
                             End If
+                            OldP = RetIsoChrone.Data(Index)
+                            If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio) Then
+                                RetIsoChrone.Data(Index) = P
+                            End If
+                            If OuterIso.Data(PrevIndex) Is Nothing OrElse _
+                               P.Improve(OuterIso.Data(PrevIndex), 1) Then
+                                OuterIso.Data(PrevIndex) = P
+
+                            End If
+
                         Else
                             Dim vr As Integer = 0
                         End If
 
-                'End If
+                        'End If
 
-            Next
+                    Next
 
                     Dim br3 As Integer = 0
 
                 End If
+            Next
+
+            For alpha = 0 To 360 Step _AngleStep
+                Index = Iso.IndexFromAngle(alpha)
+                Dim Src As clsrouteinfopoints = Iso.Data(Index)
+                Index = RetIsoChrone.IndexFromAngle(alpha)
+                If Src IsNot Nothing AndAlso RetIsoChrone.Data(Index) Is Nothing Then
+                    RetIsoChrone.Data(Index) = New clsrouteinfopoints
+                    With RetIsoChrone.Data(Index)
+                        .P = New Coords(Src.P)
+                        .T = Src.T.AddMinutes(CurStep.TotalMinutes)
+                        .WindStrength = 0
+                        .WindDir = 0
+                        .Loch = Src.Loch
+                        .DTF = Src.DTF
+                        .From = Src.From
+                        .Cap = Src.Cap
+                    End With
+                End If
+
             Next
             tc.EndPoint = Nothing
             tc.StartPoint = Nothing
@@ -199,7 +216,7 @@ Public Class IsoRouter
 
         Dim RouteComplete As Boolean = False
         Dim CurIsoChrone As IsoChrone = Nothing
-        'Dim OuterIsochrone As New IsoChrone(_AngleStep / 4)
+        Dim OuterIsochrone As New IsoChrone(_AngleStep / 4)
         Dim Start As DateTime = Now
         Dim P As clsrouteinfopoints = Nothing
         Dim TC As New TravelCalculator
@@ -209,12 +226,12 @@ Public Class IsoRouter
 
         Dim Loxo As Double = TC.LoxoCourse_Deg
         Dim Dist As Double = TC.SurfaceDistance
-
+        
         RaiseEvent Log("Isochrone router started at " & Start)
         While Not RouteComplete AndAlso Not _CancelRequested
             P = Nothing
-            'CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone, OuterIsochrone)
-            CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
+            CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone, OuterIsochrone)
+            'CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
             'RouteComplete = CheckCompletion(CurIsoChrone)
             If Not CurIsoChrone Is Nothing Then
                 _IsoChrones.AddLast(CurIsoChrone)
@@ -223,6 +240,7 @@ Public Class IsoRouter
                         If rp.Improve(P, _DTFRatio) Then
                             P = rp
                             CurDTF = P.DTF
+
                         End If
                     End If
                 Next
@@ -241,6 +259,7 @@ Public Class IsoRouter
                 TC.EndPoint = CurIsoChrone.Data(Loxo).P
                 If TC.SurfaceDistance >= Dist Then
                     RouteComplete = True
+
                 End If
             End If
             RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
@@ -256,7 +275,7 @@ Public Class IsoRouter
             Return Nothing
         End If
 
-        Dim RetPoint As New clsrouteinfopoints
+        Dim RetPoint As clsrouteinfopoints = Nothing
         Dim TC As New TravelCalculator
         Dim Speed As Double
         Dim MI As MeteoInfo = Nothing
@@ -284,22 +303,24 @@ Public Class IsoRouter
 
             Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
             TotalDist += Speed / 60 * RouteurModel.VacationMinutes
+            TC.StartPoint = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Cap)
 
             'TC.StartPoint = TC.EndPoint
         Next
+        TC.EndPoint = TC.StartPoint
+        TC.StartPoint = Start.P
+        'If PrevDist <> 0 AndAlso TotalDist / PrevDist > 20 Then
+        '    Dim br As Integer = 0
+        'ElseIf PrevDist <> 0 Then
+        '    PrevDist = TotalDist
 
-        If PrevDist <> 0 AndAlso TotalDist / PrevDist > 20 Then
-            Dim br As Integer = 0
-        ElseIf PrevDist <> 0 Then
-            PrevDist = TotalDist
-
-        End If
-        If TotalDist < 0.0001 Then
-            TotalDist = 0.0001
-        End If
-        TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
+        'End If
+        'If TotalDist < 0.0001 Then
+        '    TotalDist = 0.0001
+        'End If
+        'TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
         If GridRouter.CheckSegmentValid(TC) Then
-
+            RetPoint = New clsrouteinfopoints
             With RetPoint
                 .P = New Coords(TC.EndPoint)
                 .T = CurDate
@@ -439,6 +460,9 @@ Public Class IsoRouter
             With _StartPoint
                 .P = New Coords(From)
                 .T = StartDate
+                If WP2 IsNot Nothing Then
+                    _TC.EndPoint = GSHHS_Reader.PointToSegmentIntersect(.P, WP1, WP2)
+                End If
                 .DTF = _TC.SurfaceDistance
                 .WindDir = mi.Dir
                 .WindStrength = mi.Strength
