@@ -65,10 +65,10 @@ Module WS_Wrapper
         Return Nothing
     End Function
 
-    Public Function GetRankings(ByVal IdRace As String) As Dictionary(Of String, Object)
+    Public Function GetRankings(ByVal IdRace As String, ByRef ArrivedCount As Integer) As Dictionary(Of String, Object)
 
         Dim RetJSon As New Dictionary(Of String, Object)
-        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/raceinfo/ranking.php?idr=" & IdRace
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo/ranking.php?idr=" & IdRace
 
         Dim Retstring As String = ""
         Try
@@ -77,6 +77,11 @@ Module WS_Wrapper
             Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
             If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
                 CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("ranking") Then
+
+                If CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("nb_arrived") Then
+                    ArrivedCount = JSonHelper.GetJSonIntValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "nb_arrived")
+                End If
+
                 Return CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "ranking"), Dictionary(Of String, Object))
             Else
                 Return Nothing

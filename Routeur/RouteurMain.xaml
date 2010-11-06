@@ -91,6 +91,10 @@
 					<StackPanel Grid.Column="1" VerticalAlignment="Top" >
 					<TextBlock Text="{Binding Name, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Top" Style="{DynamicResource MargedText}"/>		
 					<TextBlock Text="{Binding CurPos, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Top" Style="{DynamicResource MargedText}" FontSize="9.333"/>		
+                    <StackPanel Orientation="Horizontal" >
+                        <TextBlock Text="{Binding Last1H, StringFormat=1H :{0:F1} kts, Mode=OneWay}"   Style="{DynamicResource MargedText}" FontSize="9.333" />
+                        <TextBlock Text="{Binding Last3H, StringFormat=3H :{0:F1} kts,Mode=OneWay}" Style="{DynamicResource MargedText}" FontSize="9.333" />
+                    </StackPanel>    
 					</StackPanel>
 					<Image Grid.Column="2" Stretch="Fill" Width="30" Height="20" OpacityMask="Black" Source="{Binding Flag, Mode=Default}" VerticalAlignment="Top" HorizontalAlignment="Right" />
 			</Grid>

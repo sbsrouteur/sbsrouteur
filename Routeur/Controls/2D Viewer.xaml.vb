@@ -500,19 +500,12 @@ Render1:
                 If Not Opponents Is Nothing Then
                     SyncLock Opponents
                         For Each op In Opponents
-                            If Not op.Value.Drawn Or op.Value.Name.ToLowerInvariant = "mifou" Then
+                            If Not op.Value.Drawn Then
                                 P1.X = LonToCanvas(op.Value.CurPos.Lon_Deg)
                                 P1.Y = LatToCanvas(op.Value.CurPos.Lat_Deg)
-                                If op.Value.ProOption Then
-                                    DC.DrawEllipse(Nothing, opponentPenOption, P1, 0.2, 0.2)
-                                ElseIf op.Value.Name.ToLowerInvariant = "mifou" Then
+                                
+                                DC.DrawEllipse(Nothing, opponentPenNoOption, P1, 1, 1)
 
-                                    DC.DrawEllipse(Nothing, PathPen, P1, 1, 1)
-                                Else
-
-                                    DC.DrawEllipse(Nothing, opponentPenNoOption, P1, 0.5, 0.5)
-
-                                End If
                                 'op.Value.Drawn = True
                                 'OpponentMap = True
                             End If
