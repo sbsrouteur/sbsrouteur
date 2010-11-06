@@ -54,7 +54,7 @@ Public Class RoutePointView
         Data.Add("debug", False)
 
 
-        WS_Wrapper.PostBoatSetup("pilototo_delete", GetStringFromJsonObject(Data))
+        WS_Wrapper.PostBoatSetup(UserID, "pilototo_delete", GetStringFromJsonObject(Data))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("UPLOAD"))
 
 
@@ -237,7 +237,7 @@ Public Class RoutePointView
 
         Data.Add("tasktime", TaskTime)
 
-        WS_Wrapper.PostBoatSetup(Verb, GetStringFromJsonObject(Data))
+        WS_Wrapper.PostBoatSetup(_UserID, Verb, GetStringFromJsonObject(Data))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("UPLOAD"))
 
     End Sub
