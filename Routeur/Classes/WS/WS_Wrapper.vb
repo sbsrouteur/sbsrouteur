@@ -143,12 +143,13 @@ Module WS_Wrapper
 
     End Function
 
-    Public Function PostBoatSetup(ByVal Verb As String, ByVal Data As String) As Boolean
+    Public Function PostBoatSetup(ByVal idu As Integer, ByVal Verb As String, ByVal Data As String) As Boolean
 
         Dim RetVal As Boolean = False
-        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatsetup/" & Verb & ".php" '?parms=" & Data
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/boatsetup/" & Verb & ".php?select_idu=" & idu '?parms=" & Data
 
         Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)
+
         Http.Credentials = New NetworkCredential(_LastUser, _LastPassword)
         Http.UserAgent = GetRouteurUserAgent()
         Http.CookieContainer = _Cookies
@@ -172,8 +173,13 @@ Module WS_Wrapper
         Dim Response As String = rs.ReadToEnd
         rs.Close()
 
-        Return Response.Contains("""success"":true")
+        If Response.Contains("""success"":true") Then
+            Return True
+        Else
 
+            Return False
+        End If
+        
 
     End Function
 
@@ -205,7 +211,7 @@ Module WS_Wrapper
         Request.Add("pim", 1)
         Request.Add("pip", Heading)
 
-        Return WS_Wrapper.PostBoatSetup(verb, GetStringFromJsonObject(Request))
+        Return WS_Wrapper.PostBoatSetup(idu, verb, GetStringFromJsonObject(Request))
 
 
     End Function
@@ -223,7 +229,7 @@ Module WS_Wrapper
         Request.Add("idu", idu)
         Request.Add("pim", PIM)
 
-        Return WS_Wrapper.PostBoatSetup(verb, GetStringFromJsonObject(Request))
+        Return WS_Wrapper.PostBoatSetup(idu, verb, GetStringFromJsonObject(Request))
     End Function
 
 
@@ -236,7 +242,7 @@ Module WS_Wrapper
         Request.Add("pim", 2)
         Request.Add("pip", Angle)
 
-        Return WS_Wrapper.PostBoatSetup(verb, GetStringFromJsonObject(Request))
+        Return WS_Wrapper.PostBoatSetup(idu, verb, GetStringFromJsonObject(Request))
     End Function
 
     Public Function SetWP(ByVal Idu As Integer, ByVal WP As Coords) As Boolean
@@ -256,7 +262,7 @@ Module WS_Wrapper
         Request.Add("pip", pip)
         Request.Add("debug", True)
 
-        Return WS_Wrapper.PostBoatSetup(verb, GetStringFromJsonObject(Request))
+        Return WS_Wrapper.PostBoatSetup(Idu, verb, GetStringFromJsonObject(Request))
 
     End Function
 
