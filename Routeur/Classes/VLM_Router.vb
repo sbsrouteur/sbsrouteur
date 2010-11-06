@@ -1619,7 +1619,8 @@ Public Class VLM_Router
         Dim PageEmpty As Boolean = False
         Dim wc As New WebClient
         Dim Cookies As CookieContainer = Login()
-        Dim JSonRanking As Dictionary(Of String, Object) = WS_Wrapper.GetRankings(_PlayerInfo.RaceInfo.idraces)
+        Dim NbArrived As Integer = 0
+        Dim JSonRanking As Dictionary(Of String, Object) = WS_Wrapper.GetRankings(_PlayerInfo.RaceInfo.idraces, nbArrived)
         If JSonRanking Is Nothing Then
             Do
 
@@ -1649,7 +1650,7 @@ Public Class VLM_Router
                     If BoatJson.deptime <> -1 Then
                         BI = New BoatInfo
                         With BI
-                            .Classement = BoatJson.rank '- RankingOffset
+                            .Classement = BoatJson.rank + NbArrived  '- RankingOffset
                             .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
 
                             If Not BoatInfo.ImgList.ContainsKey(BoatJson.country) Then
@@ -1659,7 +1660,9 @@ Public Class VLM_Router
                             End If
 
                             .FlagName = BoatJson.country
-                            .Name = BoatJson.boatpseudo
+                            .Name = BoatJson.boatpseudo 
+                            .Last1H = BoatJson.last1h
+                            .Last3h = BoatJson.last3h
 
                         End With
                         _Opponents.Add(BoatJson.idusers.ToString, BI)
@@ -3546,6 +3549,8 @@ Public Class BoatInfo
     Public TotalPoints As Decimal
     Private _Flag As BitmapImage
     Private _FlagName As String
+    Private _Last1H As Double
+    Private _Last3H As Double
 
     Private Shared _ImgList As New SortedList(Of String, BitmapImage)
 
@@ -3600,6 +3605,26 @@ Public Class BoatInfo
         End Get
         Set(ByVal value As BitmapImage)
             _ImgList(Index) = value
+        End Set
+    End Property
+
+    Public Property Last1H() As Double
+        Get
+            Return _Last1H
+        End Get
+        Set(ByVal value As Double)
+            _Last1H = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Last1H"))
+        End Set
+    End Property
+
+    Public Property Last3H() As Double
+        Get
+            Return _Last3H
+        End Get
+        Set(ByVal value As Double)
+            _Last3H = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Last3H"))
         End Set
     End Property
 

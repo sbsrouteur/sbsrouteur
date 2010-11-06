@@ -62,10 +62,10 @@ Public Class WS_WrapperTest
     <TestMethod()> _
     Public Sub GetRankingsTest()
         Dim RaceList() As Integer = New Integer() {81, 20100216, 20100213}
-
+        Dim ArrivedCount As Integer
         WS_Wrapper.SetCredential("test", "test")
         For Each Race As Integer In RaceList
-            Dim Res = WS_Wrapper.GetRankings(Race)
+            Dim Res = WS_Wrapper.GetRankings(Race, ArrivedCount)
 
             Console.WriteLine()
 
