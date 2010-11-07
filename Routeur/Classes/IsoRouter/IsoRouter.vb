@@ -234,17 +234,18 @@ Public Class IsoRouter
         Dim OuterIsochrone As New IsoChrone(_AngleStep / 4)
         Dim Start As DateTime = Now
         Dim P As clsrouteinfopoints = Nothing
+        Dim PrevP As clsrouteinfopoints = Nothing
         Dim TC As New TravelCalculator
         TC.StartPoint = _StartPoint.P
         TC.EndPoint = _DestPoint1
         Dim CurDTF As Double = Double.MaxValue
 
         Dim Loxo As Double = TC.LoxoCourse_Deg
-        Dim Dist As Double = TC.SurfaceDistance
+        Dim Dist As Double = TC.SurfaceDistance * 0.995
         
         RaiseEvent Log("Isochrone router started at " & Start)
         While Not RouteComplete AndAlso Not _CancelRequested
-            'P = Nothing
+            P = Nothing
             CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone, OuterIsochrone)
             'CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
             'RouteComplete = CheckCompletion(CurIsoChrone)
@@ -276,6 +277,8 @@ Public Class IsoRouter
                     RouteComplete = True
 
                 End If
+            ElseIf P.DTF < Dist * 0.01 Then
+                RouteComplete = True
             End If
             RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
 
