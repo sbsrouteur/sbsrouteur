@@ -277,7 +277,7 @@ Public Class IsoRouter
                     RouteComplete = True
 
                 End If
-            ElseIf P.DTF < Dist * 0.01 Then
+            ElseIf P IsNot Nothing AndAlso P.DTF < Dist * 0.01 Then
                 RouteComplete = True
             End If
             RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
