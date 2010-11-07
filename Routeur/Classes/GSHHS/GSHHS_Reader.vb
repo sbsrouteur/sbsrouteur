@@ -277,41 +277,52 @@ Public Class GSHHS_Reader
     Private Shared Sub ReaPolyToTile(ByVal S As FileStream, ByVal PixYOffset As Double, ByVal PixXOffset As Double, ByVal Renderer As _2D_Viewer, ByVal North As Double, ByVal South As Double, ByVal East As Double, ByVal West As Double, ByVal Image As Graphics)
 
         Dim H As GSHHS_Header = ReadHeader(S)
-        Static Pen As New Pen(Color.AliceBlue)
+        Dim Pen As New Pen(Color.FromArgb(255, 0, 255, 0))
 
-        If H.north / GSHHS_FACTOR < South OrElse _
-           H.south / GSHHS_FACTOR > North OrElse _
-           H.west / GSHHS_FACTOR > East OrElse _
-           H.east / GSHHS_FACTOR < West Then
+        Dim Wbound As Double = H.west / GSHHS_FACTOR
+        Dim Ebound As Double = H.east / GSHHS_FACTOR
+        If Wbound > 180 Then
+            Wbound -= 360
+        End If
+        If Ebound > 180 Then
+            Ebound -= 360
+        End If
 
-            S.Position += 4 * 2 * H.n
-        Else
-            Dim i As Integer
-            Dim lon As Double
-            Dim lat As Double
-            Dim Prevx As Integer
-            Dim Prevy As Integer
+        'If H.north / GSHHS_FACTOR < South OrElse _
+        '   H.south / GSHHS_FACTOR > North OrElse _
+        '   Wbound > East OrElse _
+        '   Ebound < West Then
+
+        '    S.Position += 4 * 2 * H.n
+        'Else
+        Dim i As Integer
+        Dim lon As Double
+        Dim PrevLon As Double
+        Dim lat As Double
+        Dim Prevx As Integer
+        Dim Prevy As Integer
 
             For i = 0 To CInt(H.n) - 1
-                lon = CDbl(Readinteger(S)) / GSHHS_FACTOR
-                lat = CDbl(Readinteger(S)) / GSHHS_FACTOR
+            lon = CDbl(Readinteger(S)) / GSHHS_FACTOR
+            lat = CDbl(Readinteger(S)) / GSHHS_FACTOR
 
-                If lon > 180 Then
-                    lon -= 360
-                End If
+            If lon > 180 Then
+                lon -= 360
+            End If
 
-                Dim y As Integer = CInt((lat - South) / (North - South))
-                Dim x As Integer = CInt((lon - West) / (East - West))
-                If i > 0 Then
+            Dim y As Integer = CInt((1 - (lat - South) / (North - South)) * TileServer.TILE_SIZE)
+            Dim x As Integer = CInt((lon - West) / (East - West) * TileServer.TILE_SIZE)
+            If i > 0 Then
+                If PrevLon * lon > 0 Then
                     Image.DrawLine(Pen, Prevx, Prevy, x, y)
-
                 End If
-                Prevx = x
-                Prevy = y
+            End If
+            Prevx = x
+            Prevy = y
+            PrevLon = lon
 
-            Next
-
-        End If
+        Next
+        'End If
 
         Return
 

@@ -23,20 +23,17 @@ Public Class TileServer
             End If
         End SyncLock
 
-        Dim CenterPoint As New PointF
-        CenterPoint.X = CSng(_Renderer.LonToCanvas(TI.Center.Lon_Deg))
-        CenterPoint.Y = CSng(_Renderer.LatToCanvas(TI.Center.Lat_Deg))
-
-        Dim North As Double = 90 '_Renderer.CanvasToLon(CenterPoint.X + TILE_SIZE / 2)
-        Dim South As Double = -90 '_Renderer.CanvasToLon(CenterPoint.X - TILE_SIZE / 2)
-        Dim East As Double = 180 ' _Renderer.CanvasToLat(CenterPoint.Y - TILE_SIZE / 2)
-        Dim West As Double = -180 '_Renderer.CanvasToLat(CenterPoint.Y - TILE_SIZE / 2)
+        Dim MapWidth As Double = 360 / 2 ^ (TI.Z + 1)
+        Dim North As Double = TI.Center.Lat_Deg + MapWidth / 2
+        Dim South As Double = TI.Center.Lat_Deg - MapWidth / 2
+        Dim East As Double = TI.Center.Lon_Deg + MapWidth
+        Dim West As Double = TI.Center.Lon_Deg - MapWidth
 
         Dim W As Double = East - West
         Dim H As Double = North - South
         Dim Resolution As Double = If(W < H, W, H) / TILE_SIZE
-        Dim XOffset As Double = CenterPoint.X - TILE_SIZE / 2
-        Dim YOffset As Double = CenterPoint.Y - TILE_SIZE / 2
+        Dim XOffset As Double
+        Dim YOffset As Double
         Dim img As New Bitmap(TILE_SIZE, TILE_SIZE, Imaging.PixelFormat.Format32bppArgb)
 
         Dim MapLevel As String
@@ -53,6 +50,9 @@ Public Class TileServer
         End If
         img.Save(TI.FileName)
 
+        SyncLock _TileBuildList
+            _TileBuildList.Remove(TI.TilePath)
+        End SyncLock
     End Sub
 
     Public Sub New(ByVal Render As _2D_Viewer)
