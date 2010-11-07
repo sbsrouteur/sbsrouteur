@@ -300,8 +300,8 @@ Public Class GSHHS_Reader
                     lon -= 360
                 End If
 
-                Dim x As Integer = CInt(Renderer.LonToCanvas(lon) - PixXOffset)
-                Dim y As Integer = CInt(Renderer.LatToCanvas(lat) - PixYOffset)
+                Dim y As Integer = CInt((lat - South) / (North - South))
+                Dim x As Integer = CInt((lon - West) / (East - West))
                 If i > 0 Then
                     Image.DrawLine(Pen, Prevx, Prevy, x, y)
 
@@ -321,6 +321,7 @@ Public Class GSHHS_Reader
 
         Dim S As FileStream = New FileStream(Gshhs_File, FileMode.Open, FileAccess.Read)
         Using G As Graphics = Graphics.FromImage(Image)
+            G.FillRectangle(New SolidBrush(Color.FromArgb(0, 0, 0, 0)), New System.Drawing.RectangleF(0, 0, TileServer.TILE_SIZE, TileServer.TILE_SIZE))
             Do
                 ReaPolyToTile(S, PixXOffset, PixXOffset, Renderer, North, South, East, West, G)
 

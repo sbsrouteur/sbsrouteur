@@ -27,10 +27,10 @@ Public Class TileServer
         CenterPoint.X = CSng(_Renderer.LonToCanvas(TI.Center.Lon_Deg))
         CenterPoint.Y = CSng(_Renderer.LatToCanvas(TI.Center.Lat_Deg))
 
-        Dim North As Double = _Renderer.CanvasToLon(CenterPoint.X + TILE_SIZE / 2)
-        Dim South As Double = _Renderer.CanvasToLon(CenterPoint.X - TILE_SIZE / 2)
-        Dim East As Double = _Renderer.CanvasToLat(CenterPoint.Y - TILE_SIZE / 2)
-        Dim West As Double = _Renderer.CanvasToLat(CenterPoint.Y - TILE_SIZE / 2)
+        Dim North As Double = 90 '_Renderer.CanvasToLon(CenterPoint.X + TILE_SIZE / 2)
+        Dim South As Double = -90 '_Renderer.CanvasToLon(CenterPoint.X - TILE_SIZE / 2)
+        Dim East As Double = 180 ' _Renderer.CanvasToLat(CenterPoint.Y - TILE_SIZE / 2)
+        Dim West As Double = -180 '_Renderer.CanvasToLat(CenterPoint.Y - TILE_SIZE / 2)
 
         Dim W As Double = East - West
         Dim H As Double = North - South
@@ -74,4 +74,5 @@ Public Class TileServer
 
     End Sub
 
+    
 End Class

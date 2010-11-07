@@ -103,8 +103,8 @@ Public Class IsoRouter
                         '        With RetIsoChrone.Data(Index)
                         '            .P = New Coords(Src.P)
                         '            .T = Src.T.AddMinutes(CurStep.TotalMinutes)
-                        '            .WindStrength = -1
-                        '            .WindDir = -1
+                        '            .WindStrength = 0
+                        '            .WindDir = 0
                         '            .Loch = Src.Loch
                         '            .DTF = Src.DTF
                         '            .From = Src.From
@@ -170,38 +170,53 @@ Public Class IsoRouter
 
                             End If
 
-                        Else
-                            Dim vr As Integer = 0
-                        End If
-
-                        'End If
+                         End If
 
                     Next
 
-                    Dim br3 As Integer = 0
-
                 End If
             Next
 
-            For alpha = 0 To 360 Step _AngleStep
-                Index = Iso.IndexFromAngle(alpha)
-                Dim Src As clsrouteinfopoints = Iso.Data(Index)
-                Index = RetIsoChrone.IndexFromAngle(alpha)
-                If Src IsNot Nothing AndAlso RetIsoChrone.Data(Index) Is Nothing Then
-                    RetIsoChrone.Data(Index) = New clsrouteinfopoints
-                    With RetIsoChrone.Data(Index)
-                        .P = New Coords(Src.P)
-                        .T = Src.T.AddMinutes(CurStep.TotalMinutes)
-                        .WindStrength = 0
-                        .WindDir = 0
-                        .Loch = Src.Loch
-                        .DTF = Src.DTF
-                        .From = Src.From
-                        .Cap = Src.Cap
-                    End With
+            'Clean up bad points
+            'Dim PrevDtf As Double
+            'Dim PrevLoxo As Double = 0
+            'For alpha = 0 To 360 Step _AngleStep
+            '    Index = RetIsoChrone.IndexFromAngle(alpha)
+            '    If RetIsoChrone.Data(Index) IsNot Nothing AndAlso RetIsoChrone.Data(Index).DTF <> 0 AndAlso PrevDtf <> 0 Then
+            '        Dim R As Double = If(PrevDtf < RetIsoChrone.Data(Index).DTF, PrevDtf / RetIsoChrone.Data(Index).DTF, RetIsoChrone.Data(Index).DTF / PrevDtf)
+            '        If R < 0.9 Then
+            '            RetIsoChrone.Data(Index) = Nothing
+            '        End If
+
+            '    End If
+
+            '    If RetIsoChrone.Data(Index) IsNot Nothing Then
+            '        PrevDtf = RetIsoChrone.Data(Index).DTF
+            '        PrevIndex = Index
+            '    Else
+            '        PrevDtf = 0
+            '    End If
+
+            'Next
+            For Index = 1 To RetIsoChrone.Data.Count - 1
+                If RetIsoChrone.Data(Index - 1) IsNot Nothing AndAlso RetIsoChrone.Data(Index) IsNot Nothing Then
+                    tc.EndPoint = RetIsoChrone.Data(Index - 1).P
+                    Dim d1 As Double = tc.SurfaceDistance
+                    tc.EndPoint = RetIsoChrone.Data(Index).P
+                    Dim d2 As Double = tc.SurfaceDistance
+
+                    If d2 <> 0 AndAlso d1 / d2 < 0.5 Then
+                        RetIsoChrone.Data(Index - 1) = Nothing
+                    ElseIf d1 <> 0 AndAlso d2 / d1 < 0.5 Then
+                        RetIsoChrone.Data(Index) = Nothing
+
+                    End If
+
                 End If
 
             Next
+           
+
             tc.EndPoint = Nothing
             tc.StartPoint = Nothing
             tc = Nothing
