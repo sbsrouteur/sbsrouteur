@@ -56,6 +56,7 @@ Partial Public Class _2D_Viewer
     Private Shared _CenterOnAnteMeridien As Boolean = False
     Private _HideIsochrones As Boolean = False
     Private _EraseIsoChrones As Boolean = False
+    Private WithEvents _TileServer As TileServer
 
 
     Public Sub New()
@@ -66,6 +67,7 @@ Partial Public Class _2D_Viewer
         ' Insérez le code requis pour la création d'objet sous ce point.
 
         '_Model = CType(FindResource("2DModel"), _2DViewerModel)
+        _TileServer = New TileServer(Me)
 
     End Sub
 
@@ -128,6 +130,10 @@ Partial Public Class _2D_Viewer
         Dim drawn As Boolean
         Dim PrevIndex As Integer
         Dim WPs As List(Of VLM_RaceWaypoint) = CType(state, List(Of VLM_RaceWaypoint))
+
+        Dim TI As New TileInfo(0, New Coords(0, 0))
+        _TileServer.RequestTile(TI)
+
 
         While Not _RacePolygonsInited
             System.Threading.Thread.Sleep(100)

@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports System.Math
+Imports System.Drawing
 
 
 Public Class GSHHS_Reader
@@ -203,9 +204,9 @@ Public Class GSHHS_Reader
                         '_Tree.InSert(RetPoints(ActivePoints), BspRect.inlandstate.InLand, RouteurModel.GridGrain)
                         'End If
                         IgnoredPoints = 0
-                Else
-                    IgnoredPoints += 1
-                End If
+                    Else
+                        IgnoredPoints += 1
+                    End If
                 End If
 
             End If
@@ -273,6 +274,62 @@ Public Class GSHHS_Reader
 
     End Function
 
+    Private Shared Sub ReaPolyToTile(ByVal S As FileStream, ByVal PixYOffset As Double, ByVal PixXOffset As Double, ByVal Renderer As _2D_Viewer, ByVal North As Double, ByVal South As Double, ByVal East As Double, ByVal West As Double, ByVal Image As Graphics)
+
+        Dim H As GSHHS_Header = ReadHeader(S)
+        Static Pen As New Pen(Color.AliceBlue)
+
+        If H.north / GSHHS_FACTOR < South OrElse _
+           H.south / GSHHS_FACTOR > North OrElse _
+           H.west / GSHHS_FACTOR > East OrElse _
+           H.east / GSHHS_FACTOR < West Then
+
+            S.Position += 4 * 2 * H.n
+        Else
+            Dim i As Integer
+            Dim lon As Double
+            Dim lat As Double
+            Dim Prevx As Integer
+            Dim Prevy As Integer
+
+            For i = 0 To CInt(H.n) - 1
+                lon = CDbl(Readinteger(S)) / GSHHS_FACTOR
+                lat = CDbl(Readinteger(S)) / GSHHS_FACTOR
+
+                If lon > 180 Then
+                    lon -= 360
+                End If
+
+                Dim x As Integer = CInt(Renderer.LonToCanvas(lon) - PixXOffset)
+                Dim y As Integer = CInt(Renderer.LatToCanvas(lat) - PixYOffset)
+                If i > 0 Then
+                    Image.DrawLine(Pen, Prevx, Prevy, x, y)
+
+                End If
+                Prevx = x
+                Prevy = y
+
+            Next
+
+        End If
+
+        Return
+
+    End Sub
+
+    Public Shared Sub ReadTile(ByVal PixYOffset As Double, ByVal PixXOffset As Double, ByVal Renderer As _2D_Viewer, ByVal North As Double, ByVal South As Double, ByVal East As Double, ByVal West As Double, ByVal Image As Bitmap, ByVal Gshhs_File As String)
+
+        Dim S As FileStream = New FileStream(Gshhs_File, FileMode.Open, FileAccess.Read)
+        Using G As Graphics = Graphics.FromImage(Image)
+            Do
+                ReaPolyToTile(S, PixXOffset, PixXOffset, Renderer, North, South, East, West, G)
+
+            Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
+        End Using
+
+
+    End Sub
+
     Private Shared Function UpdateBox(ByVal RetPoints As Coords()) As Coords()
 
         Dim Box(1) As Coords
@@ -333,32 +390,32 @@ Public Class GSHHS_Reader
             Return RetDistance
         End If
 
-            'P.Lon = -P.Lon
-            For Each Poly In LookupZone
+        'P.Lon = -P.Lon
+        For Each Poly In LookupZone
 
-                j = Poly.GetUpperBound(0)
-                NbLoops = Poly.GetUpperBound(0)
-                If NbLoops = 1 Then
-                    NbLoops = 0
-                End If
-                For i = 0 To NbLoops
+            j = Poly.GetUpperBound(0)
+            NbLoops = Poly.GetUpperBound(0)
+            If NbLoops = 1 Then
+                NbLoops = 0
+            End If
+            For i = 0 To NbLoops
 
-                    Dim dy1 As Double = Math.Abs(Poly(i).Lat_Deg - P.Lat_Deg)
-                    Dim dy2 As Double = Math.Abs(Poly(j).Lat_Deg - P.Lat_Deg)
-                    Dim dy3 As Double = Math.Abs(Poly(i).Lat_Deg - Poly(j).Lat_Deg)
-                    Dim dx1 As Double = Math.Abs(Poly(i).Lon_Deg - P.Lon_Deg)
-                    Dim dx2 As Double = Math.Abs(Poly(j).Lon_Deg - P.Lon_Deg)
-                    Dim dx3 As Double = Math.Abs(Poly(i).Lon_Deg - Poly(j).Lon_Deg)
-                    If dx1 <= dx3 OrElse Math.Abs(dy1) <= dy3 _
-                        OrElse dx2 <= dx3 OrElse dy2 <= dy3 Then
-                        Dim D As Double = PointToLineDistance(P, Poly(i), Poly(j))
-                        If D < RetDistance Then
-                            RetDistance = D
-                        End If
+                Dim dy1 As Double = Math.Abs(Poly(i).Lat_Deg - P.Lat_Deg)
+                Dim dy2 As Double = Math.Abs(Poly(j).Lat_Deg - P.Lat_Deg)
+                Dim dy3 As Double = Math.Abs(Poly(i).Lat_Deg - Poly(j).Lat_Deg)
+                Dim dx1 As Double = Math.Abs(Poly(i).Lon_Deg - P.Lon_Deg)
+                Dim dx2 As Double = Math.Abs(Poly(j).Lon_Deg - P.Lon_Deg)
+                Dim dx3 As Double = Math.Abs(Poly(i).Lon_Deg - Poly(j).Lon_Deg)
+                If dx1 <= dx3 OrElse Math.Abs(dy1) <= dy3 _
+                    OrElse dx2 <= dx3 OrElse dy2 <= dy3 Then
+                    Dim D As Double = PointToLineDistance(P, Poly(i), Poly(j))
+                    If D < RetDistance Then
+                        RetDistance = D
                     End If
+                End If
 
-                    j = i
-                Next
+                j = i
+            Next
 
 #If HIT_STATS Then
                 If TimeIt Then
@@ -366,9 +423,9 @@ Public Class GSHHS_Reader
                 End If
 #End If
 
-            Next
+        Next
 
-            P = Nothing
+        P = Nothing
 
 #If HIT_STATS Then
             If TimeIt Then
@@ -377,7 +434,7 @@ Public Class GSHHS_Reader
             End If
 #End If
 
-            Return RetDistance
+        Return RetDistance
 
 #If HIT_STATS Then
         Finally
@@ -572,7 +629,7 @@ Public Class GSHHS_Reader
         Return D
     End Function
 
-    
+
     Private Shared Function CrossProduct(ByVal e1 As Coords, ByVal e2 As Coords) As Coords
 
         Dim x As Double

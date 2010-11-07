@@ -260,6 +260,8 @@
     <Compile Include="Classes\GribMeteo\MeteoInfo.vb" />
     <Compile Include="Classes\GSHHS\GSHHS_StartInfo.vb" />
     <Compile Include="Classes\GSHHS\MapProgressContext.vb" />
+    <Compile Include="Classes\GSHHS\TileServer\TileInfo.vb" />
+    <Compile Include="Classes\GSHHS\TileServer\TileServer.vb" />
     <Compile Include="Classes\IsoRouter\IsoChrone.vb" />
     <Compile Include="Classes\IsoRouter\IsoRouteProgressContext.vb" />
     <Compile Include="Classes\IsoRouter\IsoRouter.vb" />

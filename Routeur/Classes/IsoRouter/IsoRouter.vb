@@ -229,7 +229,7 @@ Public Class IsoRouter
         
         RaiseEvent Log("Isochrone router started at " & Start)
         While Not RouteComplete AndAlso Not _CancelRequested
-            P = Nothing
+            'P = Nothing
             CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone, OuterIsochrone)
             'CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
             'RouteComplete = CheckCompletion(CurIsoChrone)
