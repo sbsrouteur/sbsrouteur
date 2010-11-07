@@ -20,11 +20,7 @@ Partial Public Class _2D_Viewer
     Private Const DPI_RES As Integer = 96
     Private Const XBMP_RES As Integer = 360
     Private Const YBMP_RES As Integer = 180
-#If NO_TILES Then
     Public Const DEFINITION As Integer = 10
-#Else
-    Public Const DEFINITION As Integer = 1
-#End If
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -115,7 +111,9 @@ Partial Public Class _2D_Viewer
 
     End Sub
 
+#If NO_TILES Then
     Private Function BgBackDropDrawing(ByVal state As Object) As Boolean
+
 
         Dim D As New DrawingVisual
         Dim DC As DrawingContext = D.RenderOpen()
@@ -135,10 +133,6 @@ Partial Public Class _2D_Viewer
         Dim PrevIndex As Integer
         Dim WPs As List(Of VLM_RaceWaypoint) = CType(state, List(Of VLM_RaceWaypoint))
 
-#If NO_TILES = 0 Then
-        Dim TI As New TileInfo(0, New Coords(0, 0))
-        _TileServer.RequestTile(TI)
-#End If
 
         While Not _RacePolygonsInited
             System.Threading.Thread.Sleep(100)
@@ -159,19 +153,20 @@ Partial Public Class _2D_Viewer
 
         For Each LC In RaceZone
             For Each C In LC
-                If C.Lat < MinLat Then
-                    MinLat = C.Lat
+                If Not C Is Nothing Then
+                    If C.Lat < MinLat Then
+                        MinLat = C.Lat
+                    End If
+                    If C.Lat > MaxLat Then
+                        MaxLat = C.Lat
+                    End If
+                    If C.Lon < MinLon Then
+                        MinLon = C.Lon
+                    End If
+                    If C.Lon > MaxLon Then
+                        MaxLon = C.Lon
+                    End If
                 End If
-                If C.Lat > MaxLat Then
-                    MaxLat = C.Lat
-                End If
-                If C.Lon < MinLon Then
-                    MinLon = C.Lon
-                End If
-                If C.Lon > MaxLon Then
-                    MaxLon = C.Lon
-                End If
-
             Next
         Next
 
@@ -272,6 +267,26 @@ Render1:
         Return True
 
     End Function
+
+#Else
+
+    Private Sub BgBackDropDrawing(ByVal state As Object)
+        Dim W As Double = RouteurModel._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
+        Dim Z As Integer = CInt(Math.Log(360 / W) / Math.Log(2)) + 1
+        Dim LocalBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+
+        For i As Integer = 0 To XBMP_RES * DEFINITION Step TileServer.TILE_SIZE
+            For j As Integer = 0 To YBMP_RES * DEFINITION Step TileServer.TILE_SIZE
+                Dim lon As Double = CanvasToLon(i)
+                Dim lat As Double = CanvasToLat(j)
+                Dim TI As New TileInfo(Z, lon, lat)
+                _TileServer.RequestTile(TI)
+            Next
+        Next
+
+    End Sub
+
+#End If
 
     Public Sub InitViewer(ByVal owner As System.Windows.Window)
 
@@ -451,6 +466,13 @@ Render1:
                     System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, WPs)
 
                 End If
+
+#If NO_TILES = 0 Then
+                Dim TI As New TileInfo(0, New Coords(0, 0))
+                _TileServer.RequestTile(TI)
+                TI = New TileInfo(1, New Coords(45, 90))
+                _TileServer.RequestTile(TI)
+#End If
 
 
                 'debug bsp grid
