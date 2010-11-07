@@ -287,7 +287,8 @@ Public Class VLM_Router
             Dim Fact2 As Double = (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
             Dim RetVal As Boolean = False
             If Fact * Fact2 > 0 Then
-                RetVal = DTF / Fact < P.DTF / Fact2
+                'RetVal = DTF / Fact < P.DTF / Fact2
+                RetVal = Fact > Fact2
             ElseIf Fact2 = 0 OrElse Fact2 = 0 Then
 
                 Return Fact2 = 0

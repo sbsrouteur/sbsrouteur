@@ -311,6 +311,7 @@ Public Class RouteurModel
             C2.Lon_Deg = START_LON
         End If
 
+#If NO_TILES = 1 Then
         C1.Lat_Deg -= _RaceZoneOffsets(RaceZoneDirs.South)
         If C1.Lon_Deg - _RaceZoneOffsets(RaceZoneDirs.West) > -180 Then
             C1.Lon_Deg -= _RaceZoneOffsets(RaceZoneDirs.West)
@@ -330,6 +331,12 @@ Public Class RouteurModel
         RouteurModel._RaceRect(1) = New Coords(C1.Lat_Deg, C2.Lon_Deg)
         RouteurModel._RaceRect(2) = New Coords(C2)
         RouteurModel._RaceRect(3) = New Coords(C2.Lat_Deg, C1.Lon_Deg)
+#Else
+        C1.Lat_Deg = -85
+        C2.Lat_Deg = 85
+        C1.Lon_Deg = -180
+        C2.Lon_Deg = 180
+#End If
 
         UpdateRaceScale(C1, C2)
 

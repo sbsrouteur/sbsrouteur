@@ -20,7 +20,11 @@ Partial Public Class _2D_Viewer
     Private Const DPI_RES As Integer = 96
     Private Const XBMP_RES As Integer = 360
     Private Const YBMP_RES As Integer = 180
+#If NO_TILES Then
     Public Const DEFINITION As Integer = 10
+#Else
+    Public Const DEFINITION As Integer = 1
+#End If
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -131,9 +135,10 @@ Partial Public Class _2D_Viewer
         Dim PrevIndex As Integer
         Dim WPs As List(Of VLM_RaceWaypoint) = CType(state, List(Of VLM_RaceWaypoint))
 
+#If NO_TILES = 0 Then
         Dim TI As New TileInfo(0, New Coords(0, 0))
         _TileServer.RequestTile(TI)
-
+#End If
 
         While Not _RacePolygonsInited
             System.Threading.Thread.Sleep(100)
@@ -560,19 +565,20 @@ Render1:
                                             P1.X = LonToCanvas(CurP.Lon_Deg)
                                             P1.Y = LatToCanvas(CurP.Lat_Deg)
 
-                                            If Not FirstPoint And index - PrevIndex < 4 Then
+                                            If Not FirstPoint Then 'And index - PrevIndex < 4 Then
                                                 If iso.Data(index).WindStrength <> 0 Then
                                                     SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
                                                 End If
                                             Else
                                                 FirstPoint = False
                                             End If
-                                            PrevIndex = index
+                                            'PrevIndex = index
                                             PrevP.Lon = CurP.Lon
                                             PrevP.Lat = CurP.Lat
                                             PrevPoint = P1
 
-                                            'Else
+                                        Else
+                                            FirstPoint = True
                                         End If
                                     Next
                                     iso.Drawn = True
