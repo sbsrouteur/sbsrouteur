@@ -33,7 +33,7 @@ Public Class RouteurModel
     Private Shared _BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
 
 
-    Private _Scale As Double = 1
+    Private Shared _Scale As Double = 1
     Public _LatOffset As Double = 0
     Public _LonOffset As Double = 0
 
@@ -632,7 +632,7 @@ Public Class RouteurModel
             Return _RouteManager
         End Get
     End Property
-    Public Property Scale() As Double
+    Public Shared Property Scale() As Double
         Get
             Return _Scale
         End Get

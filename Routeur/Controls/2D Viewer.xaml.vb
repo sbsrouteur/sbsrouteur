@@ -13,6 +13,7 @@ Imports System.Math
 
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
+Imports System.Threading
 
 Partial Public Class _2D_Viewer
 
@@ -49,6 +50,7 @@ Partial Public Class _2D_Viewer
     Private Shared _RacePolygonsInited As Boolean = False
     Private _Frm As frmRoutingProgress
     Private _MapPg As New MapProgressContext("Drawing Map...")
+    Private _TileCount As Integer = 0
 
     Private _Scale As Double
     Private _LonOffset As Double
@@ -57,7 +59,8 @@ Partial Public Class _2D_Viewer
     Private _HideIsochrones As Boolean = False
     Private _EraseIsoChrones As Boolean = False
     Private WithEvents _TileServer As TileServer
-
+    Private _PendingTileRequestCount As Integer = 0
+    Private _ReadyTilesQueue As New Queue(Of TileInfo)
 
     Public Sub New()
         MyBase.New()
@@ -271,15 +274,23 @@ Render1:
 #Else
 
     Private Sub BgBackDropDrawing(ByVal state As Object)
-        Dim W As Double = RouteurModel._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
-        Dim Z As Integer = CInt(Math.Log(360 / W) / Math.Log(2)) + 1
-        Dim LocalBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
 
+        'Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
+        Dim Width As Double = 360 / RouteurModel.Scale ' ._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
+        Dim Z As Integer = CInt(Math.Log(360 * DEFINITION / Width) / Math.Log(2)) + 1
+        Dim XTileOffset As Integer = CInt(LonToCanvas(0)) Mod TileServer.TILE_SIZE
+        Dim YTileOffset As Integer = CInt(LatToCanvas(0)) Mod TileServer.TILE_SIZE
+        _MapPg.Start(CInt(XBMP_RES * DEFINITION / TileServer.TILE_SIZE) * CInt(DEFINITION * YBMP_RES / TileServer.TILE_SIZE))
+        _TileCount = 0
         For i As Integer = 0 To XBMP_RES * DEFINITION Step TileServer.TILE_SIZE
             For j As Integer = 0 To YBMP_RES * DEFINITION Step TileServer.TILE_SIZE
-                Dim lon As Double = CanvasToLon(i)
-                Dim lat As Double = CanvasToLat(j)
-                Dim TI As New TileInfo(Z, lon, lat)
+                Dim W As Double = CanvasToLon(i - XTileOffset)
+                Dim N As Double = CanvasToLat(j - YTileOffset)
+                Dim E As Double = CanvasToLon(i - XTileOffset + TileServer.TILE_SIZE)
+                Dim S As Double = CanvasToLat(j - YTileOffset + TileServer.TILE_SIZE)
+
+                Dim TI As New TileInfo(Z, N, S, E, W)
+                System.Threading.Interlocked.Increment(_PendingTileRequestCount)
                 _TileServer.RequestTile(TI)
             Next
         Next
@@ -464,15 +475,17 @@ Render1:
                     ForceIsoRedraw = True
                     _Frm.DataContext = _MapPg
                     System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, WPs)
+                ElseIf _ReadyTilesQueue.Count <> 0 Then
+                    SyncLock _ReadyTilesQueue
+                        While _ReadyTilesQueue.Count > 0
+                            Dim ti As TileInfo = _ReadyTilesQueue.Dequeue
+                            DrawTile(ti)
+                        End While
+                    End SyncLock
 
                 End If
 
-#If NO_TILES = 0 Then
-                Dim TI As New TileInfo(0, New Coords(0, 0))
-                _TileServer.RequestTile(TI)
-                TI = New TileInfo(1, New Coords(45, 90))
-                _TileServer.RequestTile(TI)
-#End If
+
 
 
                 'debug bsp grid
@@ -536,7 +549,7 @@ Render1:
                             If Not op.Value.Drawn Then
                                 P1.X = LonToCanvas(op.Value.CurPos.Lon_Deg)
                                 P1.Y = LatToCanvas(op.Value.CurPos.Lat_Deg)
-                                
+
                                 DC.DrawEllipse(Nothing, opponentPenNoOption, P1, 1, 1)
 
                                 'op.Value.Drawn = True
@@ -578,7 +591,7 @@ Render1:
                                 If Not iso.Drawn Or ForceIsoRedraw Then
                                     Dim MaxIndex As Integer = iso.MaxIndex
                                     Dim index As Integer
-                                    Dim PrevIndex As Integer
+                                    'Dim PrevIndex As Integer
                                     Dim CurP As Coords
                                     FirstPoint = True
                                     For index = 0 To MaxIndex
@@ -692,7 +705,7 @@ Render1:
                     'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
                 End If
 
-                If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
+                If _BackDropBmp IsNot Nothing Then 'AndAlso _BackDropBmp.IsFrozen Then
                     DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
                 End If
                 DC.DrawImage(_RoutesBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
@@ -964,4 +977,39 @@ Render1:
         End Set
     End Property
 
+    Private Sub DrawTile(ByVal ti As TileInfo)
+
+        Dim D As New DrawingVisual
+        Dim DC As DrawingContext = D.RenderOpen
+        Dim img As New BitmapImage(New Uri(ti.FileName))
+
+        Dim R As New Rect(LonToCanvas(ti.Center.Lon_Deg) - TileServer.TILE_SIZE / 2, _
+                          LatToCanvas(ti.Center.Lat_Deg) - TileServer.TILE_SIZE / 2, _
+                          TileServer.TILE_SIZE, _
+                          TileServer.TILE_SIZE)
+
+        If _BackDropBmp Is Nothing Then
+            _BackDropBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+
+        End If
+        DC.DrawImage(img, R)
+        DC.Close()
+        _BackDropBmp.Render(D)
+        'LocalBmp.Freeze()
+
+        Interlocked.Increment(_TileCount)
+        Interlocked.Decrement(_PendingTileRequestCount)
+
+        _MapPg.Progress(_TileCount)
+        Debug.WriteLine("draw " & ti.TilePath & " pending " & _PendingTileRequestCount)
+
+    End Sub
+
+    Private Sub _TileServer_TileReady(ByVal ti As TileInfo) Handles _TileServer.TileReady
+
+        SyncLock _ReadyTilesQueue
+            _ReadyTilesQueue.Enqueue(ti)
+        End SyncLock
+
+    End Sub
 End Class
