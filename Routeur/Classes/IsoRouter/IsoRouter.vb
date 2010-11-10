@@ -271,14 +271,14 @@ Public Class IsoRouter
 
             If CurIsoChrone Is Nothing Then
                 RouteComplete = True
+            ElseIf P IsNot Nothing AndAlso P.DTF < Dist * 0.01 Then
+                RouteComplete = True
             ElseIf Not CurIsoChrone.Data(Loxo) Is Nothing Then
                 TC.EndPoint = CurIsoChrone.Data(Loxo).P
                 If TC.SurfaceDistance >= Dist Then
                     RouteComplete = True
 
                 End If
-            ElseIf P IsNot Nothing AndAlso P.DTF < Dist * 0.01 Then
-                RouteComplete = True
             End If
             RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
 

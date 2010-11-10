@@ -284,10 +284,10 @@ Render1:
         _TileCount = 0
         For i As Integer = 0 To XBMP_RES * DEFINITION Step TileServer.TILE_SIZE
             For j As Integer = 0 To YBMP_RES * DEFINITION Step TileServer.TILE_SIZE
-                Dim W As Double = CanvasToLon(i - XTileOffset)
-                Dim N As Double = CanvasToLat(j - YTileOffset)
-                Dim E As Double = CanvasToLon(i - XTileOffset + TileServer.TILE_SIZE)
-                Dim S As Double = CanvasToLat(j - YTileOffset + TileServer.TILE_SIZE)
+                Dim W As Double = CanvasToLon(i + XTileOffset)
+                Dim N As Double = CanvasToLat(j + YTileOffset)
+                Dim E As Double = CanvasToLon(i + XTileOffset + TileServer.TILE_SIZE)
+                Dim S As Double = CanvasToLat(j + YTileOffset + TileServer.TILE_SIZE)
 
                 Dim TI As New TileInfo(Z, N, S, E, W)
                 System.Threading.Interlocked.Increment(_PendingTileRequestCount)
@@ -475,6 +475,7 @@ Render1:
                     ForceIsoRedraw = True
                     _Frm.DataContext = _MapPg
                     System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, WPs)
+#If NO_TILES = 0 Then
                 ElseIf _ReadyTilesQueue.Count <> 0 Then
                     SyncLock _ReadyTilesQueue
                         While _ReadyTilesQueue.Count > 0
@@ -482,7 +483,7 @@ Render1:
                             DrawTile(ti)
                         End While
                     End SyncLock
-
+#End If
                 End If
 
 
@@ -704,8 +705,12 @@ Render1:
                     'Debug.WriteLine("Grid : " & ShownPoints)
                     'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
                 End If
-
+#If NO_TILES = 1 Then
                 If _BackDropBmp IsNot Nothing Then 'AndAlso _BackDropBmp.IsFrozen Then
+#Else
+                If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
+#End If
+
                     DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
                 End If
                 DC.DrawImage(_RoutesBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))

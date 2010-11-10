@@ -35,7 +35,7 @@ Public Class TileInfo
         _South = S
         _East = E
         _West = W
-        _Center = New Coords((N + S) / 2, (E + W) / 2)
+        _Center = New Coords(N, E)
 
     End Sub
 
