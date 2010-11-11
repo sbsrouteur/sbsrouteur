@@ -487,7 +487,12 @@ Public Class IsoRouter
             End With
 
             _DestPoint1 = New Coords(WP1)
-            _DestPoint2 = New Coords(WP2)
+            If WP2 IsNot Nothing Then
+                _DestPoint2 = New Coords(WP2)
+            Else
+                _DestPoint2 = Nothing
+            End If
+
             _IsoChrones.Clear()
             _IsoRouteThread.Start()
         Else
