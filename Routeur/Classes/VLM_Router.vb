@@ -1996,9 +1996,12 @@ Public Class VLM_Router
             C.Lat_Deg = _UserInfo.position.latitude
             C.Lon_Deg = _UserInfo.position.longitude
 
-            MI = _Meteo.GetMeteoToDate(C, Now, False)
-
-            Return MI.Dir
+            MI = _Meteo.GetMeteoToDate(C, Now, True, True)
+            If MI IsNot Nothing Then
+                Return MI.Dir
+            Else
+                Return 0
+            End If
 
         End Get
 
@@ -2972,10 +2975,8 @@ Public Class VLM_Router
             '    _UserInfo.trajectoire = ""
             'End If
             '_UserInfo.trajectoire &= StorePath(P, _UserInfo.position.cap)
-            MI = Meteo.GetMeteoToDate(P, Now, False)
-            If MI Is Nothing Then
-                Return
-            End If
+            MI = Meteo.GetMeteoToDate(P, Now, True, True)
+            
 
 
             If _DiffEvolution.Count = 0 OrElse _DiffEvolution(0) <> _UserInfo.position.diffClassement Then

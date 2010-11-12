@@ -1,15 +1,18 @@
 ﻿Imports System.IO
+Imports System.Math
 
 Public Class TileInfo
 
-    Private _BaseTilesPath As String = RouteurModel.BaseFileDir & "\tiles"
-
+    Private Shared _BaseTilesPath As String = RouteurModel.BaseFileDir & "\tiles"
+    Private Shared MAX_MERCATOR_LAT As Double = 85.2
     Private _Z As Integer
-    Private _Center As Coords
+    'Private _Center As Coords
     Private _North As Double
     Private _South As Double
     Private _East As Double
     Private _West As Double
+    Private _TX As Integer
+    Private _TY As Integer
     'Public Sub New(ByVal z As Integer, ByVal TileCenter As Coords)
 
     '    _Z = z
@@ -31,11 +34,36 @@ Public Class TileInfo
     Public Sub New(ByVal Z As Integer, ByVal N As Double, ByVal S As Double, ByVal E As Double, ByVal W As Double)
 
         _Z = Z
-        _North = N
-        _South = S
-        _East = E
-        _West = W
-        _Center = New Coords(N, E)
+
+        _TX = CInt(Math.Floor((W + E) / 2 * (2 ^ Z) / 360))
+        Dim V As Double = (N + S) / 360 * PI
+        V = Log(Tan(V) + 1 / Cos(V))
+        _TY = CInt(Math.Floor(V * (2 ^ Z) / PI))
+        'Recompute tile coords
+        Dim N1 As Double = (_TY + 1) * PI / (2 ^ Z)
+        Dim S1 As Double = (_TY) * PI / (2 ^ Z)
+        _North = Math.Atan(Math.Sinh(N1)) / PI * 180
+        _South = Math.Atan(Math.Sinh(S1)) / PI * 180
+        _East = (_TX + 1) * 360 / (2 ^ Z)
+        _West = _TX * 360 / (2 ^ Z)
+        '_Center = New Coords(N, W)
+
+    End Sub
+    Public Sub New(ByVal Z As Integer, ByVal Tx As Integer, ByVal TY As Integer)
+
+        _Z = Z
+
+        _TX = Tx
+
+        _TY = TY
+        'Recompute tile coords
+        Dim N1 As Double = (_TY + 1) * PI / (2 ^ Z)
+        Dim S1 As Double = (_TY) * PI / (2 ^ Z)
+        _North = Math.Atan(Math.Sinh(N1)) / PI * 180
+        _South = Math.Atan(Math.Sinh(S1)) / PI * 180
+        _East = (_TX + 1) * 360 / (2 ^ Z)
+        _West = _TX * 360 / (2 ^ Z)
+        '_Center = New Coords(N, W)
 
     End Sub
 
@@ -48,11 +76,11 @@ Public Class TileInfo
             Return _BaseTilesPath
         End Get
     End Property
-    Public ReadOnly Property Center() As Coords
-        Get
-            Return _Center
-        End Get
-    End Property
+    'Public ReadOnly Property Center() As Coords
+    '    Get
+    '        Return _Center
+    '    End Get
+    'End Property
 
     Public ReadOnly Property East() As Double
         Get
@@ -75,9 +103,21 @@ Public Class TileInfo
     Public ReadOnly Property TilePath() As String
 
         Get
-            Return Z.ToString("000") & "_" & Center.Lat_Deg.ToString & "_" & Center.Lon_Deg & ".jpg"
+            Return Z.ToString("000") & "_" & TX & "_" & TY & ".jpg"
         End Get
 
+    End Property
+
+    Public ReadOnly Property TX() As Integer
+        Get
+            Return _TX
+        End Get
+    End Property
+
+    Public ReadOnly Property TY() As Integer
+        Get
+            Return _TY
+        End Get
     End Property
 
     Public ReadOnly Property West() As Double

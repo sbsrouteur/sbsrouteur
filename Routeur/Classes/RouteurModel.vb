@@ -195,11 +195,11 @@ Public Class RouteurModel
         End If
         Scale *= _2D_Viewer.DEFINITION
 
-#If NO_TILES = 0 Then
-        Dim Width As Double = 360 / Scale ' ._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
-        Dim Z As Integer = CInt(Math.Log(360 * _2D_Viewer.DEFINITION / Width) / Math.Log(2))
-        Scale = 2 ^ Z / _2D_Viewer.DEFINITION
-#End If
+        '#If NO_TILES = 0 Then
+        '        Dim Width As Double = 360 / Scale ' ._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
+        '        Dim Z As Integer = CInt(Math.Log(360 * _2D_Viewer.DEFINITION / Width) / Math.Log(2))
+        '        Scale = 2 ^ Z / _2D_Viewer.DEFINITION
+        '#End If
         If Not _2DViewer Is Nothing Then
             _2DViewer.Scale = Scale
             _2DViewer.LonOffset = _LonOffset
@@ -735,10 +735,12 @@ Public Class RouteurModel
             SyncLock Me
                 _Busy = False
             End SyncLock
+
         ElseIf e.PropertyName = "CurCoords" Then
             System.Threading.ThreadPool.QueueUserWorkItem(AddressOf VorHandler.DeferedUpdateWPDist, _2DViewer.CurCoords)
             VorHandler.MouseOver(_2DViewer.CurCoords)
-
+        ElseIf e.PropertyName = "Refresh" Then
+            tmrRefresh.Enabled = True
         End If
     End Sub
 

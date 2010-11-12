@@ -59,7 +59,7 @@ Public Class clsMeteoOrganizer
 
 
 
-    Public Function GetMeteoToDate(ByVal C As Coords, ByVal D As Date, ByVal NoLock As Boolean) As MeteoInfo
+    Public Function GetMeteoToDate(ByVal C As Coords, ByVal D As Date, ByVal NoLock As Boolean, Optional ByVal noload As Boolean = False) As MeteoInfo
 
         Dim Start As DateTime = Now
 
@@ -67,7 +67,7 @@ Public Class clsMeteoOrganizer
             Return Nothing
         End If
 
-        Dim Ret As MeteoInfo = GribMeteo.GetMeteoToDate(D, C.Lon_Deg, C.Lat_Deg, NoLock)
+        Dim Ret As MeteoInfo = GribMeteo.GetMeteoToDate(D, C.Lon_Deg, C.Lat_Deg, NoLock, noload)
 
         If Ret IsNot Nothing Then
             _GetMeteoToDateTicks += Now.Subtract(Start).Ticks
