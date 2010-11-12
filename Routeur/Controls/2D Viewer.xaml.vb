@@ -277,23 +277,59 @@ Render1:
 
         'Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
         Dim Width As Double = 360 / RouteurModel.Scale ' ._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
-        Dim Z As Integer = CInt(Math.Log(360 * DEFINITION / Width) / Math.Log(2)) + 1
-        Dim XTileOffset As Integer = CInt(LonToCanvas(0)) Mod TileServer.TILE_SIZE
-        Dim YTileOffset As Integer = CInt(LatToCanvas(0)) Mod TileServer.TILE_SIZE
-        _MapPg.Start(CInt(XBMP_RES * DEFINITION / TileServer.TILE_SIZE) * CInt(DEFINITION * YBMP_RES / TileServer.TILE_SIZE))
+        Dim Z As Integer = CInt(Math.Floor(Math.Log(360 / Width) / Math.Log(2)))
+        Dim North As Double = CanvasToLat(0)
+        Dim West As Double = CanvasToLon(0)
         _TileCount = 0
-        For i As Integer = 0 To XBMP_RES * DEFINITION Step TileServer.TILE_SIZE
-            For j As Integer = 0 To YBMP_RES * DEFINITION Step TileServer.TILE_SIZE
-                Dim W As Double = CanvasToLon(i + XTileOffset)
-                Dim N As Double = CanvasToLat(j + YTileOffset)
-                Dim E As Double = CanvasToLon(i + XTileOffset + TileServer.TILE_SIZE)
-                Dim S As Double = CanvasToLat(j + YTileOffset + TileServer.TILE_SIZE)
+        Dim TI As TileInfo
+        Dim tx1 As Integer
+        Dim ty1 As Integer
+        Dim tx2 As Integer
+        Dim ty2 As Integer
+        Dim W As Double = CanvasToLon(0)
+        Dim N As Double = CanvasToLat(0)
+        Dim E As Double = CanvasToLon(0 + TileServer.TILE_SIZE)
+        Dim S As Double = CanvasToLat(0 + TileServer.TILE_SIZE)
 
-                Dim TI As New TileInfo(Z, N, S, E, W)
+#Const DEBUG_TILE_LEVEL = 0
+#If DEBUG_TILE_LEVEL = 0 Then
+        TI = New TileInfo(Z, N, S, E, W)
+        tx1 = TI.TX
+        ty1 = TI.TY
+        W = CanvasToLon(XBMP_RES * DEFINITION - TileServer.TILE_SIZE)
+        N = CanvasToLat(YBMP_RES * DEFINITION - TileServer.TILE_SIZE)
+        E = CanvasToLon(XBMP_RES * DEFINITION + TileServer.TILE_SIZE)
+        S = CanvasToLat(YBMP_RES * DEFINITION)
+        TI = New TileInfo(Z, N, S, E, W)
+        tx2 = TI.TX
+        ty2 = TI.TY
+        _MapPg.Start((tx2 - tx1 + 1) * (ty1 - ty2 + 1))
+        For i As Integer = tx1 To tx2
+            For j As Integer = ty2 To ty1
+                TI = New TileInfo(Z, i, j)
+
                 System.Threading.Interlocked.Increment(_PendingTileRequestCount)
                 _TileServer.RequestTile(TI)
             Next
         Next
+        '_TileServer.RequestTile(New TileInfo(1, -1, 0))
+        '_TileServer.RequestTile(New TileInfo(1, 0, 0))
+        '_TileServer.RequestTile(New TileInfo(1, -1, -1))
+        '_TileServer.RequestTile(New TileInfo(1, 0, -1))
+#Else
+        Const Max As Integer = 1
+        For i As Integer = 0 - CInt(2.0 ^ Max - 1) To CInt(2.0 ^ Max - 1) - 1
+
+            For j As Integer = 0 - CInt(2.0 ^ Max - 1) To CInt(2.0 ^ Max - 1) - 1
+                TI = New TileInfo(Max, i, j)
+
+                System.Threading.Interlocked.Increment(_PendingTileRequestCount)
+                _TileServer.RequestTile(TI)
+
+            Next
+
+        Next
+#End If
 
     End Sub
 
@@ -706,9 +742,9 @@ Render1:
                     'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
                 End If
 #If NO_TILES = 1 Then
-                If _BackDropBmp IsNot Nothing Then 'AndAlso _BackDropBmp.IsFrozen Then
-#Else
                 If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
+#Else
+                If _BackDropBmp IsNot Nothing Then 'AndAlso _BackDropBmp.IsFrozen Then
 #End If
 
                     DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
@@ -987,11 +1023,19 @@ Render1:
         Dim D As New DrawingVisual
         Dim DC As DrawingContext = D.RenderOpen
         Dim img As New BitmapImage(New Uri(ti.FileName))
+        Dim N As Double = LatToCanvas(ti.North)
+        Dim S As Double = LatToCanvas(ti.South)
+        Dim W As Double = LonToCanvas(ti.West)
+        Dim E As Double = LonToCanvas(ti.East)
 
-        Dim R As New Rect(LonToCanvas(ti.Center.Lon_Deg) - TileServer.TILE_SIZE / 2, _
-                          LatToCanvas(ti.Center.Lat_Deg) - TileServer.TILE_SIZE / 2, _
-                          TileServer.TILE_SIZE, _
-                          TileServer.TILE_SIZE)
+        Dim R As New Rect(W, _
+                          N, _
+                          E - W, _
+                          S - N)
+        'Dim R As New Rect((ti.TX + 1) * 1024, _
+        '                          (-ti.TY) * 1024, _
+        '                          1024, _
+        '                          1024)
 
         If _BackDropBmp Is Nothing Then
             _BackDropBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
@@ -1015,6 +1059,7 @@ Render1:
         SyncLock _ReadyTilesQueue
             _ReadyTilesQueue.Enqueue(ti)
         End SyncLock
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Refresh"))
 
     End Sub
 End Class

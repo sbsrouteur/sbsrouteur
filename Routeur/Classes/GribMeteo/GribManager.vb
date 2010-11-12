@@ -47,12 +47,16 @@ Public Class GribManager
 
     Public Const SampleGribURL As String = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_hd.pl?file=gfs.t06z.mastergrb2f03&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=-5&rightlon=5&toplat=60&bottomlat=40&dir=%2Fgfs.2009082006%2Fmaster"
 
-    Private Function CheckGribData(ByVal MeteoIndex As Integer, ByVal LonIndex As Integer, ByVal latIndex As Integer, ByVal NoLock As Boolean) As Boolean
+    Private Function CheckGribData(ByVal MeteoIndex As Integer, ByVal LonIndex As Integer, ByVal latIndex As Integer, ByVal NoLock As Boolean, ByVal NoLoad As Boolean) As Boolean
 
         'Static NextTick As Long = 0
         Dim bLoad As Boolean = False
         Dim retval As Boolean = False
         Dim NbRetries As Integer = 0
+
+        If NoLoad Then
+            Return True
+        End If
 
         bLoad = _MeteoArrays(MeteoIndex) Is Nothing
         bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex) Is Nothing
@@ -399,7 +403,7 @@ Public Class GribManager
         Return
     End Sub
 
-    Private Function GetMeteoToIndexHybrid(ByVal MeteoIndex As Integer, ByRef tws As Double, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
+    Private Function GetMeteoToIndexHybrid(ByVal MeteoIndex As Integer, ByRef tws As Double, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean, ByVal noload As Boolean) As MeteoInfo
 
         Dim Lon0 As Integer = MeteoArray.GetLonArrayIndex(Lon, GetIndexGrain(MeteoIndex))
         Dim Lat0 As Integer = MeteoArray.GetLatArrayIndex(Lat, GetIndexGrain(MeteoIndex))
@@ -407,7 +411,7 @@ Public Class GribManager
         Dim dY As Double = (Lat - MeteoArray.GetArrayIndexLat(Lat0, GetIndexGrain(MeteoIndex))) / GetIndexGrain(MeteoIndex)
 
 
-        If Not CheckGribData(MeteoIndex, Lon0, Lat0, NoLock) Then
+        If Not CheckGribData(MeteoIndex, Lon0, Lat0, NoLock, noload) Then
             Return Nothing
         End If
         'While Not CheckGribData(MeteoIndex, Lon0, Lat0) AndAlso MeteoIndex > 0
@@ -424,9 +428,12 @@ Public Class GribManager
         Dim Lon1 As Integer = (Lon0 + MeteoArray.GetMaxLonindex(GetIndexGrain(MeteoIndex)) + 1) Mod (MeteoArray.GetMaxLonindex(GetIndexGrain(MeteoIndex)))
         Dim Lat1 As Integer = (Lat0 + MeteoArray.GetMaxLatindex(GetIndexGrain(MeteoIndex)) + 1) Mod (MeteoArray.GetMaxLatindex(GetIndexGrain(MeteoIndex)))
 
-        If Not CheckGribData(MeteoIndex, Lon0, Lat1, NoLock) OrElse _
-            Not CheckGribData(MeteoIndex, Lon1, Lat0, NoLock) OrElse _
-            Not CheckGribData(MeteoIndex, Lon1, Lat1, NoLock) Then
+        If Not CheckGribData(MeteoIndex, Lon0, Lat1, NoLock, noload) OrElse _
+            Not CheckGribData(MeteoIndex, Lon1, Lat0, NoLock, noload) OrElse _
+            Not CheckGribData(MeteoIndex, Lon1, Lat1, NoLock, noload) Then
+            Return Nothing
+        End If
+        If _MeteoArrays(MeteoIndex) Is Nothing Then
             Return Nothing
         End If
         If _MeteoArrays(MeteoIndex).Data(Lon1, Lat0) Is Nothing Then
@@ -465,7 +472,7 @@ Public Class GribManager
     End Function
 
 
-    Private Function GetMeteoToIndexSelectiveTWSA(ByVal MeteoIndex As Integer, ByRef Dir As DirInterpolation, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
+    Private Function GetMeteoToIndexSelectiveTWSA(ByVal MeteoIndex As Integer, ByRef Dir As DirInterpolation, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean, ByVal noload As Boolean) As MeteoInfo
 
         Dim Lon0 As Integer = MeteoArray.GetLonArrayIndex(Lon, GetIndexGrain(MeteoIndex))
         Dim Lat0 As Integer = MeteoArray.GetLatArrayIndex(Lat, GetIndexGrain(MeteoIndex))
@@ -473,7 +480,7 @@ Public Class GribManager
         Dim dY As Double = (Lat - MeteoArray.GetArrayIndexLat(Lat0, GetIndexGrain(MeteoIndex))) / GetIndexGrain(MeteoIndex)
 
 
-        If Not CheckGribData(MeteoIndex, Lon0, Lat0, NoLock) Then
+        If Not CheckGribData(MeteoIndex, Lon0, Lat0, NoLock, noload) Then
             Return Nothing
         End If
         'While Not CheckGribData(MeteoIndex, Lon0, Lat0) AndAlso MeteoIndex > 0
@@ -490,9 +497,9 @@ Public Class GribManager
         Dim Lon1 As Integer = (Lon0 + MeteoArray.GetMaxLonindex(GetIndexGrain(MeteoIndex)) + 1) Mod (MeteoArray.GetMaxLonindex(GetIndexGrain(MeteoIndex)))
         Dim Lat1 As Integer = (Lat0 + MeteoArray.GetMaxLatindex(GetIndexGrain(MeteoIndex)) + 1) Mod (MeteoArray.GetMaxLatindex(GetIndexGrain(MeteoIndex)))
 
-        If Not CheckGribData(MeteoIndex, Lon0, Lat1, NoLock) OrElse _
-            Not CheckGribData(MeteoIndex, Lon1, Lat0, NoLock) OrElse _
-            Not CheckGribData(MeteoIndex, Lon1, Lat1, NoLock) Then
+        If Not CheckGribData(MeteoIndex, Lon0, Lat1, NoLock, noload) OrElse _
+            Not CheckGribData(MeteoIndex, Lon1, Lat0, NoLock, noload) OrElse _
+            Not CheckGribData(MeteoIndex, Lon1, Lat1, NoLock, noload) Then
             Return Nothing
         End If
         If _MeteoArrays(MeteoIndex).Data(Lon1, Lat0) Is Nothing Then
@@ -546,7 +553,7 @@ Public Class GribManager
         End If
     End Function
 
-    Private Function GetMeteoToIndexUV(ByVal MeteoIndex As Integer, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
+    Private Function GetMeteoToIndexUV(ByVal MeteoIndex As Integer, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean, ByVal noload As Boolean) As MeteoInfo
 
         Dim Lon0 As Integer = MeteoArray.GetLonArrayIndex(Lon, GetIndexGrain(MeteoIndex))
         Dim Lat0 As Integer = MeteoArray.GetLatArrayIndex(Lat, GetIndexGrain(MeteoIndex))
@@ -554,7 +561,7 @@ Public Class GribManager
         Dim dY As Double = (Lat - MeteoArray.GetArrayIndexLat(Lat0, GetIndexGrain(MeteoIndex))) / GetIndexGrain(MeteoIndex)
 
 
-        If Not CheckGribData(MeteoIndex, Lon0, Lat0, NoLock) Then
+        If Not CheckGribData(MeteoIndex, Lon0, Lat0, NoLock, noload) Then
             Return Nothing
         End If
         'While Not CheckGribData(MeteoIndex, Lon0, Lat0) AndAlso MeteoIndex > 0
@@ -571,9 +578,9 @@ Public Class GribManager
         Dim Lon1 As Integer = (Lon0 + MeteoArray.GetMaxLonindex(GetIndexGrain(MeteoIndex)) + 1) Mod (MeteoArray.GetMaxLonindex(GetIndexGrain(MeteoIndex)))
         Dim Lat1 As Integer = (Lat0 + MeteoArray.GetMaxLatindex(GetIndexGrain(MeteoIndex)) + 1) Mod (MeteoArray.GetMaxLatindex(GetIndexGrain(MeteoIndex)))
 
-        If Not CheckGribData(MeteoIndex, Lon0, Lat1, NoLock) OrElse _
-            Not CheckGribData(MeteoIndex, Lon1, Lat0, NoLock) OrElse _
-            Not CheckGribData(MeteoIndex, Lon1, Lat1, NoLock) Then
+        If Not CheckGribData(MeteoIndex, Lon0, Lat1, NoLock, noload) OrElse _
+            Not CheckGribData(MeteoIndex, Lon1, Lat0, NoLock, noload) OrElse _
+            Not CheckGribData(MeteoIndex, Lon1, Lat1, NoLock, noload) Then
             Return Nothing
         End If
         If _MeteoArrays(MeteoIndex).Data(Lon1, Lat0) Is Nothing Then
@@ -603,7 +610,7 @@ Public Class GribManager
 
     End Function
 
-    Public Function GetMeteoToDate(ByVal dte As DateTime, ByVal lon As Double, ByVal lat As Double, ByVal nolock As Boolean) As MeteoInfo
+    Public Function GetMeteoToDate(ByVal dte As DateTime, ByVal lon As Double, ByVal lat As Double, ByVal nolock As Boolean, Optional ByVal noload As Boolean = False) As MeteoInfo
 
 #Const METEO = 2
 
@@ -612,12 +619,12 @@ Public Class GribManager
 #ElseIf METEO = 1 Then
         Return GetMeteoToDateUV(dte, lon, lat, nolock)
 #ElseIf METEO = 2 Then
-        Return GetMeteoToDateHybrid(dte, lon, lat, nolock)
+        Return GetMeteoToDateHybrid(dte, lon, lat, nolock, noload)
 #End If
 
     End Function
 
-    Private Function GetMeteoToDateHybrid(ByVal Dte As DateTime, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
+    Private Function GetMeteoToDateHybrid(ByVal Dte As DateTime, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean, ByVal noload As Boolean) As MeteoInfo
 
         Dim MeteoIndex = GetMeteoIndex(Dte)
         Dim NextMeteoIndex = MeteoIndex + 1
@@ -637,8 +644,8 @@ Public Class GribManager
         Dim tws0 As Double = 0
         Dim tws1 As Double = 0
 
-        Dim M0 As MeteoInfo = GetMeteoToIndexHybrid(MeteoIndex, tws0, Lon, Lat, NoLock)
-        Dim M1 As MeteoInfo = GetMeteoToIndexHybrid(NextMeteoIndex, tws1, Lon, Lat, NoLock)
+        Dim M0 As MeteoInfo = GetMeteoToIndexHybrid(MeteoIndex, tws0, Lon, Lat, NoLock, noload)
+        Dim M1 As MeteoInfo = GetMeteoToIndexHybrid(NextMeteoIndex, tws1, Lon, Lat, NoLock, noload)
 
         If M0 Is Nothing OrElse M1 Is Nothing Then
             Return Nothing
@@ -669,7 +676,7 @@ Public Class GribManager
     End Function
 
 
-    Private Function GetMeteoToDateSelectiveTWSA(ByVal Dte As DateTime, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
+    Private Function GetMeteoToDateSelectiveTWSA(ByVal Dte As DateTime, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean, ByVal noload As Boolean) As MeteoInfo
 
         Dim MeteoIndex = GetMeteoIndex(Dte)
         Dim NextMeteoIndex = MeteoIndex + 1
@@ -689,8 +696,8 @@ Public Class GribManager
         Dim Dir0 As DirInterpolation
         Dim Dir1 As DirInterpolation
 
-        Dim M0 As MeteoInfo = GetMeteoToIndexSelectiveTWSA(MeteoIndex, Dir0, Lon, Lat, NoLock)
-        Dim M1 As MeteoInfo = GetMeteoToIndexSelectiveTWSA(NextMeteoIndex, Dir1, Lon, Lat, NoLock)
+        Dim M0 As MeteoInfo = GetMeteoToIndexSelectiveTWSA(MeteoIndex, Dir0, Lon, Lat, NoLock, noload)
+        Dim M1 As MeteoInfo = GetMeteoToIndexSelectiveTWSA(NextMeteoIndex, Dir1, Lon, Lat, NoLock, noload)
 
         If M0 Is Nothing OrElse M1 Is Nothing Then
             Return Nothing
@@ -722,7 +729,7 @@ Public Class GribManager
         Return RetInfo
     End Function
 
-    Private Function GetMeteoToDateUV(ByVal Dte As DateTime, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean) As MeteoInfo
+    Private Function GetMeteoToDateUV(ByVal Dte As DateTime, ByVal Lon As Double, ByVal Lat As Double, ByVal NoLock As Boolean, ByVal noload As Boolean) As MeteoInfo
 
         Dim MeteoIndex = GetMeteoIndex(Dte)
         Dim NextMeteoIndex = MeteoIndex + 1
@@ -739,9 +746,9 @@ Public Class GribManager
             GribGrain = GRIB_GRAIN_1
         End If
 
-        
-        Dim M0 As MeteoInfo = GetMeteoToIndexUV(MeteoIndex, Lon, Lat, NoLock)
-        Dim M1 As MeteoInfo = GetMeteoToIndexUV(NextMeteoIndex, Lon, Lat, NoLock)
+
+        Dim M0 As MeteoInfo = GetMeteoToIndexUV(MeteoIndex, Lon, Lat, NoLock, noload)
+        Dim M1 As MeteoInfo = GetMeteoToIndexUV(NextMeteoIndex, Lon, Lat, NoLock, noload)
 
         If M0 Is Nothing OrElse M1 Is Nothing Then
             Return Nothing
@@ -751,7 +758,7 @@ Public Class GribManager
 
         RetInfo.Dir = M0.Dir + DteOffset / GribGrain * CheckAngleInterp(M1.Dir - M0.Dir)
         RetInfo.Strength = M0.Strength + DteOffset / GribGrain * (M1.Strength - M0.Strength)
-        
+
         If RetInfo.Dir < 0 Then
             RetInfo.Dir += 360
         ElseIf RetInfo.Dir >= 360 Then

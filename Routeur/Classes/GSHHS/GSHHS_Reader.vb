@@ -287,42 +287,47 @@ Public Class GSHHS_Reader
         If Ebound > 180 Then
             Ebound -= 360
         End If
+        If Ebound < Wbound Then
+            Dim t As Double = Ebound
+            Ebound = Wbound
+            Wbound = t
+        End If
 
-        'If H.north / GSHHS_FACTOR < South OrElse _
-        '   H.south / GSHHS_FACTOR > North OrElse _
-        '   Wbound > East OrElse _
-        '   Ebound < West Then
+        If H.north / GSHHS_FACTOR < South OrElse _
+           H.south / GSHHS_FACTOR > North OrElse _
+           Wbound > East OrElse _
+           Ebound < West Then
 
-        '    S.Position += 4 * 2 * H.n
-        'Else
-        Dim i As Integer
-        Dim lon As Double
-        Dim PrevLon As Double
-        Dim lat As Double
-        Dim Prevx As Integer
-        Dim Prevy As Integer
+            S.Position += 4 * 2 * H.n
+        Else
+            Dim i As Integer
+            Dim lon As Double
+            Dim PrevLon As Double
+            Dim lat As Double
+            Dim Prevx As Integer
+            Dim Prevy As Integer
 
             For i = 0 To CInt(H.n) - 1
-            lon = CDbl(Readinteger(S)) / GSHHS_FACTOR
-            lat = CDbl(Readinteger(S)) / GSHHS_FACTOR
+                lon = CDbl(Readinteger(S)) / GSHHS_FACTOR
+                lat = CDbl(Readinteger(S)) / GSHHS_FACTOR
 
-            If lon > 180 Then
-                lon -= 360
-            End If
-
-            Dim y As Integer = CInt((1 - (lat - South) / (North - South)) * TileServer.TILE_SIZE)
-            Dim x As Integer = CInt((lon - West) / (East - West) * TileServer.TILE_SIZE)
-            If i > 0 Then
-                If PrevLon * lon > 0 Then
-                    Image.DrawLine(Pen, Prevx, Prevy, x, y)
+                If lon > 180 Then
+                    lon -= 360
                 End If
-            End If
-            Prevx = x
-            Prevy = y
-            PrevLon = lon
 
-        Next
-        'End If
+                Dim y As Integer = CInt((1 - (lat - South) / (North - South)) * TileServer.TILE_SIZE)
+                Dim x As Integer = CInt((lon - West) / (East - West) * TileServer.TILE_SIZE)
+                If i > 0 Then
+                    If PrevLon * lon > 0 Then
+                        Image.DrawLine(Pen, Prevx, Prevy, x, y)
+                    End If
+                End If
+                Prevx = x
+                Prevy = y
+                PrevLon = lon
+
+            Next
+        End If
 
         Return
 

@@ -40,14 +40,14 @@ Public Class TileServer
         Dim MapLevel As String
 
         Select Case TI.Z
-            Case 0 To 3
+            Case 0 To 2
                 MapLevel = "c"
-            Case 4 To 11
+            Case 3 To 5
                 MapLevel = "l"
 
-            Case 12 To 14
+            Case 6 To 8
                 MapLevel = "i"
-            Case 15 To 21
+            Case 9 To 10
 
                 MapLevel = "h"
             Case Else
@@ -63,7 +63,7 @@ Public Class TileServer
         If Not Directory.Exists(TI.BaseTilesPath) Then
             Directory.CreateDirectory(TI.BaseTilesPath)
         End If
-        img.Save(TI.FileName)
+        img.Save(TI.FileName, Imaging.ImageFormat.Png)
 
         SyncLock _TileBuildList
             _TileBuildList.Remove(TI.TilePath)
