@@ -277,7 +277,7 @@ Public Class GSHHS_Reader
     Private Shared Sub ReaPolyToTile(ByVal S As FileStream, ByVal PixYOffset As Double, ByVal PixXOffset As Double, ByVal Renderer As _2D_Viewer, ByVal North As Double, ByVal South As Double, ByVal East As Double, ByVal West As Double, ByVal Image As Graphics)
 
         Dim H As GSHHS_Header = ReadHeader(S)
-        Dim Pen As New Pen(Color.FromArgb(255, 0, 255, 0))
+        Dim Pen As New Pen(Color.FromArgb(255, 200, 160, 0))
 
         Dim Wbound As Double = H.west / GSHHS_FACTOR
         Dim Ebound As Double = H.east / GSHHS_FACTOR
