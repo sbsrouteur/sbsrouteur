@@ -519,6 +519,7 @@ Render1:
                             DrawTile(ti)
                         End While
                     End SyncLock
+
 #End If
                 End If
 
@@ -1018,6 +1019,12 @@ Render1:
         End Set
     End Property
 
+    Public ReadOnly Property TileServerBusy() As Boolean
+        Get
+            Return _TileServer.Busy 
+        End Get
+    End Property
+
     Private Sub DrawTile(ByVal ti As TileInfo)
 
         Dim D As New DrawingVisual
@@ -1052,6 +1059,10 @@ Render1:
         _MapPg.Progress(_TileCount)
         Debug.WriteLine("draw " & ti.TilePath & " pending " & _PendingTileRequestCount)
 
+    End Sub
+
+    Private Sub _TileServer_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _TileServer.PropertyChanged
+        RaiseEvent PropertyChanged(sender, e)
     End Sub
 
     Private Sub _TileServer_TileReady(ByVal ti As TileInfo) Handles _TileServer.TileReady

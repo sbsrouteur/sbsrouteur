@@ -1,7 +1,10 @@
 ﻿Imports System.IO
 Imports System.Drawing
+Imports System.ComponentModel
 
 Public Class TileServer
+    Implements INotifyPropertyChanged
+    Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
     Public Event TileReady(ByVal ti As TileInfo)
 
@@ -12,6 +15,8 @@ Public Class TileServer
     Private _TileBuildList As New SortedList(Of String, String)
     Private _queryCount As Long = 0
     Private _HitCount As Long = 0
+    '    Private _Busy As Boolean = False
+
 
     Private Sub BgCreateTile(ByVal state As Object)
 
@@ -22,6 +27,7 @@ Public Class TileServer
                 Return
             Else
                 _TileBuildList.Add(TI.TilePath, TI.TilePath)
+                Busy = True
             End If
         End SyncLock
 
@@ -67,13 +73,14 @@ Public Class TileServer
 
         SyncLock _TileBuildList
             _TileBuildList.Remove(TI.TilePath)
+            Busy = _TileBuildList.Count = 0
         End SyncLock
         RaiseEvent TileReady(TI)
     End Sub
 
     Public Sub New(ByVal Render As _2D_Viewer)
 
-        _renderer = Render
+        _Renderer = Render
 
     End Sub
 
@@ -92,12 +99,24 @@ Public Class TileServer
             BgCreateTile (TI)
 #Else
             System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgCreateTile, TI)
-
 #End If
 
         End If
         Debug.WriteLine("tileserver Q;" & _queryCount & " " & _HitCount / _queryCount)
     End Sub
+
+    Public Property Busy() As Boolean
+        Get
+            SyncLock _TileBuildList
+                Return _TileBuildList.Count > 0
+            End SyncLock
+        End Get
+
+        Set(ByVal value As Boolean)
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Busy"))
+        End Set
+
+    End Property
 
     Public ReadOnly Property TileServerStateIdle() As Boolean
         Get
@@ -109,5 +128,4 @@ Public Class TileServer
     End Property
 
 
-    
 End Class

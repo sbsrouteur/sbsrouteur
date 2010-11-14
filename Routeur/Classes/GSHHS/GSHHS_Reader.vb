@@ -293,10 +293,10 @@ Public Class GSHHS_Reader
             Wbound = t
         End If
 
-        If H.north / GSHHS_FACTOR < South OrElse _
+        If (Not Ebound * Wbound > 0 AndAlso H.Greenwich) AndAlso (H.north / GSHHS_FACTOR < South OrElse _
            H.south / GSHHS_FACTOR > North OrElse _
            Wbound > East OrElse _
-           Ebound < West Then
+           Ebound < West) Then
 
             S.Position += 4 * 2 * H.n
         Else
