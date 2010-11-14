@@ -294,7 +294,7 @@ Public Class RegistryPlayerInfo
             _IsPasswordOK = True
             _RaceInfo = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAN")
             _RaceNum = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAC")
-            _IsRacing = _RaceNum <> ""
+            _IsRacing = _RaceNum <> "0"
             If Not NewStyle Then
                 _Email = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "EML")
             End If
@@ -302,21 +302,23 @@ Public Class RegistryPlayerInfo
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsRacing"))
-            Else
-                _IsPasswordOK = True
-                _IsRacing = False
-                _RaceInfo = "Not Racing"
-            End If
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsRacing"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IDU"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IDP"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("NewStyle"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Email"))
-            If NewStyle Then
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatList"))
-            End If
+        Else
+            _IsPasswordOK = True
+            _IsRacing = False
+            _RaceInfo = "Not Racing"
+        End If
+
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsRacing"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IDU"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IDP"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("NewStyle"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Email"))
+
+        If NewStyle Then
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatList"))
+        End If
 
 
     End Sub
