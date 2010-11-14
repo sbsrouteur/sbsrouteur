@@ -11,6 +11,7 @@ Imports System.Windows.Navigation
 Partial Public Class frmRoutingProgress
 
     Private WithEvents _RefreshTimer As New Timers.Timer(500) With {.Enabled = True}
+
     Public Sub New()
         MyBase.New()
 
@@ -19,9 +20,11 @@ Partial Public Class frmRoutingProgress
         ' Insérez le code requis pour la création d’objet sous ce point.
     End Sub
 
-    Public Sub New(ByVal TimerPeriodms As Integer)
+    Public Sub New(ByVal TimerPeriodms As Integer, ByVal ProgressContext As ProgressContext)
         Me.New()
+        DataContext = ProgressContext
         _RefreshTimer.Interval = TimerPeriodms
+        AddHandler ProgressContext.RequestVisibility, AddressOf RequestVisibility
     End Sub
 
     Public Overloads Sub Show(ByVal owner As Window, ByVal Data As Object)
@@ -56,8 +59,18 @@ Partial Public Class frmRoutingProgress
     Private Sub frmRoutingProgress_Closing(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles Me.Closing
 
         e.Cancel = True
-        Hide()
+        Visibility = Windows.Visibility.Hidden
 
+    End Sub
+
+    Protected Sub RequestVisibility(ByVal Vis As Visibility)
+
+        If Dispatcher.Thread IsNot System.Threading.Thread.CurrentThread Then
+            Dispatcher.Invoke(New Action(Of Visibility)(AddressOf RequestVisibility), New Object() {Vis})
+        Else
+            Visibility = Vis
+
+        End If
     End Sub
 
 

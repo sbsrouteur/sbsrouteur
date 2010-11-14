@@ -16,6 +16,8 @@
         _NbToProcess = NbToProcess
         _CurPoint = 0
         _StartTime = Now
+        OnRequestVisibility(Visibility.Visible)
+        ProgressValue = 0
 
     End Sub
 
@@ -29,6 +31,9 @@
         Else
             ProgressETA = Now.Subtract(Now)
 
+        End If
+        If ProgressValue = 100 Then
+            OnRequestVisibility(Visibility.Hidden)
         End If
     End Sub
 

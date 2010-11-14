@@ -5,6 +5,7 @@ Public MustInherit Class ProgressContext
     Implements INotifyPropertyChanged
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
+    Public Event RequestVisibility(ByVal Vis As Visibility)
 
     Private _ProgressValue As Double
     Private _ProgressETA As TimeSpan
@@ -52,6 +53,10 @@ Public MustInherit Class ProgressContext
 
         RaiseEvent PropertyChanged(Me, e)
 
+    End Sub
+
+    Public Overridable Sub OnRequestVisibility(ByVal Vis As Visibility)
+        RaiseEvent RequestVisibility(Vis)
     End Sub
 
     Public Sub refresh()
