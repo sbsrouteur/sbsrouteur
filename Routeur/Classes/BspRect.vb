@@ -80,21 +80,21 @@ Public Class BspRect
 
                     For Each P In GSHHS_Reader.AllPolygons
 
-                        If PolygonIndex < GSHHS_Reader.ExclusionCount Then
-                            'Always add exclusions 
-                            _PolyGons.AddLast(P)
-                            PolygonIndex += 1
-                        Else
-                            If P(0) IsNot Nothing Then
+                        'If PolygonIndex < GSHHS_Reader.ExclusionCount Then
+                        ' 'Always add exclusions 
+                        '_PolyGons.AddLast(P)
+                        'PolygonIndex += 1
+                        'Else
+                        If P(0) IsNot Nothing Then
 
-                                Dim PRet As Polygon = PolyClipper.ClipPolygon(P1, P2, P)
-                                If Not PRet Is Nothing AndAlso PRet.Count > 2 Then
-                                    _PolyGons.AddLast(PRet)
-                                End If
-
+                            Dim PRet As Polygon = PolyClipper.ClipPolygon(P1, P2, P)
+                            If Not PRet Is Nothing AndAlso PRet.Count > 2 Then
+                                _PolyGons.AddLast(PRet)
                             End If
 
                         End If
+
+                        'End If
 
 
 
@@ -245,7 +245,9 @@ Public Class BspRect
 
 
                             Dim Polys = GSHHS_Reader.Polygons(lNewCoords)
-                            If GSHHS_Reader.HitTest(lNewCoords, 0, Polys, True, True) Then
+                            If Polys Is Nothing OrElse Polys.Count = 0 Then
+                                _Inland = inlandstate.InSea
+                            ElseIf GSHHS_Reader.HitTest(lNewCoords, 0, Polys, True, True) Then
                                 _Inland = inlandstate.InLand
                             Else
                                 _Inland = inlandstate.InSea

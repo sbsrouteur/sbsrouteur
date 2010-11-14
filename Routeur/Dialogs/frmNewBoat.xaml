@@ -21,7 +21,7 @@
 		<Label Content="User Name" Margin="{DynamicResource DefMargin}"/>
 		<TextBox Grid.Column="1" Text="{Binding UserName, Mode=TwoWay, UpdateSourceTrigger=Default}" Margin="{DynamicResource DefMargin}" />
 		<Label Content="Password" Grid.Row="1" Margin="{DynamicResource DefMargin}"/>
-		<TextBox Grid.Column="1"  Grid.Row="1" Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=Default}" Margin="{DynamicResource DefMargin}"/>
+		<TextBox Grid.Column="1"  Grid.Row="1" Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="{DynamicResource DefMargin}"/>
 		<Label Content="Boat List" Grid.Row="2" Margin="{DynamicResource DefMargin}"/>
 		<ListBox x:Name="lstBoats" Grid.Row="2" Grid.Column="2" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Fleet, Mode=Default}" SelectionChanged="OnSelectionChange" />
 		
