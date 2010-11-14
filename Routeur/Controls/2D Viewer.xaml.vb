@@ -503,7 +503,7 @@ Render1:
                     BgStarted = False
                     _ClearBgMap = False
                     _BackDropBmp = Nothing
-                    _GridBmp.Clear()
+
                 End If
 
                 If Not BgStarted AndAlso _BackDropBmp Is Nothing Then
@@ -516,7 +516,7 @@ Render1:
                     SyncLock _ReadyTilesQueue
                         While _ReadyTilesQueue.Count > 0
                             Dim ti As TileInfo = _ReadyTilesQueue.Dequeue
-                            DrawTile(ti)
+                            DrawTile(ti, WPs)
                         End While
                     End SyncLock
 
@@ -929,6 +929,27 @@ Render1:
 
     End Sub
 
+    Private Sub ClearMapAndDrawGates(ByVal WPs As List(Of VLM_RaceWaypoint))
+        Dim D As New DrawingVisual
+        Dim DC As DrawingContext = D.RenderOpen()
+        Dim WPPen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Red), 2)
+        Dim P0 As Point
+        Dim P1 As Point
+
+        Dim WP As VLM_RaceWaypoint
+
+        For Each WP In WPs
+            P0.X = LonToCanvas(WP.WPs(0)(0).Lon_Deg)
+            P0.Y = LatToCanvas(WP.WPs(0)(0).Lat_Deg)
+            P1.X = LonToCanvas(WP.WPs(0)(1).Lon_Deg)
+            P1.Y = LatToCanvas(WP.WPs(0)(1).Lat_Deg)
+
+            SafeDrawLine(DC, WP.WPs(0)(0), WP.WPs(0)(1), WPPen, P0, P1)
+        Next
+        DC.Close()
+        _BackDropBmp.Render(D)
+    End Sub
+
     Public Sub ClearBgMap()
 
         _ClearBgMap = True
@@ -1025,7 +1046,7 @@ Render1:
         End Get
     End Property
 
-    Private Sub DrawTile(ByVal ti As TileInfo)
+    Private Sub DrawTile(ByVal ti As TileInfo, ByVal WPs As List(Of VLM_RaceWaypoint))
 
         Dim D As New DrawingVisual
         Dim DC As DrawingContext = D.RenderOpen
@@ -1046,6 +1067,7 @@ Render1:
 
         If _BackDropBmp Is Nothing Then
             _BackDropBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+            ClearMapAndDrawGates(WPs)
 
         End If
         DC.DrawImage(img, R)

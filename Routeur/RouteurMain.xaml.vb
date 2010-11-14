@@ -51,7 +51,7 @@ Partial Public Class RouteurMain
         If M.The2DViewer Is Nothing Then
             M.The2DViewer = Me.VOR2DViewer
             M.The2DViewer.InitViewer(Me)
-
+            RedrawClick(Nothing, Nothing)
         End If
 
         Dim sApp As String = System.IO.Path.Combine(My.Application.Info.DirectoryPath, My.Application.Info.AssemblyName & ".exe")
@@ -114,7 +114,7 @@ Partial Public Class RouteurMain
             SldZoom.Value = 1
         End If
         RaiseEvent PropertyChanged(M, New PropertyChangedEventArgs("WPsPath"))
-
+        RedrawClick(Nothing, Nothing)
     End Sub
 
 
@@ -383,6 +383,7 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         UpdateCoordsExtent(M, False, False)
+
     End Sub
 
     Private Sub AppQuit(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs)
@@ -393,6 +394,7 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
         UpdateCoordsExtent(M, False, True)
+
     End Sub
 
     Private Sub RestoreMapScale(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
