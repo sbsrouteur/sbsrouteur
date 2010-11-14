@@ -222,7 +222,7 @@
 	            <Button Width="Auto" Height="26.92" Content="Redraw" Click="RedrawClick" Margin="4,0"/>
 				<MenuItem Header="Refresh From VLM" Click="Refresh" Visibility="Collapsed"></MenuItem>
 				<Separator></Separator>
-				<MenuItem Header="Evt Set" Click="EvtSet" Visibility="Hidden" ></MenuItem>
+				<MenuItem Header="Evt Set" Click="EvtSet" Visibility="Collapsed"  ></MenuItem>
 	            <MenuItem Header="Quit" Click="AppQuit" ></MenuItem>
 			</MenuItem>
 			<MenuItem Header="Information" VerticalAlignment="Center" Click="ComputeRouteXTR">
@@ -259,7 +259,7 @@
 			</MenuItem>
 			<MenuItem Header="Routes" VerticalAlignment="Center" >
 				<MenuItem Header="Pilototo Route" Click="ShowPilototoRouteDlg" ></MenuItem>
-				<MenuItem Header="Recorded Routes manager" Click="ShowRouteMgr" Visibility="Hidden"  />
+				<MenuItem Header="Recorded Routes manager" Click="ShowRouteMgr" Visibility="Collapsed" />
 			</MenuItem>
             <ComboBox     Height="26.92" ItemsSource="{Binding WPList, Mode=Default}" ToolTip="Route to this WP" SelectedIndex="{Binding VorHandler.CurUserWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"     />
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
