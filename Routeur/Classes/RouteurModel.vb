@@ -31,7 +31,7 @@ Public Class RouteurModel
 
     Public Shared DebugEvt As New AutoResetEvent(True)
     Private Shared _BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
-
+    Private _MapMenuEnabled As Boolean = True
 
     Private Shared _Scale As Double = 1
     Public _LatOffset As Double = 0
@@ -431,6 +431,16 @@ Public Class RouteurModel
         End Set
     End Property
 
+    Public Property MapMenuEnabled() As Boolean
+        Get
+            Return _MapMenuEnabled
+        End Get
+        Set(ByVal value As Boolean)
+            _MapMenuEnabled = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MapMenuEnabled"))
+        End Set
+    End Property
+
     Public ReadOnly Property RacePrefs() As RacePrefs
         Get
             If _Prefs Is Nothing AndAlso _P_Info(0) IsNot Nothing Then
@@ -731,18 +741,23 @@ Public Class RouteurModel
 
     Private Sub _2DViewer_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _2DViewer.PropertyChanged
 
-        If e.PropertyName = "Drawn" Then
-            VorHandler.RedrawComplete()
-            SyncLock Me
-                _Busy = False
-            End SyncLock
+        Select e.PropertyName
+            Case "Drawn"
+                VorHandler.RedrawComplete()
+                SyncLock Me
+                    _Busy = False
+                End SyncLock
 
-        ElseIf e.PropertyName = "CurCoords" Then
-            System.Threading.ThreadPool.QueueUserWorkItem(AddressOf VorHandler.DeferedUpdateWPDist, _2DViewer.CurCoords)
-            VorHandler.MouseOver(_2DViewer.CurCoords)
-        ElseIf e.PropertyName = "Refresh" Then
-            tmrRefresh.Enabled = True
-        End If
+            Case "CurCoords"
+                System.Threading.ThreadPool.QueueUserWorkItem(AddressOf VorHandler.DeferedUpdateWPDist, _2DViewer.CurCoords)
+                VorHandler.MouseOver(_2DViewer.CurCoords)
+            Case "Refresh"
+                tmrRefresh.Enabled = True
+
+            Case "Busy"
+                MapMenuEnabled = Not The2DViewer.TileServerBusy
+
+        End Select
     End Sub
 
     Private Sub tmrRefresh_Elapsed(ByVal sender As Object, ByVal e As System.Timers.ElapsedEventArgs) Handles tmrRefresh.Elapsed

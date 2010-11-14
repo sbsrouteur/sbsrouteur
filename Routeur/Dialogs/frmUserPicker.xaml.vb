@@ -79,28 +79,6 @@ Partial Public Class frmUserPicker
         'Else
 
 
-        ''If R.RegisteredPlayers.Count >= 5 Then
-        ''    MessageBox.Show("Application is limited to 5 boats")
-        ''    Return
-        ''End If
-        'BoatName = InputBox("VLM Login Name", "New User registration", "Enter user name here")
-
-        'If BoatName <> "" Then
-        '    Dim P As RegistryPlayerInfo
-
-        '    For Each P In R.RegisteredPlayers
-        '        If P.Nick = BoatName Then
-        '            MessageBox.Show("This boat is already declared, use another name")
-        '            Return
-        '        End If
-        '    Next
-
-        '    P = New RegistryPlayerInfo(BoatName)
-        '    SaveUserInfo(P)
-        '    R.RegisteredPlayersUpdated()
-
-        'End If
-        'End If
     End Sub
 
     Private Sub PassLostFocus(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
