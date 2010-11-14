@@ -48,8 +48,8 @@ Partial Public Class _2D_Viewer
 
     Private Shared _RacePolygons As New LinkedList(Of Polygon)()
     Private Shared _RacePolygonsInited As Boolean = False
-    Private _Frm As frmRoutingProgress
-    Private _MapPg As New MapProgressContext("Drawing Map...")
+    Private WithEvents _Frm As frmRoutingProgress
+    Private WithEvents _MapPg As New MapProgressContext("Drawing Map...")
     Private _TileCount As Integer = 0
 
     Private _Scale As Double
@@ -344,7 +344,7 @@ Render1:
             End If
 
             _Progress = New MapProgressContext("Loading Maps Data...")
-            _Frm = New frmRoutingProgress(100) With {.DataContext = _Progress}
+            _Frm = New frmRoutingProgress(100, _Progress)
             Dim TH As New System.Threading.Thread(AddressOf GSHHS_Reader.Read)
             Dim SI As New GSHHS_StartInfo With {.PolyGons = _RacePolygons, .StartPath = "..\gshhs\gshhs_" & RouteurModel.MapLevel & ".b", _
                                                 .ProgressWindows = _Progress, .CompleteCallBack = AddressOf LoadPolygonComplete, _
@@ -1094,5 +1094,18 @@ Render1:
         End SyncLock
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Refresh"))
 
+    End Sub
+
+    Private Sub _MapPg_RequestVisibility(ByVal Vis As System.Windows.Visibility) Handles _MapPg.RequestVisibility
+        If Not _Frm.Visibility = Vis Then
+            If _Frm.Dispatcher.Thread IsNot System.Threading.Thread.CurrentThread Then
+                _Frm.Dispatcher.Invoke(New Action(Of Visibility)(AddressOf _MapPg_RequestVisibility), New Object() {Vis})
+            Else
+                _Frm.Visibility = Vis
+                If Vis = Windows.Visibility.Visible Then
+                    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Refresh"))
+                End If
+            End If
+        End If
     End Sub
 End Class
