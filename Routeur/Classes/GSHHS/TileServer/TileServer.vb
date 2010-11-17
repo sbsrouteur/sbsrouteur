@@ -1,6 +1,7 @@
 ﻿Imports System.IO
 Imports System.Drawing
 Imports System.ComponentModel
+Imports System.Net
 
 Public Class TileServer
     Implements INotifyPropertyChanged
@@ -42,40 +43,60 @@ Public Class TileServer
         Dim XOffset As Double
         Dim YOffset As Double
         Dim img As New Bitmap(TILE_SIZE, TILE_SIZE, Imaging.PixelFormat.Format32bppArgb)
+        Dim FileError As Boolean = False
 
         Dim MapLevel As String
+        If True Then
 
-        Select Case TI.Z
-            Case 0 To 2
-                MapLevel = "c"
-            Case 3 To 5
-                MapLevel = "l"
+            Select Case TI.Z
+                Case 0 To 2
+                    MapLevel = "c"
+                Case 3 To 5
+                    MapLevel = "l"
 
-            Case 6 To 8
-                MapLevel = "i"
-            Case 9 To 10
+                Case 6 To 9
+                    MapLevel = "i"
+                Case 10 To 13
 
-                MapLevel = "h"
-            Case Else
-                MapLevel = "f"
-        End Select
-        MapLevel = "..\gshhs\gshhs_" & MapLevel & ".b"
-        If Not File.Exists(MapLevel) Then
-            MapLevel = "i"
+                    MapLevel = "h"
+
+                Case Else
+                    MapLevel = "f"
+            End Select
             MapLevel = "..\gshhs\gshhs_" & MapLevel & ".b"
-        End If
-        GSHHS_Reader.ReadTile(YOffset, XOffset, _Renderer, North, South, East, West, img, MapLevel)
+            If Not File.Exists(MapLevel) Then
+                MapLevel = "i"
+                MapLevel = "..\gshhs\gshhs_" & MapLevel & ".b"
+            End If
+            GSHHS_Reader.ReadTile(YOffset, XOffset, _Renderer, North, South, East, West, img, MapLevel)
 
-        If Not Directory.Exists(TI.BaseTilesPath) Then
-            Directory.CreateDirectory(TI.BaseTilesPath)
+            If Not Directory.Exists(TI.BaseTilesPath) Then
+                Directory.CreateDirectory(TI.BaseTilesPath)
+            End If
+            img.Save(TI.FileName, Imaging.ImageFormat.Png)
+        Else
+
+            Dim WC As New WebClient
+            Try
+                WC.DownloadFile("http://tile.openstreetmap.org/" & TI.Z & "/" & TI.OSM_TX & "/" & TI.OSM_TY & ".png", TI.FileName)
+            Catch ex As Exception
+                'MessageBox.Show(ex.Message, "Failed to get tile " & TI.FileName)
+                FileError = True
+            End Try
+
         End If
-        img.Save(TI.FileName, Imaging.ImageFormat.Png)
+
 
         SyncLock _TileBuildList
             _TileBuildList.Remove(TI.TilePath)
             Busy = _TileBuildList.Count = 0
         End SyncLock
-        RaiseEvent TileReady(TI)
+        If Not FileError Then
+            RaiseEvent TileReady(TI)
+        Else
+            RaiseEvent TileReady(Nothing)
+        End If
+
     End Sub
 
     Public Sub New(ByVal Render As _2D_Viewer)
@@ -87,7 +108,7 @@ Public Class TileServer
     Public Sub RequestTile(ByVal TI As TileInfo)
 
         _queryCount += 1
-        If File.Exists(TI.FileName) Then
+        If File.Exists(TI.FileName) AndAlso New FileInfo(TI.FileName).Length > 0 Then
             Dim Tile As New Bitmap(TI.FileName)
             _HitCount += 1
             RaiseEvent TileReady(TI)
