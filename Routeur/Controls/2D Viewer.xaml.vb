@@ -517,6 +517,7 @@ Render1:
                         While _ReadyTilesQueue.Count > 0
                             Dim ti As TileInfo = _ReadyTilesQueue.Dequeue
                             DrawTile(ti, WPs)
+
                         End While
                     End SyncLock
 
@@ -1050,30 +1051,34 @@ Render1:
 
         Dim D As New DrawingVisual
         Dim DC As DrawingContext = D.RenderOpen
-        Dim img As New BitmapImage(New Uri(ti.FileName))
-        Dim N As Double = LatToCanvas(ti.North)
-        Dim S As Double = LatToCanvas(ti.South)
-        Dim W As Double = LonToCanvas(ti.West)
-        Dim E As Double = LonToCanvas(ti.East)
+        
+        If ti IsNot Nothing Then
 
-        Dim R As New Rect(W, _
-                          N, _
-                          E - W, _
-                          S - N)
-        'Dim R As New Rect((ti.TX + 1) * 1024, _
-        '                          (-ti.TY) * 1024, _
-        '                          1024, _
-        '                          1024)
+            Dim Img As New BitmapImage(New Uri(ti.FileName))
+            Dim N As Double = LatToCanvas(ti.North)
+            Dim S As Double = LatToCanvas(ti.South)
+            Dim W As Double = LonToCanvas(ti.West)
+            Dim E As Double = LonToCanvas(ti.East)
 
-        If _BackDropBmp Is Nothing Then
-            _BackDropBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
-            ClearMapAndDrawGates(WPs)
+            Dim R As New Rect(W, _
+                              N, _
+                              E - W, _
+                              S - N)
+            'Dim R As New Rect((ti.TX + 1) * 1024, _
+            '                          (-ti.TY) * 1024, _
+            '                          1024, _
+            '                          1024)
 
+            If _BackDropBmp Is Nothing Then
+                _BackDropBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+                ClearMapAndDrawGates(WPs)
+
+            End If
+            DC.DrawImage(img, R)
+            DC.Close()
+            _BackDropBmp.Render(D)
+            'LocalBmp.Freeze()
         End If
-        DC.DrawImage(img, R)
-        DC.Close()
-        _BackDropBmp.Render(D)
-        'LocalBmp.Freeze()
 
         Interlocked.Increment(_TileCount)
         Interlocked.Decrement(_PendingTileRequestCount)
@@ -1089,7 +1094,7 @@ Render1:
 
     Private Sub _TileServer_TileReady(ByVal ti As TileInfo) Handles _TileServer.TileReady
 
-        SyncLock _ReadyTilesQueue
+            SyncLock _ReadyTilesQueue
             _ReadyTilesQueue.Enqueue(ti)
         End SyncLock
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Refresh"))
