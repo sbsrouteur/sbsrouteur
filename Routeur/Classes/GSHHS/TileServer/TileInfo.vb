@@ -108,6 +108,18 @@ Public Class TileInfo
 
     End Property
 
+    Public ReadOnly Property OSM_TX() As Integer
+        Get
+            Return CInt(TX + 2 ^ (Z - 1))
+        End Get
+    End Property
+
+    Public ReadOnly Property OSM_TY() As Integer
+        Get
+            Return CInt(2 ^ (Z - 1) - TY)
+        End Get
+    End Property
+
     Public ReadOnly Property TX() As Integer
         Get
             Return _TX
