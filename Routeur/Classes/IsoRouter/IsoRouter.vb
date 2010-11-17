@@ -304,6 +304,8 @@ Public Class IsoRouter
 
         TC.StartPoint = Start.P
 
+        'normalize cap
+        Cap = Cap Mod 360
 
         For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
             CurDate = Start.T.AddTicks(i)
