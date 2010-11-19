@@ -274,7 +274,7 @@ Public Class GSHHS_Reader
 
     End Function
 
-    Private Shared Sub ReaPolyToTile(ByVal S As FileStream, ByVal PixYOffset As Double, ByVal PixXOffset As Double, ByVal Renderer As _2D_Viewer, ByVal North As Double, ByVal South As Double, ByVal East As Double, ByVal West As Double, ByVal Image As Graphics)
+    Private Shared Sub ReaPolyToTile(ByVal S As FileStream, ByVal Renderer As _2D_Viewer, ByVal North As Double, ByVal South As Double, ByVal East As Double, ByVal West As Double, ByVal Image As Graphics)
 
         Dim H As GSHHS_Header = ReadHeader(S)
         Dim Pen As New Pen(Color.FromArgb(255, 200, 160, 0))
@@ -306,6 +306,8 @@ Public Class GSHHS_Reader
             Dim lat As Double
             Dim Prevx As Integer
             Dim Prevy As Integer
+            Dim PrevIn As Integer
+            Dim PolyStart As DateTime = Now
 
             For i = 0 To CInt(H.n) - 1
                 lon = CDbl(Readinteger(S)) / GSHHS_FACTOR
@@ -327,19 +329,23 @@ Public Class GSHHS_Reader
                 PrevLon = lon
 
             Next
+
+            If H.id = 0 Then
+                Console.WriteLine("poly 0 with " & H.n & "in " & Now.Subtract(PolyStart).ToString)
+            End If
         End If
 
         Return
 
     End Sub
 
-    Public Shared Sub ReadTile(ByVal PixYOffset As Double, ByVal PixXOffset As Double, ByVal Renderer As _2D_Viewer, ByVal North As Double, ByVal South As Double, ByVal East As Double, ByVal West As Double, ByVal Image As Bitmap, ByVal Gshhs_File As String)
+    Public Shared Sub ReadTile(ByVal Renderer As _2D_Viewer, ByVal North As Double, ByVal South As Double, ByVal East As Double, ByVal West As Double, ByVal Image As Bitmap, ByVal Gshhs_File As String)
 
         Dim S As FileStream = New FileStream(Gshhs_File, FileMode.Open, FileAccess.Read)
         Using G As Graphics = Graphics.FromImage(Image)
             G.FillRectangle(New SolidBrush(Color.FromArgb(0, 0, 0, 0)), New System.Drawing.RectangleF(0, 0, TileServer.TILE_SIZE, TileServer.TILE_SIZE))
             Do
-                ReaPolyToTile(S, PixXOffset, PixXOffset, Renderer, North, South, East, West, G)
+                ReaPolyToTile(S, Renderer, North, South, East, West, G)
 
             Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
         End Using
