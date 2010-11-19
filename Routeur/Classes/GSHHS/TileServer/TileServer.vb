@@ -13,7 +13,7 @@ Public Class TileServer
 
     Private _Renderer As _2D_Viewer
 
-    Private _TileBuildList As New SortedList(Of String, String)
+    Private _TileBuildList As New SortedList(Of String, TileInfo)
     Private _queryCount As Long = 0
     Private _HitCount As Long = 0
     '    Private _Busy As Boolean = False
@@ -27,7 +27,7 @@ Public Class TileServer
             If _TileBuildList.ContainsKey(TI.TilePath) Then
                 Return
             Else
-                _TileBuildList.Add(TI.TilePath, TI.TilePath)
+                _TileBuildList.Add(TI.TilePath, TI)
                 Busy = True
             End If
         End SyncLock
@@ -39,7 +39,6 @@ Public Class TileServer
 
         Dim W As Double = East - West
         Dim H As Double = North - South
-        Dim Resolution As Double = If(W < H, W, H) / TILE_SIZE
         Dim img As New Bitmap(TILE_SIZE, TILE_SIZE, Imaging.PixelFormat.Format32bppArgb)
         Dim FileError As Boolean = False
 
@@ -117,7 +116,16 @@ Public Class TileServer
 #If MONO_THREAD_TILES Then
             BgCreateTile (TI)
 #Else
-            System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgCreateTile, TI)
+            'System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgCreateTile, TI)
+            SyncLock _TileBuildList
+
+                If _TileBuildList.ContainsKey(TI.TilePath) Then
+                    Return
+                Else
+                    _TileBuildList.Add(TI.TilePath, TI)
+                    Busy = True
+                End If
+            End SyncLock
 #End If
 
         End If
@@ -145,6 +153,61 @@ Public Class TileServer
 
         End Get
     End Property
+
+    Public Sub Render()
+
+
+        If _TileBuildList.Count = 0 Then
+            Return
+        End If
+        Dim img() As Bitmap
+        Dim i As Integer
+        ReDim img(_TileBuildList.Count - 1)
+        
+        For i = 0 To img.Length - 1
+            img(i) = New Bitmap(TILE_SIZE, TILE_SIZE, Imaging.PixelFormat.Format32bppArgb)
+        Next
+        
+        Dim MapLevel As String
+        Dim TI As TileInfo
+        Select Case _TileBuildList.Values(0).Z
+            Case 0 To 2
+                MapLevel = "c"
+            Case 3 To 5
+                MapLevel = "l"
+
+            Case 6 To 9
+                MapLevel = "i"
+            Case 10 To 13
+
+                MapLevel = "h"
+
+            Case Else
+                MapLevel = "f"
+        End Select
+        MapLevel = "..\gshhs\gshhs_" & MapLevel & ".b"
+        If Not File.Exists(MapLevel) Then
+            MapLevel = "i"
+            MapLevel = "..\gshhs\gshhs_" & MapLevel & ".b"
+        End If
+        GSHHS_Reader.ReadTiles(_Renderer, _TileBuildList, img, MapLevel)
+
+        For i = 0 To img.Length - 1
+            TI = _TileBuildList.Values(i)
+            If Not Directory.Exists(TI.BaseTilesPath) Then
+                Directory.CreateDirectory(TI.BaseTilesPath)
+            End If
+            img(i).Save(TI.FileName, Imaging.ImageFormat.Png)
+            RaiseEvent TileReady(TI)
+        Next
+
+
+        SyncLock _TileBuildList
+            _TileBuildList.Clear()
+            Busy = _TileBuildList.Count = 0
+        End SyncLock
+
+    End Sub
 
 
 End Class

@@ -339,6 +339,80 @@ Public Class GSHHS_Reader
 
     End Sub
 
+    Private Shared Sub ReaPolyToTiles(ByVal S As FileStream, ByVal Renderer As _2D_Viewer, ByVal Tiles As SortedList(Of String, TileInfo), ByVal Image() As Graphics)
+
+        Dim H As GSHHS_Header = ReadHeader(S)
+        Dim Pen As New Pen(Color.FromArgb(255, 200, 160, 0))
+
+        Dim Wbound As Double = H.west / GSHHS_FACTOR
+        Dim Ebound As Double = H.east / GSHHS_FACTOR
+        If Wbound > 180 Then
+            Wbound -= 360
+        End If
+        If Ebound > 180 Then
+            Ebound -= 360
+        End If
+        If Ebound < Wbound Then
+            Dim t As Double = Ebound
+            Ebound = Wbound
+            Wbound = t
+        End If
+
+        Dim PolyIndex As Integer
+        Dim PolyStart As DateTime = Now
+
+        Dim PrevLon(Image.Length - 1) As Double
+        Dim Prevx(Image.Length - 1) As Integer
+        Dim Prevy(Image.Length - 1) As Integer
+        Dim PrevIn(Image.Length - 1) As Boolean
+        For i = 0 To CInt(H.n) - 1
+            Dim lon As Double
+            Dim lat As Double
+
+            lon = CDbl(Readinteger(S)) / GSHHS_FACTOR
+            lat = CDbl(Readinteger(S)) / GSHHS_FACTOR
+            For PolyIndex = 0 To Image.Length - 1
+
+                Dim ti As TileInfo = Tiles.Values(PolyIndex)
+
+                'If (Not Ebound * Wbound > 0 AndAlso H.Greenwich) AndAlso (H.north / GSHHS_FACTOR < ti.South OrElse _
+                '   H.south / GSHHS_FACTOR > ti.North OrElse _
+                '   Wbound > ti.East OrElse _
+                '   Ebound < ti.West) Then
+
+                '            S.Position += 4 * 2 * H.n
+                '            Else
+
+
+                If lon > 180 Then
+                    lon -= 360
+                End If
+
+                Dim y As Integer = CInt((1 - (lat - ti.South) / (ti.North - ti.South)) * TileServer.TILE_SIZE)
+                Dim x As Integer = CInt((lon - ti.West) / (ti.East - ti.West) * TileServer.TILE_SIZE)
+                Dim PointIsIn As Boolean = x >= 0 AndAlso x <= TileServer.TILE_SIZE AndAlso y >= 0 AndAlso y <= TileServer.TILE_SIZE
+                If i > 0 Then
+                    If PrevLon(PolyIndex) * lon >= 0 AndAlso (PointIsIn OrElse PrevIn(PolyIndex)) Then
+                        Image(PolyIndex).DrawLine(Pen, Prevx(PolyIndex), Prevy(PolyIndex), x, y)
+                    End If
+                End If
+                Prevx(PolyIndex) = x
+                Prevy(PolyIndex) = y
+                PrevLon(PolyIndex) = lon
+                PrevIn(PolyIndex) = PointIsIn
+
+            Next
+
+            'End If
+        Next
+        If H.id < 50 Then
+            Console.WriteLine("poly 0 with " & H.n & "in " & Now.Subtract(PolyStart).ToString)
+        End If
+
+        Return
+
+    End Sub
+
     Public Shared Sub ReadTile(ByVal Renderer As _2D_Viewer, ByVal North As Double, ByVal South As Double, ByVal East As Double, ByVal West As Double, ByVal Image As Bitmap, ByVal Gshhs_File As String)
 
         Dim S As FileStream = New FileStream(Gshhs_File, FileMode.Open, FileAccess.Read)
@@ -350,6 +424,26 @@ Public Class GSHHS_Reader
             Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
         End Using
 
+    End Sub
+
+    Public Shared Sub ReadTiles(ByVal Renderer As _2D_Viewer, ByVal Tiles As SortedList(Of String, TileInfo), ByVal Image() As Bitmap, ByVal Gshhs_File As String)
+
+        Dim S As FileStream = New FileStream(Gshhs_File, FileMode.Open, FileAccess.Read)
+        Dim G(Image.Length - 1) As Graphics
+        Dim i As Integer
+        For i = 0 To G.Length - 1
+            G(i) = Graphics.FromImage(Image(i))
+            G(i).FillRectangle(New SolidBrush(Color.FromArgb(0, 0, 0, 0)), New System.Drawing.RectangleF(0, 0, TileServer.TILE_SIZE, TileServer.TILE_SIZE))
+        Next
+
+        Do
+            ReaPolyToTiles(S, Renderer, Tiles, G)
+
+        Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
+        For i = 0 To G.Length - 1
+            G(i).Dispose()
+            G(i) = Nothing
+        Next
 
     End Sub
 
