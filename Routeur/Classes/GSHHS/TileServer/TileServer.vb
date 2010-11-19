@@ -40,8 +40,6 @@ Public Class TileServer
         Dim W As Double = East - West
         Dim H As Double = North - South
         Dim Resolution As Double = If(W < H, W, H) / TILE_SIZE
-        Dim XOffset As Double
-        Dim YOffset As Double
         Dim img As New Bitmap(TILE_SIZE, TILE_SIZE, Imaging.PixelFormat.Format32bppArgb)
         Dim FileError As Boolean = False
 
@@ -68,7 +66,7 @@ Public Class TileServer
                 MapLevel = "i"
                 MapLevel = "..\gshhs\gshhs_" & MapLevel & ".b"
             End If
-            GSHHS_Reader.ReadTile(YOffset, XOffset, _Renderer, North, South, East, West, img, MapLevel)
+            GSHHS_Reader.ReadTile(_Renderer, North, South, East, West, img, MapLevel)
 
             If Not Directory.Exists(TI.BaseTilesPath) Then
                 Directory.CreateDirectory(TI.BaseTilesPath)
