@@ -312,6 +312,7 @@ Render1:
                 _TileServer.RequestTile(TI)
             Next
         Next
+        _TileServer.Render()
         '_TileServer.RequestTile(New TileInfo(1, -1, 0))
         '_TileServer.RequestTile(New TileInfo(1, 0, 0))
         '_TileServer.RequestTile(New TileInfo(1, -1, -1))
@@ -329,6 +330,7 @@ Render1:
             Next
 
         Next
+        _TileServer.Render 
 #End If
 
     End Sub
