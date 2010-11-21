@@ -1603,10 +1603,6 @@ Public Class VLM_Router
 
         Dim i As Integer
 
-        SyncLock _Opponents
-            _Opponents.Clear()
-        End SyncLock
-
         For i = 0 To NB_WORKERS
             System.Threading.ThreadPool.QueueUserWorkItem(AddressOf DrawBoatMapWorker, i)
         Next
@@ -1621,7 +1617,8 @@ Public Class VLM_Router
         Dim wc As New WebClient
         Dim Cookies As CookieContainer = Login()
         Dim NbArrived As Integer = 0
-        Dim JSonRanking As Dictionary(Of String, Object) = WS_Wrapper.GetRankings(_PlayerInfo.RaceInfo.idraces, nbArrived)
+        Dim JSonRanking As Dictionary(Of String, Object) = WS_Wrapper.GetRankings(_PlayerInfo.RaceInfo.idraces, NbArrived)
+
         If JSonRanking Is Nothing Then
             Do
 
@@ -1642,14 +1639,20 @@ Public Class VLM_Router
                 Dim BI As BoatInfo
                 'Dim RankingOffset As Integer = 0
 
-                _Opponents.Clear()
+                '_Opponents.Clear()
 
                 For Each BoatID As String In JSonRanking.Keys
                     Dim BoatJson As New VLMBoatRanking
 
                     JSonHelper.LoadJSonDataToObject(BoatJson, JSonRanking(BoatID))
                     If BoatJson.deptime <> -1 Then
-                        BI = New BoatInfo
+                        Dim NewBoat As Boolean = Not _Opponents.ContainsKey(BoatJson.idusers.ToString)
+                        If NewBoat Then
+                            BI = New BoatInfo
+                        Else
+                            BI = _Opponents(BoatJson.idusers.ToString)
+                        End If
+
                         With BI
                             .Classement = BoatJson.rank + NbArrived  '- RankingOffset
                             .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
@@ -1661,12 +1664,18 @@ Public Class VLM_Router
                             End If
 
                             .FlagName = BoatJson.country
-                            .Name = BoatJson.boatpseudo 
+                            .Name = BoatJson.boatpseudo
                             .Last1H = BoatJson.last1h
-                            .Last3h = BoatJson.last3h
+                            .Last3H = BoatJson.last3h
+                            If .LastDTF <> BoatJson.dnm Then
+                                .LastDTF = .Dtf
+                                .Dtf = BoatJson.dnm
+                            End If
 
                         End With
-                        _Opponents.Add(BoatJson.idusers.ToString, BI)
+                        If NewBoat Then
+                            _Opponents.Add(BoatJson.idusers.ToString, BI)
+                        End If
                         'Else
                         '    If BoatJson.rank > RankingOffset Then
                         '        RankingOffset = BoatJson.rank
@@ -1679,6 +1688,21 @@ Public Class VLM_Router
 
         End If
 
+
+        Dim MyBoat As BoatInfo = _Opponents(_PlayerInfo.NumBoat.ToString)
+        If MyBoat.LastDTF <> 0 Then
+            Dim MyDelta As Double = MyBoat.LastDTF - MyBoat.Dtf
+            For Each bi In _Opponents.Values
+                Dim BoatDelta As Double = (bi.LastDTF - bi.Dtf)
+                If (BoatDelta - MyDelta) <> 0 Then
+                    bi.TimeToPass = (bi.Dtf - MyBoat.Dtf) / BoatDelta - MyDelta
+                    bi.PassUp = MyDelta > BoatDelta
+                Else
+                    bi.TimeToPass = 0
+                    bi.PassUp = True
+                End If
+            Next
+        End If
 
         AddLog("Worker " & Id & " complete")
         OnBoatWorkerComplete()
@@ -3553,6 +3577,10 @@ Public Class BoatInfo
     Private _FlagName As String
     Private _Last1H As Double
     Private _Last3H As Double
+    Private _LastDTF As Double
+    Private _Dtf As Double
+    Private _TimeToPass As Double
+    Private _PassUp As Boolean
 
     Private Shared _ImgList As New SortedList(Of String, BitmapImage)
 
@@ -3572,6 +3600,16 @@ Public Class BoatInfo
         End Get
         Set(ByVal value As Coords)
             _CurPos = value
+        End Set
+    End Property
+
+    Public Property Dtf() As Double
+        Get
+            Return _Dtf
+        End Get
+        Set(ByVal value As Double)
+            _Dtf = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Dtf"))
         End Set
     End Property
 
@@ -3630,6 +3668,15 @@ Public Class BoatInfo
         End Set
     End Property
 
+    Public Property LastDTF() As Double
+        Get
+            Return _LastDTF
+        End Get
+        Set(ByVal value As Double)
+            _LastDTF = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LastDTF"))
+        End Set
+    End Property
     Public Property Name() As String
         Get
             Return _Name
@@ -3637,6 +3684,26 @@ Public Class BoatInfo
         Set(ByVal value As String)
             _Name = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Name"))
+        End Set
+    End Property
+
+    Public Property PassUp() As Boolean
+        Get
+            Return _PassUp
+        End Get
+        Set(ByVal value As Boolean)
+            _PassUp = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PassUp"))
+        End Set
+    End Property
+
+    Public Property TimeToPass() As Double
+        Get
+            Return _TimeToPass
+        End Get
+        Set(ByVal value As Double)
+            _TimeToPass = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("TimeToPass"))
         End Set
     End Property
 
