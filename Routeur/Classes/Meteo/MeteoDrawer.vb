@@ -13,7 +13,10 @@ Module MeteoDrawer
 
     Private Function GetAsin(ByVal v As Double) As Double
         If v < -1 Or v > 1 Then
-            Throw New InvalidOperationException("V out of bound for asin")
+            'Throw New InvalidOperationException("V out of bound for asin")
+            v = -1
+        ElseIf v > 1 Then
+            v = 1
         End If
 
         If _AsinTable Is Nothing Then

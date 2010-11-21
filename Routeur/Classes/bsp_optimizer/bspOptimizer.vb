@@ -2,7 +2,7 @@
 
 Public Class bspOptimizer
 
-    Private _Cancel As Boolean = False
+    Private Shared _Cancel As Boolean = False
     Private _Optimize As New AutoResetEvent(False)
     Private _optimizationlist As New List(Of BspRect)(250000)
 
@@ -10,6 +10,11 @@ Public Class bspOptimizer
 
         Dim th As New Thread(AddressOf Optimize)
         th.Start()
+
+    End Sub
+
+    Public Shared Sub Terminate()
+        _Cancel = True
 
     End Sub
 
