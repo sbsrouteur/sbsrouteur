@@ -31,6 +31,8 @@ Public Class BspRect
     Private _Inland As inlandstate
     Private _PolyGons As LinkedList(Of Polygon)
 
+    Shared Optimizer As New bspOptimizer
+
 
 
     Public Sub New(ByVal P1 As Coords, ByVal P2 As Coords)
@@ -123,11 +125,9 @@ Public Class BspRect
             For i = 0 To 3
 
                 curvalue = _SubRects(i).InLand
-                'If _SubRects(i).PolygonCount <> 0 Then
-                '    Return retvalue
-                'End If
                 If curvalue = inlandstate.Unknown Then
                     shouldReturn = True
+                    Optimizer.AddToOptimizationList(Me)
                     Return retvalue
                 ElseIf curvalue = inlandstate.Mixed Then
                     _Inland = inlandstate.Mixed
