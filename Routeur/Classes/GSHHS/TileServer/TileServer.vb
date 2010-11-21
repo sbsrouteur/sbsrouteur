@@ -164,6 +164,7 @@ Public Class TileServer
 
 
         If _TileBuildList.Count = 0 Then
+            RaiseEvent TileProgress(100)
             Return
         End If
         Dim img() As Bitmap
@@ -199,7 +200,7 @@ Public Class TileServer
 
         Dim Start As DateTime = Now
         GSHHS_Reader.ReadTiles(_Renderer, _TileBuildList, img, MapLevel)
-        Console.WriteLine("Render level " & MapLevel & " in " & Now.Subtract(Start).ToString & " for " & img.Length & " tiles")
+        'Console.WriteLine("Render level " & MapLevel & " in " & Now.Subtract(Start).ToString & " for " & img.Length & " tiles")
         For i = 0 To img.Length - 1
             TI = _TileBuildList.Values(i)
             If Not Directory.Exists(TI.BaseTilesPath) Then

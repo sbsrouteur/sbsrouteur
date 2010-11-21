@@ -40,8 +40,8 @@ Public Class RouteurModel
     Public Const PenWidth As Double = 0.3
 
 #If TESTING = 1 Then
-    Public Const S11_SERVER As String = "http://testing.virtual-loup-de-mer.org"
-    'Public Const S10_SERVER As String = "http://testing.virtual-loup-de-mer.org"
+    'Public Const S11_SERVER As String = "http://testing.virtual-loup-de-mer.org"
+    Public Const S10_SERVER As String = "http://testing.virtual-loup-de-mer.org"
 #Else
     'Public Const S11_SERVER As String = "http://www.virtual-loup-de-mer.org"
     Public Const S10_SERVER As String = "http://tcv.virtual-loup-de-mer.org"

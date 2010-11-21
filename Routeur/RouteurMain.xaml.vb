@@ -440,4 +440,10 @@ Partial Public Class RouteurMain
 
         RouteurModel.DebugEvt.Set()
     End Sub
+
+    Private Sub RouteurMain_Closing(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles Me.Closing
+
+        bspOptimizer.Terminate()
+
+    End Sub
 End Class

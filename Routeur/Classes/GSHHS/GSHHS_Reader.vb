@@ -307,7 +307,7 @@ Public Class GSHHS_Reader
             Dim lat As Double
             Dim Prevx As Integer
             Dim Prevy As Integer
-            Dim PrevIn As Integer
+
             Dim PolyStart As DateTime = Now
 
             For i = 0 To CInt(H.n) - 1
