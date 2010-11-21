@@ -33,6 +33,7 @@ Public Class GSHHS_Reader
 
     Shared Event BspEvt(ByVal Count As Long)
     Shared Event Log(ByVal Msg As String)
+    Shared Event TilesProgress(ByVal Pct As Double)
 
     Public Shared ReadOnly Property AllPolygons() As LinkedList(Of Polygon)
         Get
@@ -365,6 +366,7 @@ Public Class GSHHS_Reader
         Dim Prevx(Image.Length - 1) As Integer
         Dim Prevy(Image.Length - 1) As Integer
         Dim PrevIn(Image.Length - 1) As Boolean
+        Static Lastevt As DateTime = Now
         For i = 0 To CInt(H.n) - 1
             Dim lon As Double
             Dim lat As Double
@@ -393,7 +395,9 @@ Public Class GSHHS_Reader
                 Dim PointIsIn As Boolean = x >= 0 AndAlso x <= TileServer.TILE_SIZE AndAlso y >= 0 AndAlso y <= TileServer.TILE_SIZE
                 If i > 0 Then
                     If PrevLon(PolyIndex) * lon >= 0 AndAlso (PointIsIn OrElse PrevIn(PolyIndex)) Then
-                        Image(PolyIndex).DrawLine(Pen, Prevx(PolyIndex), Prevy(PolyIndex), x, y)
+                        If Abs(Prevx(PolyIndex) - x) >= 1 OrElse Abs(Prevy(PolyIndex) - y) > 1 Then
+                            Image(PolyIndex).DrawLine(Pen, Prevx(PolyIndex), Prevy(PolyIndex), x, y)
+                        End If
                     End If
                 End If
                 Prevx(PolyIndex) = x
@@ -403,11 +407,13 @@ Public Class GSHHS_Reader
 
             Next
 
+            If Now.Subtract(Lastevt).TotalSeconds > 1 Then
+                RaiseEvent TilesProgress(S.Position / S.Length * 100)
+                Lastevt = Now
+            End If
+
             'End If
         Next
-        If H.id < 50 Then
-            Console.WriteLine("poly 0 with " & H.n & "in " & Now.Subtract(PolyStart).ToString)
-        End If
 
         Return
 
@@ -435,11 +441,10 @@ Public Class GSHHS_Reader
             G(i) = Graphics.FromImage(Image(i))
             G(i).FillRectangle(New SolidBrush(Color.FromArgb(0, 0, 0, 0)), New System.Drawing.RectangleF(0, 0, TileServer.TILE_SIZE, TileServer.TILE_SIZE))
         Next
-
         Do
             ReaPolyToTiles(S, Renderer, Tiles, G)
-
         Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
+        RaiseEvent TilesProgress(100)
         For i = 0 To G.Length - 1
             G(i).Dispose()
             G(i) = Nothing

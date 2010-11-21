@@ -234,6 +234,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\BspRect.vb" />
+    <Compile Include="Classes\bsp_optimizer\bspOptimizer.vb" />
     <Compile Include="Classes\ClassCloner.vb" />
     <Compile Include="Classes\clsMeteoOrganizer.vb" />
     <Compile Include="Classes\clsPlayerInfo.vb" />

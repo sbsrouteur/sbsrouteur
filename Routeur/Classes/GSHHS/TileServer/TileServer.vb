@@ -8,6 +8,7 @@ Public Class TileServer
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
     Public Event TileReady(ByVal ti As TileInfo)
+    Public Event TileProgress(ByVal pct As Double)
 
     Public Const TILE_SIZE As Integer = 256
 
@@ -99,6 +100,7 @@ Public Class TileServer
     Public Sub New(ByVal Render As _2D_Viewer)
 
         _Renderer = Render
+        AddHandler GSHHS_Reader.TilesProgress, AddressOf TileProgressHandler
 
     End Sub
 
@@ -145,6 +147,10 @@ Public Class TileServer
 
     End Property
 
+    Private Sub TileProgressHandler(ByVal pct As Double)
+        RaiseEvent TileProgress(pct)
+    End Sub
+
     Public ReadOnly Property TileServerStateIdle() As Boolean
         Get
             SyncLock _TileBuildList
@@ -172,15 +178,15 @@ Public Class TileServer
         Dim TI As TileInfo
         Select Case _TileBuildList.Values(0).Z
             Case 0 To 2
-                MapLevel = "c"
-            Case 3 To 5
                 MapLevel = "l"
+            Case 3 To 5
+                MapLevel = "i"
 
             Case 6 To 9
-                MapLevel = "i"
+                MapLevel = "h"
             Case 10 To 13
 
-                MapLevel = "h"
+                MapLevel = "f"
 
             Case Else
                 MapLevel = "f"
@@ -190,8 +196,10 @@ Public Class TileServer
             MapLevel = "i"
             MapLevel = "..\gshhs\gshhs_" & MapLevel & ".b"
         End If
-        GSHHS_Reader.ReadTiles(_Renderer, _TileBuildList, img, MapLevel)
 
+        Dim Start As DateTime = Now
+        GSHHS_Reader.ReadTiles(_Renderer, _TileBuildList, img, MapLevel)
+        Console.WriteLine("Render level " & MapLevel & " in " & Now.Subtract(Start).ToString & " for " & img.Length & " tiles")
         For i = 0 To img.Length - 1
             TI = _TileBuildList.Values(i)
             If Not Directory.Exists(TI.BaseTilesPath) Then
