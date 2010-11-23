@@ -45,7 +45,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314</NoWarn>
-    <DefineConstants>TOUR=true , ID="VLM"</DefineConstants>
+    <DefineConstants>NO_TILE=0</DefineConstants>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -233,6 +233,7 @@
     <Import Include="System.Windows.Navigation" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\BoatInfo\BoatInfo.vb" />
     <Compile Include="Classes\BspRect.vb" />
     <Compile Include="Classes\bsp_optimizer\bspOptimizer.vb" />
     <Compile Include="Classes\ClassCloner.vb" />
