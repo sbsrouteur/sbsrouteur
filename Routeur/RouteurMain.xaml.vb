@@ -183,7 +183,7 @@ Partial Public Class RouteurMain
     Private Sub CloseApp()
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
         M.VorHandler.startGridRoute(False)
-        M.VorHandler.StartIsoRoute(Me, False)
+        M.VorHandler.StartIsoRoute(Me, False, False)
     End Sub
 
     Private Sub cmdSimpleVMG(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
@@ -272,7 +272,7 @@ Partial Public Class RouteurMain
     Private Sub CheckIsoRoute(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
         Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
 
-        If Not M.VorHandler.StartIsoRoute(Me, CBool(chkIsoRoute.IsChecked)) Then
+        If Not M.VorHandler.StartIsoRoute(Me, CBool(chkIsoRoute.IsChecked), False) Then
             chkIsoRoute.IsChecked = False
         End If
 

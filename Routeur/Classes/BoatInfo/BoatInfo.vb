@@ -24,15 +24,17 @@ Public Class BoatInfo
     Private _TimeToPass As Double
     Private _PassUp As Boolean
 
-    Private Shared _ImgList As New SortedList(Of String, BitmapImage)
+    'Private Shared _ImgList As New SortedList(Of String, BitmapImage)
 
     Public Property Classement() As Integer
         Get
             Return _Classement
         End Get
         Set(ByVal value As Integer)
-            _Classement = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Classement"))
+            If _Classement <> value Then
+                _Classement = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Classement"))
+            End If
         End Set
     End Property
 
@@ -66,39 +68,44 @@ Public Class BoatInfo
             Return _FlagName
         End Get
         Set(ByVal value As String)
-            _FlagName = value
+            If _FlagName <> value Then
+                _FlagName = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Flag"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("FlagName"))
+            End If
+
         End Set
     End Property
 
-    Public Shared ReadOnly Property ImgList() As SortedList(Of String, BitmapImage)
-        Get
-            Return _ImgList
-        End Get
-    End Property
+    'Public Shared ReadOnly Property ImgList() As SortedList(Of String, BitmapImage)
+    '    Get
+    '        Return _ImgList
+    '    End Get
+    'End Property
 
     Public Shared Property ImgList(ByVal Index As String) As BitmapImage
         Get
-            If _ImgList(Index) Is Nothing OrElse _ImgList(Index).Width < 10 Then
-                Dim FlagsPath As String = Path.Combine(RouteurModel.BaseFileDir, "Flags")
-                If Not Directory.Exists(FlagsPath) Then
-                    Directory.CreateDirectory(FlagsPath)
-                End If
-                FlagsPath = Path.Combine(FlagsPath, Index)
-                If Not File.Exists(FlagsPath) Then
-
-                    Using wc As New WebClient
-                        wc.DownloadFile(RouteurModel.Base_Game_Url & "/flagimg.php?idflags=" & Index, FlagsPath)
-                    End Using
-                End If
-                Dim img As New BitmapImage(New Uri("File://" & FlagsPath))
-                _ImgList(Index) = img
-
+            'If Not _ImgList.ContainsKey(Index) OrElse _ImgList(Index) Is Nothing OrElse _ImgList(Index).Width < 10 Then
+            Dim FlagsPath As String = Path.Combine(RouteurModel.BaseFileDir, "Flags")
+            If Not Directory.Exists(FlagsPath) Then
+                Directory.CreateDirectory(FlagsPath)
             End If
+            FlagsPath = Path.Combine(FlagsPath, Index)
+            If Not File.Exists(FlagsPath) Then
 
-            Return _ImgList(Index)
+                Using wc As New WebClient
+                    wc.DownloadFile(RouteurModel.Base_Game_Url & "/flagimg.php?idflags=" & Index, FlagsPath)
+                End Using
+            End If
+            Dim img As New BitmapImage(New Uri("File://" & FlagsPath))
+            Return img
+
+            'End If
+
+            'Return Nothing '_ImgList(Index)
         End Get
         Set(ByVal value As BitmapImage)
-            _ImgList(Index) = value
+            '_ImgList(Index) = value
         End Set
     End Property
 
@@ -107,8 +114,10 @@ Public Class BoatInfo
             Return _Last1H
         End Get
         Set(ByVal value As Double)
-            _Last1H = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Last1H"))
+            If _Last1H <> value Then
+                _Last1H = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Last1H"))
+            End If
         End Set
     End Property
 
@@ -117,8 +126,11 @@ Public Class BoatInfo
             Return _Last3H
         End Get
         Set(ByVal value As Double)
-            _Last3H = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Last3H"))
+            If _Last3H <> value Then
+                _Last3H = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Last3H"))
+            End If
+
         End Set
     End Property
 
@@ -127,8 +139,11 @@ Public Class BoatInfo
             Return _LastDTF
         End Get
         Set(ByVal value As Double)
-            _LastDTF = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LastDTF"))
+            If _LastDTF <> value Then
+                _LastDTF = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LastDTF"))
+            End If
+
         End Set
     End Property
     Public Property Name() As String
@@ -136,8 +151,11 @@ Public Class BoatInfo
             Return _Name
         End Get
         Set(ByVal value As String)
-            _Name = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Name"))
+            If Name <> value Then
+                _Name = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Name"))
+            End If
+
         End Set
     End Property
 
@@ -146,8 +164,11 @@ Public Class BoatInfo
             Return _PassUp
         End Get
         Set(ByVal value As Boolean)
-            _PassUp = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PassUp"))
+            If _PassUp <> value Then
+                _PassUp = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PassUp"))
+            End If
+
         End Set
     End Property
 
@@ -156,8 +177,10 @@ Public Class BoatInfo
             Return _TimeToPass
         End Get
         Set(ByVal value As Double)
-            _TimeToPass = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("TimeToPass"))
+            If _TimeToPass <> value Then
+                _TimeToPass = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("TimeToPass"))
+            End If
         End Set
     End Property
 

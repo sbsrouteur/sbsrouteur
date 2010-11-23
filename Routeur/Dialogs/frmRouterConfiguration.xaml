@@ -46,6 +46,7 @@
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
+			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="1*"/>
 			<RowDefinition Height="Auto" MinHeight="36 "/>
 		</Grid.RowDefinitions>
@@ -111,6 +112,7 @@
 			<TextBox Text="{Binding RouteStart, Converter={StaticResource CoordsConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" IsEnabled="{Binding UseCustomStart, Mode=Default}" VerticalAlignment="Bottom" Height="21.96" Grid.Column="1" Grid.Row="1" Margin="{DynamicResource DefMargin}" d:LayoutOverrides="GridBox"  />
 
 		</Grid>
-		
-	</Grid>
+        <CheckBox  Content =" Autorestart routing when complete" Grid.Row="9" Grid.ColumnSpan ="2" IsChecked="{Binding AutoRestartRouter,Mode=TwoWay}"/>
+
+    </Grid>
 </Window>
