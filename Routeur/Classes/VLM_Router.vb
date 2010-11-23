@@ -78,6 +78,7 @@ Public Class VLM_Router
     Private _CurWPDist As Double = 0
     Private WithEvents _RoutingRestart As New Timers.Timer
     Private _RoutingRestartPending As Boolean = False
+    Private _IsoRoutingRestartPending As Boolean = False
     Private Shared _Track As String = Nothing
     Private _DrawOpponnents As Boolean = False
     Private _CurUserWP As Integer = 0
@@ -1657,11 +1658,11 @@ Public Class VLM_Router
                             .Classement = BoatJson.rank + NbArrived  '- RankingOffset
                             .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
 
-                            If Not BoatInfo.ImgList.ContainsKey(BoatJson.country) Then
+                            'If Not BoatInfo.ImgList.ContainsKey(BoatJson.country) Then
 
-                                BoatInfo.ImgList.Add(BoatJson.country, Nothing)
+                            'BoatInfo.ImgList.Add(BoatJson.country, Nothing)
 
-                            End If
+                            'End If
 
                             .FlagName = BoatJson.country
                             .Name = BoatJson.boatpseudo
@@ -2328,14 +2329,14 @@ Public Class VLM_Router
                     .Name = Boat
                     .Classement = Classement + ArrivedOffset
 
-                    If Not BoatInfo.ImgList.ContainsKey(ImgName) Then
-                        'Console.WriteLine("Ask " & ImgName & " for " & .Name)
-                        BoatInfo.ImgList.Add(ImgName, Nothing)
-                        'If Img Is Nothing Then
-                        '    Console.WriteLine("Request failed for " & ImgName)
-                        'End If
+                    'If Not BoatInfo.ImgList.ContainsKey(ImgName) Then
+                    '    'Console.WriteLine("Ask " & ImgName & " for " & .Name)
+                    '    BoatInfo.ImgList.Add(ImgName, Nothing)
+                    '    'If Img Is Nothing Then
+                    '    '    Console.WriteLine("Request failed for " & ImgName)
+                    '    'End If
 
-                    End If
+                    'End If
 
                     .FlagName = ImgName
                     '.Flag = http
@@ -3299,19 +3300,25 @@ Public Class VLM_Router
 
     End Sub
 
-    Public Function StartIsoRoute(ByVal Owner As RouteurMain, ByVal StartRouting As Boolean) As Boolean
+    Public Function StartIsoRoute(ByVal Owner As RouteurMain, ByVal StartRouting As Boolean, ByVal AutoRestart As Boolean) As Boolean
 
         If StartRouting Then
-            Dim frm As New frmRouterConfiguration(Owner, _PlayerInfo.RaceInfo.idraces)
+            Dim prefs As RacePrefs
             Dim StartDate As DateTime
             Dim StartCoords As Coords
             Dim EndCoords1 As Coords
             Dim EndCoords2 As Coords
+            If Not AutoRestart Then
+                Dim frm As New frmRouterConfiguration(Owner, _PlayerInfo.RaceInfo.idraces)
 
-            If Not frm.ShowDialog() Then
-                Return False
+                If Not frm.ShowDialog() Then
+                    Return False
+                End If
+                prefs = CType(frm.DataContext, RacePrefs)
+            Else
+                prefs = RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces)
             End If
-            Dim prefs As RacePrefs = CType(frm.DataContext, RacePrefs)
+
 
             _iso = New IsoRouter(_UserInfo.type, _Sails, _Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, prefs.IsoStep, _
                                  prefs.IsoStep_24, prefs.IsoStep_48)
@@ -3359,6 +3366,7 @@ Public Class VLM_Router
 
         ElseIf Not _iso Is Nothing Then
             _iso.StopRoute()
+            RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces).AutoRestartRouter = False
             Return False
         End If
 
@@ -3537,8 +3545,14 @@ Public Class VLM_Router
     Private Sub _RoutingRestart_Elapsed(ByVal sender As Object, ByVal e As System.Timers.ElapsedEventArgs) Handles _RoutingRestart.Elapsed
 
         _RoutingRestart.Stop()
-        _RoutingRestartPending = False
-        startGridRoute(True)
+        If _RoutingRestartPending Then
+            _RoutingRestartPending = False
+            startGridRoute(True)
+        End If
+        If _IsoRoutingRestartPending Then
+            _IsoRoutingRestartPending = False
+            StartIsoRoute(Nothing, True, True)
+        End If
 
     End Sub
 
@@ -3557,5 +3571,14 @@ Public Class VLM_Router
     Private Sub _iso_RouteComplete() Handles _iso.RouteComplete
         BruteRoute(_Meteo) = _iso.Route
         RaiseEvent IsoComplete()
+
+        If RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces).AutoRestartRouter Then
+            _IsoRoutingRestartPending = True
+            _RoutingRestart.Start()
+
+        Else
+            RaiseEvent IsoComplete()
+        End If
+
     End Sub
 End Class

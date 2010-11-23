@@ -34,6 +34,7 @@ Public Class RacePrefs
     Private _EllipseExtFactor As Double
     Private _CourseExtensionHours As Double
     Private _NoExclusionZone As Boolean
+    Private _AutoRestartRouter As Boolean = False
 
     'IsoChrones Prefs
     Private _IsoLookupAngle As Double
@@ -106,6 +107,16 @@ Public Class RacePrefs
         Return RetValue
 
     End Function
+
+    Public Property AutoRestartRouter() As Boolean
+        Get
+            Return _AutoRestartRouter
+        End Get
+        Set(ByVal value As Boolean)
+            _AutoRestartRouter = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("AutoRestartRouter"))
+        End Set
+    End Property
 
     Public Property CourseExtensionHours() As Double
         Get
