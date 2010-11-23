@@ -1663,8 +1663,9 @@ Public Class VLM_Router
                             'BoatInfo.ImgList.Add(BoatJson.country, Nothing)
 
                             'End If
-
-                            .FlagName = BoatJson.country
+                            If NewBoat Then
+                                .FlagName = BoatJson.country
+                            End If
                             .Name = BoatJson.boatpseudo
                             .Last1H = BoatJson.last1h
                             .Last3H = BoatJson.last3h
