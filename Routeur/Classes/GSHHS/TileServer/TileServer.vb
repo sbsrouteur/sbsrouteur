@@ -43,6 +43,9 @@ Public Class TileServer
         Dim img As New Bitmap(TILE_SIZE, TILE_SIZE, Imaging.PixelFormat.Format32bppArgb)
         Dim FileError As Boolean = False
 
+#Const USE_OSM = 1
+
+#If USE_OSM = 0 Then
         Dim MapLevel As String
         If True Then
 
@@ -72,17 +75,19 @@ Public Class TileServer
                 Directory.CreateDirectory(TI.BaseTilesPath)
             End If
             img.Save(TI.FileName, Imaging.ImageFormat.Png)
-        Else
+#Else
 
-            Dim WC As New WebClient
-            Try
-                WC.DownloadFile("http://tile.openstreetmap.org/" & TI.Z & "/" & TI.OSM_TX & "/" & TI.OSM_TY & ".png", TI.FileName)
-            Catch ex As Exception
-                'MessageBox.Show(ex.Message, "Failed to get tile " & TI.FileName)
-                FileError = True
-            End Try
+        Dim WC As New WebClient
+        Try
+            FileError = False
+            'WC.DownloadFile("http://tile.openstreetmap.org/" & TI.Z & "/" & TI.TX & "/" & TI.TY & ".png", TI.FileName)
+            WC.DownloadFile("http://testing.virtual-loup-de-mer.org/cache/gshhstiles/" & TI.Z & "/" & TI.TX & "/" & TI.TY & ".png", TI.FileName)
+        Catch ex As Exception
+            'MessageBox.Show(ex.Message, "Failed to get tile " & TI.FileName)
+            FileError = True
+        End Try
 
-        End If
+#End If
 
 
         SyncLock _TileBuildList
@@ -108,14 +113,14 @@ Public Class TileServer
 
         _queryCount += 1
         If File.Exists(TI.FileName) AndAlso New FileInfo(TI.FileName).Length > 0 Then
-            Dim Tile As New Bitmap(TI.FileName)
+            'Dim Tile As New Bitmap(TI.FileName)
             _HitCount += 1
             RaiseEvent TileReady(TI)
         Else
 
-#Const MONO_THREAD_TILES = 0
+#Const LOCAL_GSHHS_MAP = 0
 
-#If MONO_THREAD_TILES Then
+#If LOCAL_GSHHS_MAP = 0 Then
             BgCreateTile (TI)
 #Else
             'System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgCreateTile, TI)

@@ -35,17 +35,25 @@ Public Class TileInfo
 
         _Z = Z
 
-        _TX = CInt(Math.Floor((W + E) / 2 * (2 ^ Z) / 360))
-        Dim V As Double = (N + S) / 360 * PI
-        V = Log(Tan(V) + 1 / Cos(V))
-        _TY = CInt(Math.Floor(V * (2 ^ Z) / PI))
+        '        CalcTileXY.X = CLng(Math.Floor((lon + 180) / 360 * 2 ^ zoom))
+        '        CalcTileXY.Y = CLng(Math.Floor((1 - Math.Log(Math.Tan(lat * Math.PI / 180) + 1 / Math.Cos(lat * Math.PI / 180)) / Math.PI) / 2 * 2 ^ zoom))
+        Dim Lon As Double = (W + E) / 2
+        Dim Lat As Double = (N + S) / 2
+        _TX = CInt(Math.Floor((Lon + 180) / 360 * 2 ^ Z))
+        _TY = CInt(Math.Floor((1 - Math.Log(Math.Tan(Lat * Math.PI / 180) + 1 / Math.Cos(Lat * Math.PI / 180)) / Math.PI) / 2 * 2 ^ Z))
+
+
+        '_TX = CInt(Math.Floor(180+(W + E) / 2) * (2 ^ Z) / 360))
+        'Dim V As Double = (N + S) / 360 * PI
+        'V = Log(Tan(V) + 1 / Cos(V))
+        '_TY = CInt(Math.Floor(V * (2 ^ Z) / PI))
         'Recompute tile coords
-        Dim N1 As Double = (_TY + 1) * PI / (2 ^ Z)
-        Dim S1 As Double = (_TY) * PI / (2 ^ Z)
+        Dim N1 As Double = PI - 2 * (_TY) * PI / (2 ^ Z)
+        Dim S1 As Double = PI - 2 * (_TY + 1) * PI / (2 ^ Z)
         _North = Math.Atan(Math.Sinh(N1)) / PI * 180
         _South = Math.Atan(Math.Sinh(S1)) / PI * 180
-        _East = (_TX + 1) * 360 / (2 ^ Z)
-        _West = _TX * 360 / (2 ^ Z)
+        _East = (_TX + 1) * 360 / (2 ^ Z) - 180
+        _West = _TX * 360 / (2 ^ Z) - 180
         '_Center = New Coords(N, W)
 
     End Sub
@@ -57,12 +65,12 @@ Public Class TileInfo
 
         _TY = TY
         'Recompute tile coords
-        Dim N1 As Double = (_TY + 1) * PI / (2 ^ Z)
-        Dim S1 As Double = (_TY) * PI / (2 ^ Z)
+        Dim N1 As Double = PI - 2 * (_TY) * PI / (2 ^ Z)
+        Dim S1 As Double = PI - 2 * (_TY + 1) * PI / (2 ^ Z)
         _North = Math.Atan(Math.Sinh(N1)) / PI * 180
         _South = Math.Atan(Math.Sinh(S1)) / PI * 180
-        _East = (_TX + 1) * 360 / (2 ^ Z)
-        _West = _TX * 360 / (2 ^ Z)
+        _East = (_TX + 1) * 360 / (2 ^ Z) - 180
+        _West = _TX * 360 / (2 ^ Z) - 180
         '_Center = New Coords(N, W)
 
     End Sub
@@ -108,17 +116,17 @@ Public Class TileInfo
 
     End Property
 
-    Public ReadOnly Property OSM_TX() As Integer
-        Get
-            Return CInt(TX + 2 ^ (Z - 1))
-        End Get
-    End Property
+    'Public ReadOnly Property OSM_TX() As Integer
+    '    Get
+    '        Return CInt(TX + 2 ^ (Z - 1))
+    '    End Get
+    'End Property
 
-    Public ReadOnly Property OSM_TY() As Integer
-        Get
-            Return CInt(2 ^ (Z - 1) - TY)
-        End Get
-    End Property
+    'Public ReadOnly Property OSM_TY() As Integer
+    '    Get
+    '        Return CInt(2 ^ (Z - 1) - TY)
+    '    End Get
+    'End Property
 
     Public ReadOnly Property TX() As Integer
         Get
