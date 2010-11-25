@@ -305,7 +305,7 @@ Render1:
         ty2 = TI.TY
         '_MapPg.Start((tx2 - tx1 + 1) * (ty1 - ty2 + 1))
         For i As Integer = tx1 To tx2
-            For j As Integer = ty2 To ty1
+            For j As Integer = ty1 To ty2
                 TI = New TileInfo(Z, i, j)
 
                 System.Threading.Interlocked.Increment(_PendingTileRequestCount)
@@ -431,9 +431,9 @@ Render1:
         Try
             'Static StartPath As DateTime = Now
             ' Const MAX_DRAW_MS As Integer = 100
-            If Not _RacePolygonsInited Then
-                Return
-            End If
+            'If Not _RacePolygonsInited Then
+            '    Return
+            'End If
 
             'System.Threading.Interlocked.Exchange(Invoking, 1)
             Dim Coords() As String = Nothing
@@ -1087,7 +1087,7 @@ Render1:
         Interlocked.Decrement(_PendingTileRequestCount)
 
         '_MapPg.Progress(_TileCount)
-        Debug.WriteLine("draw " & ti.TilePath & " pending " & _PendingTileRequestCount)
+        'Debug.WriteLine("draw " & ti.TilePath & " pending " & _PendingTileRequestCount)
 
     End Sub
 
@@ -1101,7 +1101,7 @@ Render1:
 
     Private Sub _TileServer_TileReady(ByVal ti As TileInfo) Handles _TileServer.TileReady
 
-            SyncLock _ReadyTilesQueue
+        SyncLock _ReadyTilesQueue
             _ReadyTilesQueue.Enqueue(ti)
         End SyncLock
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Refresh"))

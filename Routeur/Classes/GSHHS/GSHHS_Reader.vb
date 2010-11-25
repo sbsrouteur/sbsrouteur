@@ -184,8 +184,8 @@ Public Class GSHHS_Reader
 
                 RetPoints(ActivePoints + 1) = New Coords(Lat, lon)
 
-                InZone = HitTest(RetPoints(ActivePoints + 1), 0, lookupzone, False, True)
-                'InZone = True
+                'InZone = HitTest(RetPoints(ActivePoints + 1), 0, lookupzone, False, True)
+                InZone = True
                 'RetPoints(ActivePoints + 1).Lon = -RetPoints(ActivePoints + 1).Lon
                 If i = 0 Then
                     ActivePoints += 1

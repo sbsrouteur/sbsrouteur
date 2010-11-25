@@ -781,6 +781,8 @@ Public Class RouteurModel
                 The2DViewer.UpdatePath(Traj, routes, VorHandler.Opponents, VorHandler.GridRoute, _ClearGrid, _ClearBoats, VorHandler.IsoChrones, CurPlayer.RaceInfo.races_waypoints, _RouteManager.VisibleRoutes)
                 _ClearGrid = False
                 _ClearBoats = False
+            Else
+                tmrRefresh.Enabled = True
             End If
             System.Threading.Monitor.Exit(Me)
         Else

@@ -52,6 +52,7 @@ Partial Public Class RouteurMain
             M.The2DViewer = Me.VOR2DViewer
             M.The2DViewer.InitViewer(Me)
             RedrawClick(Nothing, Nothing)
+
         End If
 
         Dim sApp As String = System.IO.Path.Combine(My.Application.Info.DirectoryPath, My.Application.Info.AssemblyName & ".exe")
