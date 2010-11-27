@@ -527,6 +527,15 @@ Render1:
 #End If
                 End If
 
+#If NO_TILES = 1 Then
+                If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
+#Else
+                If _BackDropBmp IsNot Nothing Then 'AndAlso _BackDropBmp.IsFrozen Then
+#End If
+
+                    DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
+                End If
+
 
 
 
@@ -746,14 +755,7 @@ Render1:
                     'Debug.WriteLine("Grid : " & ShownPoints)
                     'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
                 End If
-#If NO_TILES = 1 Then
-                If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
-#Else
-                If _BackDropBmp IsNot Nothing Then 'AndAlso _BackDropBmp.IsFrozen Then
-#End If
 
-                    DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
-                End If
                 DC.DrawImage(_RoutesBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
                 DC.DrawImage(_OpponentsBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
                 DC.DrawImage(_GridBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
@@ -933,7 +935,7 @@ Render1:
 
     End Sub
 
-    Private Sub ClearMapAndDrawGates(ByVal WPs As List(Of VLM_RaceWaypoint))
+    Private Sub DrawGates(ByVal WPs As List(Of VLM_RaceWaypoint))
         Dim D As New DrawingVisual
         Dim DC As DrawingContext = D.RenderOpen()
         Dim WPPen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Red), 2)
@@ -1074,10 +1076,10 @@ Render1:
 
             If _BackDropBmp Is Nothing Then
                 _BackDropBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
-                ClearMapAndDrawGates(WPs)
 
             End If
-            DC.DrawImage(img, R)
+            DC.DrawImage(Img, R)
+            DrawGates(WPs)
             DC.Close()
             _BackDropBmp.Render(D)
             'LocalBmp.Freeze()
