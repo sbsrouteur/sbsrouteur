@@ -20,6 +20,8 @@ Public Class BoatInfo
     Private _Last1H As Double
     Private _Last3H As Double
     Private _LastDTF As Double
+    Private _PrevDTFDate As DateTime
+    Private _CurDTFDate As DateTime
     Private _Dtf As Double
     Private _TimeToPass As Double
     Private _PassUp As Boolean
@@ -38,6 +40,15 @@ Public Class BoatInfo
         End Set
     End Property
 
+    Public Property CurDTFDate() As DateTime
+        Get
+            Return _CurDTFDate
+        End Get
+        Set(ByVal value As DateTime)
+            _CurDTFDate = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurDTFDate"))
+        End Set
+    End Property
     Public Property CurPos() As Coords
         Get
             Return _CurPos
@@ -169,6 +180,16 @@ Public Class BoatInfo
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PassUp"))
             End If
 
+        End Set
+    End Property
+
+    Public Property PrevDTFDate() As DateTime
+        Get
+            Return _PrevDTFDate
+        End Get
+        Set(ByVal value As DateTime)
+            _PrevDTFDate = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PrevDTFDate"))
         End Set
     End Property
 

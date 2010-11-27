@@ -1671,7 +1671,9 @@ Public Class VLM_Router
                             .Last3H = BoatJson.last3h
                             If .LastDTF <> BoatJson.dnm Then
                                 .LastDTF = .Dtf
+                                .PrevDTFDate = .CurDTFDate
                                 .Dtf = BoatJson.dnm
+                                .CurDTFDate =Now 
                             End If
 
                         End With
@@ -1692,18 +1694,23 @@ Public Class VLM_Router
 
 
         Dim MyBoat As BoatInfo = _Opponents(_PlayerInfo.NumBoat.ToString)
-        If MyBoat.LastDTF <> 0 Then
+        If MyBoat.LastDTF <> 0 And MyBoat.CurDTFDate.Subtract(MyBoat.PrevDTFDate).TotalMinutes > 1 Then
             Dim MyDelta As Double = MyBoat.LastDTF - MyBoat.Dtf
-            For Each bi In _Opponents.Values
-                Dim BoatDelta As Double = (bi.LastDTF - bi.Dtf)
-                If (BoatDelta - MyDelta) <> 0 Then
-                    bi.TimeToPass = (bi.Dtf - MyBoat.Dtf) / BoatDelta - MyDelta
-                    bi.PassUp = MyDelta > BoatDelta
-                Else
-                    bi.TimeToPass = 0
-                    bi.PassUp = True
-                End If
-            Next
+            Dim MyTS As TimeSpan = MyBoat.CurDTFDate.Subtract(MyBoat.PrevDTFDate)
+            If MyTS.TotalHours > 0 Then
+                Dim NormedTime As Double = Math.Ceiling(MyTS.TotalMinutes / 5) * 5 / 60
+                For Each bi In _Opponents.Values
+                    Dim BoatDelta As Double = (bi.LastDTF - bi.Dtf)
+                    Dim BoatTs As TimeSpan = bi.CurDTFDate.Subtract(bi.PrevDTFDate)
+                    If MyTS.TotalHours <> 0 AndAlso NormedTime <> 0 Then
+                        bi.TimeToPass = Abs(bi.Dtf - MyBoat.Dtf) / Abs(MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) * NormedTime
+                        bi.PassUp = (MyDelta > BoatDelta) And (bi.Dtf > MyBoat.Dtf)
+                    Else
+                        bi.TimeToPass = 0
+                        bi.PassUp = False
+                    End If
+                Next
+            End If
         End If
 
         AddLog("Worker " & Id & " complete")
