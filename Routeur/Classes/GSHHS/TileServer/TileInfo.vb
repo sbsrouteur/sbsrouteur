@@ -111,7 +111,7 @@ Public Class TileInfo
     Public ReadOnly Property TilePath() As String
 
         Get
-            Return Z.ToString("000") & "_" & TX & "_" & TY & ".jpg"
+            Return Z.ToString("000") & "_" & TX & "_" & TY & ".png"
         End Get
 
     End Property

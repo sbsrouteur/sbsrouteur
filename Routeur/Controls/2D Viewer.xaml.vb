@@ -303,7 +303,7 @@ Render1:
         TI = New TileInfo(Z, N, S, E, W)
         tx2 = TI.TX
         ty2 = TI.TY
-        '_MapPg.Start((tx2 - tx1 + 1) * (ty1 - ty2 + 1))
+        _MapPg.Start((tx2 - tx1) * (ty2 - ty1))
         For i As Integer = tx1 To tx2
             For j As Integer = ty1 To ty2
                 TI = New TileInfo(Z, i, j)
@@ -312,8 +312,9 @@ Render1:
                 _TileServer.RequestTile(TI)
             Next
         Next
-        _MapPg.Start(100)
-        _TileServer.Render()
+        _MapPg.Start(_PendingTileRequestCount)
+        '_MapPg.Start(100)
+        '_TileServer.Render()
         '_TileServer.RequestTile(New TileInfo(1, -1, 0))
         '_TileServer.RequestTile(New TileInfo(1, 0, 0))
         '_TileServer.RequestTile(New TileInfo(1, -1, -1))
@@ -1088,7 +1089,10 @@ Render1:
         Interlocked.Increment(_TileCount)
         Interlocked.Decrement(_PendingTileRequestCount)
 
-        '_MapPg.Progress(_TileCount)
+        _MapPg.Progress(_TileCount)
+        If _PendingTileRequestCount = 0 Then
+            _MapPg_RequestVisibility(Windows.Visibility.Hidden)
+        End If
         'Debug.WriteLine("draw " & ti.TilePath & " pending " & _PendingTileRequestCount)
 
     End Sub
@@ -1105,6 +1109,7 @@ Render1:
 
         SyncLock _ReadyTilesQueue
             _ReadyTilesQueue.Enqueue(ti)
+            _MapPg.Progress(_ReadyTilesQueue.Count)
         End SyncLock
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Refresh"))
 

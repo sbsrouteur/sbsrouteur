@@ -85,17 +85,17 @@ Public Class RacePrefs
             RetValue = New RacePrefs
             With RetValue
                 .MapLevel = EnumMapLevels.intermediate
-                .GridGrain = 0.01
+                .GridGrain = 0.5
                 For i As Integer = 0 To 3
-                    .RaceOffset(i) = 0.5
+                    .RaceOffset(i) = 1
                 Next
                 .EllipseExtFactor = 1.3
                 .CourseExtensionHours = RACE_COURSE_EXTENSION_HOURS
-                .IsoLookupAngle = 60
-                .IsoAngleStep = 3
-                .IsoStep = New TimeSpan(1, 0, 0)
-                .IsoStep_24 = New TimeSpan(3, 0, 0)
-                .IsoStep_48 = New TimeSpan(12, 0, 0)
+                .IsoLookupAngle = 90
+                .IsoAngleStep = 5
+                .IsoStep = New TimeSpan(0, 30, 0)
+                .IsoStep_24 = New TimeSpan(1, 0, 0)
+                .IsoStep_48 = New TimeSpan(3, 0, 0)
                 .UseCustomDest = False
                 .RouteDest = Nothing
                 .UseCustomStartDate = False

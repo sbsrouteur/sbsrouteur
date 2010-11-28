@@ -37,6 +37,13 @@ Partial Public Class frmRouterConfiguration
 
     Private Sub cmdOKClick(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
 
+        Dim P As RacePrefs = CType(DataContext, RacePrefs)
+        If P.IsoStep.TotalMinutes < RouteurModel.VacationMinutes OrElse _
+           P.IsoStep_24.TotalMinutes < RouteurModel.VacationMinutes OrElse _
+           P.IsoStep_48.TotalMinutes < RouteurModel.VacationMinutes Then
+            Return
+        End If
+
         RacePrefs.Save(_ID, _Context)
         DialogResult = True
         Hide()
