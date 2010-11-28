@@ -23,6 +23,10 @@
 
     Public Sub Progress(ByVal CurVal As Long)
 
+        If _NbToProcess = 0 Then
+            Return
+        End If
+
         Dim TotalSeconds As Double = Now.Subtract(_StartTime).TotalSeconds
         Dim Pct As Double = CurVal / _NbToProcess
         ProgressValue = 100 * Pct
