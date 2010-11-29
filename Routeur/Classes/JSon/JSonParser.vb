@@ -195,7 +195,7 @@ Module JSonParser
                 Index = StartIndex
 
             Case "n"c
-                If Data.Substring(0, 4) = "null" Then
+                If Data.Substring(StartIndex, 4) = "null" Then
                     Value = Nothing
                     Index = StartIndex + 4
                 Else
