@@ -75,11 +75,11 @@ Public Class TileServer
             End If
             GSHHS_Reader.ReadTile(_Renderer, North, South, East, West, img, MapLevel)
 
-            If Not Directory.Exists(TI.BaseTilesPath) Then
-                Directory.CreateDirectory(TI.BaseTilesPath)
-            End If
             img.Save(TI.FileName, Imaging.ImageFormat.Png)
 #Else
+        If Not Directory.Exists(TI.BaseTilesPath) Then
+            Directory.CreateDirectory(TI.BaseTilesPath)
+        End If
 
         Dim WC As New WebClient
         Try

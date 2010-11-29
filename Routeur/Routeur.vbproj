@@ -45,7 +45,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314</NoWarn>
-    <DefineConstants>NO_TILE=0, TESTING=1,HIT_STATS=1,BSP_STATS=1</DefineConstants>
+    <DefineConstants>NO_TILE=0, TESTING=0,HIT_STATS=1,BSP_STATS=1</DefineConstants>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
