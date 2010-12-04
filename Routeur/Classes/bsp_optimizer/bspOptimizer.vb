@@ -9,7 +9,7 @@ Public Class bspOptimizer
     Public Sub New()
 
         Dim th As New Thread(AddressOf Optimize)
-        'th.Start()
+        th.Start()
 
     End Sub
 
