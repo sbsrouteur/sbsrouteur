@@ -58,6 +58,7 @@ Partial Public Class _2D_Viewer
     Private Shared _CenterOnAnteMeridien As Boolean = False
     Private _HideIsochrones As Boolean = False
     Private _EraseIsoChrones As Boolean = False
+    Private _EraseBoatMap As Boolean = False
     Private WithEvents _TileServer As TileServer
     Private _PendingTileRequestCount As Integer = 0
     Private _ReadyTilesQueue As New Queue(Of TileInfo)
@@ -589,15 +590,12 @@ Render1:
                 DC = D.RenderOpen
             End If
 
-            '
-            ' Draw opponents map
-            ' 
-
+            
 
             '
             ' Draw IsoChrones
             '
-            If Not HideIsochrones Then
+            If Not HideIsochrones AndAlso Not _EraseIsoChrones Then
                 Dim StartIsochrone As DateTime = Now
                 Try
                     If WindBrushes Is Nothing Then
@@ -673,9 +671,11 @@ Render1:
                 End If
             End If
 
-            If ClearBoats Then
+            If ClearBoats OrElse _EraseBoatMap Then
                 _OpponentsBmp.Clear()
+                _EraseBoatMap = False
             End If
+
             If Not Opponents Is Nothing Then
                 SyncLock Opponents
                     For Each op In Opponents
@@ -963,6 +963,8 @@ Render1:
     Public Sub ClearBgMap()
 
         _ClearBgMap = True
+        _EraseIsoChrones = True
+        _EraseBoatMap = True
 
     End Sub
 

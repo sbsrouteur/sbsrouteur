@@ -58,44 +58,45 @@ Public Class GSHHS_Reader
             If Not File.Exists(SI.StartPath) Then
                 Return
             End If
-
-            _Tree = New BspRect(_P1, _P2)
+            If _Tree Is Nothing Then
+                _Tree = New BspRect(_P1, _P2, 1)
+            End If
 
 #If NO_MAP = 0 Then
-            Dim S As FileStream = New FileStream(SI.StartPath, FileMode.Open, FileAccess.Read)
+                Dim S As FileStream = New FileStream(SI.StartPath, FileMode.Open, FileAccess.Read)
 
-            SI.ProgressWindows.Start(S.Length)
-            Do
-                A = ReadPoly(S, SI, landpoly)
-                If Not A Is Nothing Then
-                    If landpoly Then
-                        _PolyGons.AddLast(A)
-                    Else
-                        _LakePolyGons.AddLast(A)
+                SI.ProgressWindows.Start(S.Length)
+                Do
+                    A = ReadPoly(S, SI, landpoly)
+                    If Not A Is Nothing Then
+                        If landpoly Then
+                            _PolyGons.AddLast(A)
+                        Else
+                            _LakePolyGons.AddLast(A)
+                        End If
+                        PolyCount += A.Count
                     End If
-                    PolyCount += A.Count
-                End If
-                SI.ProgressWindows.Progress(S.Position)
-            Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
+                    SI.ProgressWindows.Progress(S.Position)
+                Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
 
-            S.Close()
+                S.Close()
 
-            ExclusionCount = 0
-            If Not SI.NoExclusionZone Then
-                For Each excl In RouteurModel.Exclusions
-                    'ReDim A(CInt(excl.Count / 2) - 1)
-                    A = New Polygon
-                    For i = 0 To excl.Count - 1 Step 2
-                        Dim c As New Coords(excl(i + 1), excl(i))
-                        A.Add(c)
+                ExclusionCount = 0
+                If Not SI.NoExclusionZone Then
+                    For Each excl In RouteurModel.Exclusions
+                        'ReDim A(CInt(excl.Count / 2) - 1)
+                        A = New Polygon
+                        For i = 0 To excl.Count - 1 Step 2
+                            Dim c As New Coords(excl(i + 1), excl(i))
+                            A.Add(c)
+                        Next
+                        _PolyGons.AddFirst(A)
+                        ExclusionCount += 1
+                        '_UseFullPolygon.Add(A)
+                        '_usefullboxes.Add(UpdateBox(A))
+
                     Next
-                    _PolyGons.AddFirst(A)
-                    ExclusionCount += 1
-                    '_UseFullPolygon.Add(A)
-                    '_usefullboxes.Add(UpdateBox(A))
-
-                Next
-            End If
+                End If
 #End If
 
         Catch ex As Exception

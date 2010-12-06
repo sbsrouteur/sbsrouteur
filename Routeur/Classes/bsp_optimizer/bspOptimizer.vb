@@ -1,15 +1,22 @@
 ﻿Imports System.Threading
+Imports System.IO
 
 Public Class bspOptimizer
+#Const UseOptimizer = 0
 
     Private Shared _Cancel As Boolean = False
     Private _Optimize As New AutoResetEvent(False)
-    Private _optimizationlist As New List(Of BspRect)(250000)
+    Private _optimizationlist As New SortedList(Of String, BspRect)(250000)
 
     Public Sub New()
 
+
+#If UseOptimizer = 1 Then
+        Deserialize()
+
         Dim th As New Thread(AddressOf Optimize)
         th.Start()
+#End If
 
     End Sub
 
@@ -17,6 +24,10 @@ Public Class bspOptimizer
         _Cancel = True
 
     End Sub
+
+    Private Function GetBspRectKey(ByVal r As BspRect) As String
+        Return ChrW(AscW("Z"c) - r.Z) & "_" & r.P1.ToString
+    End Function
 
     Private Sub Optimize(ByVal state As Object)
 
@@ -27,7 +38,7 @@ Public Class bspOptimizer
             If _Optimize.WaitOne(500, False) Then
 
                 SyncLock _optimizationlist
-                    rect = _optimizationlist(0)
+                    rect = _optimizationlist(_optimizationlist.Keys(0))
                     _optimizationlist.RemoveAt(0)
                     If _optimizationlist.Count > 0 Then
                         _Optimize.Set()
@@ -63,14 +74,17 @@ Public Class bspOptimizer
 
         End While
 
+        Serialize()
+
     End Sub
+
 
     Public Sub AddToOptimizationList(ByVal r As BspRect)
 
         SyncLock _optimizationlist
-
-            If _optimizationlist.Count < 250000 Then
-                _optimizationlist.Add(r)
+            Dim Key As String = GetBspRectKey(r)
+            If _optimizationlist.Count < 250000 AndAlso Not _optimizationlist.ContainsKey(Key) Then
+                _optimizationlist.Add(Key, r)
                 _Optimize.Set()
             End If
 
@@ -78,5 +92,42 @@ Public Class bspOptimizer
 
     End Sub
 
+    Private ReadOnly Property BSPFileName() As String
+        Get
+            Dim Folder As String = Path.Combine(RouteurModel.BaseFileDir, "BSP")
+
+            If Not Directory.Exists(Folder) Then
+                Directory.CreateDirectory(Folder)
+            End If
+
+            Return Path.Combine(Folder, "BSP_tree.xml")
+        End Get
+    End Property
+
+    Private Sub Deserialize()
+
+        Dim sr As New Xml.Serialization.XmlSerializer(GetType(BspRect))
+
+        If File.Exists(BSPFileName) Then
+            Using stream As New StreamReader(BSPFileName)
+                GSHHS_Reader._Tree = CType(sr.Deserialize(stream), BspRect)
+            End Using
+#If BSP_STATS Then
+            BspRect.BspCount = GSHHS_Reader._Tree.NodeCount
+            Stats.SetStatValue(Stats.StatID.BSPCellCount) = CDbl(BspRect.BspCount)
+            Console.WriteLine(GSHHS_Reader._Tree.UnknownNodeCount)
+#End If
+        End If
+
+    End Sub
+
+    Private Sub Serialize()
+
+#If UseOptimizer Then
+        Dim sr As New Xml.Serialization.XmlSerializer(GetType(BspRect))
+
+        sr.Serialize(New StreamWriter(BspFileName), GSHHS_Reader._Tree)
+#End If
+    End Sub
 
 End Class
