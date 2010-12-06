@@ -344,7 +344,7 @@
 						</Routeur:_2D_Viewer>
 						
 					</Canvas>
-					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left" SizeChanged="RendererSizeChanged">
+					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left" SizeChanged="RendererSizeChanged" Visibility="{Binding HideNonMapCanvas, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window, Mode=Default}">
 						<Grid x:Name="Weather_Map" >
 							<Path Data="{Binding VorHandler.MeteoArrow, IsAsync=false, Mode=Default}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 						</Grid>

@@ -11,6 +11,7 @@ Public Class BspRect
         Mixed = 3
     End Enum
 
+
     Private Shared MIN_POLYGON_SPLIT As Double = 0.01
     Private Shared _NoPolyGons As New LinkedList(Of Polygon)
 #If BSP_STATS Then
@@ -30,17 +31,22 @@ Public Class BspRect
     Private _SubRects(3) As BspRect
     Private _Inland As inlandstate
     Private _PolyGons As LinkedList(Of Polygon)
+    Private _Z as Integer 
 
     Shared Optimizer As New bspOptimizer
 
+    Public Sub New()
+
+    End Sub
 
 
-    Public Sub New(ByVal P1 As Coords, ByVal P2 As Coords)
+    Public Sub New(ByVal P1 As Coords, ByVal P2 As Coords, ByVal Z As Integer)
 
         If P1.Lat < -Math.PI OrElse P1.Lat > Math.PI _
             OrElse P2.Lat < -Math.PI OrElse P2.Lat > Math.PI Then
             Dim i As Integer = 0
         End If
+        _Z = Z
         _p1 = P1
         _p2 = P2
         For i As Integer = 0 To 3
@@ -110,9 +116,30 @@ Public Class BspRect
 
 
 
-    Public ReadOnly Property InLand() As inlandstate
+    Public Property InLand() As inlandstate
+
         Get
             Return _Inland
+        End Get
+
+        Set(ByVal value As inlandstate)
+            _Inland = value
+        End Set
+
+    End Property
+
+    Public ReadOnly Property NodeCount() As Long
+        Get
+            If _SubRects(0) Is Nothing Then
+                Return 1
+            Else
+                Dim N As Long
+                For i = 0 To 3
+                    N += _SubRects(i).NodeCount
+                Next
+
+                Return N
+            End If
         End Get
     End Property
 
@@ -384,7 +411,7 @@ Public Class BspRect
                 Dim P1 As New Coords With {.Lat = lP1Lat - DeltaY * y, .Lon = lP1Lon - (1 - x) * DeltaX}
                 Dim P2 As New Coords With {.lat = lP2Lat + DeltaY * (1 - y), .lon = lP2Lon + x * DeltaX}
 
-                _SubRects(2 * x + y) = New BspRect(P1, P2)
+                _SubRects(2 * x + y) = New BspRect(P1, P2, Z + 1)
             Next
         Next
 
@@ -404,6 +431,36 @@ Public Class BspRect
             _SubRects = value
         End Set
     End Property
+
+    Public ReadOnly Property UnknownNodeCount() As Long
+        Get
+            If _SubRects(0) Is Nothing Then
+                If _Inland = inlandstate.Unknown Then
+                    Return 1
+                Else
+                    Return 0
+
+                End If
+            Else
+                Dim N As Long
+                For i = 0 To 3
+                    N += _SubRects(i).UnknownNodeCount
+                Next
+                Return N
+            End If
+        End Get
+    End Property
+
+    Public Property Z() As Integer
+        Get
+            Return _Z
+        End Get
+
+        Set(ByVal value As Integer)
+            _Z = value
+        End Set
+    End Property
+
 
 
 

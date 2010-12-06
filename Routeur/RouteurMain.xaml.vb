@@ -69,6 +69,24 @@ Partial Public Class RouteurMain
 
     End Sub
 
+    Public ReadOnly Property HideNonMapCanvas() As Boolean
+        Get
+            Return Not _DragCanvas
+        End Get
+    End Property
+
+    Public Property DragCanvas() As Boolean
+        Get
+            Return _DragCanvas
+        End Get
+        Set(ByVal value As Boolean)
+            If _DragCanvas <> value Then
+                _DragCanvas = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("DragCanvas"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("HideNonMapCanvas"))
+            End If
+        End Set
+    End Property
     Public Property TravelCalculator() As TravelCalculator
         Get
             Return CType(GetValue(TravelCalculatorProperty), TravelCalculator)
@@ -121,13 +139,13 @@ Partial Public Class RouteurMain
 
     Private Sub MouseStartDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
 
-        _DragCanvas = True
+        DragCanvas = True
         _DragStartPoint = e.GetPosition(Me.VOR2DViewer)
 
     End Sub
 
     Private Sub MouseEndDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
-        _DragCanvas = False
+        DragCanvas = False
         Console.WriteLine("dragged to " & Me.SldLon.Value & " " & Me.SldLat.Value & " Z " & Me.SldZoom.Value)
         'If e.ClickCount > 1 Then
         'Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
@@ -141,7 +159,7 @@ Partial Public Class RouteurMain
     Private Sub MouseMoveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
 
 
-        If _DragCanvas Then
+        If DragCanvas Then
             Me.SldLon.Value += (e.GetPosition(Me.VOR2DViewer).X - _DragStartPoint.X) * SldZoom.Value
             Me.SldLat.Value += (e.GetPosition(Me.VOR2DViewer).Y - _DragStartPoint.Y) * SldZoom.Value
 
@@ -178,7 +196,7 @@ Partial Public Class RouteurMain
     End Sub
 
     Private Sub MouseLeaveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
-        _DragCanvas = False
+        DragCanvas = False
     End Sub
 
     Private Sub CloseApp()
