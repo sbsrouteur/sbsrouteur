@@ -1809,7 +1809,7 @@ Public Class VLM_Router
                         Exit While
                     End If
                     If LoopCount = 1 Then
-                        RefAngle = WindAngleWithSign(RefLoxo, mi.Dir) + Correction
+                        RefAngle = (WindAngleWithSign(RefLoxo, mi.Dir) + Correction + 3600) Mod 360
                     End If
                     Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
 
