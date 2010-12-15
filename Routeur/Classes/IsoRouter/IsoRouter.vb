@@ -154,23 +154,25 @@ Public Class IsoRouter
                         P = ReachPoint(rp, alpha, CurStep)
                         If Not P Is Nothing Then
                             tc.EndPoint = P.P
-                            alpha2 = tc.LoxoCourse_Deg
+                            If tc.SurfaceDistance > 0 Then
+                                alpha2 = tc.LoxoCourse_Deg
 
-                            Index = RetIsoChrone.IndexFromAngle(alpha2)
-                            If Not OuterIso Is Nothing Then
-                                PrevIndex = OuterIso.IndexFromAngle(alpha2)
-                            End If
-                            OldP = RetIsoChrone.Data(Index)
-                            If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio) Then
-                                RetIsoChrone.Data(Index) = P
-                            End If
-                            If OuterIso.Data(PrevIndex) Is Nothing OrElse _
-                               P.Improve(OuterIso.Data(PrevIndex), 1) Then
-                                OuterIso.Data(PrevIndex) = P
+                                Index = RetIsoChrone.IndexFromAngle(alpha2)
+                                If Not OuterIso Is Nothing Then
+                                    PrevIndex = OuterIso.IndexFromAngle(alpha2)
+                                End If
+                                OldP = RetIsoChrone.Data(Index)
+                                If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio) Then
+                                    RetIsoChrone.Data(Index) = P
+                                End If
+                                If OuterIso.Data(PrevIndex) Is Nothing OrElse _
+                                   P.Improve(OuterIso.Data(PrevIndex), 1) Then
+                                    OuterIso.Data(PrevIndex) = P
 
+                                End If
                             End If
 
-                         End If
+                        End If
 
                     Next
 
