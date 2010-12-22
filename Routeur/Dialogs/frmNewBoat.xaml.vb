@@ -16,8 +16,8 @@ Partial Public Class frmNewBoat
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
-    Private _UserName As String
-    Private _Password As String
+    Private _UserName As String = ""
+    Private _Password As String = ""
     Private _Fleet As New ObservableCollection(Of boatinfo)
 
     Public Class boatinfo
@@ -93,9 +93,15 @@ Partial Public Class frmNewBoat
             Return _Password
         End Get
         Set(ByVal value As String)
-            _Password = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Password"))
-            ReloadFleet()
+            If _Password <> value Then
+                _Password = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Password"))
+                If _Password.Trim <> "" AndAlso UserName.Trim <> "" Then
+                    ReloadFleet()
+                End If
+
+            End If
+
         End Set
     End Property
     Public Property UserName() As String
@@ -103,9 +109,14 @@ Partial Public Class frmNewBoat
             Return _UserName
         End Get
         Set(ByVal value As String)
-            _UserName = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("UserName"))
-            ReloadFleet()
+
+            If _UserName <> value Then
+                _UserName = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("UserName"))
+                If value.Trim <> "" AndAlso Password.Trim <> "" Then
+                    ReloadFleet()
+                End If
+            End If
         End Set
     End Property
 
@@ -114,9 +125,13 @@ Partial Public Class frmNewBoat
         Fleet.Clear()
 
         Dim FleetInfo As Dictionary(Of String, Object) = WS_Wrapper.GetUserFleetInfo(UserName, Password)
+        If FleetInfo Is Nothing Then
+            Return
+        End If
+
         Dim i As Integer = 0
         Dim UserFleet As Dictionary(Of String, Object) = CType(FleetInfo("fleet"), Dictionary(Of String, Object))
-        
+
         For Each o As String In UserFleet.Keys
             Dim B As New boatinfo
 

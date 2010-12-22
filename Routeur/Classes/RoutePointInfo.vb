@@ -54,4 +54,7 @@ Public Class RoutePointInfo
         End Set
     End Property
 
+    Protected Overrides Sub Finalize()
+        MyBase.Finalize()
+    End Sub
 End Class

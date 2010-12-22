@@ -260,7 +260,7 @@
 			</MenuItem>
 			<MenuItem Header="Routes" VerticalAlignment="Center" >
 				<MenuItem Header="Pilototo Route" Click="ShowPilototoRouteDlg" ></MenuItem>
-				<MenuItem Header="Recorded Routes manager" Click="ShowRouteMgr" Visibility="Collapsed" />
+				<MenuItem Header="Recorded Routes manager" Click="ShowRouteMgr"  />
 			</MenuItem>
             <ComboBox     Height="26.92" ItemsSource="{Binding WPList, Mode=Default}" ToolTip="Route to this WP" SelectedIndex="{Binding VorHandler.CurUserWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"     />
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
@@ -344,11 +344,25 @@
 						</Routeur:_2D_Viewer>
 						
 					</Canvas>
-					<Canvas VerticalAlignment="Top" Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" HorizontalAlignment="Left" SizeChanged="RendererSizeChanged" Visibility="{Binding HideNonMapCanvas, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window, Mode=Default}">
+					<Canvas Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Visibility="{Binding HideNonMapCanvas, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window, Mode=Default}" Grid.Row="1" Grid.RowSpan="7" Grid.Column="1">
 						<Grid x:Name="Weather_Map" >
 							<Path Data="{Binding VorHandler.MeteoArrow, IsAsync=false, Mode=Default}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 						</Grid>
-						<Grid x:Name="WP_RoutingObjects" Visibility="Collapsed" />
+						<Grid x:Name="WP_RoutingObjects" Width="10800" Height="1800" RenderTransformOrigin="{Binding RenderTransformOrigin, ElementName=VOR2DViewer, Mode=Default}" RenderTransform="{Binding RenderTransform, ElementName=VOR2DViewer, Mode=Default}"  >
+							<ItemsControl ItemsSource="{Binding RouteManager.Routes, Mode=Default}">
+								<ItemsControl.ItemTemplate>
+							        <DataTemplate>
+							            <ContentPresenter Content="{Binding Path=Shape}" />
+							        </DataTemplate>
+							    </ItemsControl.ItemTemplate>
+							    <ItemsControl.ItemsPanel>
+							        <ItemsPanelTemplate>
+							            <Canvas />
+							        </ItemsPanelTemplate>
+							    </ItemsControl.ItemsPanel>
+							</ItemsControl>
+						</Grid>
+						
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
 							<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
 						</Grid>
@@ -409,7 +423,7 @@
 							</TransformGroup>
 						</Label.LayoutTransform>
 					</Label>
-					<Slider Grid.Row="2" x:Name="SldZoom" Value="1" Minimum="0.0001" Maximum="20" Margin="0,0,0,2.142"/>
+					<Slider Grid.Row="2" x:Name="SldZoom" Value="1" Minimum="0.00001" Maximum="20" Margin="0,0,0,2.142"/>
 					<Slider Grid.Row="3" x:Name="SldLat" Minimum="-180000" Visibility="Hidden" Maximum="180000"/>
 					<Slider Grid.Row="4" x:Name="SldLon" Maximum="108000" Minimum="-108000" Visibility="Hidden"/>
                     <StackPanel Grid.Row="3" Width="Auto" Height="Auto" Grid.ColumnSpan="2" Grid.RowSpan="4">
@@ -425,7 +439,7 @@
 						    </StackPanel>
 						    </Grid>
 					    </GroupBox>
-                        <GroupBox  Header="Route to Mouse" Background="#6DFFFFFF">
+                        <!--<GroupBox  Header="Route to Mouse" Background="#6DFFFFFF">
                             <GroupBox.BitmapEffect>
                                 <DropShadowBitmapEffect/>
                             </GroupBox.BitmapEffect>
@@ -433,14 +447,15 @@
                                 <ItemsControl ItemsSource="{Binding VorHandler.BestRouteAtPoint, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route"  />
                                 
                             </Grid>
-                        </GroupBox><GroupBox  Header="Best Route" Background="#6DFFFFFF">
+                        </GroupBox>-->
+						<!--<GroupBox  Header="Best Route" Background="#6DFFFFFF">
                             <GroupBox.BitmapEffect>
                                 <DropShadowBitmapEffect/>
                             </GroupBox.BitmapEffect>
                             <Grid MaxHeight="Infinity">
                                 <ItemsControl ItemsSource="{Binding VorHandler.BruteRoute, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route" />
                             </Grid>
-                        </GroupBox>
+                        </GroupBox>-->
                     </StackPanel>
 					<GroupBox Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="3" Header="Journal" x:Name="GrpLog" Background="#6DFFFFFF">
 						<Grid Width="Auto" Height="Auto">

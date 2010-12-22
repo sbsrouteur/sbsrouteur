@@ -1,0 +1,141 @@
+﻿<ResourceDictionary
+	xmlns:local="clr-namespace:Routeur"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    x:Class="RouteMgr.ResourceClass"
+	xmlns:Custom="http://schemas.microsoft.com/wpf/2008/toolkit"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<!-- Les entrées du dictionnaire de ressources sont définies ici. -->
+	
+	<local:EnumRoutePendingBrushConverter x:Key="EnumRoutePendingBrushConverter"/>
+	<local:EnumRouteModeConverter x:Key="EnumRouteModeConverter"/>
+	<local:CoordsConverter x:Key="CoordsConverter"/>
+	<local:RoutePointView  x:Key="RoutePointBaseViewResource"/>
+	
+	<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+	<Image x:Key="TrashIcon" Source ="/Routeur;Component/Graphics/Trash_48.png" />
+	<Image x:Key="UploadIcon" Source="/Routeur;Component/Graphics/Up_48.png" />
+			
+	<DataTemplate x:Key="RoutePointActionsTemplate">
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-48.png" Width="48" Height="48" VerticalAlignment="Center"/>
+			<!--<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Content="Delete" Grid.Column="1" Height="48"  'Template="{DynamicResource TrashButton}" Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" VerticalAlignment="Center"/>
+			<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Content="Update" Grid.Column="2" Template="{DynamicResource UploadButton}" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Height="48" VerticalAlignment="Center"/>
+			-->
+			<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Grid.Column="1" Height="48" Click="DeletePoint"  Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" VerticalAlignment="Center" Content="{DynamicResource TrashIcon}"/>
+			<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Content="{DynamicResource UploadIcon}" Grid.Column="2" Click="UploadChanges" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Height="48" VerticalAlignment="Center"/>
+		</Grid>
+		
+		<DataTemplate.Triggers>
+			<DataTrigger Binding="{Binding IsPending}" Value="false">
+				<Setter TargetName="PendingStatus" Property="Source" Value="/Routeur;Component/Graphics/kalarm_disabled-48.png" />
+			</DataTrigger>
+		</DataTemplate.Triggers>
+		
+	</DataTemplate>
+			
+	<DataTemplate x:Key="PointValueTemplate">
+		<Grid>
+			<Grid Visibility="{Binding HasDoubleValue, Mode=Default}">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
+				<TextBox Text="{Binding RouteValue.Value, Mode=Default}" TextAlignment="Right" Style="{DynamicResource DoubleFormatCheckTextBox}" Grid.ColumnSpan="1" Margin="4,4,72.9616666666667,4" Width="60"/>
+			</Grid>
+			<Grid Visibility="{Binding HasWPValue, Mode=Default}">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" MinWidth="101.977"/>
+					<ColumnDefinition Width="10	"/>
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+				<CheckBox Margin="{DynamicResource DefMargin}"   Content="Go to Next WP" Grid.RowSpan="1" IsChecked="{Binding RouteValue.UseRaceWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+				<CheckBox Grid.Column="2" Content="Set bearing at WP" IsChecked="{Binding RouteValue.SetBearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+				<TextBox Grid.Row="1" Grid.Column="2" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" Visibility="{Binding RouteValue.SetBearingAtWP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Text="{Binding RouteValue.BearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource DoubleFormatCheckTextBox}" Width="60" HorizontalAlignment="Left"/>
+				<!-- Events  MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" -->
+				<Image x:Name="image" Source="..\Graphics\Target-32.png" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" Stretch="Fill" Width="23" Height="23" ToolTip="Drag le to target point" HorizontalAlignment="Right" Margin="0,28.96,8,7.96" Grid.Column="2" Grid.Row="1"/>
+				<Grid Grid.Row="2" Visibility="{Binding RouteValue.UseCustomWP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="0.343*"/>
+						<ColumnDefinition Width="0.657*"/>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" MinHeight="16.47"/>
+					</Grid.RowDefinitions>
+					<TextBlock Text="Lat." Margin="{DynamicResource DefMargin}"/>
+					<TextBlock Text="Lon." Grid.Row="1" Margin="{DynamicResource DefMargin}"/>
+					<TextBox Grid.Column="1" Text="{Binding RouteValue.WPLat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource DoubleFormatCheckTextBox}" Width="115" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+					<TextBox Grid.Row="2" Text="{Binding RouteValue.WPLon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Style="{DynamicResource DoubleFormatCheckTextBox}" Width="115" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+					
+					
+				</Grid>
+			</Grid>
+		</Grid>
+	</DataTemplate>
+	
+				<Style x:Key="RouteRowStyle" TargetType="{x:Type Custom:DataGridRow}">
+				<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+				<Setter Property="SnapsToDevicePixels" Value="True"/>
+				<Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+				<Setter Property="ValidationErrorTemplate">
+					<Setter.Value>
+						<ControlTemplate>
+							<TextBlock Margin="2,0,0,0" VerticalAlignment="Center" Foreground="Red" Text="!"><Run Text="!"/></TextBlock>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+				<Setter Property="Template">
+					<Setter.Value>
+						<ControlTemplate TargetType="{x:Type Custom:DataGridRow}">
+							<Border x:Name="DGR_Border" SnapsToDevicePixels="True" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+								<Custom:SelectiveScrollingGrid>
+									<Custom:SelectiveScrollingGrid.RowDefinitions>
+										<RowDefinition Height="*"/>
+										<RowDefinition Height="Auto"/>
+									</Custom:SelectiveScrollingGrid.RowDefinitions>
+									<Custom:SelectiveScrollingGrid.ColumnDefinitions>
+										<ColumnDefinition Width="Auto"/>
+										<ColumnDefinition Width="*"/>
+									</Custom:SelectiveScrollingGrid.ColumnDefinitions>
+									<Custom:DataGridCellsPresenter Background="{Binding IsPending, Converter={StaticResource EnumRoutePendingBrushConverter}, Mode=Default}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ItemsPanel="{TemplateBinding ItemsPanel}" Grid.Column="1"/>
+									<Custom:DataGridDetailsPresenter Visibility="{TemplateBinding DetailsVisibility}" Grid.Column="1" Grid.Row="1">
+										<Custom:SelectiveScrollingGrid.SelectiveScrollingOrientation>
+											<Binding Path="AreRowDetailsFrozen" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type Custom:DataGrid}}">
+												<Binding.ConverterParameter>
+													<Custom:SelectiveScrollingOrientation>Vertical</Custom:SelectiveScrollingOrientation>
+												</Binding.ConverterParameter>
+											</Binding>
+										</Custom:SelectiveScrollingGrid.SelectiveScrollingOrientation>
+									</Custom:DataGridDetailsPresenter>
+									<Custom:DataGridRowHeader Grid.RowSpan="2" Custom:SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical">
+										<Custom:DataGridRowHeader.Visibility>
+											<Binding Path="HeadersVisibility" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type Custom:DataGrid}}">
+												<Binding.ConverterParameter>
+													<Custom:DataGridHeadersVisibility>Row</Custom:DataGridHeadersVisibility>
+												</Binding.ConverterParameter>
+											</Binding>
+										</Custom:DataGridRowHeader.Visibility>
+									</Custom:DataGridRowHeader>
+								</Custom:SelectiveScrollingGrid>
+							</Border>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
+
+
+			
+</ResourceDictionary>

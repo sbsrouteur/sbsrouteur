@@ -257,6 +257,7 @@ Public Class VLM_Router
             End Set
         End Property
 
+
         Public Function Improve(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double) As Boolean
 
 
@@ -2590,13 +2591,13 @@ Public Class VLM_Router
         Dim BestP As clsrouteinfopoints = Nothing
         Dim CurT As DateTime = New DateTime(3000, 1, 1)
         Try
-            For Each P In Points
+            For Each Pt In Points
 
-                TC.EndPoint = P.P
-                If CurDist > TC.SurfaceDistance OrElse (Abs(CurDist - TC.SurfaceDistance) < 3 * _PixelSize AndAlso CurT > P.T) Then
+                TC.EndPoint = Pt.P
+                If CurDist > TC.SurfaceDistance OrElse (Abs(CurDist - TC.SurfaceDistance) < 3 * _PixelSize AndAlso CurT > Pt.T) Then
                     CurDist = TC.SurfaceDistance
-                    CurT = P.T
-                    BestP = P
+                    CurT = Pt.T
+                    BestP = Pt
                     'ElseIf CurDist <> Double.MaxValue AndAlso 3 * CurDist > TC.SurfaceDistance Then
                     '    Exit For
                 End If
@@ -2820,16 +2821,16 @@ Public Class VLM_Router
 
                 Dim S1 As New System.IO.StreamWriter(BaseDir & "\TempRoute" & Now.Minute Mod 7 & ".csv")
 
-                For Each P In TempRoute
-                    S1.WriteLine(P.ToString)
+                For Each Pt In TempRoute
+                    S1.WriteLine(Pt.ToString)
                 Next
 
                 S1.Close()
 
                 Dim S2 As New System.IO.StreamWriter(BaseDir & "\BestRoute" & Now.Minute Mod 7 & ".csv")
 
-                For Each P In BruteRoute
-                    S2.WriteLine(P.ToString)
+                For Each Pt In BruteRoute
+                    S2.WriteLine(Pt.ToString)
                 Next
 
                 S2.Close()
@@ -3009,7 +3010,7 @@ Public Class VLM_Router
             'End If
             '_UserInfo.trajectoire &= StorePath(P, _UserInfo.position.cap)
             MI = Meteo.GetMeteoToDate(P, Now, True, True)
-            
+
 
 
             If _DiffEvolution.Count = 0 OrElse _DiffEvolution(0) <> _UserInfo.position.diffClassement Then

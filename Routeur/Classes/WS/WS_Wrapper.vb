@@ -22,7 +22,7 @@ Module WS_Wrapper
             _Cookies = New CookieContainer
         End If
         Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatinfo.php?forcefmt=json"
-        If Player.NewStyle Then
+        If Player.NewStyle Or Player.NumBoat <> 0 Then
             URL &= "&select_idu=" & Player.NumBoat
         End If
         Dim Retstring As String = ""

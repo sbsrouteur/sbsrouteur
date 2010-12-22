@@ -22,6 +22,7 @@ Public Class RoutePointView
     Private _ID As Integer
     Private _UserID As Integer
     Private _NeedUpdate As Boolean
+    Private _P As Coords
     Private WithEvents _routevalue As RoutePointValueBase
 
 
@@ -116,6 +117,16 @@ Public Class RoutePointView
         Set(ByVal value As Boolean)
             _NeedUpdate = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("NeedUpdate"))
+        End Set
+    End Property
+
+    Public Property P() As Coords
+        Get
+            Return _P
+        End Get
+        Set(ByVal value As Coords)
+            _P = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("P"))
         End Set
     End Property
 

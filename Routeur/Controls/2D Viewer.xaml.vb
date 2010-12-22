@@ -277,7 +277,7 @@ Render1:
     Private Sub BgBackDropDrawing(ByVal state As Object)
 
         'Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
-        Dim Width As Double = 360 / RouteurModel.Scale ' ._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
+        Dim Width As Double = 360 / Scale ' ._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
         Dim Z As Integer = CInt(Math.Floor(Math.Log(360 / Width) / Math.Log(2))) + 1
         Dim North As Double = CanvasToLat(0)
         Dim West As Double = CanvasToLon(0)
@@ -564,23 +564,23 @@ Render1:
                     Next
                 Next
 #End If
-            If Not ManagedRoutes Is Nothing Then
+            If False AndAlso Not ManagedRoutes Is Nothing Then
                 _RoutesBmp.Clear()
                 'Dim StartRoutes As DateTime = Now
                 For Each route In ManagedRoutes
 
                     If route.Visible Then
                         Dim Pe As New Pen(route.ColorBrush, 1)
-                        For i As Integer = 1 To route.Route.Route.Count - 1
+                        For i As Integer = 1 To route.Route.Count - 1
 
                             Dim PrevPt As Point
                             Dim CurPt As Point
-                            PrevPt.X = LonToCanvas(route.Route.Route(i - 1).P.Lon_Deg)
-                            PrevPt.Y = LatToCanvas(route.Route.Route(i - 1).P.Lat_Deg)
-                            CurPt.X = LonToCanvas(route.Route.Route(i).P.Lon_Deg)
-                            CurPt.Y = LatToCanvas(route.Route.Route(i).P.Lat_Deg)
+                            PrevPt.X = LonToCanvas(route.Route(i - 1).P.Lon_Deg)
+                            PrevPt.Y = LatToCanvas(route.Route(i - 1).P.Lat_Deg)
+                            CurPt.X = LonToCanvas(route.Route(i).P.Lon_Deg)
+                            CurPt.Y = LatToCanvas(route.Route(i).P.Lat_Deg)
 
-                            SafeDrawLine(DC, route.Route.Route(i - 1).P, route.Route.Route(i).P, Pen, PrevPt, CurPt)
+                            SafeDrawLine(DC, route.Route(i - 1).P, route.Route(i).P, Pen, PrevPt, CurPt)
 
                         Next
                     End If
@@ -1012,6 +1012,7 @@ Render1:
         End Get
         Set(ByVal value As Double)
             _LatOffset = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LatOffset"))
         End Set
     End Property
 
@@ -1021,6 +1022,7 @@ Render1:
         End Get
         Set(ByVal value As Double)
             _LonOffset = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LonOffset"))
         End Set
     End Property
 

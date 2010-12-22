@@ -58,8 +58,8 @@
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314</NoWarn>
     <DebugType>Full</DebugType>
-    <DefineConstants>BSP_STATS=1 , GRID_STATS=1, NO_MAP=0,TESTING=0,NO_TILES=0</DefineConstants>
-    <PlatformTarget>x86</PlatformTarget>
+    <DefineConstants>BSP_STATS=1 , GRID_STATS=1, NO_MAP=0,TESTING=1,NO_TILES=0</DefineConstants>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -185,6 +185,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Dialogs\RouteMgrResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="frmRoutingProgress.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -275,11 +279,13 @@
     <Compile Include="Classes\ListMgr\ICoords.vb" />
     <Compile Include="Classes\MenuCommands\CommandManager.vb" />
     <Compile Include="Classes\Meteo\MeteoDrawer.vb" />
+    <Compile Include="Classes\Path\PathUtils.vb" />
     <Compile Include="Classes\PolyClipper\PolyClipper.vb" />
     <Compile Include="Classes\Polygon\Polygon.vb" />
     <Compile Include="Classes\Polygon\PolygonEnumerator.vb" />
     <Compile Include="Classes\ProgressContext.vb" />
     <Compile Include="Classes\RouteManager\RecordedRoute.vb" />
+    <Compile Include="Classes\RouteManager\ResourceClass.vb" />
     <Compile Include="Classes\RouteManager\RouteManager.vb" />
     <Compile Include="Classes\RoutePointInfo.vb" />
     <Compile Include="Classes\Route\RouteConverters.vb" />
