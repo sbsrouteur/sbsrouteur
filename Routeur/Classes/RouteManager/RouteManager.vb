@@ -2,6 +2,8 @@
 Imports System.Collections.ObjectModel
 Imports System.Runtime.Serialization
 Imports System.IO
+Imports System.Text
+Imports System.Xml.Serialization
 
 Public Class RouteManager
 
@@ -11,6 +13,7 @@ Public Class RouteManager
 
     Private _Routes As New ObservableCollection(Of RecordedRoute)
     Private _FilterRaceID As String
+    Private Shared _M As RouteurModel
 
     Public Sub AddNewRoute(ByVal RaceID As String, ByVal RaceName As String, ByVal Route As RoutePointInfo)
 
@@ -18,12 +21,39 @@ Public Class RouteManager
 
         R.RaceID = RaceID
         R.RaceName = RaceName
-        R.Route = Route
+        If R.Route Is Nothing Then
+            R.Route = New ObservableCollection(Of RoutePointView)
+        End If
+        Dim PrevPos As Coords = Nothing
+        Dim TC As New TravelCalculator
+
+        For Each P In Route.Route
+            If Not PrevPos Is Nothing Then
+                Dim NewPoint As New RoutePointView
+                With NewPoint
+                    TC.EndPoint = P.P
+                    .ActionDate = P.T
+                    .IsPending = False
+                    .RouteValue = New RoutePointDoubleValue(TC.LoxoCourse_Deg)
+                    .P = PrevPos
+                    .RouteMode = RoutePointView.EnumRouteMode.Bearing
+                End With
+                R.Route.Add(NewPoint)
+            End If
+            PrevPos = P.P
+            TC.StartPoint = PrevPos
+        Next
+        TC.StartPoint = Nothing
+        TC.EndPoint = Nothing
+        R.RouteName = Route.RouteName
+        'R.Route = Route
+        R.Model = _M
         _Routes.Add(R)
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Routes"))
 
     End Sub
 
-    Public Shared Function Load() As RouteManager
+    Public Sub Load()
 
         Dim RetValue As RouteManager = Nothing
         Dim XMLS As New Xml.Serialization.XmlSerializer(GetType(RouteManager))
@@ -37,13 +67,17 @@ Public Class RouteManager
             MessageBox.Show("Failed to recover routes " & ex.Message)
         End Try
 
-        If RetValue Is Nothing Then
-            Return New RouteManager
-        Else
-            Return RetValue
+        If RetValue IsNot Nothing Then
+            Routes = RetValue.Routes
+
+            For Each R In Routes
+                R.Model = _M
+            Next
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Routes"))
+
         End If
 
-    End Function
+    End Sub
 
     Private Function FilterCourseRoute(ByVal o As Object) As Boolean
 
@@ -82,6 +116,11 @@ Public Class RouteManager
 
     End Property
 
+    Public Sub Rescale()
+        For Each R In Routes
+            RaiseEvent PropertyChanged(R, New PropertyChangedEventArgs("Shape"))
+        Next
+    End Sub
 
     Public Property Routes() As ObservableCollection(Of RecordedRoute)
         Get
@@ -116,5 +155,13 @@ Public Class RouteManager
 
         End Get
     End Property
+
+    Public Sub New()
+
+    End Sub
+
+    Public Sub New(ByVal M As RouteurModel)
+        _M = M
+    End Sub
 
 End Class

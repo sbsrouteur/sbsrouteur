@@ -31,9 +31,6 @@ Module MeteoDrawer
 
     End Function
 
-    Public Function GetCoordsString(ByVal X As Double, ByVal Y As Double) As String
-        Return X.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," & Y.ToString(System.Globalization.CultureInfo.InvariantCulture)
-    End Function
 
     Public Function GetMeteoArrowString(ByVal xOffset As Double, ByVal yOffset As Double, ByVal Scale As Double, ByVal mi As MeteoInfo) As String
 

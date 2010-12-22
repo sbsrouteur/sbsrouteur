@@ -44,7 +44,7 @@ Public Class RouteurModel
     Public Const S10_SERVER As String = "http://testing.virtual-loup-de-mer.org"
 #Else
     'Public Const S11_SERVER As String = "http://www.virtual-loup-de-mer.org"
-    Public Const S10_SERVER As String = "http://tcv.virtual-loup-de-mer.org"
+    Public Const S10_SERVER As String = "http://www.virtual-loup-de-mer.org"
 
 #End If
 
@@ -115,7 +115,7 @@ Public Class RouteurModel
     Private _Width As Double
     Private _Height As Double
 
-    Private _RouteManager As RouteManager
+    Private WithEvents _RouteManager As RouteManager
 
 
     Public Function CanvasToCoords(ByVal X As Double, ByVal Y As Double) As Coords
@@ -207,6 +207,9 @@ Public Class RouteurModel
             _2DViewer.ClearBgMap()
         End If
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPsPath"))
+        If Not RouteManager Is Nothing Then
+            RouteManager.Rescale()
+        End If
     End Sub
 
     Public ReadOnly Property GetPilototoRoute() As RouteViewModel
@@ -232,7 +235,7 @@ Public Class RouteurModel
             End
         End If
 
-        _RouteManager = RouteManager.Load()
+        RouteManager.Load()
         _P_Info(0) = frm.PlayerInfo.Playerinfo
         LoadRaceInfo(frm.PlayerInfo)
         LoadParams()
@@ -645,15 +648,20 @@ Public Class RouteurModel
 
     Public ReadOnly Property RouteManager() As RouteManager
         Get
+            If _RouteManager Is Nothing Then
+                _RouteManager = New RouteManager(Me)
+            End If
             Return _RouteManager
         End Get
     End Property
-    Public Shared Property Scale() As Double
+
+    Public Property Scale() As Double
         Get
             Return _Scale
         End Get
         Set(ByVal value As Double)
             _Scale = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Scale"))
         End Set
     End Property
     Public ReadOnly Property Stats() As ObservableCollection(Of StatInfo)
