@@ -14,12 +14,21 @@ Namespace RouteMgr
             Mouse.OverrideCursor = Cursors.Cross
         End Sub
 
-        Private Sub DeletePoint(ByVal Sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
+        Private Sub DeletePoint(ByVal Sender As Object, ByVal e As System.Windows.RoutedEventArgs)
             Dim RoutePoint As RoutePointView
 
             If TypeOf Sender Is Button AndAlso TypeOf CType(Sender, Button).DataContext Is RoutePointView Then
                 RoutePoint = CType(CType(Sender, Button).DataContext, RoutePointView)
                 RoutePoint.Delete()
+            End If
+        End Sub
+
+        Private Sub DeletePointView(ByVal Sender As Object, ByVal e As System.Windows.RoutedEventArgs)
+            Dim RoutePoint As RoutePointView
+
+            If TypeOf Sender Is Button AndAlso TypeOf CType(Sender, Button).DataContext Is RoutePointView Then
+                RoutePoint = CType(CType(Sender, Button).DataContext, RoutePointView)
+                RoutePoint.DeleteFromMemoryRoute()
             End If
         End Sub
 

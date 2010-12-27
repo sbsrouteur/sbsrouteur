@@ -439,6 +439,7 @@ Partial Public Class RouteurMain
         Dim frm As New frmRoutesManager
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
         M.RouteManager.FilterRaceID = M.P_Info(0).RaceInfo.idraces
+        M.RouteManager.Boat = M.VorHandler.UserInfo.type
         frm.ShowForm(M.RouteManager, Me)
 
     End Sub
@@ -453,4 +454,15 @@ Partial Public Class RouteurMain
         bspOptimizer.Terminate()
 
     End Sub
+
+    Private Sub OnRenderPosChanged(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+
+        'If NavControl.Renderer Is Nothing Then
+        '    Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+        '    NavControl.Renderer = M.The2DViewer
+        'End If
+        NavControl.RefreshPosition()
+
+    End Sub
+
 End Class

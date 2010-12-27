@@ -37,6 +37,26 @@
 		</DataTemplate.Triggers>
 		
 	</DataTemplate>
+	
+	<DataTemplate x:Key="RoutePointViewActionsTemplate">
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-48.png" Width="48" Height="48" VerticalAlignment="Center"/>
+			<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Grid.Column="1" Height="48" Click="DeletePointView"  Width="48" ToolTip="Delete" VerticalAlignment="Center" Content="{DynamicResource TrashIcon}"/>
+			
+		</Grid>
+		
+		<DataTemplate.Triggers>
+			<DataTrigger Binding="{Binding IsPending}" Value="false">
+				<Setter TargetName="PendingStatus" Property="Source" Value="/Routeur;Component/Graphics/kalarm_disabled-48.png" />
+			</DataTrigger>
+		</DataTemplate.Triggers>
+		
+	</DataTemplate>
 			
 	<DataTemplate x:Key="PointValueTemplate">
 		<Grid>

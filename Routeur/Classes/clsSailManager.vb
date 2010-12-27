@@ -149,11 +149,13 @@ Public Class clsSailManager
         '    Return 0
         'End If
 
-        If Not _SailLoaded Then
+        If Not _SailLoaded And Not BoatType Is Nothing Then
             If Not LoadSails(BoatType) Then
                 Return -1
             End If
             _SailLoaded = True
+        ElseIf BoatType Is Nothing Then
+            Return -1
         End If
 
         Dim WMin As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, True)
@@ -189,7 +191,7 @@ Public Class clsSailManager
         End If
 
         Dim RetVal As Double
-        If W1 <> W2 Then
+        If W1 <> W2 AndAlso v2 - V1 <> 0 Then
             RetVal = V1 + (WindSpeed - W1) / (W2 - W1) * (v2 - V1)
         Else
             RetVal = V1
@@ -215,6 +217,10 @@ Public Class clsSailManager
             Dim ResponseString As String
             Dim errorcount As Integer = 0
             Dim SailIndex As Integer
+
+            If BoatType Is Nothing OrElse BoatType.Trim = "" Then
+                Return False
+            End If
 
 
             For Each sail In clsSailManager.Sails

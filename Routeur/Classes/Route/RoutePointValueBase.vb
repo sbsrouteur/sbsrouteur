@@ -1,5 +1,7 @@
 ﻿Imports System.ComponentModel
+Imports System.Xml.Serialization
 
+<XmlInclude(GetType(RoutePointDoubleValue)), XmlInclude(GetType(RoutePointWPValue))> _
 Public MustInherit Class RoutePointValueBase
     Implements INotifyPropertyChanged
 
@@ -30,6 +32,10 @@ Public Class RoutePointDoubleValue
             OnPropertyChanged(New PropertyChangedEventArgs("Value"))
         End Set
     End Property
+
+    Public Sub New()
+
+    End Sub
 
     Public Sub New(ByVal Value As Double)
         _Value = Value

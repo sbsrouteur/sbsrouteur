@@ -649,7 +649,7 @@ Public Class RouteurModel
     Public ReadOnly Property RouteManager() As RouteManager
         Get
             If _RouteManager Is Nothing Then
-                _RouteManager = New RouteManager(Me)
+                _RouteManager = New RouteManager(Me, VorHandler.Meteo, VorHandler.Sails)
             End If
             Return _RouteManager
         End Get
@@ -735,15 +735,20 @@ Public Class RouteurModel
             Case "UserInfo", "BruteRoute", "BestRouteAtPoint", "BestVMGRoute", "TempRoute", "TempVMGRoute", "GridRoute", "ClearGrid"
                 If e.PropertyName = "ClearGrid" Then
                     _ClearGrid = True
-                End If
-                tmrRefresh.Enabled = True
+                ElseIf e.PropertyName = "UserInfo" Then
+                    If Not RouteManager Is Nothing Then
+                        RouteManager.Curpos = New Coords(VorHandler.UserInfo.position.latitude, VorHandler.UserInfo.position.longitude)
+                    End If
+
+                    End If
+                    tmrRefresh.Enabled = True
 
             Case "WPList"
-                CurWP = CurWP
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
+                    CurWP = CurWP
+                    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
 
             Case Else
-                'Debug.WriteLine("UnHandled propertychange : " & e.PropertyName)
+                RaiseEvent PropertyChanged(sender, e)
         End Select
     End Sub
 
@@ -935,9 +940,7 @@ Public Class RouteurModel
 #End Region
 
     Protected Overrides Sub Finalize()
-        If Not RouteManager Is Nothing Then
-            RouteManager.Save()
-        End If
+        
         MyBase.Finalize()
     End Sub
 End Class

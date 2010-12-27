@@ -70,22 +70,7 @@ Public Class TravelCalculatorTest
         Assert.Inconclusive("Vérifiez l'exactitude de cette méthode de test.")
     End Sub
 
-    '''<summary>
-    '''Test pour ReachDistanceAviat
-    '''</summary>
-    <TestMethod(), _
-     DeploymentItem("Routeur.exe")> _
-    Public Sub ReachDistanceAviatTest()
-        Dim target As TravelCalculator_Accessor = New TravelCalculator_Accessor ' TODO : initialisez à une valeur appropriée
-        Dim Dist As Double = 0.0! ' TODO : initialisez à une valeur appropriée
-        Dim tc_deg As Double = 0.0! ' TODO : initialisez à une valeur appropriée
-        Dim expected As Coords = Nothing ' TODO : initialisez à une valeur appropriée
-        Dim actual As Coords
-        target.StartPoint = New Coords(0, 0)
-        actual = target.ReachDistanceAviat(Dist, tc_deg)
-        Assert.AreEqual(expected, actual)
-        Assert.Inconclusive("Vérifiez l'exactitude de cette méthode de test.")
-    End Sub
+
 
     '''<summary>
     '''Test pour ReachDistance
