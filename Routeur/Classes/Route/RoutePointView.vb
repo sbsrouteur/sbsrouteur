@@ -6,6 +6,8 @@ Public Class RoutePointView
     Implements INotifyPropertyChanged
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
+    Public Event QueryRemoveFromRoute(ByVal P As RoutePointView)
+
     Public Enum EnumRouteMode As Integer
 
         Bearing = 1
@@ -42,6 +44,7 @@ Public Class RoutePointView
             Return _ID <> 0
         End Get
     End Property
+
     Public Sub Delete()
 
         If ID = 0 Then
@@ -59,6 +62,10 @@ Public Class RoutePointView
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("UPLOAD"))
 
 
+    End Sub
+
+    Public Sub DeleteFromMemoryRoute()
+        RaiseEvent QueryRemoveFromRoute(Me)
     End Sub
 
     Public ReadOnly Property EnumRouteModes() As String()

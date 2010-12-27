@@ -9,6 +9,7 @@ Public Class VLM_Router
 
 
     Implements INotifyPropertyChanged
+
     Public Const KEY_ROUTE_THIS_POINT As String = "This Point: "
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
@@ -479,7 +480,7 @@ Public Class VLM_Router
         Dim SpeedError As Boolean = False
         Dim BoatSpeedError As Boolean = False
 
-        Dim mi As MeteoInfo = _Meteo.GetMeteoToDate(_XTRRoute(0).P, _XTRRoute(0).T, True)
+        Dim mi As MeteoInfo = Meteo.GetMeteoToDate(_XTRRoute(0).P, _XTRRoute(0).T, True)
         If mi Is Nothing Then
             AddLog("Meteo not available XTR aborted")
             Return
@@ -552,7 +553,7 @@ Public Class VLM_Router
             Dim Tc As New TravelCalculator With {.StartPoint = _CurMousePos}
 
             Try
-                Dim Mi As MeteoInfo = _Meteo.GetMeteoToDate(Tc.StartPoint, _UserInfo.date, True)
+                Dim Mi As MeteoInfo = Meteo.GetMeteoToDate(Tc.StartPoint, _UserInfo.date, True)
                 If Mi Is Nothing Then
                     Return Nothing
                 End If
@@ -591,7 +592,7 @@ Public Class VLM_Router
 
             For i As Double = 0 To 360 Step 2.5
                 If MI.Strength > 0 Then
-                    Speed = _Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), MI.Dir), MI.Strength)
+                    Speed = Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, WindAngle(GribManager.CheckAngleInterp(CapOrtho + i), MI.Dir), MI.Strength)
                     Speed = Speed * Cos(i / 180 * PI)
                     If Speed < 0 Then
                         Speed = -50 * Speed / MI.Strength
@@ -663,6 +664,12 @@ Public Class VLM_Router
                 Return _iso.IsoChrones
             End If
             Return Nothing
+        End Get
+    End Property
+
+    Public ReadOnly Property Meteo() As clsMeteoOrganizer
+        Get
+            Return _Meteo
         End Get
     End Property
 
@@ -738,7 +745,11 @@ Public Class VLM_Router
         End Set
     End Property
 
-
+    Public Shared ReadOnly Property Sails() As clsSailManager
+        Get
+            Return _Sails
+        End Get
+    End Property
 
     Public Shared ReadOnly Property TimeArrowDateSmallTick() As Long
         Get
@@ -804,7 +815,7 @@ Public Class VLM_Router
             Return _TempVMGRoute
         End Get
         Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
-            ThreadSafeSetter(_TempVMGRoute, value, New PropertyChangedEventArgs("TempVMGRoute"), False, _Meteo)
+            ThreadSafeSetter(_TempVMGRoute, value, New PropertyChangedEventArgs("TempVMGRoute"), False, Meteo)
         End Set
     End Property
 
@@ -815,7 +826,7 @@ Public Class VLM_Router
         End Get
 
         Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
-            BestRouteAtPoint(_Meteo) = value
+            BestRouteAtPoint(Meteo) = value
         End Set
     End Property
 
@@ -831,7 +842,7 @@ Public Class VLM_Router
         End Get
 
         Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
-            BruteRoute(_Meteo) = value
+            BruteRoute(Meteo) = value
         End Set
     End Property
 
@@ -879,18 +890,21 @@ Public Class VLM_Router
     Private Sub ComputeAllure()
 
         Try
-            Dim C As New Coords With {.Lat_deg = _UserInfo.position.latitude, .Lon_Deg = _UserInfo.position.longitude}
+            If AllureDuration = 0 Then
+                Return
+            End If
+            Dim C As New Coords With {.Lat_Deg = _UserInfo.position.latitude, .Lon_Deg = _UserInfo.position.longitude}
             Dim Mi As MeteoInfo
             Dim Dte As DateTime = _UserInfo.date.AddMinutes(RouteurModel.VacationMinutes)
             Dim Speed As Double = 0
             Dim TC As New TravelCalculator
             _AllureRoute.Clear()
             For i = 0 To AllureDuration Step RouteurModel.VacationMinutes
-                Mi = _Meteo.GetMeteoToDate(C, Dte, False)
+                Mi = Meteo.GetMeteoToDate(C, Dte, False)
                 If Mi Is Nothing Then
                     Exit For
                 End If
-                Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(AllureAngle), Mi.Strength)
+                Speed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(AllureAngle), Mi.Strength)
                 TC.StartPoint = C
                 C = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + AllureAngle))
                 Dte = Dte.AddMinutes(RouteurModel.VacationMinutes)
@@ -930,7 +944,7 @@ Public Class VLM_Router
                 Dim PrevWPDest As Coords = Nothing
                 Dim PrevWPNum As Integer = Nothing
 
-                
+
                 If (_WayPointDest.Lon = 0 AndAlso _WayPointDest.Lat = 0) Then
 
                     Dim Retries As Integer = 0
@@ -1072,7 +1086,7 @@ Public Class VLM_Router
                     CurIndex += 1
 
                     While Not RouteComplete AndAlso (CurDate < OrderDate OrElse RouteToEnd)
-                        Mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
+                        Mi = Meteo.GetMeteoToDate(CurPos, CurDate, True)
                         If Mi Is Nothing Then
                             'If there is no meteo, try on the next loop
                             AddLog("Pilototo route aborted, not enough meteo yet, try again later (meteo date : " & CurDate & " )")
@@ -1085,13 +1099,13 @@ Public Class VLM_Router
                         Select Case PrevMode
                             Case 1
                                 'Cap fixe
-                                BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(PrevValue, Mi.Dir), Mi.Strength)
+                                BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(PrevValue, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, PrevValue)
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
 
                             Case 2
                                 'Angle fixe
-                                BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(PrevValue), Mi.Strength)
+                                BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(PrevValue), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + PrevValue))
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
 
@@ -1099,7 +1113,7 @@ Public Class VLM_Router
                                 'Ortho
                                 Tc.EndPoint = CurWPDest
                                 Dim CapOrtho As Double = Tc.OrthoCourse_Deg
-                                BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
+                                BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, CapOrtho)
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
 
@@ -1129,7 +1143,7 @@ Public Class VLM_Router
                                 For Angle = 0 To 90 Step 0.5
 
                                     For dir = -1 To 1 Step 2
-                                        BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho + Angle * dir, Mi.Dir), Mi.Strength)
+                                        BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho + Angle * dir, Mi.Dir), Mi.Strength)
 
                                         If BoatSpeed * Math.Cos(Angle / 180 * Math.PI) > MaxSpeed Then
                                             MaxSpeed = BoatSpeed '* Math.Cos(Angle / 180 * Math.PI)
@@ -1160,7 +1174,7 @@ Public Class VLM_Router
                                 Tc.EndPoint = CurWPDest
                                 WPDist = Tc.SurfaceDistance
 
-                                BoatSpeed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(angle, Mi.Dir), Mi.Strength)
+                                BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(angle, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, angle)
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
 
@@ -1356,7 +1370,7 @@ Public Class VLM_Router
         '279:
         '280	  /* first compute the time for the "ortho" heading */
         '281	  speed = find_speed(aboat, w_speed, w_angle - wanted_heading);
-        Dim Speed As Double = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, mi.Dir), mi.Strength)
+        Dim Speed As Double = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, mi.Dir), mi.Strength)
         If Speed > 0 Then
             t_min = Dist / Speed
         Else
@@ -1413,7 +1427,7 @@ Public Class VLM_Router
             '316	    tanalpha = tan(alpha);
             '317	    d1hypotratio = hypot(1, tan(alpha));
             '318	    speed_t1 = find_speed(aboat, w_speed, angle-alpha);
-            SpeedT1 = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - i * ISigne, mi.Dir), mi.Strength)
+            SpeedT1 = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - i * ISigne, mi.Dir), mi.Strength)
             '319	    if (speed_t1 <= 0.0) {
             '320	      continue;
             '321	    }
@@ -1437,7 +1451,7 @@ Public Class VLM_Router
                     '329	      }
                     D2 = Dist - D1
                     '330	      d2 = dist - d1; 
-                    SpeedT2 = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - j * ISigne, mi.Dir), mi.Strength)
+                    SpeedT2 = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - j * ISigne, mi.Dir), mi.Strength)
                     '331	      speed_t2 = find_speed(aboat, w_speed, angle-beta);
                     If SpeedT2 <= 0 Then
                         Continue For
@@ -1528,8 +1542,8 @@ Public Class VLM_Router
         '398	           radToDeg(b_beta));
         '399	#endif /* DEBUG */
         '400	  }
-        SpeedAlpha = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - b_Alpha * ISigne, mi.Dir), mi.Strength)
-        SpeedBeta = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - b_Beta * ISigne, mi.Dir), mi.Strength)
+        SpeedAlpha = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - b_Alpha * ISigne, mi.Dir), mi.Strength)
+        SpeedBeta = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho - b_Beta * ISigne, mi.Dir), mi.Strength)
         VMGAlpha = SpeedAlpha * Cos(b_Alpha * PI / 180)
         VMGBeta = SpeedBeta * Cos(b_Beta * PI / 180)
 
@@ -1754,12 +1768,12 @@ Public Class VLM_Router
         TC.EndPoint = TC.StartPoint
         tc2.StartPoint = TC.StartPoint
         While TC.SurfaceDistance < TargetDist
-            mi = _Meteo.GetMeteoToDate(TC.EndPoint, StartDate, False)
+            mi = Meteo.GetMeteoToDate(TC.EndPoint, StartDate, False)
             If mi Is Nothing Then
                 Return
             End If
 
-            Dim Speed As Double = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(Bearing, mi.Dir), mi.Strength)
+            Dim Speed As Double = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(Bearing, mi.Dir), mi.Strength)
 
             TC.EndPoint = tc2.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Bearing)
             tc2.StartPoint = TC.EndPoint
@@ -1789,8 +1803,8 @@ Public Class VLM_Router
         _WindAngleETA = Now
         Try
 
-        
-        If Double.IsNaN(RefLoxo) Then
+
+            If Double.IsNaN(RefLoxo) Then
                 Return
             End If
             Dim Found As Boolean = False
@@ -1805,14 +1819,14 @@ Public Class VLM_Router
                 Dim LoopCount = 0
                 While TC.SurfaceDistance < RefDistance AndAlso LoopCount < 1500
                     LoopCount += 1
-                    mi = _Meteo.GetMeteoToDate(TC.EndPoint, CurETA, False)
+                    mi = Meteo.GetMeteoToDate(TC.EndPoint, CurETA, False)
                     If mi Is Nothing Then
                         Exit While
                     End If
                     If LoopCount = 1 Then
                         RefAngle = (WindAngleWithSign(RefLoxo, mi.Dir) + Correction + 3600) Mod 360
                     End If
-                    Speed = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
+                    Speed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
 
                     TC.EndPoint = tc2.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, RefAngle + mi.Dir)
                     tc2.StartPoint = TC.EndPoint
@@ -1977,7 +1991,7 @@ Public Class VLM_Router
                     CurrentRoute.EndPoint = Nothing
                 End If
                 'Login()
-                getboatinfo(_Meteo)
+                getboatinfo(Meteo)
             End If
         End Set
     End Property
@@ -2030,7 +2044,7 @@ Public Class VLM_Router
             C.Lat_Deg = _UserInfo.position.latitude
             C.Lon_Deg = _UserInfo.position.longitude
 
-            MI = _Meteo.GetMeteoToDate(C, Now, True, True)
+            MI = Meteo.GetMeteoToDate(C, Now, True, True)
             If MI IsNot Nothing Then
                 Return MI.Dir
             Else
@@ -2134,7 +2148,7 @@ Public Class VLM_Router
             For y = 0 To 10
                 C.Lat = MinLat + y * DeltaLat
                 C.Lon = MinLon + x * DeltaLon
-                Mi = _Meteo.GetMeteoToDate(C, Dte, True)
+                Mi = Meteo.GetMeteoToDate(C, Dte, True)
                 If Not Mi Is Nothing AndAlso Mi.Strength >= 0.1 Then
                     PX = x * _MeteoWidth / 10
                     PY = (10 - y) * _MeteoHeight / 10
@@ -2726,7 +2740,7 @@ Public Class VLM_Router
     End Function
 
     Public Sub getboatinfo()
-        getboatinfo(_Meteo)
+        getboatinfo(Meteo)
 
     End Sub
 
@@ -2736,7 +2750,7 @@ Public Class VLM_Router
             EnableManualRefresh = False
             _ManualRefreshCount += 1
         End If
-        getboatinfo(_Meteo, Force)
+        getboatinfo(Meteo, Force)
     End Sub
 
     Public Sub GetBoatInfo(ByVal meteo As clsMeteoOrganizer, Optional ByVal force As Boolean = False)
@@ -2785,7 +2799,7 @@ Public Class VLM_Router
             Dim mi As MeteoInfo = meteo.GetMeteoToDate(New Coords(UserInfo.position.latitude, UserInfo.position.longitude), STart, False)
 
             If Not mi Is Nothing Then
-                Dim V As Double = _Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(_UserInfo.position.cap, _UserInfo.position.wind_angle), _UserInfo.position.wind_speed)
+                Dim V As Double = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(_UserInfo.position.cap, _UserInfo.position.wind_angle), _UserInfo.position.wind_speed)
                 If Math.Abs(UserInfo.position.wind_angle - mi.Dir) > 0.1 Then
                     VLMInfoMessage &= " (exp.:" & mi.Dir.ToString("f2") & ")"
                 End If
@@ -2915,7 +2929,7 @@ Public Class VLM_Router
     Public Sub RefreshTimes()
 
 
-        getboatinfo(_Meteo)
+        getboatinfo(Meteo)
 
         'AddLog("synclock refreshtimes " & System.Threading.Thread.CurrentThread.ManagedThreadId)
         SyncLock _LogQueue
@@ -3023,6 +3037,7 @@ Public Class VLM_Router
             'SendInGameMessages()
 
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("UserInfo"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Sails"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WindDir"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurrentRoute"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("VMG"))
@@ -3055,7 +3070,7 @@ Public Class VLM_Router
             Dim mi As MeteoInfo
             TC.StartPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
             TC.EndPoint = New Coords(_CurMousePos)
-            mi = _Meteo.GetMeteoToDate(TC.StartPoint, GetNextCrankingDate, True)
+            mi = Meteo.GetMeteoToDate(TC.StartPoint, GetNextCrankingDate, True)
             _MenuWindAngleValid = mi IsNot Nothing
             If mi Is Nothing Then
                 Return "No meteo to compute WindAngle. Try again later"
@@ -3136,7 +3151,7 @@ Public Class VLM_Router
             Return _UserInfo
         End Get
         Set(ByVal value As user)
-            UserInfo(_Meteo) = value
+            UserInfo(Meteo) = value
         End Set
     End Property
 
@@ -3242,7 +3257,7 @@ Public Class VLM_Router
 
 
             If _gr Is Nothing Then
-                _gr = New GridRouter(start, StartDate, _Meteo, _Sails, _UserInfo.type)
+                _gr = New GridRouter(start, StartDate, Meteo, Sails, _UserInfo.type)
             Else
                 _gr.Start(StartDate) = start
             End If
@@ -3329,7 +3344,7 @@ Public Class VLM_Router
             End If
 
 
-            _iso = New IsoRouter(_UserInfo.type, _Sails, _Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, prefs.IsoStep, _
+            _iso = New IsoRouter(_UserInfo.type, Sails, Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, prefs.IsoStep, _
                                  prefs.IsoStep_24, prefs.IsoStep_48)
             Dim WP As Integer
 
@@ -3504,7 +3519,7 @@ Public Class VLM_Router
 
         If e.PropertyName = "TmpRoute" And Now.Subtract(lastchange).TotalSeconds > 1 Then
             lastchange = Now
-            TempRoute(_Meteo) = _gr.Route
+            TempRoute(Meteo) = _gr.Route
         End If
 
     End Sub
@@ -3514,9 +3529,9 @@ Public Class VLM_Router
 
         If TodoListSize = 0 Then
             AddLog("GridComputationComplete")
-            TempRoute(_Meteo) = _gr.Route
+            TempRoute(Meteo) = _gr.Route
             If Not TempRoute Is Nothing AndAlso TempRoute.Count > 0 Then
-                BruteRoute(_Meteo) = TempRoute
+                BruteRoute(Meteo) = TempRoute
                 If Not BruteRoute Is Nothing AndAlso BruteRoute.Count > 0 Then
                     _CurBestRoute = BruteRoute
                     AddLog("Updating Brute route from Grid ETA " & BruteRoute(BruteRoute.Count - 1).T.ToString)
@@ -3540,6 +3555,7 @@ Public Class VLM_Router
 
         AddHandler GSHHS_Reader.BspEvt, AddressOf OnBspEvt
         AddHandler GSHHS_Reader.Log, AddressOf OnGsHHSLog
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Sails"))
 
     End Sub
 
@@ -3572,13 +3588,13 @@ Public Class VLM_Router
     Private Sub _iso_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _iso.PropertyChanged
         If e.PropertyName = "TmpRoute" Then 'And Now.Subtract(lastchange).TotalSeconds > 1 Then
             'lastchange = Now
-            TempRoute(_Meteo) = _iso.Route
+            TempRoute(Meteo) = _iso.Route
         End If
 
     End Sub
 
     Private Sub _iso_RouteComplete() Handles _iso.RouteComplete
-        BruteRoute(_Meteo) = _iso.Route
+        BruteRoute(Meteo) = _iso.Route
         RaiseEvent IsoComplete()
 
         If RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces).AutoRestartRouter Then

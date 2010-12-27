@@ -16,7 +16,7 @@
 			</ResourceDictionary.MergedDictionaries>
 			<DataTemplate DataType="{x:Type Routeur:RecordedRoute}">
 				<Grid>
-					<TextBlock Text="{Binding Route.RouteName, Mode=Default}"  />
+					<TextBlock Text="{Binding RouteName, Mode=Default}"  />
 				</Grid>
 			</DataTemplate>
 		</ResourceDictionary>
@@ -27,11 +27,12 @@
 			<ColumnDefinition Width="0.732*"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="0.207*"/>
-			<RowDefinition Height="0.685*"/>
+			<RowDefinition Height="0.269*"/>
+			<RowDefinition Height="0.623*"/>
 			<RowDefinition Height="0.108*"/>
 		</Grid.RowDefinitions>
 		<ListBox x:Name="RaceList" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RoutesInRace, Mode=Default}" Grid.RowSpan="2"/>
+		<Button Grid.Row="2" Content="Add New Route" Click="AddNewRoute" />
 		<Button HorizontalAlignment="Right" Margin="0,8.952,8,8" Width="75" Content="Close" Grid.Column="1" Grid.Row="2" Click="OnClose"/>
 		<GridSplitter HorizontalAlignment="Left" Width="8.768" Grid.Column="1" Foreground="{x:Null}" Background="Red" Margin="-4,0,0,0" Grid.RowSpan="4">
 			<GridSplitter.OpacityMask>
@@ -43,10 +44,10 @@
 		</GridSplitter>
 		<Custom:DataGrid Margin="4" ItemsSource="{Binding Route, Mode=Default}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.Row="1" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
 			<Custom:DataGrid.Columns>
-				<Custom:DataGridTextColumn Header="Date" Binding="{Binding T, Mode=Default}"/>
+				<Custom:DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=Default}"/>
 				<Custom:DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
 				<Custom:DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
-				<Custom:DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
+				<Custom:DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointViewActionsTemplate}"/>
 			</Custom:DataGrid.Columns>
 		</Custom:DataGrid>
 		<Grid Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
@@ -56,13 +57,19 @@
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" MinHeight="14"/>
-				<RowDefinition Height="0.563*"/>
-				<RowDefinition Height="0.437*"/>
+				<RowDefinition Height="Auto" MinHeight="14"/>
+				<RowDefinition Height="Auto" MinHeight="14"/>
+				<RowDefinition Height="Auto" MinHeight="14"	/>
 			</Grid.RowDefinitions>
 			<TextBlock Text="Route Name" TextWrapping="Wrap"/>
 			<TextBlock Grid.Row="2" Text="Route Color" TextWrapping="Wrap"/>
 			<TextBox Grid.Column="1" Text="{Binding RouteName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap"/>
 			<CheckBox Grid.Row="1" Grid.Column="1" Content="Route is Visible on map" IsChecked="{Binding Visible, Mode=TwoWay}" />
+			<StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="{DynamicResource DefMargin}" >
+				<Button Content="Recompute Route" Margin="{DynamicResource DefMargin}" Click="OnRouteRecompute"/>
+				<Button Content="Duplicate Route" Margin="{DynamicResource DefMargin}" Click="OnRouteDuplicate"/>
+				<Button Content="Delete Route" Margin="{DynamicResource DefMargin}" Click="OnRouteDelete"/>
+			</StackPanel>
 			<Grid Grid.Row="2" Grid.Column="1">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="0.1*"/>

@@ -9,12 +9,13 @@ Imports System.Windows.Media.Animation
 Imports System.Windows.Navigation
 
 Partial Public Class frmRoutesManager
-	Public Sub New()
-		MyBase.New()
 
-		Me.InitializeComponent()
+    Public Sub New()
+        MyBase.New()
 
-		' Insérez le code requis pour la création d’objet sous ce point.
+        Me.InitializeComponent()
+
+        ' Insérez le code requis pour la création d’objet sous ce point.
     End Sub
 
     Public Sub ShowForm(ByVal Mgr As RouteManager, ByVal Parent As Window)
@@ -24,6 +25,53 @@ Partial Public Class frmRoutesManager
     End Sub
 
     Private Sub OnClose(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+
+        If DataContext IsNot Nothing AndAlso TypeOf DataContext Is RouteManager Then
+            CType(DataContext, RouteManager).Save()
+        End If
         Close()
+    End Sub
+
+    Private Sub frmRoutesManager_Closed(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Closed
+        OnClose(sender, Nothing)
+    End Sub
+
+    Private Sub OnRouteDuplicate(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
+
+        If TypeOf sender Is Button AndAlso TypeOf CType(sender, Button).DataContext Is RecordedRoute Then
+
+            Dim M As RouteManager = CType(DataContext, RouteManager)
+            M.DuplicateRoute(CType(CType(sender, Button).DataContext, RecordedRoute))
+        End If
+
+    End Sub
+
+
+    Private Sub OnRouteRecompute(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+
+
+        If TypeOf sender Is Button AndAlso TypeOf CType(sender, Button).DataContext Is RecordedRoute Then
+
+            Dim M As RouteManager = CType(DataContext, RouteManager)
+            M.RecomputeRoute(CType(CType(sender, Button).DataContext, RecordedRoute))
+        End If
+
+    End Sub
+
+    Private Sub OnRouteDelete(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+        If TypeOf sender Is Button AndAlso TypeOf CType(sender, Button).DataContext Is RecordedRoute Then
+
+            Dim M As RouteManager = CType(DataContext, RouteManager)
+            M.DeleteRoute(CType(CType(sender, Button).DataContext, RecordedRoute))
+        End If
+    End Sub
+
+    Private Sub AddNewRoute(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+        If TypeOf sender Is Button AndAlso TypeOf CType(sender, Button).DataContext Is RouteManager Then
+
+            Dim M As RouteManager = CType(DataContext, RouteManager)
+            Dim R As RecordedRoute = M.AddNewRoute(M.FilterRaceID, "", "New route created " & Now.ToString)
+
+        End If
     End Sub
 End Class

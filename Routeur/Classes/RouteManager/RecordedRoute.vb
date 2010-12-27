@@ -23,6 +23,13 @@ Public Class RecordedRoute
         _Key = New Guid
     End Sub
 
+    Public Sub AddPoint(ByVal P As RoutePointView)
+
+        Route.Add(P)
+        AddHandler P.QueryRemoveFromRoute, AddressOf OnPointDeleteQuery
+
+    End Sub
+
     Public Property Color() As Color
         Get
             Return _Color
@@ -81,6 +88,15 @@ Public Class RecordedRoute
         End Set
     End Property
 
+    Public Sub Initialize()
+
+        For Each pt In Route
+            AddHandler pt.QueryRemoveFromRoute, AddressOf OnPointDeleteQuery
+            pt.IsPending = pt.ActionDate > Now
+        Next
+
+    End Sub
+
     <XmlIgnore()> _
     Public Property Model() As RouteurModel
         Get
@@ -116,6 +132,37 @@ Public Class RecordedRoute
         End Set
     End Property
 
+    
+
+    Public Sub RecomputeRoute(ByVal From As Coords, ByVal Meteo As clsMeteoOrganizer, ByVal BoatType As String, ByVal Sails As clsSailManager)
+
+        Dim CurPos As Coords = New Coords(From)
+        Dim CurDate As DateTime = Now
+        Dim PrevPt As RoutePointView = Nothing
+
+        For Each pt In _Route
+
+            If pt.ActionDate >= CurDate Then
+                If PrevPt IsNot Nothing Then
+
+                    Select Case PrevPt.RouteMode
+
+                        Case RoutePointView.EnumRouteMode.Bearing
+                            pt.P = ReachPointBearingMode(PrevPt.P, CType(pt.RouteValue, RoutePointDoubleValue).Value, PrevPt.ActionDate, pt.ActionDate, Meteo, BoatType, Sails)
+                        Case Else
+                            MessageBox.Show("Routing mode not implemented yet, computation aborted")
+                            Return
+                    End Select
+
+                End If
+
+                PrevPt = pt
+
+            End If
+
+        Next
+    End Sub
+
     Public Property Route() As ObservableCollection(Of RoutePointView)
         Get
             Return _Route
@@ -137,7 +184,7 @@ Public Class RecordedRoute
     End Property
 
     <XmlIgnore()> _
-   Public ReadOnly Property Shape() As Shapes.Path
+    Public ReadOnly Property Shape() As Shapes.Path
         Get
             If Not Visible Then
                 Return Nothing
@@ -183,4 +230,13 @@ Public Class RecordedRoute
 
     End Property
 
+    Private Sub OnPointDeleteQuery(ByVal P As RoutePointView)
+
+        If Route.Contains(P) Then
+            RemoveHandler P.QueryRemoveFromRoute, AddressOf OnPointDeleteQuery
+            Route.Remove(P)
+            OnShapeChange()
+        End If
+
+    End Sub
 End Class

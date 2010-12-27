@@ -14,8 +14,12 @@ Public Class RouteManager
     Private _Routes As New ObservableCollection(Of RecordedRoute)
     Private _FilterRaceID As String
     Private Shared _M As RouteurModel
+    Private _CurPos As Coords
+    Private _Meteo As clsMeteoOrganizer
+    Private _Boat As String
+    Private _Sails As clsSailManager
 
-    Public Sub AddNewRoute(ByVal RaceID As String, ByVal RaceName As String, ByVal Route As RoutePointInfo)
+    Public Function AddNewRoute(ByVal RaceID As String, ByVal RaceName As String, ByVal RouteName As String) As RecordedRoute
 
         Dim R As New RecordedRoute()
 
@@ -24,33 +28,85 @@ Public Class RouteManager
         If R.Route Is Nothing Then
             R.Route = New ObservableCollection(Of RoutePointView)
         End If
-        Dim PrevPos As Coords = Nothing
+        R.RouteName = RouteName
+        'R.Route = Route
+        R.Model = _M
+
+        _Routes.Add(R)
+
+
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Routes"))
+        Return R
+
+    End Function
+
+
+    Public Sub AddNewRoute(ByVal RaceID As String, ByVal RaceName As String, ByVal Route As RoutePointInfo)
+
+        Dim R As RecordedRoute = AddNewRoute(RaceID, RaceName, Route.RouteName)
+
+        Dim PrevP As RoutePointView = Nothing
         Dim TC As New TravelCalculator
 
         For Each P In Route.Route
-            If Not PrevPos Is Nothing Then
-                Dim NewPoint As New RoutePointView
-                With NewPoint
-                    TC.EndPoint = P.P
-                    .ActionDate = P.T
-                    .IsPending = False
-                    .RouteValue = New RoutePointDoubleValue(TC.LoxoCourse_Deg)
-                    .P = PrevPos
-                    .RouteMode = RoutePointView.EnumRouteMode.Bearing
-                End With
-                R.Route.Add(NewPoint)
-            End If
-            PrevPos = P.P
-            TC.StartPoint = PrevPos
+            Dim NewPoint As New RoutePointView
+            With NewPoint
+                TC.EndPoint = P.P
+                .ActionDate = P.T
+                .ID = -1
+
+                If PrevP IsNot Nothing Then
+                    PrevP.RouteValue = New RoutePointDoubleValue(TC.LoxoCourse_Deg)
+                End If
+                .P = P.P
+                .RouteMode = RoutePointView.EnumRouteMode.Bearing
+                .IsPending = P.T > Now
+            End With
+            R.Route.Add(NewPoint)
+            PrevP = NewPoint
+            TC.StartPoint = P.P
         Next
         TC.StartPoint = Nothing
         TC.EndPoint = Nothing
-        R.RouteName = Route.RouteName
-        'R.Route = Route
-        R.Model = _M
-        _Routes.Add(R)
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Routes"))
 
+        Save()
+    End Sub
+
+    Public Property Boat() As String
+        Get
+            Return _Boat
+        End Get
+        Set(ByVal value As String)
+            _Boat = value
+        End Set
+    End Property
+
+    Public WriteOnly Property Curpos As Coords
+        Set(ByVal value As Coords)
+            _CurPos = value
+        End Set
+    End Property
+
+    Public Sub DeleteRoute(ByVal R As RecordedRoute)
+
+        If _Routes.Contains(R) AndAlso MessageBox.Show("Are you sure you want to delete the current route : " & R.RouteName, "Delete Recorded Route", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) = MessageBoxResult.Yes Then
+            _Routes.Remove(R)
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Routes"))
+        End If
+
+    End Sub
+
+    Public Sub DuplicateRoute(ByVal R As RecordedRoute)
+
+        Dim R2 As New RecordedRoute
+        With R2
+            .RouteName = R.RouteName & "(copied " & Now.ToString & ")"
+            .RaceID = R.RaceID
+            .Route = New ObservableCollection(Of RoutePointView)(R.Route)
+            .Initialize()
+        End With
+        _Routes.Add(R2)
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Routes"))
     End Sub
 
     Public Sub Load()
@@ -72,12 +128,15 @@ Public Class RouteManager
 
             For Each R In Routes
                 R.Model = _M
+                R.Initialize()
             Next
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Routes"))
 
         End If
 
     End Sub
+
+
 
     Private Function FilterCourseRoute(ByVal o As Object) As Boolean
 
@@ -116,6 +175,12 @@ Public Class RouteManager
 
     End Property
 
+    Public Sub RecomputeRoute(ByVal R As RecordedRoute)
+
+        R.RecomputeRoute(_CurPos, _Meteo, Boat, _Sails)
+
+    End Sub
+
     Public Sub Rescale()
         For Each R In Routes
             RaiseEvent PropertyChanged(R, New PropertyChangedEventArgs("Shape"))
@@ -139,8 +204,9 @@ Public Class RouteManager
 
         Dim XMLS As New Xml.Serialization.XmlSerializer(Me.GetType)
         Try
-            Dim o As New FileStream(RouteurModel.BaseFileDir & "\Routes.xml", FileMode.Create)
-            XMLS.Serialize(o, Me)
+            Using o As New FileStream(RouteurModel.BaseFileDir & "\Routes.xml", FileMode.Create)
+                XMLS.Serialize(o, Me)
+            End Using
         Catch ex As Exception
             MessageBox.Show("Failed to store routes " & ex.Message)
         End Try
@@ -160,8 +226,10 @@ Public Class RouteManager
 
     End Sub
 
-    Public Sub New(ByVal M As RouteurModel)
+    Public Sub New(ByVal M As RouteurModel, ByVal Meteo As clsMeteoOrganizer, ByVal Sails As clsSailManager)
         _M = M
+        _Meteo = Meteo
+        _Sails = Sails
     End Sub
 
 End Class

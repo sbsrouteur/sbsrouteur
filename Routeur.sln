@@ -1,17 +1,17 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Routeur", "Routeur\Routeur.vbproj", "{AA398C30-64B7-4250-8966-1AF443B6F4BE}"
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{BEAD68B8-4092-479A-8BB7-F04537FD2098}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestRouteur", "TestRouteur\TestRouteur.vbproj", "{8D083CB3-744D-42AA-B29A-84D88AB20415}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75BB53F8-F77E-4E33-A943-F5ABE2DD4354}"
 	ProjectSection(SolutionItems) = preProject
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
 		Routeur.vsmdi = Routeur.vsmdi
 	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Routeur", "Routeur\Routeur.vbproj", "{AA398C30-64B7-4250-8966-1AF443B6F4BE}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{BEAD68B8-4092-479A-8BB7-F04537FD2098}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestRouteur", "TestRouteur\TestRouteur.vbproj", "{8D083CB3-744D-42AA-B29A-84D88AB20415}"
 EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution

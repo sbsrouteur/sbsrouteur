@@ -23,15 +23,5 @@ Public Class TestJSON
     End Property
 
 
-    <TestMethod()> _
-    Public Sub TestJSonParse()
-
-        Dim File As New StreamReader("..\..\Test Json Error.txt", FileMode.Open)
-        Dim Input As String = File.ReadToEnd
-
-        Dim Ret As Dictionary(Of String, Object) = JSonParser.Parse(Input)
-        Assert.IsTrue(True)
-
-    End Sub
-
+   
 End Class
