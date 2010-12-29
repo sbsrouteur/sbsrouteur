@@ -1,6 +1,6 @@
 ﻿Module BearingNavHelper
 
-    Public Function ReachPointBearingMode(ByVal From As Coords, ByVal Bearing As Double, ByVal StartDate As DateTime, ByVal EndDate As DateTime, ByVal Meteo As clsMeteoOrganizer, ByVal BoatType As String, ByVal Sails As clsSailManager) As Coords
+    Public Function ReachPointBearingMode(ByVal From As Coords, ByVal Bearing As Double, ByVal StartDate As DateTime, ByVal EndDate As DateTime, ByVal Meteo As clsMeteoOrganizer, ByVal BoatType As String, ByVal Sails As clsSailManager, ByVal MayBlock As Boolean) As Coords
 
         Dim CurTick As DateTime = StartDate
         Dim CurPOS As Coords = From
@@ -8,8 +8,8 @@
         Dim TC As New TravelCalculator
         TC.StartPoint = From
         While CurTick < EndDate
-            CurTick.AddMinutes(RouteurModel.VacationMinutes)
-            Dim mi As MeteoInfo = Meteo.GetMeteoToDate(CurPOS, CurTick, False, False)
+            CurTick = CurTick.AddMinutes(RouteurModel.VacationMinutes)
+            Dim mi As MeteoInfo = Meteo.GetMeteoToDate(CurPOS, CurTick, Not MayBlock, Not MayBlock)
             If mi Is Nothing Then
                 Return Nothing
             End If

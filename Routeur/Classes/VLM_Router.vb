@@ -1920,6 +1920,35 @@ Public Class VLM_Router
         End Get
     End Property
 
+    Public Function ComputeTrackBearing(ByVal Bearing As Double) As List(Of Coords)
+
+
+        Dim C As New Coords(UserInfo.position.latitude, UserInfo.position.longitude)
+        Dim StartDate As DateTime = Now
+
+        If _PlayerInfo.RaceInfo.deptime > Now Then
+            StartDate = _PlayerInfo.RaceInfo.deptime
+        End If
+
+        Dim Cp(3) As Coords
+        Cp(0) = BearingNavHelper.ReachPointBearingMode(C, Bearing, StartDate, StartDate.AddHours(3), Meteo, UserInfo.type, Sails, False)
+        Cp(1) = BearingNavHelper.ReachPointBearingMode(C, Bearing, StartDate, StartDate.AddHours(6), Meteo, UserInfo.type, Sails, False)
+        Cp(2) = BearingNavHelper.ReachPointBearingMode(C, Bearing, StartDate, StartDate.AddHours(12), Meteo, UserInfo.type, Sails, False)
+        Cp(3) = BearingNavHelper.ReachPointBearingMode(C, Bearing, StartDate, StartDate.AddHours(24), Meteo, UserInfo.type, Sails, False)
+        Dim L As New List(Of Coords)
+
+        For Each v In Cp
+            If v IsNot Nothing Then
+                L.Add(v)
+
+            End If
+        Next
+
+        Return L
+
+    End Function
+
+
     Public Function StorePath(ByVal C As Coords, ByVal cap As Double) As String
 
         Static LastC As New Coords
@@ -2246,13 +2275,13 @@ Public Class VLM_Router
         'Dim PwdString As String = urlencode(_PlayerInfo.Password)
         If IsLogin Then
             If user = "" Then
-                Return RouteurModel.BASE_GAME_URL & "/myboat.php?pseudo=" & _PlayerInfo.Nick & "&password=" & _PlayerInfo.Password & "&lang=fr&type=login"
+                Return RouteurModel.Base_Game_Url & "/myboat.php?pseudo=" & _PlayerInfo.Nick & "&password=" & _PlayerInfo.Password & "&lang=fr&type=login"
             Else
-                Return RouteurModel.BASE_GAME_URL & "/myboat.php?pseudo=" & user & "&password=" & password & "&lang=fr&type=login"
+                Return RouteurModel.Base_Game_Url & "/myboat.php?pseudo=" & user & "&password=" & password & "&lang=fr&type=login"
             End If
 
         Else
-            Return RouteurModel.BASE_GAME_URL & "/getinfo.php?idu=" & _PlayerInfo.NumBoat & "&pseudo=" & System.Web.HttpUtility.UrlEncode(_PlayerInfo.Nick) & "&password=" & System.Web.HttpUtility.UrlEncode(_PlayerInfo.Password)
+            Return RouteurModel.Base_Game_Url & "/getinfo.php?idu=" & _PlayerInfo.NumBoat & "&pseudo=" & System.Web.HttpUtility.UrlEncode(_PlayerInfo.Nick) & "&password=" & System.Web.HttpUtility.UrlEncode(_PlayerInfo.Password)
         End If
     End Function
 
@@ -2431,7 +2460,7 @@ Public Class VLM_Router
         If Nup < -10 AndAlso RetUser.Loch > 0 Then
             AddLog(TmpDbl & "Wrong NUP Wrong switching server " & Nup)
             _CookiesContainer = Nothing
-        
+
             NbSwitch += 1
             Nup = 5 * 2 ^ NbSwitch
 

@@ -364,7 +364,8 @@
 							    </ItemsControl.ItemsPanel>
 							</ItemsControl>
 							<Routeur:EasyNavControl x:Name="NavControl" Width="Auto" Height="Auto" d:LayoutOverrides="GridBox" BoatType="{Binding VorHandler.UserInfo.type}" ClsSailManager="{Binding Mode=OneWay}" MeteoStrength="{Binding VorHandler.UserInfo.position.wind_speed}" MeteoDir="{Binding VorHandler.UserInfo.position.wind_angle}" BoatBearing="{Binding VorHandler.UserInfo.position.cap}" BoatLon="{Binding VorHandler.UserInfo.position.longitude}" Renderer="{Binding The2DViewer}" BoatLat="{Binding VorHandler.UserInfo.position.latitude}" HorizontalAlignment="Left" VerticalAlignment="Top" />
-							
+							<Path Stroke="Red" Data="{Binding Track24h, ElementName=NavControl}" />
+							<ItemsControl ItemsSource="{Binding TrackPoints, ElementName=NavControl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 						</Canvas>
 						
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >

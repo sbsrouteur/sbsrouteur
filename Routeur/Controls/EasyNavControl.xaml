@@ -3,11 +3,29 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	x:Class="EasyNavControl"
 	x:Name="Window"
-	Width="128" Height="128" MouseDown="StartBearingChangeDrag" MouseUp="EndBearingChangeDrag">
+	Width="128" Height="Auto" MouseDown="StartBearingChangeDrag" MouseUp="EndBearingChangeDrag">
 
 	<Canvas  x:Name="LayoutRoot" VerticalAlignment="Top" HorizontalAlignment="Left">
 
-		<Image x:Name="BoatFantom" Source="/Routeur;component/Graphics/Boat_Top.png" Margin="0" Canvas.Left="44" Canvas.Top="24" Height="80" Width="40" Opacity="0.325" RenderTransformOrigin="0.5,0.5" >
+		<Grid Width="128" Height="Auto">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="0.5*"/>
+				<ColumnDefinition Width="0.5*"/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="128"/>
+				<RowDefinition Height="Auto" MinHeight="14"/>
+			</Grid.RowDefinitions>
+			<TextBox Text="{Binding NewCourse, ElementName=Window}" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" MinWidth="48"/>
+			<StackPanel Grid.Row="1" Orientation="Horizontal" Visibility="{Binding UploadPending, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window}">
+				<Button Content="{DynamicResource TrashIcon}" Width="24" Height="24" Click="CancelUpload" />
+				<Button Content="{DynamicResource UploadIcon}" Width="24" Height="24" Click="UploadBearing" />
+			</StackPanel>
+
+		</Grid>
+		
+
+		<Image x:Name="BoatFantom" Source="/Routeur;component/Graphics/BoatShape.png" Margin="0" Opacity="0.325" RenderTransformOrigin="0.5,0.5" Stretch="UniformToFill" Height="100" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.Left="34" Canvas.Top="14" >
 			<Image.RenderTransform>
 				<TransformGroup>
 					<ScaleTransform/>
@@ -17,7 +35,7 @@
 				</TransformGroup>
 			</Image.RenderTransform>
 		</Image>
-		<Image Source="/Routeur;component/Graphics/Boat_Top.png" Margin="0" Canvas.Left="44" Canvas.Top="24" Height="80" Width="40" RenderTransformOrigin="0.5,0.5" MouseMove="MouseBearingDrag" >
+		<Image Source="/Routeur;component/Graphics/BoatShape.png" Margin="0" RenderTransformOrigin="0.5,0.5" MouseMove="MouseBearingDrag" Stretch="UniformToFill" Width="60" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.Left="34" Canvas.Top="14" >
 			<Image.RenderTransform>
 				<TransformGroup>
 					<ScaleTransform/>
@@ -37,19 +55,6 @@
 				</TransformGroup>
 			</Path.RenderTransform>
 		</Path>
-		<Grid Width="128" Height="128">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="0.5*"/>
-				<ColumnDefinition Width="0.5*"/>
-			</Grid.ColumnDefinitions>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="1*"/>
-				<RowDefinition Height="Auto" MinHeight="14"/>
-			</Grid.RowDefinitions>
-			<TextBlock Text="{Binding NewCourse, ElementName=Window}" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1"/>
-
-		</Grid>
 		
-
 	</Canvas>
 </UserControl>

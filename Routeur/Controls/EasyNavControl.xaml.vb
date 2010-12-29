@@ -16,13 +16,23 @@ Partial Public Class EasyNavControl
     Implements INotifyPropertyChanged
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
+    Public Event UploadBearingChange(ByVal NewBearing As Double)
+    Public Event RequestBearingPathUpdate(ByVal NavMode As RoutePointView.EnumRouteMode, ByVal Value As Double)
+
+
+
+
+    Public Shared ReadOnly BearingTrackProperty As DependencyProperty = _
+                           DependencyProperty.Register("BearingTrack", _
+                           GetType(PathGeometry), GetType(EasyNavControl), _
+                           New FrameworkPropertyMetadata(Nothing))
+
 
 
     Public Shared ReadOnly BoatBearingProperty As DependencyProperty = _
                            DependencyProperty.Register("BoatBearing", _
                            GetType(Double), GetType(EasyNavControl), _
                            New FrameworkPropertyMetadata(AddressOf onBearingChange))
-
 
 
     Public Shared ReadOnly BoatLatProperty As DependencyProperty = _
@@ -67,7 +77,33 @@ Partial Public Class EasyNavControl
     Public Shared ReadOnly NewCourseProperty As DependencyProperty = _
                            DependencyProperty.Register("NewCourse", _
                            GetType(Double), GetType(EasyNavControl), _
+                           New FrameworkPropertyMetadata(AddressOf OnNewCourseChange))
+
+
+
+
+    Public Shared ReadOnly Track24hProperty As DependencyProperty = _
+                           DependencyProperty.Register("Track24h", _
+                           GetType(PathGeometry), GetType(EasyNavControl), _
                            New FrameworkPropertyMetadata(Nothing))
+
+
+
+
+    Public Shared ReadOnly TrackPointsProperty As DependencyProperty = _
+                           DependencyProperty.Register("TrackPoints", _
+                           GetType(List(Of Coords)), GetType(EasyNavControl), _
+                           New FrameworkPropertyMetadata(AddressOf OnTrackPointListChange))
+
+
+
+
+    Public Shared ReadOnly UploadPendingProperty As DependencyProperty = _
+                           DependencyProperty.Register("UploadPending", _
+                           GetType(Boolean), GetType(EasyNavControl), _
+                           New FrameworkPropertyMetadata(Nothing))
+
+
 
 
     Private _Owner As EasyNavControl
@@ -76,6 +112,15 @@ Partial Public Class EasyNavControl
     Private _SpeedPolar As PathGeometry
 
 
+    Public Property BearingTrack As PathGeometry
+        Get
+            Return CType(GetValue(BearingTrackProperty), PathGeometry)
+        End Get
+
+        Set(ByVal value As PathGeometry)
+            SetValue(BearingTrackProperty, value)
+        End Set
+    End Property
 
     Public Property BoatBearing As Double
         Get
@@ -129,6 +174,13 @@ Partial Public Class EasyNavControl
     End Property
 
 
+    Private Sub EndBearingChangeDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
+
+        _BearingDrag = False
+
+    End Sub
+
+
     Private Function GetCanvasXfromLon(ByVal Lon As Double) As Double
 
         If Renderer IsNot Nothing Then
@@ -136,7 +188,7 @@ Partial Public Class EasyNavControl
         Else
             Return 0
         End If
-        
+
     End Function
 
 
@@ -199,16 +251,41 @@ Partial Public Class EasyNavControl
     Private Shared Sub onBearingChange(ByVal O As DependencyObject, ByVal e As DependencyPropertyChangedEventArgs)
 
         If TypeOf O Is EasyNavControl AndAlso TypeOf e.NewValue Is Double Then
+
             CType(O, EasyNavControl).NewCourse = CDbl(e.NewValue)
         End If
+
     End Sub
 
+    Private Sub OnPathChangeRequest()
+        RaiseEvent RequestBearingPathUpdate(RoutePointView.EnumRouteMode.Bearing, NewCourse)
+    End Sub
 
+    Private Shared Sub OnNewCourseChange(ByVal O As DependencyObject, ByVal e As DependencyPropertyChangedEventArgs)
+
+        If TypeOf O Is EasyNavControl AndAlso TypeOf e.NewValue Is Double Then
+
+            CType(O, EasyNavControl).UploadPending = CDbl(e.NewValue) <> CType(O, EasyNavControl).BoatBearing
+            CType(O, EasyNavControl).OnPathChangeRequest()
+
+        End If
+
+    End Sub
+
+    Private Shared Sub OnTrackPointListChange(ByVal o As DependencyObject, ByVal e As DependencyPropertyChangedEventArgs)
+
+        If TypeOf o Is EasyNavControl Then
+            CType(o, EasyNavControl).SetTrack()
+        End If
+
+    End Sub
 
     Private Shared Sub OnSailsChange(ByVal o As DependencyObject, ByVal e As DependencyPropertyChangedEventArgs)
 
-        If TypeOf o Is EasyNavControl Then
+        If TypeOf o Is EasyNavControl AndAlso TypeOf e.NewValue Is Double Then
+
             CType(o, EasyNavControl).SetSpeedPolar()
+
         End If
 
     End Sub
@@ -306,6 +383,49 @@ Partial Public Class EasyNavControl
         Return
     End Sub
 
+    Private Sub SetTrack()
+
+        Dim sb As New StringBuilder
+
+        Dim y As Double
+        Dim x As Double
+
+        For Each C In TrackPoints
+
+            If Not C Is Nothing Then
+                
+                y = GetCanvasXfromLon(C.Lat_Deg) - 64
+                x = GetCanvasXfromLon(C.Lon_Deg) - 64
+                sb.Append(" L " & GetCoordsString(x, y))
+            End If
+
+        Next
+
+        If sb.Length = 0 Then
+            'If meteo is not available track 60nm in the proper direction
+            Dim Tc As New TravelCalculator
+            Tc.StartPoint = New Coords(BoatLat, BoatLon)
+            Dim C As Coords = Tc.ReachDistance(60, NewCourse)
+
+            y = GetCanvasXfromLon(C.Lat_Deg) - 64
+            x = GetCanvasXfromLon(C.Lon_Deg) - 64
+            sb.Append(" L " & GetCoordsString(x, y))
+        End If
+        x = GetCanvasXfromLon(BoatLat) - 64
+        y = GetCanvasXfromLon(BoatLon) - 64
+        sb.Insert(0, "M " & GetCoordsString(x, y))
+
+
+        Dim PC As New PathFigureCollectionConverter
+
+        If Track24h Is Nothing Then
+            Track24h = New PathGeometry
+        End If
+        Track24h.Figures = CType(PC.ConvertFromString(sb.ToString), PathFigureCollection)
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Track24h"))
+
+    End Sub
+
     Private Sub MouseBearingDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
 
 
@@ -341,9 +461,49 @@ Partial Public Class EasyNavControl
 
     End Sub
 
-    Private Sub EndBearingChangeDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
 
-        _BearingDrag = False
+    Public Property Track24h As PathGeometry
+        Get
+            Return CType(GetValue(Track24hProperty), PathGeometry)
+        End Get
+
+        Set(ByVal value As PathGeometry)
+            SetValue(Track24hProperty, value)
+        End Set
+    End Property
+
+    Public Property TrackPoints As List(Of Coords)
+        Get
+            Return CType(GetValue(TrackPointsProperty), List(Of Coords))
+        End Get
+
+        Set(ByVal value As List(Of Coords))
+            SetValue(TrackPointsProperty, value)
+        End Set
+    End Property
+
+
+    Public Property UploadPending As Boolean
+        Get
+            Return CBool(GetValue(UploadPendingProperty))
+        End Get
+
+        Set(ByVal value As Boolean)
+            SetValue(UploadPendingProperty, value)
+        End Set
+    End Property
+
+    Private Sub CancelUpload(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+
+        NewCourse = BoatBearing
+        UploadPending = False
+
+    End Sub
+
+    Private Sub UploadBearing(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+
+        RaiseEvent UploadBearingChange(NewCourse)
+
     End Sub
 
 End Class
