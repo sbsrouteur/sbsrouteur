@@ -84,7 +84,7 @@ Partial Public Class EasyNavControl
 
     Public Shared ReadOnly Track24hProperty As DependencyProperty = _
                            DependencyProperty.Register("Track24h", _
-                           GetType(PathGeometry), GetType(EasyNavControl), _
+                           GetType(GeometryGroup), GetType(EasyNavControl), _
                            New FrameworkPropertyMetadata(Nothing))
 
 
@@ -176,8 +176,9 @@ Partial Public Class EasyNavControl
 
     Private Sub EndBearingChangeDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
 
+        UploadPending = NewCourse <> BoatBearing
         _BearingDrag = False
-
+        Mouse.Capture(Nothing)
     End Sub
 
 
@@ -248,7 +249,7 @@ Partial Public Class EasyNavControl
 
     End Sub
 
-    Private Shared Sub onBearingChange(ByVal O As DependencyObject, ByVal e As DependencyPropertyChangedEventArgs)
+    Private Shared Sub OnBearingChange(ByVal O As DependencyObject, ByVal e As DependencyPropertyChangedEventArgs)
 
         If TypeOf O Is EasyNavControl AndAlso TypeOf e.NewValue Is Double Then
 
@@ -265,7 +266,7 @@ Partial Public Class EasyNavControl
 
         If TypeOf O Is EasyNavControl AndAlso TypeOf e.NewValue Is Double Then
 
-            CType(O, EasyNavControl).UploadPending = CDbl(e.NewValue) <> CType(O, EasyNavControl).BoatBearing
+            CType(O, EasyNavControl).UploadPending = False
             CType(O, EasyNavControl).OnPathChangeRequest()
 
         End If
@@ -394,8 +395,8 @@ Partial Public Class EasyNavControl
 
             If Not C Is Nothing Then
                 
-                y = GetCanvasXfromLon(C.Lat_Deg) - 64
-                x = GetCanvasXfromLon(C.Lon_Deg) - 64
+                y = GetCanvasYfromLat(C.Lat_Deg)
+                x = GetCanvasXfromLon(C.Lon_Deg)
                 sb.Append(" L " & GetCoordsString(x, y))
             End If
 
@@ -407,21 +408,42 @@ Partial Public Class EasyNavControl
             Tc.StartPoint = New Coords(BoatLat, BoatLon)
             Dim C As Coords = Tc.ReachDistance(60, NewCourse)
 
-            y = GetCanvasXfromLon(C.Lat_Deg) - 64
-            x = GetCanvasXfromLon(C.Lon_Deg) - 64
+            y = GetCanvasYfromLat(C.Lat_Deg)
+            x = GetCanvasXfromLon(C.Lon_Deg)
             sb.Append(" L " & GetCoordsString(x, y))
         End If
-        x = GetCanvasXfromLon(BoatLat) - 64
-        y = GetCanvasXfromLon(BoatLon) - 64
+        x = GetCanvasXfromLon(BoatLon)
+        y = GetCanvasYfromLat(BoatLat)
         sb.Insert(0, "M " & GetCoordsString(x, y))
 
 
         Dim PC As New PathFigureCollectionConverter
 
         If Track24h Is Nothing Then
-            Track24h = New PathGeometry
+            Track24h = New GeometryGroup
+        Else
+            Track24h.Children.Clear()
         End If
-        Track24h.Figures = CType(PC.ConvertFromString(sb.ToString), PathFigureCollection)
+        Dim T As New PathGeometry
+        T.Figures = CType(PC.ConvertFromString(sb.ToString), PathFigureCollection)
+        Track24h.Children.Add(T)
+
+        Dim Points As PathFigure = Nothing
+        For Each C In TrackPoints
+
+            If Not C Is Nothing Then
+
+                Dim E As New EllipseGeometry
+                y = GetCanvasYfromLat(C.Lat_Deg)
+                x = GetCanvasXfromLon(C.Lon_Deg)
+                E.Center = New Point(x, y)
+                E.RadiusX = 3
+                E.RadiusY = 3
+                Track24h.Children.Add(E)
+            End If
+
+        Next
+
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Track24h"))
 
     End Sub
@@ -438,8 +460,8 @@ Partial Public Class EasyNavControl
             Dim Y As Double = (64 - Pos.Y)
             Dim Cap As Double = Atan2(X, Y) / PI * 180
 
-            Console.WriteLine("X:" & X & ", Y " & Y & " Angle : " & Cap)
-            NewCourse = Round(Cap, 1)
+            'Console.WriteLine("X:" & X & ", Y " & Y & " Angle : " & Cap)
+            NewCourse = Round(Cap, 2)
 
         End If
     End Sub
@@ -457,17 +479,17 @@ Partial Public Class EasyNavControl
 
     Private Sub StartBearingChangeDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
 
-        _BearingDrag = True
+        _BearingDrag = Mouse.Capture(Me.boatNewCourse)
 
     End Sub
 
 
-    Public Property Track24h As PathGeometry
+    Public Property Track24h As GeometryGroup
         Get
-            Return CType(GetValue(Track24hProperty), PathGeometry)
+            Return CType(GetValue(Track24hProperty), GeometryGroup)
         End Get
 
-        Set(ByVal value As PathGeometry)
+        Set(ByVal value As GeometryGroup)
             SetValue(Track24hProperty, value)
         End Set
     End Property

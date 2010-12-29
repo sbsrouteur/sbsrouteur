@@ -35,7 +35,7 @@
 				</TransformGroup>
 			</Image.RenderTransform>
 		</Image>
-		<Image Source="/Routeur;component/Graphics/BoatShape.png" Margin="0" RenderTransformOrigin="0.5,0.5" MouseMove="MouseBearingDrag" Stretch="UniformToFill" Width="60" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.Left="34" Canvas.Top="14" >
+		<Image x:Name="BoatNewCourse" Source="/Routeur;component/Graphics/BoatShape.png" Margin="0" RenderTransformOrigin="0.5,0.5" MouseMove="MouseBearingDrag" Stretch="UniformToFill" Width="60" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.Left="34" Canvas.Top="14" >
 			<Image.RenderTransform>
 				<TransformGroup>
 					<ScaleTransform/>
