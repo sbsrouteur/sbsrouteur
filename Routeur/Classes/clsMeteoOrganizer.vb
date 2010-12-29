@@ -74,6 +74,9 @@ Public Class clsMeteoOrganizer
             _GetMeteoToDateCount += 1
             Stats.SetStatValue(Stats.StatID.Grib_GetMeteoToDateAvgMS) = _GetMeteoToDateTicks / _GetMeteoToDateCount / TimeSpan.TicksPerMillisecond
         End If
+        If Ret IsNot Nothing AndAlso Ret.Strength < 0 Then
+            Dim i As Integer = 1
+        End If
         Return Ret
 
     End Function
