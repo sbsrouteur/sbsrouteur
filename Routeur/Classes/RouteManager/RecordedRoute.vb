@@ -148,7 +148,7 @@ Public Class RecordedRoute
                     Select Case PrevPt.RouteMode
 
                         Case RoutePointView.EnumRouteMode.Bearing
-                            pt.P = ReachPointBearingMode(PrevPt.P, CType(pt.RouteValue, RoutePointDoubleValue).Value, PrevPt.ActionDate, pt.ActionDate, Meteo, BoatType, Sails)
+                            pt.P = ReachPointBearingMode(PrevPt.P, CType(pt.RouteValue, RoutePointDoubleValue).Value, PrevPt.ActionDate, pt.ActionDate, Meteo, BoatType, Sails, True)
                         Case Else
                             MessageBox.Show("Routing mode not implemented yet, computation aborted")
                             Return

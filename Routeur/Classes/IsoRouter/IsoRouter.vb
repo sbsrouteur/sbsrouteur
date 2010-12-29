@@ -479,6 +479,7 @@ Public Class IsoRouter
                 mi = _Meteo.GetMeteoToDate(StartDate, From.Lon_Deg, From.Lat_Deg, False, False)
                 System.Threading.Thread.Sleep(250)
             End While
+
             With _StartPoint
                 .P = New Coords(From)
                 .T = StartDate

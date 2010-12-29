@@ -465,4 +465,17 @@ Partial Public Class RouteurMain
 
     End Sub
 
+    Private Sub NavControl_RequestBearingPathUpdate(ByVal NavMode As RoutePointView.EnumRouteMode, ByVal Value As Double) Handles NavControl.RequestBearingPathUpdate
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+        NavControl.TrackPoints = M.VorHandler.ComputeTrackBearing(Value)
+    End Sub
+
+    Private Sub NavControl_UploadBearingChange(ByVal NewBearing As Double) Handles NavControl.UploadBearingChange
+
+
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+        WS_Wrapper.SetBoatHeading(M.VorHandler.PlayerInfo.NumBoat, NewBearing)
+        ReloadPilototo(Me, Nothing)
+
+    End Sub
 End Class

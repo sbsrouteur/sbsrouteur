@@ -649,7 +649,7 @@ Public Class RouteurModel
     Public ReadOnly Property RouteManager() As RouteManager
         Get
             If _RouteManager Is Nothing Then
-                _RouteManager = New RouteManager(Me, VorHandler.Meteo, VorHandler.Sails)
+                _RouteManager = New RouteManager(Me, VorHandler.Meteo, VLM_Router.Sails)
             End If
             Return _RouteManager
         End Get
