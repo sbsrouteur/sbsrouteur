@@ -651,6 +651,10 @@ Public Class GribManager
             Return Nothing
         End If
 
+        If M0.Strength < 0 OrElse M1.Strength < 0 Then
+            Return Nothing
+        End If
+
         Dim RetInfo As New MeteoInfo
 
         Dim u0 As Double = M0.UGRD
