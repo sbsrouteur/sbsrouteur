@@ -16,7 +16,7 @@
 				<RowDefinition Height="128"/>
 				<RowDefinition Height="Auto" MinHeight="14"/>
 			</Grid.RowDefinitions>
-			<TextBox Text="{Binding NewCourse, ElementName=Window}" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" MinWidth="48"/>
+			<TextBox Text="{Binding NewCourse, ElementName=Window}" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" MinWidth="36"/>
 			<StackPanel Grid.Row="1" Orientation="Horizontal" Visibility="{Binding UploadPending, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window}">
 				<Button Content="{DynamicResource TrashIcon}" Width="24" Height="24" Click="CancelUpload" />
 				<Button Content="{DynamicResource UploadIcon}" Width="24" Height="24" Click="UploadBearing" />

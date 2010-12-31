@@ -1708,23 +1708,25 @@ Public Class VLM_Router
         End If
 
 
-        Dim MyBoat As BoatInfo = _Opponents(_PlayerInfo.NumBoat.ToString)
-        If MyBoat.LastDTF <> 0 And MyBoat.CurDTFDate.Subtract(MyBoat.PrevDTFDate).TotalMinutes > 1 Then
-            Dim MyDelta As Double = MyBoat.LastDTF - MyBoat.Dtf
-            Dim MyTS As TimeSpan = MyBoat.CurDTFDate.Subtract(MyBoat.PrevDTFDate)
-            If MyTS.TotalHours > 0 Then
-                Dim NormedTime As Double = Math.Ceiling(MyTS.TotalMinutes / 5) * 5 / 60
-                For Each bi In _Opponents.Values
-                    Dim BoatDelta As Double = (bi.LastDTF - bi.Dtf)
-                    Dim BoatTs As TimeSpan = bi.CurDTFDate.Subtract(bi.PrevDTFDate)
-                    If MyTS.TotalHours <> 0 AndAlso NormedTime <> 0 Then
-                        bi.TimeToPass = Abs(bi.Dtf - MyBoat.Dtf) / Abs(MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) * NormedTime
-                        bi.PassUp = (MyDelta > BoatDelta) And (bi.Dtf > MyBoat.Dtf)
-                    Else
-                        bi.TimeToPass = 0
-                        bi.PassUp = False
-                    End If
-                Next
+        If _Opponents.ContainsKey(_PlayerInfo.NumBoat.ToString) Then
+            Dim MyBoat As BoatInfo = _Opponents(_PlayerInfo.NumBoat.ToString)
+            If MyBoat.LastDTF <> 0 And MyBoat.CurDTFDate.Subtract(MyBoat.PrevDTFDate).TotalMinutes > 1 Then
+                Dim MyDelta As Double = MyBoat.LastDTF - MyBoat.Dtf
+                Dim MyTS As TimeSpan = MyBoat.CurDTFDate.Subtract(MyBoat.PrevDTFDate)
+                If MyTS.TotalHours > 0 Then
+                    Dim NormedTime As Double = Math.Ceiling(MyTS.TotalMinutes / 5) * 5 / 60
+                    For Each bi In _Opponents.Values
+                        Dim BoatDelta As Double = (bi.LastDTF - bi.Dtf)
+                        Dim BoatTs As TimeSpan = bi.CurDTFDate.Subtract(bi.PrevDTFDate)
+                        If MyTS.TotalHours <> 0 AndAlso NormedTime <> 0 Then
+                            bi.TimeToPass = Abs(bi.Dtf - MyBoat.Dtf) / Abs(MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) * NormedTime
+                            bi.PassUp = (MyDelta > BoatDelta) And (bi.Dtf > MyBoat.Dtf)
+                        Else
+                            bi.TimeToPass = 0
+                            bi.PassUp = False
+                        End If
+                    Next
+                End If
             End If
         End If
 

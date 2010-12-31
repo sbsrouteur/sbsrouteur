@@ -28,6 +28,7 @@ Public Class RouteurModel
     Private Shared _WPList As New List(Of String)
     Private Shared _PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
     Private Shared _RouteExtensionHours As Double = RacePrefs.RACE_COURSE_EXTENSION_HOURS
+    Private _ShowEasyNav As Boolean = False
 
     Public Shared DebugEvt As New AutoResetEvent(True)
     Private Shared _BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
@@ -664,6 +665,18 @@ Public Class RouteurModel
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Scale"))
         End Set
     End Property
+
+    Public Property ShowEasyNav() As Boolean
+        Get
+            Return _ShowEasyNav
+        End Get
+        Set(ByVal value As Boolean)
+            _ShowEasyNav = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ShowEasyNav"))
+        End Set
+    End Property
+
+
     Public ReadOnly Property Stats() As ObservableCollection(Of StatInfo)
         Get
             Return Routeur.Stats.Stats
