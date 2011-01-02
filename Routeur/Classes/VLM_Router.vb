@@ -2435,6 +2435,9 @@ Public Class VLM_Router
         PosValide = False
         Dim BoatInfo As New VLMBoatInfo
         Dim Data As Dictionary(Of String, Object) = WS_Wrapper.GetBoatInfo(_PlayerInfo)
+        If Data Is Nothing Then
+            Return Nothing
+        End If
         If Data.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
             JSonHelper.LoadJSonDataToObject(BoatInfo, JSonHelper.GetJSonObjectValue(WS_Wrapper.GetBoatInfo(_PlayerInfo), JSONDATA_BASE_OBJECT_NAME))
         End If
@@ -3255,6 +3258,9 @@ Public Class VLM_Router
 
     Private WriteOnly Property userinfo(ByVal meteo As clsMeteoOrganizer) As user
         Set(ByVal value As user)
+            If value Is Nothing Then
+                Return
+            End If
             SetUserInfoThreadSafe(value, meteo)
         End Set
 

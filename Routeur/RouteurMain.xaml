@@ -318,7 +318,7 @@
 									</ItemsPanelTemplate>
 								</ItemsControl.ItemsPanel>
 							</ItemsControl>
-							<Path Stroke="Red" Data="{Binding Track24h, ElementName=NavControl}" />
+							<Path x:Name="track24h" Stroke="Red" Data="{Binding Track24h, ElementName=NavControl}" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" />
 							<Routeur:EasyNavControl x:Name="NavControl" Width="Auto" Height="Auto" d:LayoutOverrides="GridBox" BoatType="{Binding VorHandler.UserInfo.type}" ClsSailManager="{Binding Mode=OneWay}" MeteoStrength="{Binding VorHandler.UserInfo.position.wind_speed}" MeteoDir="{Binding VorHandler.UserInfo.position.wind_angle}" BoatBearing="{Binding VorHandler.UserInfo.position.cap}" BoatLon="{Binding VorHandler.UserInfo.position.longitude}" Renderer="{Binding The2DViewer}" BoatLat="{Binding VorHandler.UserInfo.position.latitude}" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" />
 						</Canvas>
 						
