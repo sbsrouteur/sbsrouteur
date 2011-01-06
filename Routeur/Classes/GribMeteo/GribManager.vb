@@ -645,9 +645,12 @@ Public Class GribManager
         Dim tws1 As Double = 0
 
         Dim M0 As MeteoInfo = GetMeteoToIndexHybrid(MeteoIndex, tws0, Lon, Lat, NoLock, noload)
+        If M0 Is Nothing OrElse tws0 < 0 Then
+            Return Nothing
+        End If
         Dim M1 As MeteoInfo = GetMeteoToIndexHybrid(NextMeteoIndex, tws1, Lon, Lat, NoLock, noload)
 
-        If M0 Is Nothing OrElse M1 Is Nothing Then
+        If M1 Is Nothing OrElse tws1 < 0 Then
             Return Nothing
         End If
 
