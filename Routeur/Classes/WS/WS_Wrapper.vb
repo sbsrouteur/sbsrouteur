@@ -88,7 +88,10 @@ Module WS_Wrapper
             End If
             Return RetJSon
         Catch wex As WebException
-            If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+            If wex.Response Is Nothing Then
+                'Connection lost
+                Return Nothing
+            ElseIf CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
                 'Login error
                 Return Nothing
             ElseIf CType(wex.Response, HttpWebResponse).StatusCode = 404 Then
