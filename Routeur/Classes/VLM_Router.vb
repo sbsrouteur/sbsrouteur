@@ -1635,22 +1635,7 @@ Public Class VLM_Router
         Dim NbArrived As Integer = 0
         Dim JSonRanking As Dictionary(Of String, Object) = WS_Wrapper.GetRankings(_PlayerInfo.RaceInfo.idraces, NbArrived)
 
-        If JSonRanking Is Nothing Then
-            Do
-
-                Dim Page As String = GetHTTPResponse(RouteurModel.BASE_GAME_URL & "/races.php?lang=fr&type=arrived&idraces=" & _PlayerInfo.RaceInfo.idraces, Cookies)
-                Dim ArrivedOffset As Integer = GetArrivedCount(Page)
-
-                'Get the current positions
-                Page = GetHTTPResponse(RouteurModel.BASE_GAME_URL & "/races.php?lang=fr&type=racing&idraces=" & _PlayerInfo.RaceInfo.idraces & "&startnum=" & CurFistBoat, Cookies)
-
-                PageEmpty = ParseRanking(Page, ArrivedOffset, Cookies)
-
-                CurFistBoat += 100
-
-
-            Loop Until PageEmpty
-        Else
+        If JSonRanking IsNot Nothing Then
             SyncLock _Opponents
                 Dim BI As BoatInfo
                 'Dim RankingOffset As Integer = 0
@@ -1688,7 +1673,7 @@ Public Class VLM_Router
                                 .LastDTF = .Dtf
                                 .PrevDTFDate = .CurDTFDate
                                 .Dtf = BoatJson.dnm
-                                .CurDTFDate =Now 
+                                .CurDTFDate = Now
                             End If
 
                         End With
