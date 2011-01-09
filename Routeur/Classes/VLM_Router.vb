@@ -46,6 +46,8 @@ Public Class VLM_Router
     Private _LastBestVMGCalc As TimeSpan = New TimeSpan(0, 0, 15)
     Private _LastCommunication As DateTime = New DateTime(0)
     Private _lastflush As DateTime = New DateTime(0)
+    Private _CurrentDest As Coords = Nothing
+
 
 
     Private _Login As String
@@ -525,6 +527,16 @@ Public Class VLM_Router
 
     End Sub
 
+
+    Public Property CurrentDest() As Coords
+        Get
+            Return _CurrentDest
+        End Get
+        Set(ByVal value As Coords)
+            _CurrentDest = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurrentDest"))
+        End Set
+    End Property
 
     Public Property CurUserWP() As Integer
         Get
@@ -2799,6 +2811,17 @@ Public Class VLM_Router
             Dim prevwp As Integer = RouteurModel.CurWP
             UserInfo(meteo) = ParseVLMBoatInfoString()
 
+            Dim Dest As Coords
+
+            If UserInfo.position.WP_latitude = 0 AndAlso UserInfo.position.WP_latitude = UserInfo.position.WP_longitude Then
+                Dim Pos As New Coords(UserInfo.position.latitude, UserInfo.position.longitude)
+                Dest = GSHHS_Reader.PointToSegmentIntersect(Pos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0) _
+                                                                                     , _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
+            Else
+                Dest = New Coords(UserInfo.position.WP_latitude, UserInfo.position.WP_longitude)
+            End If
+            CurrentDest = Dest
+
             If RouteurModel.CurWP <> prevwp Then
                 'If CurUserWP = 0 Then
                 'Force userwaypoint to other then 0 to refresh the list
@@ -2807,6 +2830,7 @@ Public Class VLM_Router
                 'End If
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
             End If
+
 
 
             Dim VLMInfoMessage As String = "Meteo read D:" & UserInfo.position.wind_angle.ToString("f2")
@@ -3499,11 +3523,12 @@ Public Class VLM_Router
 
         Dim V As Double = WindAngle(heading, Wind)
 
-        If (heading + V) Mod 360 = Wind Then
-            Return -V
-        Else
+        If (Wind + V) Mod 360 = heading Then
             Return V
+        Else
+            Return -V
         End If
+
     End Function
 
 

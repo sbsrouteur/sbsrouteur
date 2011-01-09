@@ -28,6 +28,11 @@ Partial Public Class EasyNavControl
                            New FrameworkPropertyMetadata(Nothing))
 
 
+    Public Shared ReadOnly BestSpeedAngleProperty As DependencyProperty = _
+                           DependencyProperty.Register("BestSpeedAngle", _
+                           GetType(Double), GetType(EasyNavControl), _
+                           New FrameworkPropertyMetadata(Nothing))
+
 
     Public Shared ReadOnly BoatBearingProperty As DependencyProperty = _
                            DependencyProperty.Register("BoatBearing", _
@@ -45,6 +50,32 @@ Partial Public Class EasyNavControl
                            DependencyProperty.Register("BoatLon", _
                            GetType(Double), GetType(EasyNavControl), _
                            New FrameworkPropertyMetadata(AddressOf OnBoatLonChanged))
+
+
+
+    Public Shared ReadOnly BoatSpeedProperty As DependencyProperty = _
+                           DependencyProperty.Register("BoatSpeed", _
+                           GetType(Double), GetType(EasyNavControl), _
+                           New FrameworkPropertyMetadata(Nothing))
+
+
+
+
+
+    Public Property BoatDest As Coords
+        Get
+            Return CType(GetValue(BoatDestProperty), Coords)
+        End Get
+
+        Set(ByVal value As Coords)
+            SetValue(BoatDestProperty, value)
+        End Set
+    End Property
+
+    Public Shared ReadOnly BoatDestProperty As DependencyProperty = _
+                           DependencyProperty.Register("BoatDest", _
+                           GetType(Coords), GetType(EasyNavControl), _
+                           New FrameworkPropertyMetadata(Nothing))
 
 
     Public Shared ReadOnly BoatTypeProperty As DependencyProperty = _
@@ -110,6 +141,7 @@ Partial Public Class EasyNavControl
     Private _bCapture As Boolean
     Private _BearingDrag As Boolean = False
     Private _SpeedPolar As PathGeometry
+    Private _BestAngleToDest As Double
 
 
     Public Property BearingTrack As PathGeometry
@@ -119,6 +151,30 @@ Partial Public Class EasyNavControl
 
         Set(ByVal value As PathGeometry)
             SetValue(BearingTrackProperty, value)
+        End Set
+    End Property
+
+    Public Property BestAngleToDest() As Double
+        Get
+            Return _BestAngleToDest
+        End Get
+        Set(ByVal value As Double)
+
+            If value <> _BestAngleToDest Then
+                _BestAngleToDest = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BestAngleToDest"))
+            End If
+        End Set
+    End Property
+
+
+    Public Property BestSpeedAngle As Double
+        Get
+            Return CDbl(GetValue(BestSpeedAngleProperty))
+        End Get
+
+        Set(ByVal value As Double)
+            SetValue(BestSpeedAngleProperty, value)
         End Set
     End Property
 
@@ -152,6 +208,15 @@ Partial Public Class EasyNavControl
         End Set
     End Property
 
+    Public Property BoatSpeed As Double
+        Get
+            Return CDbl(GetValue(BoatSpeedProperty))
+        End Get
+
+        Set(ByVal value As Double)
+            SetValue(BoatSpeedProperty, value)
+        End Set
+    End Property
 
     Public Property BoatType As String
         Get
@@ -254,6 +319,7 @@ Partial Public Class EasyNavControl
         If TypeOf O Is EasyNavControl AndAlso TypeOf e.NewValue Is Double Then
 
             CType(O, EasyNavControl).NewCourse = CDbl(e.NewValue)
+
         End If
 
     End Sub
@@ -266,8 +332,14 @@ Partial Public Class EasyNavControl
 
         If TypeOf O Is EasyNavControl AndAlso TypeOf e.NewValue Is Double Then
 
-            CType(O, EasyNavControl).UploadPending = False
-            CType(O, EasyNavControl).OnPathChangeRequest()
+            Dim NC As EasyNavControl = CType(O, EasyNavControl)
+
+            With nc
+                .UploadPending = False
+                .OnPathChangeRequest()
+                .BoatSpeed = .ClsSailManager.GetSpeed(.BoatType, Routeur.clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(.NewCourse, .MeteoDir), .MeteoStrength)
+
+            End With
 
         End If
 
@@ -338,18 +410,46 @@ Partial Public Class EasyNavControl
         End If
 
         Dim sb As New StringBuilder
-        Dim AlphaStep As Integer = 3
+        Dim MaxSpeedAngle As Double = 0
+        Dim AlphaStep As Integer = 1
         Dim S(180) As Double
         Dim i As Integer
         Dim MaxS As Double = 0
+        Dim MaxVMG As Double = 0
+        Dim BestVMGAngle As Double = 0
+        Dim TC As New TravelCalculator
+        TC.StartPoint = New Coords(BoatLat, BoatLon)
+        TC.EndPoint = BoatDest
+
         For i = 0 To 180 Step AlphaStep
 
             S(i) = ClsSailManager.GetSpeed(BoatType, Routeur.clsSailManager.EnumSail.OneSail, i, MeteoStrength)
             If S(i) > MaxS Then
                 MaxS = S(i)
+                MaxSpeedAngle = i
+            End If
+
+            Dim C1 As Double = VLM_Router.WindAngle(i + MeteoDir, TC.OrthoCourse_Deg) / 180 * PI
+            Dim C2 As Double = VLM_Router.WindAngle(MeteoDir - i, TC.OrthoCourse_Deg) / 180 * PI
+            If S(i) * Cos(C1) > MaxVMG Then
+                MaxVMG = S(i) * Cos(C1)
+                BestVMGAngle = i + MeteoDir
+            End If
+            If S(i) * Cos(C2) > MaxVMG Then
+                MaxVMG = S(i) * Cos(C2)
+                BestVMGAngle = MeteoDir - i
             End If
 
         Next
+
+        If VLM_Router.WindAngleWithSign(BoatBearing, MeteoDir) < 0 Then
+            BestSpeedAngle = (MeteoDir - MaxSpeedAngle + 720) Mod 360
+        Else
+            BestSpeedAngle = (MaxSpeedAngle + MeteoDir) Mod 360
+        End If
+
+        BestAngleToDest = (BestVMGAngle + 720) Mod 360
+
 
         If MaxS = 0 Then
             If _SpeedPolar IsNot Nothing Then
@@ -377,8 +477,8 @@ Partial Public Class EasyNavControl
 
         If _SpeedPolar Is Nothing Then
             _SpeedPolar = New PathGeometry
-
         End If
+
         _SpeedPolar.Figures = CType(PC.ConvertFromString(sb.ToString), PathFigureCollection)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("SpeedPolar"))
         Return
@@ -458,10 +558,11 @@ Partial Public Class EasyNavControl
 
             Dim X As Double = (Pos.X - 64)
             Dim Y As Double = (64 - Pos.Y)
-            Dim Cap As Double = Atan2(X, Y) / PI * 180
+            Dim Cap As Double = (Atan2(X, Y) / PI * 180 + 360) Mod 360
 
             'Console.WriteLine("X:" & X & ", Y " & Y & " Angle : " & Cap)
             NewCourse = Round(Cap, 2)
+
 
         End If
     End Sub
