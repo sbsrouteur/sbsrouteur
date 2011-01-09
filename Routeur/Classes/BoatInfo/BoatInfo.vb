@@ -23,8 +23,9 @@ Public Class BoatInfo
     Private _PrevDTFDate As DateTime
     Private _CurDTFDate As DateTime
     Private _Dtf As Double
-    Private _TimeToPass As Double
+    Private _TimeToPass As TimeSpan
     Private _PassUp As Boolean
+    Private _PassDown As Boolean
 
     'Private Shared _ImgList As New SortedList(Of String, BitmapImage)
 
@@ -170,6 +171,19 @@ Public Class BoatInfo
         End Set
     End Property
 
+    Public Property PassDown() As Boolean
+        Get
+            Return _PassDown
+        End Get
+        Set(ByVal value As Boolean)
+            If _PassDown <> value Then
+                _PassDown = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PassUp"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PassVisibility"))
+            End If
+        End Set
+    End Property
+
     Public Property PassUp() As Boolean
         Get
             Return _PassUp
@@ -178,9 +192,16 @@ Public Class BoatInfo
             If _PassUp <> value Then
                 _PassUp = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PassUp"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PassVisibility"))
             End If
 
         End Set
+    End Property
+
+    Public ReadOnly Property PassVisibility As Boolean
+        Get
+            Return PassDown Or PassUp
+        End Get
     End Property
 
     Public Property PrevDTFDate() As DateTime
@@ -193,12 +214,12 @@ Public Class BoatInfo
         End Set
     End Property
 
-    Public Property TimeToPass() As Double
+    Public Property TimeToPass() As TimeSpan
         Get
             Return _TimeToPass
         End Get
-        Set(ByVal value As Double)
-            If _TimeToPass <> value Then
+        Set(ByVal value As TimeSpan)
+            If _TimeToPass.Ticks <> value.Ticks Then
                 _TimeToPass = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("TimeToPass"))
             End If

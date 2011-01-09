@@ -425,9 +425,9 @@ Partial Public Class RouteurMain
     End Sub
 
 
-    Private Sub OnContextMenuOpening(ByVal sender As System.Object, ByVal e As System.Windows.Controls.ContextMenuEventArgs)
+    Private Sub OnMapContextMenuOpening(ByVal sender As System.Object, ByVal e As System.Windows.Controls.ContextMenuEventArgs)
 
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
         M.VorHandler.RefreshActionMenu()
 
     End Sub

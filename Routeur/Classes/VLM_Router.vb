@@ -1715,12 +1715,23 @@ Public Class VLM_Router
                     For Each bi In _Opponents.Values
                         Dim BoatDelta As Double = (bi.LastDTF - bi.Dtf)
                         Dim BoatTs As TimeSpan = bi.CurDTFDate.Subtract(bi.PrevDTFDate)
-                        If MyTS.TotalHours <> 0 AndAlso NormedTime <> 0 Then
-                            bi.TimeToPass = Abs(bi.Dtf - MyBoat.Dtf) / Abs(MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) * NormedTime
-                            bi.PassUp = (MyDelta > BoatDelta) And (bi.Dtf > MyBoat.Dtf)
+                        If MyTS.TotalHours <> 0 AndAlso NormedTime <> 0 AndAlso (MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) <> 0 Then
+                            bi.TimeToPass = New TimeSpan(CLng(TimeSpan.TicksPerHour * Abs(bi.Dtf - MyBoat.Dtf) / Abs(MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) * NormedTime))
+                            If bi.Dtf > MyBoat.Dtf Then
+                                'I am in front
+                                bi.PassUp = False
+                                bi.PassDown = MyDelta < BoatDelta
+                            Else
+                                'I am behind
+                                bi.PassUp = MyDelta > BoatDelta
+                                bi.PassDown = False
+
+                            End If
+
                         Else
-                            bi.TimeToPass = 0
+                            bi.TimeToPass = New TimeSpan(0)
                             bi.PassUp = False
+                            bi.PassDown = False
                         End If
                     Next
                 End If
