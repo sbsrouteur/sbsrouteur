@@ -7,6 +7,17 @@
 
 	<Canvas  x:Name="LayoutRoot" VerticalAlignment="Top" HorizontalAlignment="Left">
 
+		<Path Data="{Binding SpeedPolar, ElementName=Window}" RenderTransformOrigin="0,0" Stroke="#FF011168" HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.Left="64" Canvas.Top="64" Width="128" Height="128" >
+			<Path.RenderTransform>
+				<TransformGroup>
+					<ScaleTransform/>
+					<SkewTransform/>
+					<RotateTransform Angle="{Binding MeteoDir, ElementName=Window}"/>
+					<TranslateTransform/>
+				</TransformGroup>
+			</Path.RenderTransform>
+		</Path>
+
 		<Grid Width="128" Height="Auto">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="0.5*"/>
@@ -16,7 +27,28 @@
 				<RowDefinition Height="128"/>
 				<RowDefinition Height="Auto" MinHeight="14"/>
 			</Grid.RowDefinitions>
+			<Path Data="M18,35 L15,0 12,35 14,30 14,826 16,826 16,30" Fill="#FF4EFF00" Stretch="Fill" Grid.Column="1" HorizontalAlignment="Left" Width="3.084" RenderTransformOrigin="0.439,1.001" Margin="-1.521,-0.187,0,63.583" ToolTip="{Binding BestAngleToDest, ElementName=Window, Mode=OneWay}">
+				<Path.RenderTransform>
+					<TransformGroup>
+						<ScaleTransform/>
+						<SkewTransform/>
+						<RotateTransform Angle="{Binding BestSpeedAngle, ElementName=Window}"/>
+						<TranslateTransform/>
+					</TransformGroup>
+				</Path.RenderTransform>
+			</Path>
+			<Path Data="M18,35 L15,0 12,35 14,30 14,826 16,826 16,30" Fill="#FFFF0C00" Stretch="Fill" Grid.Column="1" HorizontalAlignment="Left" Width="3.084" RenderTransformOrigin="0.439,1.001" Margin="-1.521,-0.187,0,63.583" ToolTip="{Binding BestAngleToDest, ElementName=Window, Mode=OneWay}">
+				<Path.RenderTransform>
+					<TransformGroup>
+						<ScaleTransform/>
+						<SkewTransform/>
+						<RotateTransform Angle="{Binding BestAngleToDest, ElementName=Window, Mode=OneWay}"/>
+						<TranslateTransform/>
+					</TransformGroup>
+				</Path.RenderTransform>
+			</Path>
 			<TextBox Text="{Binding NewCourse, ElementName=Window}" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" MinWidth="36"/>
+			<TextBlock VerticalAlignment="Bottom" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding BoatSpeed, StringFormat= {}{0:F3} kts, ElementName=Window}" FontSize="8" Margin="4,4,4,0" />
 			<StackPanel Grid.Row="1" Orientation="Horizontal" Visibility="{Binding UploadPending, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window}">
 				<Button Content="{DynamicResource TrashIcon}" Width="24" Height="24" Click="CancelUpload" />
 				<Button Content="{DynamicResource UploadIcon}" Width="24" Height="24" Click="UploadBearing" />
@@ -45,16 +77,6 @@
 				</TransformGroup>
 			</Image.RenderTransform>
 		</Image>
-		<Path Data="{Binding SpeedPolar, ElementName=Window}" RenderTransformOrigin="0,0" Stroke="#FF011168" HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.Left="64" Canvas.Top="64" Width="128" Height="128" >
-			<Path.RenderTransform>
-				<TransformGroup>
-					<ScaleTransform/>
-					<SkewTransform/>
-					<RotateTransform Angle="{Binding MeteoDir, ElementName=Window}"/>
-					<TranslateTransform/>
-				</TransformGroup>
-			</Path.RenderTransform>
-		</Path>
 		
 	</Canvas>
 </UserControl>
