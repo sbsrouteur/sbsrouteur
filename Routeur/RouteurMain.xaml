@@ -1,7 +1,6 @@
 ﻿<Window
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:Custom="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" 
     xmlns:Routeur="clr-namespace:Routeur"
 	x:Class="RouteurMain"
@@ -485,38 +484,38 @@
 						<RowDefinition Height="0.512*"/>
 						<RowDefinition Height="0.488*"/>
 					</Grid.RowDefinitions>
-					<Custom:DataGrid IsSynchronizedWithCurrentItem="True" AutoGenerateColumns="False" 
+					<DataGrid IsSynchronizedWithCurrentItem="True" AutoGenerateColumns="False" 
 						ItemsSource="{Binding VorHandler.TempRoute, Mode=Default}" CanUserReorderColumns="True" 
 						CanUserResizeColumns="True" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
-						<Custom:DataGrid.Columns>
-							<Custom:DataGridTextColumn Header="CAP" Binding="{Binding Cap, StringFormat=\{0:F2\}}"/>
-							<Custom:DataGridTextColumn Header="Speed" Binding="{Binding Speed, StringFormat=\{0:F2\}}"/>
-							<Custom:DataGridTextColumn Header="ETA" Binding="{Binding T}"/>
-							<Custom:DataGridTextColumn Header="Point" Binding="{Binding P, ConverterParameter=1, Converter={StaticResource CoordsConverter}, ConverterCulture=fr-fr}"/>
-							<Custom:DataGridTextColumn Header="Sail" Binding="{Binding Sail}"/>
-							<Custom:DataGridTextColumn Header="Wind Dir" Binding="{Binding WindDir}"/>
-							<Custom:DataGridTextColumn Header="Wind Strength" Binding="{Binding WindStrength, StringFormat=\{0:F2\}}"/>
-							<Custom:DataGridTextColumn Header="Cur Dist"  IsReadOnly ="true" Binding="{Binding DistFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
-							<Custom:DataGridTextColumn Header="Cur Cap"  IsReadOnly ="true" Binding="{Binding CapFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
-							<Custom:DataGridTextColumn Header="DTF"  IsReadOnly ="true" Binding="{Binding DTF, Mode=OneWay, StringFormat=\{0:F2\}}"/>
-						</Custom:DataGrid.Columns>
-					</Custom:DataGrid>
-					<Custom:DataGrid IsSynchronizedWithCurrentItem="True"  AutoGenerateColumns="False" Grid.Row="1" 
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="CAP" Binding="{Binding Cap, StringFormat=\{0:F2\}}"/>
+							<DataGridTextColumn Header="Speed" Binding="{Binding Speed, StringFormat=\{0:F2\}}"/>
+							<DataGridTextColumn Header="ETA" Binding="{Binding T}"/>
+							<DataGridTextColumn Header="Point" Binding="{Binding P, ConverterParameter=1, Converter={StaticResource CoordsConverter}, ConverterCulture=fr-fr}"/>
+							<DataGridTextColumn Header="Sail" Binding="{Binding Sail}"/>
+							<DataGridTextColumn Header="Wind Dir" Binding="{Binding WindDir}"/>
+							<DataGridTextColumn Header="Wind Strength" Binding="{Binding WindStrength, StringFormat=\{0:F2\}}"/>
+							<DataGridTextColumn Header="Cur Dist"  IsReadOnly ="true" Binding="{Binding DistFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+							<DataGridTextColumn Header="Cur Cap"  IsReadOnly ="true" Binding="{Binding CapFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+							<DataGridTextColumn Header="DTF"  IsReadOnly ="true" Binding="{Binding DTF, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+						</DataGrid.Columns>
+					</DataGrid>
+					<DataGrid IsSynchronizedWithCurrentItem="True"  AutoGenerateColumns="False" Grid.Row="1" 
 						ItemsSource="{Binding VorHandler.BruteRoute, Mode=Default}"
 						CanUserDeleteRows="False" CanUserAddRows="False">
-					<Custom:DataGrid.Columns>
-							<Custom:DataGridTextColumn Header="CAP" Binding="{Binding Cap, StringFormat=\{0:F2\}}"/>
-							<Custom:DataGridTextColumn Header="Speed" Binding="{Binding Speed, StringFormat=\{0:F2\}}"/>
-							<Custom:DataGridTextColumn Header="ETA" Binding="{Binding T}"/>
-							<Custom:DataGridTextColumn Header="Point" IsReadOnly ="true" Binding="{Binding P, ConverterParameter=1, Converter={StaticResource CoordsConverter}, ConverterCulture=fr-fr}"/>
-							<Custom:DataGridTextColumn Header="Sail" Binding="{Binding Sail}"/>
-							<Custom:DataGridTextColumn Header="Wind Dir" Binding="{Binding WindDir}"/>
-							<Custom:DataGridTextColumn Header="Wind Strength" Binding="{Binding WindStrength, StringFormat=\{0:F2\}}"/>
-							<Custom:DataGridTextColumn Header="Cur Dist" IsReadOnly ="true" Binding="{Binding DistFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
-							<Custom:DataGridTextColumn Header="Cur Cap"  IsReadOnly ="true" Binding="{Binding CapFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
-							<Custom:DataGridTextColumn Header="DTF"  IsReadOnly ="true" Binding="{Binding DTF, Mode=OneWay, StringFormat=\{0:F2\}}"/>
-						</Custom:DataGrid.Columns>
-					</Custom:DataGrid>
+					<DataGrid.Columns>
+							<DataGridTextColumn Header="CAP" Binding="{Binding Cap, StringFormat=\{0:F2\}}"/>
+							<DataGridTextColumn Header="Speed" Binding="{Binding Speed, StringFormat=\{0:F2\}}"/>
+							<DataGridTextColumn Header="ETA" Binding="{Binding T}"/>
+							<DataGridTextColumn Header="Point" IsReadOnly ="true" Binding="{Binding P, ConverterParameter=1, Converter={StaticResource CoordsConverter}, ConverterCulture=fr-fr}"/>
+							<DataGridTextColumn Header="Sail" Binding="{Binding Sail}"/>
+							<DataGridTextColumn Header="Wind Dir" Binding="{Binding WindDir}"/>
+							<DataGridTextColumn Header="Wind Strength" Binding="{Binding WindStrength, StringFormat=\{0:F2\}}"/>
+							<DataGridTextColumn Header="Cur Dist" IsReadOnly ="true" Binding="{Binding DistFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+							<DataGridTextColumn Header="Cur Cap"  IsReadOnly ="true" Binding="{Binding CapFromPos, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+							<DataGridTextColumn Header="DTF"  IsReadOnly ="true" Binding="{Binding DTF, Mode=OneWay, StringFormat=\{0:F2\}}"/>
+						</DataGrid.Columns>
+					</DataGrid>
 				</Grid>
 			</TabItem>
          </TabControl>

@@ -2,7 +2,6 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Routeur="clr-namespace:Routeur" 
-	xmlns:Custom="http://schemas.microsoft.com/wpf/2008/toolkit"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	x:Class="frmRoutesManager"
 	x:Name="Window"
@@ -42,14 +41,14 @@
 				</RadialGradientBrush>
 			</GridSplitter.OpacityMask>
 		</GridSplitter>
-		<Custom:DataGrid Margin="4" ItemsSource="{Binding Route, Mode=Default}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.Row="1" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
-			<Custom:DataGrid.Columns>
-				<Custom:DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=Default}"/>
-				<Custom:DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
-				<Custom:DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
-				<Custom:DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointViewActionsTemplate}"/>
-			</Custom:DataGrid.Columns>
-		</Custom:DataGrid>
+		<DataGrid Margin="4" ItemsSource="{Binding Route, Mode=Default}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.Row="1" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=Default}"/>
+				<DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
+				<DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
+				<DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointViewActionsTemplate}"/>
+			</DataGrid.Columns>
+		</DataGrid>
 		<Grid Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="0.284*"/>
