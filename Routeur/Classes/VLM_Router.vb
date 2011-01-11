@@ -1716,23 +1716,26 @@ Public Class VLM_Router
                         Dim BoatDelta As Double = (bi.LastDTF - bi.Dtf)
                         Dim BoatTs As TimeSpan = bi.CurDTFDate.Subtract(bi.PrevDTFDate)
                         If MyTS.TotalHours <> 0 AndAlso NormedTime <> 0 AndAlso (MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) <> 0 Then
-                            bi.TimeToPass = New TimeSpan(CLng(TimeSpan.TicksPerHour * Abs(bi.Dtf - MyBoat.Dtf) / Abs(MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) * NormedTime))
-                            If bi.Dtf > MyBoat.Dtf Then
-                                'I am in front
-                                bi.PassUp = False
-                                bi.PassDown = MyDelta < BoatDelta
+                            If TimeSpan.TicksPerHour * Abs(bi.Dtf - MyBoat.Dtf) / Abs(MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) * NormedTime < Long.MaxValue Then
+                                bi.TimeToPass = New TimeSpan(CLng(TimeSpan.TicksPerHour * Abs(bi.Dtf - MyBoat.Dtf) / Abs(MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) * NormedTime))
+                                If bi.Dtf > MyBoat.Dtf Then
+                                    'I am in front
+                                    bi.PassUp = False
+                                    bi.PassDown = MyDelta < BoatDelta
+                                Else
+                                    'I am behind
+                                    bi.PassUp = MyDelta > BoatDelta
+                                    bi.PassDown = False
+
+                                End If
+
                             Else
-                                'I am behind
-                                bi.PassUp = MyDelta > BoatDelta
+                                bi.TimeToPass = New TimeSpan(0)
+                                bi.PassUp = False
                                 bi.PassDown = False
-
                             End If
-
-                        Else
-                            bi.TimeToPass = New TimeSpan(0)
-                            bi.PassUp = False
-                            bi.PassDown = False
                         End If
+
                     Next
                 End If
             End If
