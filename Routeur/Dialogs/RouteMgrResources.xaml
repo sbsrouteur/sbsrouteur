@@ -2,7 +2,6 @@
 	xmlns:local="clr-namespace:Routeur"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
     x:Class="RouteMgr.ResourceClass"
-	xmlns:Custom="http://schemas.microsoft.com/wpf/2008/toolkit"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 	<!-- Les entrées du dictionnaire de ressources sont définies ici. -->
 	
@@ -106,7 +105,7 @@
 		</Grid>
 	</DataTemplate>
 	
-				<Style x:Key="RouteRowStyle" TargetType="{x:Type Custom:DataGridRow}">
+				<Style x:Key="RouteRowStyle" TargetType="{x:Type DataGridRow}">
 				<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
 				<Setter Property="SnapsToDevicePixels" Value="True"/>
 				<Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
@@ -119,37 +118,37 @@
 				</Setter>
 				<Setter Property="Template">
 					<Setter.Value>
-						<ControlTemplate TargetType="{x:Type Custom:DataGridRow}">
+						<ControlTemplate TargetType="{x:Type DataGridRow}">
 							<Border x:Name="DGR_Border" SnapsToDevicePixels="True" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-								<Custom:SelectiveScrollingGrid>
-									<Custom:SelectiveScrollingGrid.RowDefinitions>
+								<SelectiveScrollingGrid>
+									<SelectiveScrollingGrid.RowDefinitions>
 										<RowDefinition Height="*"/>
 										<RowDefinition Height="Auto"/>
-									</Custom:SelectiveScrollingGrid.RowDefinitions>
-									<Custom:SelectiveScrollingGrid.ColumnDefinitions>
+									</SelectiveScrollingGrid.RowDefinitions>
+									<SelectiveScrollingGrid.ColumnDefinitions>
 										<ColumnDefinition Width="Auto"/>
 										<ColumnDefinition Width="*"/>
-									</Custom:SelectiveScrollingGrid.ColumnDefinitions>
-									<Custom:DataGridCellsPresenter Background="{Binding IsPending, Converter={StaticResource EnumRoutePendingBrushConverter}, Mode=Default}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ItemsPanel="{TemplateBinding ItemsPanel}" Grid.Column="1"/>
-									<Custom:DataGridDetailsPresenter Visibility="{TemplateBinding DetailsVisibility}" Grid.Column="1" Grid.Row="1">
-										<Custom:SelectiveScrollingGrid.SelectiveScrollingOrientation>
-											<Binding Path="AreRowDetailsFrozen" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type Custom:DataGrid}}">
+									</SelectiveScrollingGrid.ColumnDefinitions>
+									<DataGridCellsPresenter Background="{Binding IsPending, Converter={StaticResource EnumRoutePendingBrushConverter}, Mode=Default}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ItemsPanel="{TemplateBinding ItemsPanel}" Grid.Column="1"/>
+									<DataGridDetailsPresenter Visibility="{TemplateBinding DetailsVisibility}" Grid.Column="1" Grid.Row="1">
+										<SelectiveScrollingGrid.SelectiveScrollingOrientation>
+											<Binding Path="AreRowDetailsFrozen" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type DataGrid}}">
 												<Binding.ConverterParameter>
-													<Custom:SelectiveScrollingOrientation>Vertical</Custom:SelectiveScrollingOrientation>
+													<SelectiveScrollingOrientation>Vertical</SelectiveScrollingOrientation>
 												</Binding.ConverterParameter>
 											</Binding>
-										</Custom:SelectiveScrollingGrid.SelectiveScrollingOrientation>
-									</Custom:DataGridDetailsPresenter>
-									<Custom:DataGridRowHeader Grid.RowSpan="2" Custom:SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical">
-										<Custom:DataGridRowHeader.Visibility>
-											<Binding Path="HeadersVisibility" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type Custom:DataGrid}}">
+										</SelectiveScrollingGrid.SelectiveScrollingOrientation>
+									</DataGridDetailsPresenter>
+									<DataGridRowHeader Grid.RowSpan="2" SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical">
+										<DataGridRowHeader.Visibility>
+											<Binding Path="HeadersVisibility" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type DataGrid}}">
 												<Binding.ConverterParameter>
-													<Custom:DataGridHeadersVisibility>Row</Custom:DataGridHeadersVisibility>
+													<DataGridHeadersVisibility>Row</DataGridHeadersVisibility>
 												</Binding.ConverterParameter>
 											</Binding>
-										</Custom:DataGridRowHeader.Visibility>
-									</Custom:DataGridRowHeader>
-								</Custom:SelectiveScrollingGrid>
+										</DataGridRowHeader.Visibility>
+									</DataGridRowHeader>
+								</SelectiveScrollingGrid>
 							</Border>
 						</ControlTemplate>
 					</Setter.Value>
