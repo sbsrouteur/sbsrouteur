@@ -449,8 +449,9 @@ Render1:
             Dim PrevPoint As Point
             Static Pen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Black), RouteurModel.PenWidth)
             Static PathPen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Brown), RouteurModel.PenWidth)
-            Static opponentPenNoOption As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Lime), RouteurModel.PenWidth)
-            Static opponentPenOption As New Pen(New SolidColorBrush(System.Windows.Media.Colors.DarkRed), RouteurModel.PenWidth)
+            Static opponentPenPassUp As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Green), RouteurModel.PenWidth)
+            Static opponentPenPassDown As New Pen(New SolidColorBrush(System.Windows.Media.Colors.DarkRed), RouteurModel.PenWidth)
+            Static opponentPenNeutral As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Blue), RouteurModel.PenWidth)
             Static BlackBrush As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Black), RouteurModel.PenWidth / 2)
             Static GridBrushes() As Pen
             Static WindBrushes() As Pen
@@ -474,8 +475,9 @@ Render1:
                 Frozen = True
                 Pen.Freeze()
                 PathPen.Freeze()
-                opponentPenNoOption.Freeze()
-                opponentPenOption.Freeze()
+                opponentPenNeutral.Freeze()
+                opponentPenPassDown.Freeze()
+                opponentPenPassUp.Freeze()
                 BlackBrush.Freeze()
                 LocalDash.Freeze()
                 For Each rp In routePen
@@ -564,31 +566,31 @@ Render1:
                     Next
                 Next
 #End If
-            If False AndAlso Not ManagedRoutes Is Nothing Then
-                _RoutesBmp.Clear()
-                'Dim StartRoutes As DateTime = Now
-                For Each route In ManagedRoutes
+            'If False AndAlso Not ManagedRoutes Is Nothing Then
+            '    _RoutesBmp.Clear()
+            '    'Dim StartRoutes As DateTime = Now
+            '    For Each route In ManagedRoutes
 
-                    If route.Visible Then
-                        Dim Pe As New Pen(route.ColorBrush, 1)
-                        For i As Integer = 1 To route.Route.Count - 1
+            '        If route.Visible Then
+            '            Dim Pe As New Pen(route.ColorBrush, 1)
+            '            For i As Integer = 1 To route.Route.Count - 1
 
-                            Dim PrevPt As Point
-                            Dim CurPt As Point
-                            PrevPt.X = LonToCanvas(route.Route(i - 1).P.Lon_Deg)
-                            PrevPt.Y = LatToCanvas(route.Route(i - 1).P.Lat_Deg)
-                            CurPt.X = LonToCanvas(route.Route(i).P.Lon_Deg)
-                            CurPt.Y = LatToCanvas(route.Route(i).P.Lat_Deg)
+            '                Dim PrevPt As Point
+            '                Dim CurPt As Point
+            '                PrevPt.X = LonToCanvas(route.Route(i - 1).P.Lon_Deg)
+            '                PrevPt.Y = LatToCanvas(route.Route(i - 1).P.Lat_Deg)
+            '                CurPt.X = LonToCanvas(route.Route(i).P.Lon_Deg)
+            '                CurPt.Y = LatToCanvas(route.Route(i).P.Lat_Deg)
 
-                            SafeDrawLine(DC, route.Route(i - 1).P, route.Route(i).P, Pen, PrevPt, CurPt)
+            '                SafeDrawLine(DC, route.Route(i - 1).P, route.Route(i).P, Pen, PrevPt, CurPt)
 
-                        Next
-                    End If
-                Next
-                DC.Close()
-                _RoutesBmp.Render(D)
-                DC = D.RenderOpen
-            End If
+            '            Next
+            '        End If
+            '    Next
+            '    DC.Close()
+            '    _RoutesBmp.Render(D)
+            '    DC = D.RenderOpen
+            'End If
 
             
 
@@ -683,7 +685,15 @@ Render1:
                             P1.X = LonToCanvas(op.Value.CurPos.Lon_Deg)
                             P1.Y = LatToCanvas(op.Value.CurPos.Lat_Deg)
 
-                            DC.DrawEllipse(Nothing, opponentPenNoOption, P1, 1, 1)
+                            Dim DrawPen As Pen
+                            If op.Value.PassUp Then
+                                DrawPen = opponentPenPassUp
+                            ElseIf op.Value.PassDown Then
+                                DrawPen = opponentPenPassDown
+                            Else
+                                DrawPen = opponentPenNeutral
+                            End If
+                            DC.DrawEllipse(Nothing, DrawPen, P1, 1, 1)
 
                             'op.Value.Drawn = True
                             'OpponentMap = True
