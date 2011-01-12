@@ -169,4 +169,14 @@ Partial Public Class frmNewBoat
     Private Sub OnSelectionChange(ByVal sender As System.Object, ByVal e As System.Windows.Controls.SelectionChangedEventArgs)
         Me.cmdOK.IsEnabled = Me.lstBoats.SelectedItem IsNot Nothing
     End Sub
+
+    Private Sub PasswordKeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Input.KeyEventArgs)
+
+        If e.Key = Key.Return Or e.Key = Key.Enter Then
+            Password = CType(sender, TextBox).Text
+            ReloadFleet()
+        End If
+
+    End Sub
+
 End Class
