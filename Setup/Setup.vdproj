@@ -15,18 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_0FF91FFBF9962DC3281EBABE21D02A1A"
-        "OwnerKey" = "8:_8F61B8DC8F4534E9D827360028C31B75"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_0FF91FFBF9962DC3281EBABE21D02A1A"
-        "OwnerKey" = "8:_AAFD4F7710CE4170974E9E184F5DBF5B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_151BAEC89557459EBBB05647BD024F39"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -51,7 +39,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8F61B8DC8F4534E9D827360028C31B75"
+        "MsmKey" = "8:_7B9432B39390F7EA3986257A22991973"
         "OwnerKey" = "8:_AAFD4F7710CE4170974E9E184F5DBF5B"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -81,6 +69,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C71581E49C67129916C0C86E0CF2DACA"
+        "OwnerKey" = "8:_7B9432B39390F7EA3986257A22991973"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C71581E49C67129916C0C86E0CF2DACA"
+        "OwnerKey" = "8:_AAFD4F7710CE4170974E9E184F5DBF5B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D3BE26E6B1A14AD9A02A35A7651F9146"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -106,13 +106,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_8F61B8DC8F4534E9D827360028C31B75"
+        "OwnerKey" = "8:_7B9432B39390F7EA3986257A22991973"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0FF91FFBF9962DC3281EBABE21D02A1A"
+        "OwnerKey" = "8:_C71581E49C67129916C0C86E0CF2DACA"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -202,7 +202,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "Version" = "8:3.5.30729"
+                "FrameworkVersion" = "8:3.5.30729"
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=76617"
                 }
@@ -210,37 +210,6 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_0FF91FFBF9962DC3281EBABE21D02A1A"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:WPFToolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_0FF91FFBF9962DC3281EBABE21D02A1A"
-                    {
-                    "Name" = "8:WPFToolkit.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:WPFToolkit.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_AE3B60F23EAA4A4D98127D1BD90E3D0A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_151BAEC89557459EBBB05647BD024F39"
             {
             "SourcePath" = "8:..\\Routeur\\bin\\Grib2\\cygjasper-1-701-1.dll"
@@ -321,14 +290,14 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8F61B8DC8F4534E9D827360028C31B75"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_7B9432B39390F7EA3986257A22991973"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:System.Windows.Controls.DataVisualization.Toolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_8F61B8DC8F4534E9D827360028C31B75"
+                    "_7B9432B39390F7EA3986257A22991973"
                     {
                     "Name" = "8:System.Windows.Controls.DataVisualization.Toolkit.dll"
                     "Attributes" = "3:512"
@@ -410,6 +379,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_C71581E49C67129916C0C86E0CF2DACA"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:WPFToolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_C71581E49C67129916C0C86E0CF2DACA"
+                    {
+                    "Name" = "8:WPFToolkit.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:WPFToolkit.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_AE3B60F23EAA4A4D98127D1BD90E3D0A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D3BE26E6B1A14AD9A02A35A7651F9146"
@@ -583,14 +583,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Routeur"
-        "ProductCode" = "8:{92B1A591-E764-4F3F-BFE8-B32555645BD1}"
-        "PackageCode" = "8:{64DB0F05-EF90-47CA-B44D-874A1194E976}"
+        "ProductCode" = "8:{23F615B2-116F-43F9-BCB4-627CB1F8C2FE}"
+        "PackageCode" = "8:{2917B4B5-9B91-47CE-B104-85237073D7E6}"
         "UpgradeCode" = "8:{AB55297F-8D40-4FA0-8773-32E1C48C358D}"
+        "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.22.0"
+        "ProductVersion" = "8:1.23.0"
         "Manufacturer" = "8:sbs"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
