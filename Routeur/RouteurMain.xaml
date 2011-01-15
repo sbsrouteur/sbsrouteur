@@ -96,7 +96,7 @@
 						<StackPanel Orientation="Horizontal" Visibility="{Binding PassVisibility, Converter={StaticResource BooleanToVisibilityConverter}}">
 							<Path Data="M0,15L7.5,0 15,15" Fill="#FF42FF00"  Visibility="{Binding PassUp, Converter={StaticResource BooleanToVisibilityConverter}}"></Path>
 							<Path Data="M0,0L7.5,15 15,0" Fill="Red" Visibility="{Binding PassDown, Converter={StaticResource BooleanToVisibilityConverter}}"></Path>
-							<TextBlock Text="{Binding TimeToPass, StringFormat= {} {0:hh}:{0:mm}, Mode=OneWay}" Style="{DynamicResource MargedText}" FontSize="9.333" />
+							<TextBlock Text="{Binding TimeToPass, StringFormat= {}  {0:dd} {0:hh}:{0:mm}, Mode=OneWay}" Style="{DynamicResource MargedText}" FontSize="9.333" />
 						</StackPanel>
                     </StackPanel>    
 					</StackPanel>
