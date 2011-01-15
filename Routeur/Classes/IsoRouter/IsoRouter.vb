@@ -74,12 +74,15 @@ Public Class IsoRouter
             Dim tc As New TravelCalculator
             Dim alpha2 As Double
             Dim CurStep As TimeSpan
+            Dim PIndex As Integer
+            Dim rp As clsrouteinfopoints
 
+            'Dim IsoStart As DateTime = Now
+            'Console.WriteLine("Iso len : " & Iso.Data.Length)
+            For PIndex = 0 To Iso.Data.Length - 1
 
-
-
-            For Each rp In Iso.Data
-                If Not rp Is Nothing Then
+                If Not Iso.Data(PIndex) Is Nothing Then
+                    rp = Iso.Data(PIndex)
                     Dim Ticks As Long = rp.T.Subtract(_StartPoint.T).Ticks
                     If Ticks > TimeSpan.TicksPerHour * 48 Then
                         CurStep = _IsoStep_48
@@ -127,7 +130,7 @@ Public Class IsoRouter
 
                     Dim RefAlpha As Double = (tc.LoxoCourse_Deg + 180) Mod 360
                     Dim MinAngle As Double = Loxo - _SearchAngle
-                    'Index = OuterIso.IndexFromAngle(RefAlpha - _AngleStep)
+                    'Index = (PIndex - 1 + Iso.Data.Length) Mod Iso.Data.Length
                     'If Not OuterIso.Data(Index) Is Nothing Then
                     '    tc.EndPoint = OuterIso.Data(Index).P
                     '    Dim Beta As Double = WindAngle(tc.LoxoCourse_Deg, (RefAlpha + 180) Mod 360)
@@ -137,7 +140,7 @@ Public Class IsoRouter
                     'End If
 
                     Dim MaxAngle As Double = Loxo + _SearchAngle
-                    'Index = OuterIso.IndexFromAngle(RefAlpha + _AngleStep)
+                    'Index = (PIndex + 1 + Iso.Data.Length) Mod Iso.Data.Length
                     'If Not OuterIso.Data(Index) Is Nothing Then
                     '    tc.EndPoint = OuterIso.Data(Index).P
                     '    Dim Beta As Double = WindAngle(tc.LoxoCourse_Deg, (RefAlpha + 800) Mod 360)
@@ -146,12 +149,26 @@ Public Class IsoRouter
                     '    End If
                     'End If
 
-                    tc.StartPoint = _StartPoint.P
+                    'If MinAngle > MaxAngle Then
+                    '    Dim tmp As Double = MinAngle
+                    '    MinAngle = MaxAngle
+                    '    MaxAngle = MinAngle
+                    'End If
 
+                    tc.StartPoint = _StartPoint.P
+                    ' Dim Start As DateTime = Now
+                    'Dim Ite As Integer = 0
                     For alpha = MinAngle To MaxAngle Step _AngleStep
 
                         'If WindAngle(Ortho, alpha) < _SearchAngle Then
+                        'Dim ReachPointStart As DateTime = Now
+                        'Static ReachCount As Integer = 1
                         P = ReachPoint(rp, alpha, CurStep)
+                        'If ReachCount Mod 2000 = 0 Then
+                        ' ReachCount = 0
+                        'Console.WriteLine("Reached in " & Now.Subtract(ReachPointStart).TotalMilliseconds / 2000)
+                        'End If
+                        'ReachCount += 1
                         If Not P Is Nothing Then
                             tc.EndPoint = P.P
                             If tc.SurfaceDistance > 0 Then
@@ -162,23 +179,25 @@ Public Class IsoRouter
                                     PrevIndex = OuterIso.IndexFromAngle(alpha2)
                                 End If
                                 OldP = RetIsoChrone.Data(Index)
-                                If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio) Then
+                                If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint) Then
                                     RetIsoChrone.Data(Index) = P
                                 End If
                                 If OuterIso.Data(PrevIndex) Is Nothing OrElse _
-                                   P.Improve(OuterIso.Data(PrevIndex), 1) Then
+                                   P.Improve(OuterIso.Data(PrevIndex), _DTFRatio, _StartPoint) Then
                                     OuterIso.Data(PrevIndex) = P
 
                                 End If
                             End If
 
                         End If
-
+                        'Ite += 1
                     Next
+                    'Console.WriteLine("Isochrone in " & Now.Subtract(Start).ToString & " per step " & Now.Subtract(Start).TotalMilliseconds / Ite)
+
 
                 End If
             Next
-
+            'Console.WriteLine("Iso complete " & Now.Subtract(IsoStart).ToString)
             'Clean up bad points
             'Dim PrevDtf As Double
             'Dim PrevLoxo As Double = 0
@@ -217,7 +236,8 @@ Public Class IsoRouter
                 End If
 
             Next
-           
+            'Console.WriteLine("Iso complete2 " & Now.Subtract(IsoStart).ToString)
+
 
             tc.EndPoint = Nothing
             tc.StartPoint = Nothing
@@ -247,15 +267,19 @@ Public Class IsoRouter
         
         RaiseEvent Log("Isochrone router started at " & Start)
         While Not RouteComplete AndAlso Not _CancelRequested
+
             P = Nothing
+            Dim LoopStart As DateTime = Now
+
             CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone, OuterIsochrone)
+            Console.WriteLine("IsoDone" & Now.Subtract(LoopStart).TotalMilliseconds)
             'CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
             'RouteComplete = CheckCompletion(CurIsoChrone)
             If Not CurIsoChrone Is Nothing Then
                 _IsoChrones.AddLast(CurIsoChrone)
                 For Each rp As clsrouteinfopoints In CurIsoChrone.Data
                     If Not rp Is Nothing Then
-                        If rp.Improve(P, _DTFRatio) Then
+                        If rp.Improve(P, _DTFRatio, _StartPoint) Then
                             P = rp
                             CurDTF = P.DTF
 
@@ -263,6 +287,7 @@ Public Class IsoRouter
                     End If
                 Next
             End If
+            'Console.WriteLine("Iso Added" & Now.Subtract(LoopStart).ToString)
 
 
             If Not P Is Nothing Then
@@ -283,6 +308,9 @@ Public Class IsoRouter
                 End If
             End If
             RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
+            'Console.WriteLine("TmpRouted" & Now.Subtract(LoopStart).TotalMilliseconds)
+            'Console.WriteLine("FromStart" & Now.Subtract(Start).ToString)
+
 
         End While
         RaiseEvent Log("Isochrone routing completed in  " & Now.Subtract(Start).ToString)
@@ -309,6 +337,10 @@ Public Class IsoRouter
         'normalize cap
         Cap = Cap Mod 360
 
+        'Static ReachPointCounts As Long = 0
+        'Dim LoopCount As Integer
+        'Static LoopMs As Double = 0
+        'Dim LoopStart As DateTime = Now
         For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
             CurDate = Start.T.AddTicks(i)
             MI = Nothing
@@ -326,11 +358,14 @@ Public Class IsoRouter
             Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
             TotalDist += Speed / 60 * RouteurModel.VacationMinutes
             TC.StartPoint = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Cap)
-
+            '    LoopCount += 1
             'TC.StartPoint = TC.EndPoint
         Next
         TC.EndPoint = TC.StartPoint
         TC.StartPoint = Start.P
+
+
+        'ReachPointCounts += 1
         'If PrevDist <> 0 AndAlso TotalDist / PrevDist > 20 Then
         '    Dim br As Integer = 0
         'ElseIf PrevDist <> 0 Then
@@ -350,6 +385,7 @@ Public Class IsoRouter
                 .WindStrength = MI.Strength
                 .WindDir = MI.Dir
                 .Loch = TotalDist
+                .LochFromStart = .Loch + Start.LochFromStart
                 If _DestPoint2 Is Nothing Then
                     TC.StartPoint = _DestPoint1
                     .DTF = TC.SurfaceDistance
@@ -369,7 +405,11 @@ Public Class IsoRouter
         TC.StartPoint = Nothing
         TC.EndPoint = Nothing
         TC = Nothing
-
+        'LoopMs += Now.Subtract(LoopStart).TotalMilliseconds
+        'If ReachPointCounts Mod 500 = 0 Then
+        'Console.WriteLine("ReachPointLoops " & LoopCount & " in " & LoopMs / 500 & " for " & Duration.ToString)
+        'LoopMs = 0
+        'End If
         Return RetPoint
 
     End Function
@@ -487,6 +527,8 @@ Public Class IsoRouter
                     _TC.EndPoint = GSHHS_Reader.PointToSegmentIntersect(.P, WP1, WP2)
                 End If
                 .DTF = _TC.SurfaceDistance
+                .Loch = 0
+                .LochFromStart = 0
                 .WindDir = mi.Dir
                 .WindStrength = mi.Strength
             End With

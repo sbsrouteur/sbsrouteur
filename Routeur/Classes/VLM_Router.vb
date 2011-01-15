@@ -151,19 +151,20 @@ Public Class VLM_Router
         Implements INotifyPropertyChanged
 
         Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
-        Private _P As Coords
-        Private _Cap As Double
+        Private _P As Coords = Nothing
+        Private _Cap As Double = 0
         Private _T As DateTime
         Private _Sail As clsSailManager.EnumSail
-        Private _Speed As Double
-        Private _WindDir As Double
-        Private _WindStrength As Double
+        Private _Speed As Double = 0
+        Private _WindDir As Double = 0
+        Private _WindStrength As Double = 0
         'Private _CurTC As New TravelCalculator
-        Private _DTF As New Double
-        Private _CapFromPos As Double
-        Private _DistFromPos As Double
-        Private _From As clsrouteinfopoints
-        Private _Loch As Double
+        Private _DTF As Double = 0
+        Private _CapFromPos As Double = 0
+        Private _DistFromPos As Double = 0
+        Private _From As clsrouteinfopoints = Nothing
+        Private _Loch As Double = 0
+        Private _LochFromStart As Double = 0
 
         Public Shared PProps As New PropertyChangedEventArgs("P")
         Public Shared CapProps As New PropertyChangedEventArgs("Cap")
@@ -176,35 +177,35 @@ Public Class VLM_Router
         Public Shared CurDTFProps As New PropertyChangedEventArgs("DTF")
 
 
-        Public ReadOnly Property AvgSpeed() As Double
-            Get
-                Dim TS As New TimeSpan
-                Dim L As Double = LochFromStart(TS)
+        'Public ReadOnly Property AvgSpeed() As Double
+        '    Get
+        '        Dim TS As New TimeSpan
+        '        Dim L As Double = LochFromStart()
 
-                If TS.TotalHours > 0 Then
-                    Return L / TS.TotalHours
-                Else
-                    Return 0
-                End If
+        '        If TS.TotalHours > 0 Then
+        '            Return L / TS.TotalHours
+        '        Else
+        '            Return 0
+        '        End If
 
-            End Get
+        '    End Get
 
-        End Property
+        'End Property
 
-        Public ReadOnly Property AvgVMG() As Double
-            Get
-                Dim TS As New TimeSpan
-                Dim L As Double = StartDTF(TS)
+        'Public ReadOnly Property AvgVMG() As Double
+        '    Get
+        '        Dim TS As New TimeSpan
+        '        Dim L As Double = StartDTF(TS)
 
-                If TS.TotalHours > 0 Then
-                    Return (L - DTF) / TS.TotalHours
-                Else
-                    Return 0
-                End If
+        '        If TS.TotalHours > 0 Then
+        '            Return (L - DTF) / TS.TotalHours
+        '        Else
+        '            Return 0
+        '        End If
 
-            End Get
+        '    End Get
 
-        End Property
+        'End Property
 
         Public Property Cap() As Double
             Get
@@ -261,7 +262,7 @@ Public Class VLM_Router
         End Property
 
 
-        Public Function Improve(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double) As Boolean
+        Public Function Improve(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double, ByVal Start As clsrouteinfopoints) As Boolean
 
 
             If P Is Nothing Then
@@ -272,7 +273,7 @@ Public Class VLM_Router
 #If IMPROVE_MODE = 0 Then
             Return ImproveDTF(P)
 #ElseIf IMPROVE_MODE = 1 Then
-            Return ImproveMixDTF_TS(P , DTFRatio )
+            Return ImproveMixDTF_TS(P, DTFRatio, Start)
 #End If
         End Function
 
@@ -280,14 +281,19 @@ Public Class VLM_Router
             Return DTF < P.DTF
         End Function
 
-        Private Function ImproveMixDTF_TS(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double) As Boolean
+        Private Function ImproveMixDTF_TS(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double, ByVal Start As clsrouteinfopoints) As Boolean
 
             If T < P.T Then
                 Return True
             End If
 
-            Dim PAvgSpeed As Double = P.AvgSpeed()
-            Dim PAvgVMG As Double = P.AvgVMG
+            Dim DT As Double = T.Subtract(Start.T).TotalHours
+            Dim PDT As Double = P.T.Subtract(Start.T).TotalHours
+
+            Dim AvgSpeed As Double = LochFromStart / DT
+            Dim AvgVMG As Double = (Start.DTF - DTF) / DT
+            Dim PAvgSpeed As Double = P.LochFromStart / PDT
+            Dim PAvgVMG As Double = (Start.DTF - P.DTF) / PDT
             Dim Fact As Double = (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed)
             Dim Fact2 As Double = (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
             Dim RetVal As Boolean = False
@@ -316,22 +322,34 @@ Public Class VLM_Router
             End Set
         End Property
 
-        Public Function LochFromStart(ByRef TotalTime As TimeSpan) As Double
-            Dim Ret As Double = 0
-            Dim p As clsrouteinfopoints = Me
-            Dim TotalTicks As Long = p.T.Ticks
-            Dim EndTicks As Long
+        Public Property LochFromStart() As Double
+            Get
+                Return _LochFromStart
+            End Get
+            Set(ByVal value As Double)
+                If _LochFromStart <> value Then
+                    _LochFromStart = value
+                    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LochFromStart"))
+                End If
+            End Set
+        End Property
 
-            Do
-                Ret += p.Loch
-                EndTicks = p.T.Ticks
+        'Public Function LochFromStart(ByRef TotalTime As TimeSpan) As Double
+        '    Dim Ret As Double = 0
+        '    Dim p As clsrouteinfopoints = Me
+        '    Dim TotalTicks As Long = p.T.Ticks
+        '    Dim EndTicks As Long
 
-                p = p.From
-            Loop Until p Is Nothing
-            TotalTime = New TimeSpan(TotalTicks - EndTicks)
-            Return Ret
+        '    Do
+        '        Ret += p.Loch
+        '        EndTicks = p.T.Ticks
 
-        End Function
+        '        p = p.From
+        '    Loop Until p Is Nothing
+        '    TotalTime = New TimeSpan(TotalTicks - EndTicks)
+        '    Return Ret
+
+        'End Function
 
         Public Property P() As Coords
             Get
@@ -363,22 +381,22 @@ Public Class VLM_Router
             End Set
         End Property
 
-        Public Function StartDTF(ByRef TimeSpan As TimeSpan) As Double
+        'Public Function StartDTF() As Double
 
 
-            Dim P As clsrouteinfopoints = Me
-            Dim Start As DateTime = T
-            Dim endTime As DateTime
-            While P.From IsNot Nothing
-                P = P.From
-                endtime = P.T
-                
-            End While
+        '    Dim P As clsrouteinfopoints = Me
+        '    Dim Start As DateTime = T
+        '    Dim endTime As DateTime
+        '    While P.From IsNot Nothing
+        '        P = P.From
+        '        endTime = P.T
 
-            TimeSpan = Start.Subtract(endTime)
-            Return P.DTF
+        '    End While
 
-        End Function
+        '    TimeSpan = Start.Subtract(endTime)
+        '    Return P.DTF
+
+        'End Function
 
 
         Public Property T() As DateTime
