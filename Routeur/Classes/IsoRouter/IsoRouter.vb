@@ -28,7 +28,7 @@ Public Class IsoRouter
     Private _SailManager As clsSailManager
     Private _BoatType As String
     Private _CurBest As clsrouteinfopoints
-    Private _DTFRatio As Double = 0.85
+    Private _DTFRatio As Double = 0.9
 
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan)
