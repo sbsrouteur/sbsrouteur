@@ -25,8 +25,16 @@
 			<!--<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Content="Delete" Grid.Column="1" Height="48"  'Template="{DynamicResource TrashButton}" Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" VerticalAlignment="Center"/>
 			<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Content="Update" Grid.Column="2" Template="{DynamicResource UploadButton}" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Height="48" VerticalAlignment="Center"/>
 			-->
-			<Button HorizontalAlignment="Center" Margin="{StaticResource DefMargin}" Grid.Column="1" Height="48" Click="DeletePoint"  Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" VerticalAlignment="Center" Content="{DynamicResource TrashIcon}"/>
-			<Button HorizontalAlignment="Center" Margin="{StaticResource DefMargin}" Content="{DynamicResource UploadIcon}" Grid.Column="2" Click="UploadChanges" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Height="48" VerticalAlignment="Center"/>
+			<Button HorizontalAlignment="Center" Margin="{StaticResource DefMargin}" Grid.Column="1" Height="48" Click="DeletePoint"  Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" VerticalAlignment="Center" >
+				<ContentControl>
+					<Image Source="/Routeur;Component/Graphics/Trash_48.png"/>
+				</ContentControl>
+			</Button>
+			<Button HorizontalAlignment="Center" Margin="{StaticResource DefMargin}"  Grid.Column="2" Click="UploadChanges" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Height="48" VerticalAlignment="Center">
+				<ContentControl>
+					<Image Source="/Routeur;Component/Graphics/Up_48.png"/>
+				</ContentControl>
+			</Button>
 		</Grid>
 		
 		<DataTemplate.Triggers>
@@ -45,7 +53,11 @@
 				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
 			<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-48.png" Width="48" Height="48" VerticalAlignment="Center"/>
-			<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Grid.Column="1" Height="48" Click="DeletePointView"  Width="48" ToolTip="Delete" VerticalAlignment="Center" Content="{DynamicResource TrashIcon}"/>
+			<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Grid.Column="1" Height="48" Click="DeletePointView"  Width="48" ToolTip="Delete" VerticalAlignment="Center" >
+				<ContentControl>
+					<Image Source="/Routeur;Component/Graphics/Trash_48.png"/>
+				</ContentControl>
+			</Button>
 			
 		</Grid>
 		
@@ -68,7 +80,7 @@
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="*"/>
 				</Grid.ColumnDefinitions>
-				<TextBox Text="{Binding RouteValue.Value, Mode=Default}" TextAlignment="Right" Style="{DynamicResource DoubleFormatCheckTextBox}" Grid.ColumnSpan="1" Margin="4,4,72.9616666666667,4" Width="60"/>
+				<TextBox Text="{Binding RouteValue.Value,  Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextAlignment="Right" Style="{DynamicResource DoubleFormatCheckTextBox}" Grid.ColumnSpan="1" Margin="4,4,72.9616666666667,4" Width="60"/>
 			</Grid>
 			<Grid Visibility="{Binding HasWPValue, Mode=Default}">
 				<Grid.RowDefinitions>
