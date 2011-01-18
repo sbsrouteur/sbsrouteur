@@ -31,8 +31,8 @@
 			<RowDefinition Height="0.108*"/>
 		</Grid.RowDefinitions>
 		<ListBox x:Name="RaceList" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RoutesInRace, Mode=Default}" Grid.RowSpan="2"/>
-		<Button Grid.Row="2" Content="Add New Route" Click="AddNewRoute" />
-		<Button HorizontalAlignment="Right" Margin="0,8.952,8,8" Width="75" Content="Close" Grid.Column="1" Grid.Row="2" Click="OnClose"/>
+		<Button Grid.Row="2" Content="Add New Route" Click="AddNewRoute" Margin="{DynamicResource DefMargin}" />
+		<Button HorizontalAlignment="Right" Margin="{DynamicResource DefMargin}" Width="75" Content="Close" Grid.Column="1" Grid.Row="2" Click="OnClose"/>
 		<GridSplitter HorizontalAlignment="Left" Width="8.768" Grid.Column="1" Foreground="{x:Null}" Background="Red" Margin="-4,0,0,0" Grid.RowSpan="4">
 			<GridSplitter.OpacityMask>
 				<RadialGradientBrush>
