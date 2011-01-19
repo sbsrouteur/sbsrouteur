@@ -44,12 +44,12 @@ Public Class RouteurModel
     'Public Const S11_SERVER As String = "http://testing.virtual-loup-de-mer.org"
     Public Const S10_SERVER As String = "http://testing.virtual-loup-de-mer.org"
 #Else
-    'Public Const S11_SERVER As String = "http://www.virtual-loup-de-mer.org"
-    Public Const S10_SERVER As String = "http://www.virtual-loup-de-mer.org"
+    Public Const S11_SERVER As String = "http://www.virtual-loup-de-mer.org"
+    Public Const S10_SERVER As String = "http://virtual-loup-de-mer.org"
 
 #End If
 
-    Private Shared _Servers As String() = New String() {S10_SERVER}
+    Private Shared _Servers As String() = New String() {S10_SERVER, S11_SERVER}
     'Private Shared _BASE_GAME_URL As String = S11_SERVER
    
     Public Shared VacationMinutes As Double = 5
@@ -347,17 +347,17 @@ Public Class RouteurModel
 
     Public Shared ReadOnly Property Base_Game_Url() As String
         Get
-            Return S10_SERVER
-            'If _Servers Is Nothing Then
-            '    Return S10_SERVER
-            'End If
-            'Static index As Integer = 0
+            'Return S10_SERVER
+            If _Servers Is Nothing Then
+                Return S10_SERVER
+            End If
+            Static index As Integer = 0
 
-            'index += 1
-            'If index > 50000 Then
-            '    index = 0
-            'End If
-            'Return _Servers(index Mod _Servers.Length)
+            index += 1
+            If index > 50000 Then
+                index = 0
+            End If
+            Return _Servers(index Mod _Servers.Length)
         End Get
     End Property
 
