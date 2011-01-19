@@ -1,8 +1,11 @@
 ﻿Imports System.ComponentModel
+Imports System.Xml.Serialization
 
+
+<XmlInclude(GetType(RoutePointDoubleValue)), XmlInclude(GetType(RoutePointWPValue))> _
 Public Class RoutePointView
 
-    
+
     Implements INotifyPropertyChanged
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -293,6 +296,16 @@ Public Class RoutePointView
         Me.UserID = UserID
         NeedUpdate = False
 
+    End Sub
+
+    Public Sub New(ByVal SrcPt As RoutePointView)
+
+        With SrcPt
+            Me.ActionDate = .ActionDate
+            RouteMode = .RouteMode
+            ID = .ID
+            .RouteValue = .RouteValue.GetClone
+        End With
     End Sub
 
     Private Sub _routevalue_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _routevalue.PropertyChanged

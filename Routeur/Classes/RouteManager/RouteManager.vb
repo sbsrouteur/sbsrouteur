@@ -102,7 +102,10 @@ Public Class RouteManager
         With R2
             .RouteName = R.RouteName & "(copied " & Now.ToString & ")"
             .RaceID = R.RaceID
-            .Route = New ObservableCollection(Of RoutePointView)(R.Route)
+            .Route = New ObservableCollection(Of RoutePointView)
+            For Each Point In R.Route
+                .Route.Add(New RoutePointView(Point))
+            Next
             .Initialize()
         End With
         _Routes.Add(R2)
