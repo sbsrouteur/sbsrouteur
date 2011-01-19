@@ -15,11 +15,23 @@ Public MustInherit Class RoutePointValueBase
 
     End Sub
 
+    Public Sub New()
+
+    End Sub
+
+    Public Sub New(ByVal Src As RoutePointValueBase)
+        Throw New Exception("New must be overriden")
+    End Sub
+
+    Public MustOverride Function GetClone() As RoutePointValueBase
+
+
 End Class
 
 Public Class RoutePointDoubleValue
 
     Inherits RoutePointValueBase
+    
 
     Private _Value As Double
 
@@ -33,6 +45,12 @@ Public Class RoutePointDoubleValue
         End Set
     End Property
 
+    Public Overrides Function GetClone() As RoutePointValueBase
+
+        Return New RoutePointDoubleValue(Me)
+
+    End Function
+
     Public Sub New()
 
     End Sub
@@ -41,13 +59,19 @@ Public Class RoutePointDoubleValue
         _Value = Value
     End Sub
 
+    Public Sub New(ByVal Src As RoutePointDoubleValue)
+        Value = Src.Value
+    End Sub
+
     Public Overrides Function ToString() As String
         Return Value.ToString("f1")
     End Function
 
+   
 End Class
 
 Public Class RoutePointWPValue
+
     Inherits RoutePointValueBase
 
     Private _UseRaceWP As Boolean
@@ -85,8 +109,31 @@ Public Class RoutePointWPValue
         End Set
     End Property
 
+
+    Public Overrides Function getclone() As RoutePointValueBase
+
+        Return New RoutePointWPValue(Me)
+
+    End Function
+
+
     Public Sub New()
 
+    End Sub
+
+    Public Sub New(ByVal Src As RoutePointWPValue)
+
+        With Src
+            UseRaceWP = .UseRaceWP
+            If UseRaceWP Then
+                WPLat = .WPLat
+                WPLon = .WPLon
+            End If
+            SetBearingAtWP = .SetBearingAtWP
+            If SetBearingAtWP Then
+                BearingAtWP = .BearingAtWP
+            End If
+        End With
     End Sub
 
 
