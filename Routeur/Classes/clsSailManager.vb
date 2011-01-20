@@ -6,6 +6,7 @@ Imports System.Net
 Imports System.Xml.Serialization
 
 Public Class clsSailManager
+    Private Const MaxWindSpeedHundedth As Integer = 6000
 
     Public Enum EnumSail As Integer
         OneSail = 0
@@ -35,7 +36,13 @@ Public Class clsSailManager
     Private _NbWinds() As Integer
     Private _NbAngles As Integer
 
-    Private _Polar(1800, 6000) As UInt16
+    Private _Polar(1800, MaxWindSpeedHundedth) As UInt16
+    Private _PolarCorner(MaxWindSpeedHundedth, 2) As Double
+
+    Public Const CORNER_SPEED As Integer = 0
+    Public Const CORNER_UPWIND As Integer = 1
+    Public Const CORNER_DOWNWIND As Integer = 2
+
 
 
     Private Function GetSailIndex(ByVal SailMode As EnumSail) As Integer
@@ -112,6 +119,17 @@ Public Class clsSailManager
 
     End Function
 
+    Public Sub GetCornerAngles(ByVal WindStrength As Double, ByRef MinAngle As Double, ByRef MaxAngle As Double)
+
+        If _PolarCorner(6000, CORNER_SPEED) <> 0 Then
+            Dim WindStrengthIndex As Integer = CInt(10 * Math.Round(WindStrength, 2))
+            MinAngle = _PolarCorner(WindStrengthIndex, CORNER_UPWIND)
+            MaxAngle = _PolarCorner(WindStrengthIndex, CORNER_DOWNWIND)
+        Else
+            MinAngle = 0
+            MaxAngle = 180
+        End If
+    End Sub
 
     Public Function GetSpeed(ByVal BoatType As String, ByVal SailMode As EnumSail, ByVal WindAngle As Double, ByVal WindSpeed As Double) As Double
 
@@ -204,11 +222,48 @@ Public Class clsSailManager
 
         Return RetVal
 
-
-
-
     End Function
 
+    Public Sub InitPolar()
+
+        Dim th As New System.Threading.Thread(AddressOf InitPolarThread)
+        th.Start()
+    End Sub
+
+    Private Sub InitPolarThread(ByVal StartInfo As Object)
+
+        While Not _SailLoaded
+            System.Threading.Thread.Sleep(100)
+        End While
+
+        Dim start As DateTime = Now
+        For i = 0 To MaxWindSpeedHundedth
+
+            Dim BestUpWind As Double = 0
+            Dim BestDownWind As Double = 0
+
+            For alpha = 0 To 1800
+
+                Dim S As Double = GetSpeed("", EnumSail.OneSail, alpha / 10, i / 100)
+
+                If S > _PolarCorner(i, CORNER_SPEED) Then
+                    _PolarCorner(i, 0) = S
+                End If
+
+                If alpha < 900 AndAlso S * Cos(alpha / 1800 * PI) > BestUpWind Then
+                    _PolarCorner(i, CORNER_UPWIND) = alpha / 10 - 2
+                    BestUpWind = S * Cos(alpha / 1800 * PI)
+                ElseIf alpha >= 900 AndAlso -S * Cos(alpha / 1800 * PI) > BestDownWind Then
+                    _PolarCorner(i, CORNER_DOWNWIND) = alpha / 10 + 2
+                    BestDownWind = -S * Cos(alpha / 1800 * PI)
+                End If
+
+            Next
+
+        Next
+
+        Console.WriteLine("PolarCorner completed " & Now.Subtract(start).ToString)
+    End Sub
     Private Function LoadSails(ByVal BoatType As String) As Boolean
 
         Try

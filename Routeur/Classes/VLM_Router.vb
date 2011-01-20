@@ -3635,6 +3635,7 @@ Public Class VLM_Router
         AddHandler GSHHS_Reader.BspEvt, AddressOf OnBspEvt
         AddHandler GSHHS_Reader.Log, AddressOf OnGsHHSLog
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Sails"))
+        _Sails.InitPolar()
 
     End Sub
 

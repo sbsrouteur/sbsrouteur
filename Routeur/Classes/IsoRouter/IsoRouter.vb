@@ -76,6 +76,8 @@ Public Class IsoRouter
             Dim CurStep As TimeSpan
             Dim PIndex As Integer
             Dim rp As clsrouteinfopoints
+            Dim MinWindAngle As Double
+            Dim MaxWindAngle As Double
 
             'Dim IsoStart As DateTime = Now
             'Console.WriteLine("Iso len : " & Iso.Data.Length)
@@ -331,6 +333,8 @@ Public Class IsoRouter
         Dim CurDate As DateTime
         Dim TotalDist As Double = 0
         Static PrevDist As Double = 0
+        Dim MinWindAngle As Double = 0
+        Dim MaxWindAngle As Double = 0
 
         TC.StartPoint = Start.P
 
@@ -341,26 +345,58 @@ Public Class IsoRouter
         'Dim LoopCount As Integer
         'Static LoopMs As Double = 0
         'Dim LoopStart As DateTime = Now
-        For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
-            CurDate = Start.T.AddTicks(i)
+        If False Then
+            MI = Nothing
+            For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
+                CurDate = Start.T.AddTicks(i)
+                MI = Nothing
+                While MI Is Nothing And Not _CancelRequested
+                    MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.Lon_Deg, TC.StartPoint.Lat_Deg, True)
+                    If MI Is Nothing Then
+                        System.Threading.Thread.Sleep(250)
+                    End If
+                End While
+                If _CancelRequested Then
+                    Return Nothing
+                End If
+
+                _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
+                Dim Alpha As Double = WindAngle(Cap, MI.Dir)
+                If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
+                    Return Nothing
+                End If
+
+
+                Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
+                TotalDist += Speed / 60 * RouteurModel.VacationMinutes
+                TC.StartPoint = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Cap)
+                '    LoopCount += 1
+                'TC.StartPoint = TC.EndPoint
+            Next
+        Else
+            CurDate = Start.T
             MI = Nothing
             While MI Is Nothing And Not _CancelRequested
                 MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.Lon_Deg, TC.StartPoint.Lat_Deg, True)
                 If MI Is Nothing Then
-                    System.Threading.Thread.Sleep(250)
+                    System.Threading.Thread.Sleep(50)
                 End If
             End While
             If _CancelRequested Then
                 Return Nothing
             End If
+            _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
+            Dim Alpha As Double = WindAngle(Cap, MI.Dir)
+            If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
+                Return Nothing
+            End If
 
 
             Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
-            TotalDist += Speed / 60 * RouteurModel.VacationMinutes
-            TC.StartPoint = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Cap)
-            '    LoopCount += 1
-            'TC.StartPoint = TC.EndPoint
-        Next
+            TotalDist = Speed * Duration.TotalHours
+            TC.StartPoint = TC.ReachDistance(TotalDist, Cap)
+            CurDate = CurDate.Add(Duration)
+        End If
         TC.EndPoint = TC.StartPoint
         TC.StartPoint = Start.P
 
