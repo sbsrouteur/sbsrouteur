@@ -35,6 +35,7 @@ Public Class RacePrefs
     Private _CourseExtensionHours As Double
     Private _NoExclusionZone As Boolean
     Private _AutoRestartRouter As Boolean = False
+    Private _FastRoute As Boolean = False
 
     'IsoChrones Prefs
     Private _IsoLookupAngle As Double
@@ -154,6 +155,17 @@ Public Class RacePrefs
 
         End Set
     End Property
+
+    Public Property FastRoute() As Boolean
+        Get
+            Return _FastRoute
+        End Get
+        Set(ByVal value As Boolean)
+            _FastRoute = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("FastRoute"))
+        End Set
+    End Property
+
 
     Public Property GridGrain() As Double
         Get

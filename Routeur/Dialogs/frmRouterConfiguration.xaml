@@ -47,6 +47,7 @@
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
+			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="1*"/>
 			<RowDefinition Height="Auto" MinHeight="36 "/>
 		</Grid.RowDefinitions>
@@ -113,6 +114,7 @@
 
 		</Grid>
         <CheckBox  Content =" Autorestart routing when complete" Grid.Row="9" Grid.ColumnSpan ="2" IsChecked="{Binding AutoRestartRouter,Mode=TwoWay}"/>
+		<CheckBox  Content =" Use Fast Routing" Grid.Row="10" Grid.ColumnSpan ="2" IsChecked="{Binding FastRoute,Mode=TwoWay}"/>
 
     </Grid>
 </Window>

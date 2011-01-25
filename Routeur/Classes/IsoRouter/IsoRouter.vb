@@ -29,6 +29,7 @@ Public Class IsoRouter
     Private _BoatType As String
     Private _CurBest As clsrouteinfopoints
     Private _DTFRatio As Double = 0.9
+    Private _FastRoute As Boolean = False
 
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan)
@@ -345,7 +346,7 @@ Public Class IsoRouter
         'Dim LoopCount As Integer
         'Static LoopMs As Double = 0
         'Dim LoopStart As DateTime = Now
-        If False Then
+        If Not _FastRoute Then
             MI = Nothing
             For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
                 CurDate = Start.T.AddTicks(i)
@@ -360,12 +361,13 @@ Public Class IsoRouter
                     Return Nothing
                 End If
 
+                'If _FastRoute Then
                 _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
                 Dim Alpha As Double = WindAngle(Cap, MI.Dir)
                 If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
                     Return Nothing
                 End If
-
+                'End If
 
                 Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
                 TotalDist += Speed / 60 * RouteurModel.VacationMinutes
@@ -540,7 +542,7 @@ Public Class IsoRouter
 
 
 
-    Public Sub StartIsoRoute(ByVal From As Coords, ByVal WP1 As Coords, ByVal WP2 As Coords, ByVal StartDate As Date)
+    Public Sub StartIsoRoute(ByVal From As Coords, ByVal WP1 As Coords, ByVal WP2 As Coords, ByVal StartDate As Date, ByVal FastRoute As Boolean)
 
         If _IsoRouteThread Is Nothing Then
             _IsoRouteThread = New Thread(AddressOf IsoRouteThread)
@@ -548,6 +550,7 @@ Public Class IsoRouter
             _StartPoint = New VLM_Router.clsrouteinfopoints
             _TC.StartPoint = From
             _TC.EndPoint = WP1
+            _FastRoute = FastRoute
 
 
             Dim mi As MeteoInfo = Nothing

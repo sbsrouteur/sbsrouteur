@@ -3463,7 +3463,7 @@ Public Class VLM_Router
                 StartDate = prefs.CustomStartDate
             End If
 
-            _iso.StartIsoRoute(StartCoords, EndCoords1, EndCoords2, StartDate)
+            _iso.StartIsoRoute(StartCoords, EndCoords1, EndCoords2, StartDate, prefs.FastRoute)
             'End If
 
         ElseIf Not _iso Is Nothing Then
