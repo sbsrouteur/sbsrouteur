@@ -74,4 +74,11 @@ Partial Public Class frmRoutesManager
 
         End If
     End Sub
+
+    Private Sub OnAddPoint(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+
+        Dim i As Integer = 0
+
+    End Sub
+
 End Class

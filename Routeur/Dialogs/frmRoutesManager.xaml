@@ -33,6 +33,13 @@
 		<ListBox x:Name="RaceList" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RoutesInRace, Mode=Default}" Grid.RowSpan="2"/>
 		<Button Grid.Row="2" Content="Add New Route" Click="AddNewRoute" Margin="{DynamicResource DefMargin}" />
 		<Button HorizontalAlignment="Right" Margin="{DynamicResource DefMargin}" Width="75" Content="Close" Grid.Column="1" Grid.Row="2" Click="OnClose"/>
+		<StackPanel Grid.Row="2" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Left" >
+			<Button HorizontalAlignment="Right" Margin="{DynamicResource DefMargin}" Width="75"  Grid.Column="1" Grid.Row="2" Click="OnAddPoint" DataContext="{Binding SelectedItem, ElementName=dataGrid}">
+				<ContentControl >
+					<Image Source="/Routeur;component/Graphics/Add-48.png"></Image>
+				</ContentControl>
+			</Button>
+		</StackPanel>
 		<GridSplitter HorizontalAlignment="Left" Width="8.768" Grid.Column="1" Foreground="{x:Null}" Background="Red" Margin="-4,0,0,0" Grid.RowSpan="4">
 			<GridSplitter.OpacityMask>
 				<RadialGradientBrush>
@@ -41,7 +48,7 @@
 				</RadialGradientBrush>
 			</GridSplitter.OpacityMask>
 		</GridSplitter>
-		<DataGrid Margin="4" ItemsSource="{Binding Route, Mode=Default}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.Row="1" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
+		<DataGrid x:Name="dataGrid" Margin="4" ItemsSource="{Binding Route, Mode=Default}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.Row="1" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=Default}"/>
 				<DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
