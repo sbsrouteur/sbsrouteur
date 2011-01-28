@@ -29,7 +29,7 @@ Public Class GSHHS_Reader
 #End If
 
 
-    Private Shared _ExcludedID() As Integer = New Integer() {}
+    'Private Shared _ExcludedID() As Integer = New Integer() {}
 
     Shared Event BspEvt(ByVal Count As Long)
     Shared Event Log(ByVal Msg As String)

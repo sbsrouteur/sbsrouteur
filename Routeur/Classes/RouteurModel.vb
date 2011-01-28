@@ -74,7 +74,7 @@ Public Class RouteurModel
     Public Shared WestTrimList() As Integer = New Integer() {}
 
     Public Shared NoExclusionZone As Boolean = False
-    Public Shared Exclusions()() As Double
+    Private Shared _Exclusions()() As Double
 
     Public Shared HasCurrents As Boolean = False
 
@@ -88,6 +88,10 @@ Public Class RouteurModel
 
     Public Const LAKE_RACE As Boolean = False
 
+    ''
+    '' Exclusion Lon, Lat deg neg West, neg south
+    ''
+
     'Exclusion Neg East/South
     Public Shared DeepSouthE() As Double = {-179.99, -60, _
                                            -179.99, -80, _
@@ -100,6 +104,15 @@ Public Class RouteurModel
                                             0.01, -80, _
                                             0.01, -60, _
                                             179.99, -60}
+
+    'B2B Exclusion zones
+    Public Const B2B_RACEID = "20101231"
+
+    Public Shared B2B_EXCL_1() As Double = {105, -70, _
+                                            105, -46, _
+                                            120, -46, _
+                                            120, -70}
+
 
 
     Private Shared _CurWP As Integer = 0
@@ -160,12 +173,6 @@ Public Class RouteurModel
 
     End Sub
 
-    Shared Sub New()
-
-        Exclusions = New Double()() {DeepSouthE, DeepSouthW}
-
-    End Sub
-
     Public Sub New()
     End Sub
 
@@ -213,6 +220,17 @@ Public Class RouteurModel
         End If
     End Sub
 
+    Public Shared Property Exclusions() As Double()()
+        Get
+
+            Return _Exclusions
+
+        End Get
+        Set(ByVal value As Double()())
+            _Exclusions = Value
+        End Set
+    End Property
+
     Public ReadOnly Property GetPilototoRoute() As RouteViewModel
         Get
 
@@ -239,6 +257,7 @@ Public Class RouteurModel
         RouteManager.Load()
         _P_Info(0) = frm.PlayerInfo.Playerinfo
         LoadRaceInfo(frm.PlayerInfo)
+        InitRaceExclusions()
         LoadParams()
         CurPlayer = _P_Info(0)
         OnWPListUpdate()
@@ -343,6 +362,18 @@ Public Class RouteurModel
 
         UpdateRaceScale(C1, C2)
 
+    End Sub
+
+    Private Sub InitRaceExclusions()
+
+        Select Case P_Info(0).RaceInfo.idraces
+
+            Case B2B_RACEID
+                Exclusions = New Double()() {B2B_EXCL_1}
+            Case Else
+                Exclusions = New Double()() {DeepSouthE, DeepSouthW}
+
+        End Select
     End Sub
 
     Public Shared ReadOnly Property Base_Game_Url() As String
