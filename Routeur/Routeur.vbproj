@@ -60,7 +60,7 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <IncrementalBuild>false</IncrementalBuild>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314,42353,42354,42355</NoWarn>
@@ -252,6 +252,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Classes\MeteoLayer\MeteoLayer.vb" />
+    <Compile Include="Classes\Meteo\ZoneMeteoInfo.vb" />
     <Compile Include="Classes\NavHelper\BearingNavHelper.vb" />
     <Compile Include="Controls\2D Viewer.xaml.vb">
       <DependentUpon>2D Viewer.xaml</DependentUpon>
