@@ -68,19 +68,22 @@
                 Throw New InvalidOperationException("Lat index or lon index out of bound")
             End If
 
-            If _LonData Is Nothing OrElse LonIndex > UBound(_LonData) Then
-                ReDim Preserve _LonData(LonIndex)
-            End If
+            SyncLock (Me)
+                If _LonData Is Nothing OrElse LonIndex > UBound(_LonData) Then
 
-            If _LonData(LonIndex) Is Nothing OrElse LatIndex > UBound(_LonData(LonIndex)) Then
-                ReDim Preserve _LonData(LonIndex)(LatIndex)
-            End If
+                    ReDim Preserve _LonData(LonIndex)
+                End If
 
-            If _LonData(LonIndex)(LatIndex) Is Nothing Then
-                _LonData(LonIndex)(LatIndex) = New MeteoInfo
-            End If
+                If _LonData(LonIndex) Is Nothing OrElse LatIndex > UBound(_LonData(LonIndex)) Then
+                    ReDim Preserve _LonData(LonIndex)(LatIndex)
+                End If
 
-            Return _LonData(LonIndex)(LatIndex)
+                If _LonData(LonIndex)(LatIndex) Is Nothing Then
+                    _LonData(LonIndex)(LatIndex) = New MeteoInfo
+                End If
+
+                Return _LonData(LonIndex)(LatIndex)
+            End SyncLock
 
 
         End Get

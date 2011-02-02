@@ -44,6 +44,27 @@
 			</Grid>
 		</DataTemplate>
 		
+		<DataTemplate x:Key="MeteoInfoColorBox" >
+			<Canvas>
+				<Grid Canvas.Left="{Binding Left}"  Canvas.Top="{Binding Top}"  >
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="Auto"/>
+					</Grid.ColumnDefinitions>
+					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Source="{Binding WindImage_0}" Stretch="Fill" Width="{Binding Width}" Height="{Binding Height}" />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Grid.Column="1" Grid.Row="0" Source="{Binding WindImage_1}" Stretch="Fill" Width="{Binding Width}" Height="{Binding Height}" />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Grid.Column="0" Grid.Row="1" Source="{Binding WindImage_2}" Stretch="Fill" Width="{Binding Width}" Height="{Binding Height}" />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Grid.Column="1" Grid.Row="1" Source="{Binding WindImage_3}" Stretch="Fill" Width="{Binding Width}" Height="{Binding Height}" />
+					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding NWPoint}"/>
+					<TextBlock HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="{Binding SEPoint}" TextAlignment="Right" Grid.Row="1" Grid.Column="1"/>
+				</Grid>
+			</Canvas>
+		</DataTemplate>
+		
 		<DataTemplate DataType="{x:Type Routeur:RoutingGridPoint}">
 			<Grid d:DesignWidth="140" d:DesignHeight="148" RenderTransformOrigin="0,0" >
 				<Grid.RenderTransform>
@@ -291,6 +312,17 @@
 					</Grid.RowDefinitions>
 					<GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
+					<Canvas Height="Auto" x:Name="BgWeatherObjects" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7">
+						<Canvas Height="1800"  Grid.ColumnSpan="1"  Width="10800"  RenderTransformOrigin="{Binding RenderTransformOrigin, ElementName=VOR2DViewer, Mode=Default}" RenderTransform="{Binding RenderTransform, ElementName=VOR2DViewer, Mode=Default}"  >
+							<ItemsControl x:Name="WindMap" ItemsSource="{Binding MapLayer}" ItemTemplate="{DynamicResource MeteoInfoColorBox}">
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<Canvas />
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
+							</ItemsControl>
+						</Canvas>
+					</Canvas>
 					<Canvas Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler">
 						
 						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalAlignment="Center" VerticalAlignment="Center" Width="10800" Height="1800" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" Canvas.Top="0" ContextMenuOpening="OnMapContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}">
@@ -307,8 +339,8 @@
 						<Grid x:Name="Weather_Map" >
 							<Path Data="{Binding VorHandler.MeteoArrow, IsAsync=false, Mode=Default}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 						</Grid>
-						<Canvas x:Name="WP_RoutingObjects" Width="10800" Height="1800" RenderTransformOrigin="{Binding RenderTransformOrigin, ElementName=VOR2DViewer, Mode=Default}" RenderTransform="{Binding RenderTransform, ElementName=VOR2DViewer, Mode=Default}"  >
-						
+						<Canvas x:Name="WP_RoutingObjects" >
+							
 							<ItemsControl ItemsSource="{Binding RouteManager.Routes, Mode=Default}">
 								<ItemsControl.ItemTemplate>
 									<DataTemplate>
@@ -322,7 +354,7 @@
 								</ItemsControl.ItemsPanel>
 							</ItemsControl>
 							<Path x:Name="track24h" Stroke="Red" Data="{Binding Track24h, ElementName=NavControl}" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" />
-							<Routeur:EasyNavControl x:Name="NavControl" Width="Auto" Height="Auto" d:LayoutOverrides="GridBox" BoatType="{Binding VorHandler.UserInfo.type}" ClsSailManager="{Binding Mode=OneWay}" MeteoStrength="{Binding VorHandler.UserInfo.position.wind_speed}" MeteoDir="{Binding VorHandler.UserInfo.position.wind_angle}" BoatBearing="{Binding VorHandler.UserInfo.position.cap}" BoatLon="{Binding VorHandler.UserInfo.position.longitude}" Renderer="{Binding The2DViewer}" BoatLat="{Binding VorHandler.UserInfo.position.latitude}" HorizontalAlignment="Left" VerticalAlignment="Top" d:Visibility="{Visible}" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" BoatDest="{Binding VorHandler.CurrentDest}" />
+							<Routeur:EasyNavControl x:Name="NavControl" Width="Auto" Height="Auto" d:LayoutOverrides="GridBox" BoatType="{Binding VorHandler.UserInfo.type}" ClsSailManager="{Binding Mode=OneWay}" MeteoStrength="{Binding VorHandler.UserInfo.position.wind_speed}" MeteoDir="{Binding VorHandler.UserInfo.position.wind_angle}" BoatBearing="{Binding VorHandler.UserInfo.position.cap}" BoatLon="{Binding VorHandler.UserInfo.position.longitude}" Renderer="{Binding The2DViewer}" BoatLat="{Binding VorHandler.UserInfo.position.latitude}" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" BoatDest="{Binding VorHandler.CurrentDest}" />
 						</Canvas>
 						
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >

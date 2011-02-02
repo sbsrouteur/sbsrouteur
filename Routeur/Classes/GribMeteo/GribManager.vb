@@ -73,7 +73,7 @@ Public Class GribManager
                 End If
 
                 NbRetries += 1
-                If NbRetries = 3 Then
+                If NoLoad Then
                     Return False
                 End If
                 System.Threading.Thread.Sleep(250)
@@ -871,7 +871,7 @@ Public Class GribManager
     End Function
     Private Function LoadGribData(ByVal MeteoIndex As Integer, ByVal lon As Double, ByVal lat As Double) As Boolean
 
-        Const SquareWidth As Integer = 20
+        Const SquareWidth As Integer = 10
         Dim WLon As Integer = CInt(lon - SquareWidth / 2) 'revert grib lon for request!!!
         Dim ELon As Integer = WLon + SquareWidth
         Dim NLat As Integer = CInt(lat + SquareWidth / 2)
@@ -881,9 +881,11 @@ Public Class GribManager
         Dim wr As WebResponse = Nothing
         Dim rs As System.IO.Stream
         Dim WaitStart As DateTime
+        Dim start As DateTime = Now
+        Dim GribURL As String = GetGribURL(MeteoIndex, WLon, ELon, NLat, SLat, True)
 
         While Not FileOK
-            Dim GribURL As String = GetGribURL(MeteoIndex, WLon, ELon, NLat, SLat, True)
+
             Dim Http As HttpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), HttpWebRequest)
             Try
                 Http.Timeout = 10000
@@ -918,15 +920,17 @@ Public Class GribManager
 
             Dim fName As String = RouteurModel.BaseFileDir & "\fgrib" & Now.Ticks  'System.IO.Path.GetTempFileName()
             Dim f As New System.IO.FileStream(fName, IO.FileMode.Create)
+            Dim sz As Integer = 0
             Do
                 readlen = rs.Read(Gribdata, 0, 1024)
                 If readlen > 0 Then
                     f.Write(Gribdata, 0, readlen)
                 End If
+                sz += 1
             Loop Until readlen = 0
 
             f.Close()
-
+            Console.WriteLine("Grib loaded " & GribURL & " " & sz & "kB in " & Now.Subtract(start).ToString)
             Dim Si As New System.Diagnostics.ProcessStartInfo
 
             With Si
@@ -940,7 +944,8 @@ Public Class GribManager
             _Process.EnableRaisingEvents = True
             _Process.Start()
 
-            If Not _Evt.WaitOne(10000, Nothing) Then
+            'Wait max 1h for grib to process and complete
+            If Not _Evt.WaitOne(3600000, Nothing) Then
                 Return False
             End If
 
@@ -1102,10 +1107,18 @@ Public Class GribManager
 
     End Sub
 
+    Private Sub _Process_ErrorDataReceived(ByVal sender As Object, ByVal e As System.Diagnostics.DataReceivedEventArgs) Handles _Process.ErrorDataReceived
+        Dim i As Integer = 0
+    End Sub
+
 
     Private Sub _Process_Exited(ByVal sender As Object, ByVal e As System.EventArgs) Handles _Process.Exited
 
         _Evt.Set()
 
+    End Sub
+
+    Private Sub _Process_OutputDataReceived(ByVal sender As Object, ByVal e As System.Diagnostics.DataReceivedEventArgs) Handles _Process.OutputDataReceived
+        Dim i As Integer = 0
     End Sub
 End Class

@@ -29,6 +29,7 @@ Public Class RouteurModel
     Private Shared _PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
     Private Shared _RouteExtensionHours As Double = RacePrefs.RACE_COURSE_EXTENSION_HOURS
     Private _ShowEasyNav As Boolean = False
+    Private WithEvents _MapLayer As MeteoLayer
 
     Public Shared DebugEvt As New AutoResetEvent(True)
     Private Shared _BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
@@ -218,6 +219,18 @@ Public Class RouteurModel
         If Not RouteManager Is Nothing Then
             RouteManager.Rescale()
         End If
+
+        'Update Meteo
+        If _MapLayer Is Nothing Then
+            _MapLayer = New MeteoLayer(VorHandler.Meteo)
+        End If
+
+        If _MapLayer.ViewPort Is Nothing Then
+            _MapLayer.ViewPort = _2DViewer
+        End If
+
+        _MapLayer.RefreshInfo(C1, C2, Now)
+
     End Sub
 
     Public Shared Property Exclusions() As Double()()
@@ -464,6 +477,15 @@ Public Class RouteurModel
             End If
 
         End Set
+    End Property
+
+    Public ReadOnly Property MapLayer As ObservableCollection(Of ZoneMeteoInfo)
+        Get
+            If _MapLayer Is Nothing Then
+                Return Nothing
+            End If
+            Return _MapLayer.MeteoInfoList
+        End Get
     End Property
 
     Public Property MapMenuEnabled() As Boolean
@@ -986,5 +1008,10 @@ Public Class RouteurModel
     Protected Overrides Sub Finalize()
         
         MyBase.Finalize()
+    End Sub
+
+    Private Sub _MapLayer_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _MapLayer.PropertyChanged
+
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MapLayer"))
     End Sub
 End Class
