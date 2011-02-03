@@ -46,21 +46,35 @@
 		
 		<DataTemplate x:Key="MeteoInfoColorBox" >
 			<Canvas>
-				<Grid Canvas.Left="{Binding Left}"  Canvas.Top="{Binding Top}"  >
+				<Grid Canvas.Left="{Binding Left}"  Canvas.Top="{Binding Top}" Width="{Binding Width}" Height="{Binding Height}" >
 					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="0.5*"/>
+						<RowDefinition Height="0.5*"/>
 					</Grid.RowDefinitions>
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="Auto"/>
-						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="0.5*"/>
+						<ColumnDefinition Width="0.5*"/>
 					</Grid.ColumnDefinitions>
-					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Source="{Binding WindImage_0}" Stretch="Fill" Width="{Binding Width}" Height="{Binding Height}" />
-					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Grid.Column="1" Grid.Row="0" Source="{Binding WindImage_1}" Stretch="Fill" Width="{Binding Width}" Height="{Binding Height}" />
-					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Grid.Column="0" Grid.Row="1" Source="{Binding WindImage_2}" Stretch="Fill" Width="{Binding Width}" Height="{Binding Height}" />
-					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Grid.Column="1" Grid.Row="1" Source="{Binding WindImage_3}" Stretch="Fill" Width="{Binding Width}" Height="{Binding Height}" />
-					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding NWPoint}"/>
-					<TextBlock HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="{Binding SEPoint}" TextAlignment="Right" Grid.Row="1" Grid.Column="1"/>
+					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Source="{Binding WindImage_0}" Stretch="Fill"  />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Grid.Column="1" Grid.Row="0" Source="{Binding WindImage_1}" Stretch="Fill" Width="{Binding Width2}" Height="{Binding Height2}" />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Grid.Column="0" Grid.Row="1" Source="{Binding WindImage_2}" Stretch="Fill"  />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="0" Grid.Column="1" Grid.Row="1" Source="{Binding WindImage_3}" Stretch="Fill"  />
+					<StackPanel >
+						<TextBlock Text="{Binding WindDir, StringFormat={}{0:F0}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						<TextBlock Text="{Binding WindStr, StringFormat={}{0:F1}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					</StackPanel>
+					<Image Source="Graphics/WindArrow.png" RenderTransformOrigin="0.5,0.5" >
+						<Image.RenderTransform>
+							<TransformGroup>
+								<ScaleTransform/>
+								<SkewTransform/>
+								<RotateTransform Angle="{Binding WindDir}"/>
+								<TranslateTransform/>
+							</TransformGroup>
+						</Image.RenderTransform>
+					</Image>
+					<!-- <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding NWPoint}"/>
+					<TextBlock HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="{Binding SEPoint}" TextAlignment="Right" Grid.Row="1" Grid.Column="1"/> -->
 				</Grid>
 			</Canvas>
 		</DataTemplate>
@@ -339,7 +353,7 @@
 						<Grid x:Name="Weather_Map" >
 							<Path Data="{Binding VorHandler.MeteoArrow, IsAsync=false, Mode=Default}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 						</Grid>
-						<Canvas x:Name="WP_RoutingObjects" >
+						<Canvas x:Name="WP_RoutingObjects" Width="10800" Height="1800" RenderTransformOrigin="{Binding RenderTransformOrigin, ElementName=VOR2DViewer, Mode=Default}" RenderTransform="{Binding RenderTransform, ElementName=VOR2DViewer, Mode=Default}"  >
 							
 							<ItemsControl ItemsSource="{Binding RouteManager.Routes, Mode=Default}">
 								<ItemsControl.ItemTemplate>

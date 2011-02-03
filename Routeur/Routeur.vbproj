@@ -575,6 +575,9 @@
   <ItemGroup>
     <Resource Include="Graphics\Add-48.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\WindArrow.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>rem editbin /LARGEADDRESSAWARE "$(TargetPath)"</PostBuildEvent>
