@@ -47,7 +47,7 @@ Public Class MeteoLayer
                 Dim Y As Double = ViewPort.LatToCanvas(lat)
                 Dim Y1 As Double = ViewPort.LatToCanvas(lat - DLat)
 
-                _MeteoInfoList.Add(New ZoneMeteoInfo(_Meteo, CurDate, New Coords(lat, lon), New Coords(lat - DLat, lon + DLon), X, Y, (x1 - X), (Y - Y1)))
+                _MeteoInfoList.Add(New ZoneMeteoInfo(_Meteo, CurDate, New Coords(lat, lon), New Coords(lat - DLat, lon + DLon), X, Y, (x1 - X), (Y1 - Y)))
                 j += 1
             Next
             i += 1

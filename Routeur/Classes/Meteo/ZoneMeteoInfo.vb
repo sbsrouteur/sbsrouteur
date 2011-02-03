@@ -25,6 +25,8 @@ Public Class ZoneMeteoInfo
     Private _Height As Double
     Private _WindImage(3) As ImageSource
     Private _ImgAddr(3) As String
+    Private _WindDir As Double
+    Private _WindStr As Double
     Dim _VS(8) As Double
 
 
@@ -35,8 +37,8 @@ Public Class ZoneMeteoInfo
         _SEPoint = SEPoint
         _Left = l
         _Top = t
-        _Width = w
-        _Height = h
+        Width = w
+        Height = h
         System.Threading.ThreadPool.QueueUserWorkItem(AddressOf UpdateVisual)
     End Sub
 
@@ -44,7 +46,7 @@ Public Class ZoneMeteoInfo
     Private Shared Function LoadImage(ByVal v00 As Double, ByVal v01 As Double, ByVal v10 As Double, ByVal V11 As Double) As ImageSource
 
         Dim ImgPath As String = IO.Path.Combine(RouteurModel.BaseFileDir, "WindTiles")
-        Dim ImgName As String = "B" & CInt(v00).ToString("00") & CInt(v00).ToString("10") & CInt(v01).ToString("00") & CInt(V11).ToString("00") & ".jpg"
+        Dim ImgName As String = "B" & CInt(v00).ToString("00") & CInt(v01).ToString("00") & CInt(v10).ToString("00") & CInt(V11).ToString("00") & ".jpg"
         Dim FullPath As String = IO.Path.Combine(ImgPath, ImgName)
         Const BITMAP_SIZE As Integer = 20
 
@@ -61,10 +63,10 @@ Public Class ZoneMeteoInfo
                 'Dim Points(BITMAP_SIZE * BITMAP_SIZE) As Int32
 
                 For i = 0 To BITMAP_SIZE - 1
-                    Dim S1 As Double = i * (v01 - v00) / BITMAP_SIZE + v00
-                    Dim S2 As Double = i * (V11 - v10) / BITMAP_SIZE + v10
+                    Dim S1 As Double = i * (v01 - v00) / (BITMAP_SIZE - 1) + v00
+                    Dim S2 As Double = i * (V11 - v10) / (BITMAP_SIZE - 1) + v10
                     For j = 0 To BITMAP_SIZE - 1
-                        Dim S As Double = (S2 - S1) / BITMAP_SIZE * j + S1
+                        Dim S As Double = (S2 - S1) / (BITMAP_SIZE - 1) * j + S1
                         Dim C As Color = WindColors.GetColor(CInt(S))
                         Dim V As Int32 = C.B << 24 + C.G << 16 + C.R << 8 + &HFF
                         'Points(BITMAP_SIZE * j + i) = V
@@ -94,16 +96,34 @@ Public Class ZoneMeteoInfo
 
     Public Property Height() As Double
         Get
-            Return _Height / 2
+            Return _Height
         End Get
         Set(ByVal value As Double)
-            _Height = Value
+            If _Height <> value Then
+                _Height = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Height"))
+            End If
         End Set
+    End Property
+
+    Public ReadOnly Property Height2() As Double
+        Get
+            Return _Height
+        End Get
     End Property
 
     Public Property Left() As Double
         Get
             Return _Left
+        End Get
+        Set(ByVal value As Double)
+            _Left = value
+        End Set
+    End Property
+
+    Public Property Left2() As Double
+        Get
+            Return _Left + Width
         End Get
         Set(ByVal value As Double)
             _Left = value
@@ -138,14 +158,36 @@ Public Class ZoneMeteoInfo
             _Top = Value
         End Set
     End Property
+
+    Public Property Top2() As Double
+        Get
+            Return _Top + Height
+        End Get
+        Set(ByVal value As Double)
+            _Top = value
+        End Set
+    End Property
+
     Public Property Width() As Double
+        Get
+            Return _Width
+        End Get
+        Set(ByVal value As Double)
+            If _Width <> value Then
+                _Width = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Width"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Width2"))
+            End If
+        End Set
+    End Property
+
+    Public ReadOnly Property Width2() As Double
         Get
             Return _Width / 2
         End Get
-        Set(ByVal value As Double)
-            _Width = Value
-        End Set
+        
     End Property
+
     Public Property WindColor() As Color()
         Get
             Return _WindColor
@@ -175,6 +217,10 @@ Public Class ZoneMeteoInfo
                 If mi Is Nothing Then
                     Return
                 End If
+                If i = 1 And j = 1 Then
+                    WindDir = mi.Dir
+                    WindStr = mi.Strength
+                End If
                 _VS(i + 3 * j) = mi.Strength
             Next
         Next
@@ -185,6 +231,20 @@ Public Class ZoneMeteoInfo
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WindImage_3"))
         Console.WriteLine("Visual updated in " & Now.Subtract(start).ToString)
     End Sub
+
+    Public Property WindDir() As Double
+        Get
+            Return _WindDir
+        End Get
+        Set(ByVal value As Double)
+
+            If _WindDir <> value Then
+                _WindDir = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WindDir"))
+            End If
+        End Set
+    End Property
+
     Public ReadOnly Property WindImage_0 As ImageSource
         Get
             Dim i As Integer = 0
@@ -192,6 +252,7 @@ Public Class ZoneMeteoInfo
             Return LoadImage(_VS(0), _VS(1), _VS(3), _VS(4))
         End Get
     End Property
+
     Public ReadOnly Property WindImage_1 As ImageSource
         Get
             Dim i As Integer = 1
@@ -199,6 +260,7 @@ Public Class ZoneMeteoInfo
             Return LoadImage(_VS(1), _VS(2), _VS(4), _VS(5))
         End Get
     End Property
+
     Public ReadOnly Property WindImage_2 As ImageSource
         Get
             Dim i As Integer = 0
@@ -206,12 +268,25 @@ Public Class ZoneMeteoInfo
             Return LoadImage(_VS(3), _VS(4), _VS(6), _VS(7))
         End Get
     End Property
+
     Public ReadOnly Property WindImage_3 As ImageSource
         Get
             Dim i As Integer = 1
             Dim j As Integer = 1
             Return LoadImage(_VS(4), _VS(5), _VS(7), _VS(8))
         End Get
+    End Property
+
+    Public Property WindStr() As Double
+        Get
+            Return _WindStr
+        End Get
+        Set(ByVal value As Double)
+            If _WindStr <> value Then
+                _WindStr = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WindStr"))
+            End If
+        End Set
     End Property
 
 
