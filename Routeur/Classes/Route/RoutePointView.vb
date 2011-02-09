@@ -217,6 +217,16 @@ Public Class RoutePointView
         End If
     End Sub
 
+    Public Overrides Function ToString() As String
+
+        If P Is Nothing Then
+            Return "No Coords"
+        End If
+
+        Return ActionDate.ToString("dd-MMM-yyyy HH:mm") & " ; " & RouteValue.ToString & "; 0 ; " & P.ToString & " ; " & (0).ToString("f2") & " ; " & (0).ToString("f2")
+
+    End Function
+
     Public ReadOnly Property TaskTime() As Long
         Get
             Return CLng(ActionDate.AddHours(GribManager.ZULU_OFFSET).Subtract(New DateTime(1970, 1, 1)).TotalSeconds)

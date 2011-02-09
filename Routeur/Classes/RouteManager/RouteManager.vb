@@ -4,6 +4,7 @@ Imports System.Runtime.Serialization
 Imports System.IO
 Imports System.Text
 Imports System.Xml.Serialization
+Imports System.Windows.Threading
 
 Public Class RouteManager
 
@@ -18,8 +19,17 @@ Public Class RouteManager
     Private _Meteo As clsMeteoOrganizer
     Private _Boat As String
     Private _Sails As clsSailManager
+    Private _Dispatcher As Dispatcher
 
     Public Function AddNewRoute(ByVal RaceID As String, ByVal RaceName As String, ByVal RouteName As String) As RecordedRoute
+
+        If Dispatcher IsNot Nothing AndAlso Dispatcher.Thread.ManagedThreadId <> System.Threading.Thread.CurrentThread.ManagedThreadId Then
+
+            Dim dlg As New Func(Of String, String, String, RecordedRoute)(AddressOf AddNewRoute)
+
+            Return CType(Dispatcher.Invoke(dlg, New Object() {RaceID, RaceName, RouteName}), RecordedRoute)
+
+        End If
 
         Dim R As New RecordedRoute()
 
@@ -151,6 +161,14 @@ Public Class RouteManager
 
     End Function
 
+    Public Property Dispatcher() As Dispatcher
+        Get
+            Return _Dispatcher
+        End Get
+        Set(ByVal value As Dispatcher)
+            _Dispatcher = Value
+        End Set
+    End Property
     Public Property FilterRaceID() As String
         Get
             Return _FilterRaceID
@@ -233,6 +251,7 @@ Public Class RouteManager
         _M = M
         _Meteo = Meteo
         _Sails = Sails
+
     End Sub
 
 End Class
