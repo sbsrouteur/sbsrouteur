@@ -36,6 +36,7 @@ Public Class RacePrefs
     Private _NoExclusionZone As Boolean
     Private _AutoRestartRouter As Boolean = False
     Private _FastRoute As Boolean = False
+    Private _SaveRoute As Boolean = False
 
     'IsoChrones Prefs
     Private _IsoLookupAngle As Double
@@ -217,7 +218,7 @@ Public Class RacePrefs
     End Property
 
     <XmlAttribute("IsoStep_24")> _
-Public Property IsoStep24String() As String
+    Public Property IsoStep24String() As String
         Get
             Return XmlConvert.ToString(_IsoStep_24)
         End Get
@@ -227,7 +228,7 @@ Public Property IsoStep24String() As String
     End Property
 
     <XmlAttribute("IsoStep_48")> _
-Public Property IsoStep48String() As String
+    Public Property IsoStep48String() As String
         Get
             Return XmlConvert.ToString(_IsoStep_48)
         End Get
@@ -328,6 +329,16 @@ Public Property IsoStep48String() As String
         Set(ByVal value As Coords)
             _RouteStart = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RouteStart"))
+        End Set
+    End Property
+
+    Public Property SaveRoute() As Boolean
+        Get
+            Return _SaveRoute
+        End Get
+        Set(ByVal value As Boolean)
+            _SaveRoute = Value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("SaveRoute"))
         End Set
     End Property
 

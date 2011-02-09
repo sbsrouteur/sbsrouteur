@@ -29,6 +29,7 @@ Public Class RouteurModel
     Private Shared _PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
     Private Shared _RouteExtensionHours As Double = RacePrefs.RACE_COURSE_EXTENSION_HOURS
     Private _ShowEasyNav As Boolean = False
+    Private _Dispatcher As Windows.Threading.Dispatcher
 
     Public Shared DebugEvt As New AutoResetEvent(True)
     Private Shared _BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
@@ -244,9 +245,10 @@ Public Class RouteurModel
         End Get
     End Property
 
-    Public Sub Init()
+    Public Sub Init(ByVal D As Windows.Threading.Dispatcher)
 
-
+        _Dispatcher = D
+        _RouteManager.Dispatcher = _Dispatcher
         Dim frm As New frmUserPicker
         frm.DataContext = Me
         frm.ShowDialog()
@@ -766,8 +768,17 @@ Public Class RouteurModel
 
     End Sub
 
-    Private Sub _VorHandler_IsoComplete() Handles _VorHandler.IsoComplete
-        IsoRouterActive = False
+    Private Sub _VorHandler_IsoComplete(ByVal Pt As VLM_Router.clsrouteinfopoints) Handles _VorHandler.IsoComplete
+        If RacePrefs.GetRaceInfo(CurPlayer.RaceInfo.idraces).SaveRoute Then
+            Dim Route As New RoutePointInfo("IsoRoute " & Now.ToString, Pt)
+            _RouteManager.AddNewRoute(CurPlayer.RaceInfo.idraces, "IsoRoute " & Now.ToString, Route)
+            _RouteManager.Save()
+        End If
+        If Not RacePrefs.GetRaceInfo(CurPlayer.RaceInfo.idraces).AutoRestartRouter Then
+            IsoRouterActive = False
+        End If
+
+
     End Sub
 
 

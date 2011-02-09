@@ -88,6 +88,17 @@ Public Class RecordedRoute
         End Set
     End Property
 
+    Public Sub ExportRoute(ByVal OutputFile As String)
+        Dim S1 As New System.IO.StreamWriter(OutputFile)
+
+        For Each Pt In Route
+            S1.WriteLine(Pt.ToString)
+        Next
+
+        S1.Close()
+
+    End Sub
+
     Public Sub Initialize()
 
         For Each pt In Route
@@ -132,7 +143,7 @@ Public Class RecordedRoute
         End Set
     End Property
 
-    
+
 
     Public Sub RecomputeRoute(ByVal From As Coords, ByVal Meteo As clsMeteoOrganizer, ByVal BoatType As String, ByVal Sails As clsSailManager)
 
