@@ -16,7 +16,7 @@ Public Class VLM_Router
     Public Event bruted()
     Public Event BoatShown()
     Public Event BoatClear()
-    Public Event IsoComplete()
+    Public Event IsoComplete(ByVal NewBestPoint As VLM_Router.clsrouteinfopoints)
 
     Private _UserInfo As user
     Private _WebClient As New WebClient()
@@ -3675,14 +3675,14 @@ Public Class VLM_Router
 
     Private Sub _iso_RouteComplete() Handles _iso.RouteComplete
         BruteRoute(Meteo) = _iso.Route
-        RaiseEvent IsoComplete()
+        RaiseEvent IsoComplete(_iso.Route.Last)
 
         If RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces).AutoRestartRouter Then
             _IsoRoutingRestartPending = True
             _RoutingRestart.Start()
 
         Else
-            RaiseEvent IsoComplete()
+            'RaiseEvent IsoComplete()
         End If
 
     End Sub

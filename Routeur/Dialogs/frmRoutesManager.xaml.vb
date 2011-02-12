@@ -81,4 +81,28 @@ Partial Public Class frmRoutesManager
 
     End Sub
 
+    Private Sub OnRouteExport(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
+
+        Dim Dlg As New Microsoft.Win32.SaveFileDialog
+        Dim R As RecordedRoute = CType(CType(sender, Button).DataContext, RecordedRoute)
+
+        If R IsNot Nothing Then
+            With Dlg
+                .AddExtension = True
+                .CheckFileExists = False
+                .CheckPathExists = True
+                .DefaultExt = ".csv"
+
+                If .ShowDialog() Then
+                    Dim M As RouteManager = CType(DataContext, RouteManager)
+                    R.ExportRoute(.FileName)
+
+                End If
+            End With
+        End If
+
+
+
+
+    End Sub
 End Class
