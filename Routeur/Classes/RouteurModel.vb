@@ -229,8 +229,9 @@ Public Class RouteurModel
             _MapLayer.ViewPort = _2DViewer
         End If
 
-        _MapLayer.RefreshInfo(C1, C2, Now)
-
+        If VorHandler.MeteoVisible Then
+            _MapLayer.RefreshInfo(C1, C2, VorHandler.MeteoArrowDate)
+        End If
     End Sub
 
     Public Shared Property Exclusions() As Double()()
@@ -807,11 +808,16 @@ Public Class RouteurModel
                     End If
 
                     End If
-                    tmrRefresh.Enabled = True
+                tmrRefresh.Enabled = True
+
+            Case "MeteoArrowDate"
+                If Not _MapLayer Is Nothing Then
+                    _MapLayer.RefreshInfo(_NOPoint, _SEPoint, _VorHandler.MeteoArrowDate)
+                End If
 
             Case "WPList"
-                    CurWP = CurWP
-                    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
+                CurWP = CurWP
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
 
             Case Else
                 RaiseEvent PropertyChanged(sender, e)

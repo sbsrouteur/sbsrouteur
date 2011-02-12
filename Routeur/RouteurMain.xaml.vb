@@ -130,6 +130,12 @@ Partial Public Class RouteurMain
             C2 = RouteurModel._RaceRect(2)
         End If
 
+        If C2.Lat > C1.Lat Then
+            Dim T As Double = C2.Lat
+            C2.Lat = C1.Lat
+            C1.Lat = T
+        End If
+
         M.VorHandler.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
         M.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
         If RescaleMap Then

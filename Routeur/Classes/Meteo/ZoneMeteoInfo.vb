@@ -28,6 +28,9 @@ Public Class ZoneMeteoInfo
     Private _WindDir As Double
     Private _WindStr As Double
     Dim _VS(8) As Double
+    Private _Cancel As Boolean = False
+    Private _Visibility As Visibility
+
 
 
     Public Sub New(ByVal Meteo As clsMeteoOrganizer, ByVal Dte As DateTime, ByVal NWPoint As Coords, ByVal SEPoint As Coords, ByVal l As Double, ByVal t As Double, ByVal w As Double, ByVal h As Double)
@@ -39,14 +42,15 @@ Public Class ZoneMeteoInfo
         _Top = t
         Width = w
         Height = h
+        Visibility = Windows.Visibility.Collapsed
         System.Threading.ThreadPool.QueueUserWorkItem(AddressOf UpdateVisual)
     End Sub
 
 
     Private Shared Function LoadImage(ByVal v00 As Double, ByVal v01 As Double, ByVal v10 As Double, ByVal V11 As Double) As ImageSource
 
-        Dim ImgPath As String = IO.Path.Combine(RouteurModel.BaseFileDir, "WindTiles")
-        Dim ImgName As String = "B" & CInt(v00).ToString("00") & CInt(v01).ToString("00") & CInt(v10).ToString("00") & CInt(V11).ToString("00") & ".jpg"
+        Dim ImgPath As String = IO.Path.Combine(RouteurModel.BaseFileDir, MeteoLayer.WIND_TILE_FOLDER)
+        Dim ImgName As String = "B" & (v00).ToString("f1") & (v01).ToString("f1") & (v10).ToString("f1") & (V11).ToString("f1") & ".jpg"
         Dim FullPath As String = IO.Path.Combine(ImgPath, ImgName)
         Const BITMAP_SIZE As Integer = 20
 
@@ -55,7 +59,18 @@ Public Class ZoneMeteoInfo
         End If
 
         If IO.File.Exists(FullPath) Then
-            Return New BitmapImage(New Uri(FullPath))
+            Dim ret As BitmapImage = Nothing
+            While ret Is Nothing
+                Try
+                    ret = New BitmapImage(New Uri(FullPath))
+                    ret.Freeze()
+
+                Catch ex As Exception
+                    'ignore and try again
+                End Try
+            End While
+
+            Return ret
         Else
 
             Dim Img2 As New System.Drawing.Bitmap(BITMAP_SIZE, BITMAP_SIZE)
@@ -67,11 +82,13 @@ Public Class ZoneMeteoInfo
                     Dim S2 As Double = i * (V11 - v10) / (BITMAP_SIZE - 1) + v10
                     For j = 0 To BITMAP_SIZE - 1
                         Dim S As Double = (S2 - S1) / (BITMAP_SIZE - 1) * j + S1
-                        Dim C As Color = WindColors.GetColor(CInt(S))
-                        Dim V As Int32 = C.B << 24 + C.G << 16 + C.R << 8 + &HFF
+                        If S > 70 Then
+                            S = 70
+                        End If
+                        Dim SIndex As Integer = CInt(Math.Round(S * 10))
                         'Points(BITMAP_SIZE * j + i) = V
-                        SyncLock WindColors.WindColorGDIBrushes(CInt(S))
-                            G.FillRectangle(WindColors.WindColorGDIBrushes(CInt(S)), New System.Drawing.RectangleF(CSng(i), CSng(j), 1.0, 1.0))
+                        SyncLock WindColors.WindColorGDIBrushes(SIndex)
+                            G.FillRectangle(WindColors.WindColorGDIBrushes(SIndex), New System.Drawing.RectangleF(CSng(i), CSng(j), 1.0, 1.0))
                         End SyncLock
                     Next
                 Next
@@ -89,10 +106,31 @@ Public Class ZoneMeteoInfo
             Catch
             End Try
 
-            Return New BitmapImage(New Uri(FullPath))
+            Dim ret As BitmapImage = Nothing
+            While ret Is Nothing
+                Try
+                    ret = New BitmapImage(New Uri(FullPath))
+                    ret.Freeze()
+
+                Catch ex As Exception
+                    'ignore and try again
+                End Try
+            End While
+
+            Return ret
         End If
 
     End Function
+
+    Public Property Cancel() As Boolean
+        Get
+            Return _Cancel
+        End Get
+        Set(ByVal value As Boolean)
+            _Cancel = value
+            Visibility = Windows.Visibility.Collapsed
+        End Set
+    End Property
 
     Public Property Height() As Double
         Get
@@ -155,7 +193,7 @@ Public Class ZoneMeteoInfo
             Return _Top
         End Get
         Set(ByVal value As Double)
-            _Top = Value
+            _Top = value
         End Set
     End Property
 
@@ -165,6 +203,18 @@ Public Class ZoneMeteoInfo
         End Get
         Set(ByVal value As Double)
             _Top = value
+        End Set
+    End Property
+
+    Public Property Visibility() As Visibility
+        Get
+            Return _Visibility
+        End Get
+        Set(ByVal value As Visibility)
+            If value <> _Visibility Then
+                _Visibility = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Visibility"))
+            End If
         End Set
     End Property
 
@@ -213,10 +263,17 @@ Public Class ZoneMeteoInfo
         System.Threading.Thread.Sleep(CInt(Rnd() * 100))
         For i = 0 To 2
             For j = 0 To 2
-                Dim mi As MeteoInfo = _MeteoProvider.GetMeteoToDate(New Coords(Y1 + j * Dy, X1 + i * Dx), _ZoneDate, False, False)
-                If mi Is Nothing Then
+                Dim mi As MeteoInfo = Nothing
+                While Not Cancel And mi Is Nothing
+                    mi = _MeteoProvider.GetMeteoToDate(New Coords(Y1 + j * Dy, X1 + i * Dx), _ZoneDate, True, False)
+                    If mi Is Nothing Then
+                        System.Threading.Thread.Sleep(100)
+                    End If
+                End While
+                If Cancel Then
                     Return
                 End If
+
                 If i = 1 And j = 1 Then
                     WindDir = mi.Dir
                     WindStr = mi.Strength
@@ -229,6 +286,7 @@ Public Class ZoneMeteoInfo
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WindImage_1"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WindImage_2"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WindImage_3"))
+        Visibility = Windows.Visibility.Visible
         Console.WriteLine("Visual updated in " & Now.Subtract(start).ToString)
     End Sub
 
