@@ -34,7 +34,7 @@
 		<Button Grid.Row="2" Content="Add New Route" Click="AddNewRoute" Margin="{DynamicResource DefMargin}" />
 		<Button HorizontalAlignment="Right" Margin="{DynamicResource DefMargin}" Width="75" Content="Close" Grid.Column="1" Grid.Row="2" Click="OnClose"/>
 		<StackPanel Grid.Row="2" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Left" >
-			<Button HorizontalAlignment="Right" Margin="{DynamicResource DefMargin}" Width="75"  Grid.Column="1" Grid.Row="2" Click="OnAddPoint" DataContext="{Binding SelectedItem, ElementName=dataGrid}">
+			<Button HorizontalAlignment="Right" Margin="{DynamicResource DefMargin}" Width="75"  Grid.Column="1" Grid.Row="2" Click="OnAddPoint" DataContext="{Binding SelectedItem, ElementName=dataGrid}" Visibility="Collapsed">
 				<ContentControl >
 					<Image Source="/Routeur;component/Graphics/Add-48.png"></Image>
 				</ContentControl>
@@ -75,6 +75,7 @@
 				<Button Content="Recompute Route" Margin="{DynamicResource DefMargin}" Click="OnRouteRecompute"/>
 				<Button Content="Duplicate Route" Margin="{DynamicResource DefMargin}" Click="OnRouteDuplicate"/>
 				<Button Content="Delete Route" Margin="{DynamicResource DefMargin}" Click="OnRouteDelete"/>
+				<Button Content="Export Route..." Margin="{DynamicResource DefMargin}" Click="OnRouteExport"/>
 			</StackPanel>
 			<Grid Grid.Row="2" Grid.Column="1">
 				<Grid.ColumnDefinitions>
