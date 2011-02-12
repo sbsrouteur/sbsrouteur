@@ -6,20 +6,26 @@
 
     Public Shared Function Compare(ByVal x As Coords, ByVal y As Coords) As Integer 'Implements System.Collections.Generic.IComparer(Of Coords).Compare
 
-        If x.Lat > y.Lat Then
-            Return 1
-        ElseIf x.Lat < y.Lat Then
+        If x Is Nothing AndAlso y Is Nothing Then
+            Return 0
+        ElseIf x Is Nothing And y IsNot Nothing Then
             Return -1
-        Else
-            If x.Lon > y.Lon Then
-                Return 1
-            ElseIf x.Lon < y.Lon Then
+        ElseIf x IsNot Nothing And y Is Nothing Then
+            Return 1
+        ElseIf x.Lat > y.Lat Then
+            Return 1
+            ElseIf x.Lat < y.Lat Then
                 Return -1
             Else
-                Return 0
+                If x.Lon > y.Lon Then
+                    Return 1
+                ElseIf x.Lon < y.Lon Then
+                    Return -1
+                Else
+                    Return 0
 
+                End If
             End If
-        End If
     End Function
 
     Public Shared Function Equals1(ByVal x As ICoords, ByVal y As ICoords) As Boolean 'Implements System.Collections.Generic.IEqualityComparer(Of Coords).Equals

@@ -1,6 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports System.Net
 Imports System.Threading
+Imports System.IO
 
 
 Public Class GribManager
@@ -26,11 +27,12 @@ Public Class GribManager
     Private Const MAX_INDEX_05 As Integer = CInt(MAX_GRIB_05 / GRIB_GRAIN_05)
     Private Const MAX_INDEX_1 As Integer = CInt((MAX_GRIB_1 - MAX_GRIB_05 - GRIB_GRAIN_1) / GRIB_GRAIN_1) + MAX_INDEX_05
     Private Const MAX_INDEX As Integer = MAX_INDEX_1
+    Private Const NB_MAX_GRIBS As Integer = 12
 
     Public Shared ZULU_OFFSET As Integer = -CInt(TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
 
     Private Shared _GMT_Offset As Double = TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours
-    Private Shared _GribMonitor As New Object
+    Private Shared _GribMonitor(NB_MAX_GRIBS - 1) As Object
 
     Private _MeteoArrays(MAX_INDEX) As MeteoArray
     Private _LastGribDate As DateTime
@@ -39,8 +41,9 @@ Public Class GribManager
     Private Const CORRECTION_LENGTH As Integer = 12
     Private _AnglePointer As Integer = 0
     Private _WindPointer As Integer = 0
-    Private WithEvents _Process As New Process
-    Private _Evt As New AutoResetEvent(False)
+    Private WithEvents p As Process
+    Private _Process(NB_MAX_GRIBS - 1) As System.Diagnostics.Process
+    Private Shared _Evt(NB_MAX_GRIBS - 1) As AutoResetEvent
 
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
@@ -66,7 +69,7 @@ Public Class GribManager
 
         If bLoad Then
             'RaiseEvent log("Synclock grib monitor th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
-            While Not System.Threading.Monitor.TryEnter(_GribMonitor)
+            While Not System.Threading.Monitor.TryEnter(_GribMonitor(MeteoIndex Mod NB_MAX_GRIBS))
 
                 If NoLock Then
                     Return Nothing
@@ -95,7 +98,7 @@ Public Class GribManager
                 RaiseEvent log("Exception during checkgribdata " & ex.Message)
                 retval = False
             Finally
-                System.Threading.Monitor.Exit(_GribMonitor)
+                System.Threading.Monitor.Exit(_GribMonitor(MeteoIndex Mod NB_MAX_GRIBS))
 
             End Try
             'NextTick = Now.AddMinutes(30).Ticks
@@ -328,6 +331,9 @@ Public Class GribManager
 
     Private Function GetMetoDateOffset(ByVal Dte As DateTime) As Double
         Dim CurGrib As DateTime = GetCurGribDate(Now)
+        If Dte.Ticks = 0 Then
+            Return 0
+        End If
         Dim TotalHours As Double = Dte.AddHours(-_GMT_Offset).Subtract(CurGrib).TotalHours
 
         If TotalHours < 0 Then
@@ -871,11 +877,12 @@ Public Class GribManager
     End Function
     Private Function LoadGribData(ByVal MeteoIndex As Integer, ByVal lon As Double, ByVal lat As Double) As Boolean
 
-        Const SquareWidth As Integer = 10
+        Const SquareWidth As Integer = 30
+        Const SquareHeight As Integer = 30
         Dim WLon As Integer = CInt(lon - SquareWidth / 2) 'revert grib lon for request!!!
         Dim ELon As Integer = WLon + SquareWidth
-        Dim NLat As Integer = CInt(lat + SquareWidth / 2)
-        Dim SLat As Integer = NLat - SquareWidth
+        Dim NLat As Integer = CInt(lat + SquareHeight / 2)
+        Dim SLat As Integer = NLat - SquareHeight
         Dim retries As Integer = 0
         Dim FileOK As Boolean = False
         Dim wr As WebResponse = Nothing
@@ -918,7 +925,7 @@ Public Class GribManager
                 System.IO.Directory.CreateDirectory(RouteurModel.BaseFileDir)
             End If
 
-            Dim fName As String = RouteurModel.BaseFileDir & "\fgrib" & Now.Ticks  'System.IO.Path.GetTempFileName()
+            Dim fName As String = RouteurModel.BaseFileDir & "\fgrib" & Now.Ticks & Rnd() 'System.IO.Path.GetTempFileName()
             Dim f As New System.IO.FileStream(fName, IO.FileMode.Create)
             Dim sz As Integer = 0
             Do
@@ -930,7 +937,7 @@ Public Class GribManager
             Loop Until readlen = 0
 
             f.Close()
-            Console.WriteLine("Grib loaded " & GribURL & " " & sz & "kB in " & Now.Subtract(start).ToString)
+            Console.WriteLine(Now.Subtract(start).ToString & "to loaded " & GribURL & " " & sz & "kB in ")
             Dim Si As New System.Diagnostics.ProcessStartInfo
 
             With Si
@@ -940,12 +947,21 @@ Public Class GribManager
                 .CreateNoWindow = True
             End With
 
-            _Process.StartInfo = Si
-            _Process.EnableRaisingEvents = True
-            _Process.Start()
+            If _Process(MeteoIndex Mod NB_MAX_GRIBS) Is Nothing Then
+                _Process(MeteoIndex Mod NB_MAX_GRIBS) = New Process
+                AddHandler _Process(MeteoIndex Mod NB_MAX_GRIBS).Exited, AddressOf _Process_Exited
+
+            End If
+            With _Process(MeteoIndex Mod NB_MAX_GRIBS)
+
+                .StartInfo = Si
+                .EnableRaisingEvents = True
+                .Start()
+
+            End With
 
             'Wait max 1h for grib to process and complete
-            If Not _Evt.WaitOne(3600000, Nothing) Then
+            If Not _Evt(MeteoIndex Mod NB_MAX_GRIBS).WaitOne(3600000, Nothing) Then
                 Return False
             End If
 
@@ -975,6 +991,9 @@ Public Class GribManager
                     If f2 Is Nothing Then
                         System.Threading.Thread.Sleep(500)
                     End If
+                Catch ex2 As FileNotFoundException
+                    'What the heck
+                    Return False
                 Catch ex As Exception
                     System.Threading.Thread.Sleep(100)
                 End Try
@@ -1058,6 +1077,8 @@ Public Class GribManager
 
             System.IO.File.Delete(fName & ".csv")
             System.IO.File.Delete(fName)
+            Console.WriteLine(Now.Subtract(start).ToString & "to process " & GribURL)
+
             Return True
         Catch ex As Exception
             RaiseEvent log("LoadGribDataExecption : " & ex.Message)
@@ -1066,6 +1087,13 @@ Public Class GribManager
         Return False
 
     End Function
+
+    Shared Sub New()
+        For i = 0 To NB_MAX_GRIBS - 1
+            _GribMonitor(i) = New Object
+            _Evt(i) = New AutoResetEvent(False)
+        Next
+    End Sub
 
     Public Sub New()
 
@@ -1107,18 +1135,23 @@ Public Class GribManager
 
     End Sub
 
-    Private Sub _Process_ErrorDataReceived(ByVal sender As Object, ByVal e As System.Diagnostics.DataReceivedEventArgs) Handles _Process.ErrorDataReceived
+    Private Sub _Process_ErrorDataReceived(ByVal sender As Object, ByVal e As System.Diagnostics.DataReceivedEventArgs)
         Dim i As Integer = 0
     End Sub
 
 
-    Private Sub _Process_Exited(ByVal sender As Object, ByVal e As System.EventArgs) Handles _Process.Exited
+    Private Sub _Process_Exited(ByVal sender As Object, ByVal e As System.EventArgs)
 
-        _Evt.Set()
+        For i As Integer = 0 To NB_MAX_GRIBS
+            If sender Is _Process(i) Then
+                _Evt(i).Set()
+                Return
+            End If
+        Next
 
     End Sub
 
-    Private Sub _Process_OutputDataReceived(ByVal sender As Object, ByVal e As System.Diagnostics.DataReceivedEventArgs) Handles _Process.OutputDataReceived
+    Private Sub _Process_OutputDataReceived(ByVal sender As Object, ByVal e As System.Diagnostics.DataReceivedEventArgs)
         Dim i As Integer = 0
     End Sub
 End Class

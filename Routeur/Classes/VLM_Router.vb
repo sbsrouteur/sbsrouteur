@@ -711,7 +711,7 @@ Public Class VLM_Router
             If value <> _MeteoArrowDate Then
                 _MeteoArrowDate = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDate"))
-                UpdateMeteoArrows()
+                'UpdateMeteoArrows()
                 'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
             End If
         End Set

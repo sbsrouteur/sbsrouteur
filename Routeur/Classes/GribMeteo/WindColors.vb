@@ -30,7 +30,7 @@
                                                 }
 
     Public Shared WindColorBrushes(70) As SolidColorBrush
-    Public Shared WindColorGDIBrushes(70) As System.Drawing.Brush
+    Public Shared WindColorGDIBrushes(700) As System.Drawing.Brush
     Public Shared WindColors(70) As Color
 
     
@@ -49,6 +49,12 @@
 
         Next
 
+        For i = 0 To 700
+            Dim C As Color = GetColor(i / 10)
+
+            WindColorGDIBrushes(i) = New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(C.R, C.G, C.B))
+
+        Next
     End Sub
 
     Public Shared Function GetColor(ByVal WindStrength As Double) As Color
