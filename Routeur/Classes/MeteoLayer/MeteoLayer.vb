@@ -109,6 +109,10 @@ Public Class MeteoLayer
 
     Private Sub LasyFileManager(ByVal state As Object)
 
+        If Not System.IO.Directory.Exists(System.IO.Path.Combine(RouteurModel.BaseFileDir, WIND_TILE_FOLDER)) Then
+            Return
+        End If
+
         Dim Flist() As String = System.IO.Directory.GetFiles(System.IO.Path.Combine(RouteurModel.BaseFileDir, WIND_TILE_FOLDER))
 
         For Each File In Flist

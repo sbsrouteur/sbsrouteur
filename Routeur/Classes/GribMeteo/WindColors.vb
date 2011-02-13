@@ -45,7 +45,7 @@
             WindColorBrushes(i) = New SolidColorBrush(C)
             WindColorBrushes(i).Freeze()
             WindColors(i) = C
-            WindColorGDIBrushes(i) = New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(C.R, C.G, C.B))
+            'WindColorGDIBrushes(i) = New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(C.R, C.G, C.B))
 
         Next
 

@@ -63,10 +63,14 @@ Public Class ZoneMeteoInfo
             While ret Is Nothing
                 Try
                     ret = New BitmapImage(New Uri(FullPath))
+                    If Not ret.CanFreeze Then
+                        Dim i As Integer = 0
+                    End If
                     ret.Freeze()
 
                 Catch ex As Exception
                     'ignore and try again
+                    Console.WriteLine("LoadImage Exception " & ex.Message)
                 End Try
             End While
 
@@ -110,10 +114,14 @@ Public Class ZoneMeteoInfo
             While ret Is Nothing
                 Try
                     ret = New BitmapImage(New Uri(FullPath))
+                    If Not ret.CanFreeze Then
+                        Dim i As Integer = 0
+                    End If
                     ret.Freeze()
 
                 Catch ex As Exception
                     'ignore and try again
+                    Console.WriteLine("Create/LoadImage Exception " & ex.Message)
                 End Try
             End While
 
