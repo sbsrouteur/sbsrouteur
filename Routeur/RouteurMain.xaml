@@ -55,10 +55,10 @@
 						<ColumnDefinition Width="0.5*"/>
 						<ColumnDefinition Width="0.5*"/>
 					</Grid.ColumnDefinitions>
-					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Source="{Binding WindImage_0, IsAsync=True}" Stretch="Fill"  />
-					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Grid.Column="1" Grid.Row="0" Source="{Binding WindImage_1, IsAsync=True}" Stretch="Fill" />
-					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Grid.Column="0" Grid.Row="1" Source="{Binding WindImage_2, IsAsync=True}" Stretch="Fill"  />
-					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Grid.Column="1" Grid.Row="1" Source="{Binding WindImage_3, IsAsync=True}" Stretch="Fill"  />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Source="{Binding WindImage_0}" Stretch="Fill"  />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Grid.Column="1" Grid.Row="0" Source="{Binding WindImage_1}" Stretch="Fill" />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Grid.Column="0" Grid.Row="1" Source="{Binding WindImage_2}" Stretch="Fill"  />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Grid.Column="1" Grid.Row="1" Source="{Binding WindImage_3}" Stretch="Fill"  />
 					<StackPanel Grid.RowSpan="1" Grid.ColumnSpan="2"  Visibility="{Binding Visibility}" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
 						<TextBlock Text="{Binding WindDir, StringFormat={}{0:F0}}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8"/>
 						<TextBlock Text="/" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8"/>
@@ -294,8 +294,9 @@
 			</MenuItem>
 			<MenuItem Header="Meteo" VerticalAlignment="Center">
 				<CheckBox IsChecked="{Binding VorHandler.MeteoVisible, Mode=Default}" Content="Meteo Data Visible" ></CheckBox>
-				<Slider Maximum="1" Minimum="0" Value="{Binding Opacity, ElementName=canvas, Mode=TwoWay}" SmallChange=".01" LargeChange=".1" TickFrequency="25" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" ToolTip="Bg Transparency" />
-				<Slider Maximum="100" Minimum="5" Value="{Binding VorHandler.MeteoArrowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" TickFrequency="25" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" />
+				<Slider Maximum="1" Minimum="0" Value="{Binding Opacity, ElementName=canvas, Mode=TwoWay}" SmallChange=".01" LargeChange=".1" TickFrequency="0.1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" ToolTip="Bg Transparency" />
+				<!--<Slider Maximum="100" Minimum="5" Value="{Binding VorHandler.MeteoArrowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" TickFrequency="25" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" />
+				-->
 				<Slider x:Name="slider" Maximum="{Binding VorHandler.MeteoArrowDateEnd, Mode=Default}" Minimum="{Binding VorHandler.MeteoArrowDateStart, Mode=Default}" Width="129" Value="{Binding VorHandler.MeteoArrowDateTicks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding VorHandler.TickFreq, Mode=Default}" TickPlacement="BottomRight" />
 				<TextBlock Text="{Binding VorHandler.MeteoArrowDate, Mode=Default}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
 			</MenuItem>

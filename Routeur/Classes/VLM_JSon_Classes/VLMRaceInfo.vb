@@ -1,5 +1,7 @@
 ﻿Public Class VLMRaceInfo
 
+    
+
     Private _idraces As String
     Private _RaceName As String
     Private _StartLon As Integer
@@ -8,6 +10,7 @@
     Private _StartDate As DateTime
     Private _race_waypoints As New List(Of VLM_RaceWaypoint)
     Private _vacfreq As Integer
+
 
     Public Property boattype() As String
         Get
@@ -45,7 +48,7 @@
             End If
 
         End Get
-        
+
     End Property
 
     Public Property races_waypoints() As List(Of VLM_RaceWaypoint)
