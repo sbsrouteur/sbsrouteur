@@ -1093,8 +1093,8 @@ Public Class VLM_Router
                                     ModeAtWP = OrderType
                                 End If
                                 If Lat = 0 And Lon = 0 Then
-                                    PrevWPNum = RouteurModel.CurWP
-                                    PrevWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0))
+                                    PrevWPNum = GetNextRankingWP(RouteurModel.CurWP - 1)
+                                    PrevWPDest = New Coords(_PlayerInfo.RaceInfo.races_waypoints(PrevWPNum).WPs(0)(0))
 
                                 Else
                                     PrevWPNum = -1
@@ -1221,10 +1221,10 @@ Public Class VLM_Router
                                 'WP Reached change for next WP
                                 If ModeAtWP <> 1 Then
                                     If CurWPNUm = -1 Then
-                                        CurWPNUm = RouteurModel.CurWP
+                                        CurWPNUm = GetNextRankingWP(RouteurModel.CurWP - 1)
                                     Else
-                                        CurWPNUm += 1
-                                        If CurWPNUm >= RouteurModel.WPList.Count Then
+                                        CurWPNUm = GetNextRankingWP(CurWPNUm)
+                                        If CurWPNUm < 0 Then
                                             RouteComplete = True
                                         End If
 
@@ -2659,6 +2659,20 @@ Public Class VLM_Router
             CurDate = _PlayerInfo.RaceInfo.deptime
         End If
         Return CurDate
+    End Function
+
+    Private Function GetNextRankingWP(ByVal WP As Integer) As Integer
+        Dim NewWPLookupComplete As Boolean = False
+        While Not NewWPLookupComplete
+            WP += 1
+
+            If WP >= RouteurModel.WPList.Count Then
+                Return -1
+            End If
+            If (_PlayerInfo.RaceInfo.races_waypoints(WP).Wpformat And VLM_RaceWaypoint.Enum_WP_TypeMasks.WP_GATE_KIND_MASK) = 0 Then
+                Return WP
+            End If
+        End While
     End Function
 
     Private Function GetRoutePointAtCoords(ByVal Points As ObservableCollection(Of clsrouteinfopoints), ByVal TargetC As Coords, ByRef RetC As clsrouteinfopoints) As Boolean

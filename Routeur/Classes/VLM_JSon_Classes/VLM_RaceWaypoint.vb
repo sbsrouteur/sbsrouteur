@@ -2,10 +2,36 @@
 
     Implements IComparable(Of VLM_RaceWaypoint)
 
+    'WP Type masks
+    '#define WP_DEFAULT              0
+    '#define WP_ICE_GATE_N           (1 <<  4)
+    '#define WP_ICE_GATE_S           (1 <<  5)
+    '#define WP_ICE_GATE_E           (1 <<  6)
+    '#define WP_ICE_GATE_W           (1 <<  7)
+    '#define WP_GATE_KIND_MASK       0x00F0
+    '/* allow crossing in one direction only */
+    '#define WP_CROSS_CLOCKWISE      (1 <<  8)
+    '#define WP_CROSS_ANTI_CLOCKWISE (1 <<  9)
+    '/* for future releases */
+    '#define WP_CROSS_ONCE           (1 << 10)
+
+    Public Enum Enum_WP_TypeMasks As Integer
+        [Default] = 0
+        ICE_GATE_N = (1 << 4)
+        WP_ICE_GATE_S = (1 << 5)
+        WP_ICE_GATE_E = (1 << 6)
+        WP_ICE_GATE_W = (1 << 7)
+        WP_GATE_KIND_MASK = &HF0
+
+        WP_CROSS_CLOCKWISE = (1 << 8)
+        WP_CROSS_ANTI_CLOCKWISE = (1 << 9)
+        WP_CROSS_ONCE = (1 << 10)
+    End Enum
 
     Private _wporder As Integer
     Private _laisser_au As Integer
     Private _wptype As String
+    Private _wpformat As Integer
     Private _latitude1 As Integer
     Private _longitude1 As Integer
     Private _latitude2 As Integer
@@ -75,6 +101,15 @@
         End Get
         Set(ByVal value As Integer)
             _maparea = value
+        End Set
+    End Property
+
+    Public Property wpformat() As Integer
+        Get
+            Return _wpformat
+        End Get
+        Set(ByVal value As Integer)
+            _wpformat = value
         End Set
     End Property
 
