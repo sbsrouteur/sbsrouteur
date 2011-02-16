@@ -1856,6 +1856,9 @@ Public Class VLM_Router
                     End If
                     If LoopCount = 1 Then
                         RefAngle = (WindAngleWithSign(RefLoxo, mi.Dir) + Correction + 3600) Mod 360
+                        If RefAngle > 180 Then
+                            RefAngle = -(180 - (RefAngle Mod 180))
+                        End If
                     End If
                     Speed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
 
@@ -1888,6 +1891,9 @@ Public Class VLM_Router
 
             If Found Then
                 _WindAngleETA = CurETA
+                If RefAngle > 180 Then
+                    RefAngle = -(180 - (RefAngle Mod 180))
+                End If
                 _MenuWPAngle = RefAngle
                 _MenuWPWindAngleValid = True
             End If
