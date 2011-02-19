@@ -34,6 +34,15 @@
    
     }
     echo "</center></table>\n";
-    echo "<p>Real downoad = 1 download per IP";
+    echo "<p>Real downoad = 1 download per IP<BR>";
+	
+	$res=sqlite_array_query ($base," select distinct ip,count(*) as cnt from $mytable group by ip order by cnt desc", SQLITE_ASSOC, $err_str);
+	echo "<table>";
+	foreach ($res as $rec)
+	{
+		echo "<tr>";
+		echo "<td>".$rec['ip'] . " : </td><td>" . $rec['cnt']."</td>";
+	}
+	echo "</table>";
   }
 ?>
