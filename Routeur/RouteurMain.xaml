@@ -45,7 +45,7 @@
 		</DataTemplate>
 		
 		<DataTemplate x:Key="MeteoInfoColorBox" >
-			<Canvas Visibility="{Binding Visibility}">
+			<Canvas x:Name="canvas" Visibility="{Binding Visibility}">
 				<Grid Canvas.Left="{Binding Left}"  Canvas.Top="{Binding Top}" Width="{Binding Width}" Height="{Binding Height}" >
 					<Grid.RowDefinitions>
 						<RowDefinition Height="0.5*"/>
@@ -55,14 +55,17 @@
 						<ColumnDefinition Width="0.5*"/>
 						<ColumnDefinition Width="0.5*"/>
 					</Grid.ColumnDefinitions>
-					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Source="{Binding WindImage_0}" Stretch="Fill"  />
+					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Source="{Binding WindImage_0}" Stretch="Fill" ToolTip="{Binding ToStringDebug}"  />
 					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Grid.Column="1" Grid.Row="0" Source="{Binding WindImage_1}" Stretch="Fill" />
 					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Grid.Column="0" Grid.Row="1" Source="{Binding WindImage_2}" Stretch="Fill"  />
 					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Grid.Column="1" Grid.Row="1" Source="{Binding WindImage_3}" Stretch="Fill"  />
+					<StackPanel Grid.ColumnSpan="2">
 					<StackPanel Grid.RowSpan="1" Grid.ColumnSpan="2"  Visibility="{Binding Visibility}" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
 						<TextBlock Text="{Binding WindDir, StringFormat={}{0:F0}}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8"/>
 						<TextBlock Text="/" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8"/>
 						<TextBlock Text="{Binding WindStr, StringFormat={}{0:F1}}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8"/>
+					</StackPanel>
+					<!--<TextBox Text="{Binding ToStringDebug, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="8" Margin="24.003,0" d:LayoutOverrides="Width"/>-->
 					</StackPanel>
 					<Image Source="Graphics/WindArrow.png" RenderTransformOrigin="0.5,0.5" Visibility="{Binding Visibility}" Grid.RowSpan="2" Grid.ColumnSpan="2" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center" >
 						<Image.RenderTransform>
@@ -251,7 +254,7 @@
     		<ColumnDefinition Width="0.53*"/>
     		<ColumnDefinition Width="0.128*"/>
     	</Grid.ColumnDefinitions>
-    	<Menu HorizontalAlignment="Stretch" Width="Auto" Grid.RowSpan="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="1,0,-1,0">
+    	<Menu HorizontalAlignment="Stretch" Width="Auto" Grid.RowSpan="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="2,1,-2,-1">
             <!--<CheckBox Content="Autorouting" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=comboBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding AutoRouting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ShowAutorouting, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" VerticalAlignment="Center"/>-->
 			<MenuItem Header="Actions" VerticalAlignment="Center">
 	            <CheckBox x:Name="chkGridRoute" Content="Grid Route" Checked="CheckGridRoute" Unchecked="CheckGridRoute" VerticalAlignment="Center"/>
