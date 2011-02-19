@@ -792,7 +792,7 @@ Render1:
                 Dim Ignored As Integer = 0
                 Dim Pnt As New Coords
                 For Each C In Coords
-                    If C <> "" Then
+                    If C <> "" AndAlso C <> "0!0" Then
                         If Ignored >= Ignorepoints Then
                             CoordValue = C.Split("!"c)
                             Dim lon As Double
@@ -860,6 +860,7 @@ Render1:
                         If Not R Is Nothing Then
                             FirstPoint = True
                             For Each P In R
+                                
                                 If Not P Is Nothing AndAlso Not P.P Is Nothing AndAlso (Not RouteIsWP OrElse CurWP >= RouteurModel.CurWP) Then
                                     P1.X = LonToCanvas(P.P.Lon_Deg)
                                     P1.Y = LatToCanvas(P.P.Lat_Deg)
@@ -885,8 +886,8 @@ Render1:
                                     PrevPoint = P1
                                     'PrevSide = P.P.Lon < 0
                                 End If
-                                CurWP += 1
-                            Next
+                        CurWP += 1
+                    Next
                             ShownPoints += 1
                         End If
                         PenNumber += 1
