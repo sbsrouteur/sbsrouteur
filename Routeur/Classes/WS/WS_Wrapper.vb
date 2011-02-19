@@ -30,12 +30,8 @@ Module WS_Wrapper
             Retstring = RequestPage(URL)
             Return Parse(Retstring)
         Catch wex As WebException
-            If wex.Response Is Nothing OrElse CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
                 'Login error
-                Return Nothing
-            Else
-                MessageBox.Show(wex.Response.ToString)
-            End If
+                Return Nothing            
         Catch ex As Exception
             MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
         End Try
