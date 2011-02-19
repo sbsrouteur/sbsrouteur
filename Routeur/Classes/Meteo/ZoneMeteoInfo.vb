@@ -60,7 +60,8 @@ Public Class ZoneMeteoInfo
 
         If IO.File.Exists(FullPath) Then
             Dim ret As BitmapImage = Nothing
-            While ret Is Nothing
+            Dim Loopcount As Long
+            While ret Is Nothing And Loopcount < 10
                 Try
                     ret = New BitmapImage(New Uri(FullPath))
                     If Not ret.CanFreeze Then
@@ -214,6 +215,19 @@ Public Class ZoneMeteoInfo
         End Set
     End Property
 
+    Public ReadOnly Property ToStringDebug() As String
+        Get
+            Dim RetString As String = _ZoneDate.ToString & vbCrLf & _NWPoint.ToString & " " & _SEPoint.ToString & vbCrLf
+
+            For i = 0 To 8
+                RetString &= _VS(i).ToString("f1") & " "
+            Next
+
+            Return RetString
+        End Get
+
+    End Property
+
     Public Property Visibility() As Visibility
         Get
             Return _Visibility
@@ -243,7 +257,7 @@ Public Class ZoneMeteoInfo
         Get
             Return _Width / 2
         End Get
-        
+
     End Property
 
     Public Property WindColor() As Color()
@@ -294,6 +308,7 @@ Public Class ZoneMeteoInfo
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WindImage_1"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WindImage_2"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WindImage_3"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ToStringDebug"))
         Visibility = Windows.Visibility.Visible
         Console.WriteLine("Visual updated in " & Now.Subtract(start).ToString)
     End Sub
@@ -354,8 +369,5 @@ Public Class ZoneMeteoInfo
             End If
         End Set
     End Property
-
-
-
 
 End Class
