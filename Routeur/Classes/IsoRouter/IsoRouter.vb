@@ -2,6 +2,7 @@
 Imports Routeur.VLM_Router
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
+Imports System.Threading.Tasks
 
 Public Class IsoRouter
     Implements INotifyPropertyChanged
@@ -99,26 +100,6 @@ Public Class IsoRouter
                     End If
                     If RetIsoChrone Is Nothing Then
                         RetIsoChrone = New IsoChrone(_AngleStep)
-
-                        'For alpha = 0 To 360 Step _AngleStep
-                        '    Index = Iso.IndexFromAngle(alpha)
-                        '    Dim Src As clsrouteinfopoints = Iso.Data(Index)
-                        '    Index = RetIsoChrone.IndexFromAngle(alpha)
-                        '    If Src IsNot Nothing AndAlso RetIsoChrone.Data(Index) Is Nothing Then
-                        '        RetIsoChrone.Data(Index) = New clsrouteinfopoints
-                        '        With RetIsoChrone.Data(Index)
-                        '            .P = New Coords(Src.P)
-                        '            .T = Src.T.AddMinutes(CurStep.TotalMinutes)
-                        '            .WindStrength = 0
-                        '            .WindDir = 0
-                        '            .Loch = Src.Loch
-                        '            .DTF = Src.DTF
-                        '            .From = Src.From
-                        '            .Cap = Src.Cap
-                        '        End With
-                        '    End If
-
-                        'Next
                     End If
                     Dim Loxo As Double
                     tc.StartPoint = rp.P

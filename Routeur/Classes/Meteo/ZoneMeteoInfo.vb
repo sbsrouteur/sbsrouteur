@@ -63,6 +63,7 @@ Public Class ZoneMeteoInfo
             Dim Loopcount As Long
             While ret Is Nothing And Loopcount < 10
                 Try
+                    Loopcount += 1
                     ret = New BitmapImage(New Uri(FullPath))
                     If Not ret.CanFreeze Then
                         Dim i As Integer = 0
