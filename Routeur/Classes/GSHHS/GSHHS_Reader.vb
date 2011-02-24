@@ -1,6 +1,7 @@
 ﻿Imports System.IO
 Imports System.Math
 Imports System.Drawing
+Imports System.Media
 
 
 Public Class GSHHS_Reader
