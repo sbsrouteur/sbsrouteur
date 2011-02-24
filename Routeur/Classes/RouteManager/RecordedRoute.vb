@@ -88,7 +88,7 @@ Public Class RecordedRoute
         End Set
     End Property
 
-    Public Sub ExportRoute(ByVal OutputFile As String)
+    Public Sub ExportRoute_CSVFormat(ByVal OutputFile As String)
         Dim S1 As New System.IO.StreamWriter(OutputFile)
 
         For Each Pt In Route
@@ -97,6 +97,51 @@ Public Class RecordedRoute
 
         S1.Close()
 
+    End Sub
+
+    Public Sub ExportRoute_XMLFormat(ByVal OutputFile As String)
+
+        Dim E As New Xml.Serialization.XmlSerializer(GetType(RouteExport))
+
+        Dim R As New RouteExport
+
+        With R
+            .Generator = New Generator
+            .Generator.ExportDate = New DateTime(Now.Ticks, DateTimeKind.Local)
+            .Generator.Name = "SbsRouteur"
+            .Generator.Version = My.Application.Info.Version.ToString
+
+            .RouteList = New RouteExportRouteList
+
+        End With
+
+        R.RouteList.Route = New RouteElement
+        With R.RouteList.Route
+            .Name = RouteName
+            .RaceID = RaceID
+            .TrackColor = New RouteColor With {.A = Color.A, .R = Color.B, .G = Color.G, .B = Color.B}
+            ReDim .Track(Route.Count - 1)
+
+            For i As Integer = 0 To Route.Count - 1
+                .Track(i) = New RoutePoint
+                With .Track(i)
+                    .ActionDate = New DateTime(Route(i).ActionDate.Ticks, DateTimeKind.Local)
+                    .ActionValue = New RoutePointActionValue
+                    .ActionValue.Item = CType(Route(i).RouteValue, RoutePointDoubleValue).Value
+                    .Coords = New RouteCoords() With {.Lat = Route(i).P.Lat_Deg, .Lon = Route(i).P.Lon_Deg}
+                    .Type = RouteActionType.Bearing
+                End With
+            Next
+
+        End With
+
+        Try
+            Using Sr As New IO.FileStream(OutputFile, IO.FileMode.Create)
+                E.Serialize(Sr, R)
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("XML File export with reason : " & ex.Message)
+        End Try
     End Sub
 
     Public Sub Initialize()

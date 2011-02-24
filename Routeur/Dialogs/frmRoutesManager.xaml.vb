@@ -91,13 +91,20 @@ Partial Public Class frmRoutesManager
                 .AddExtension = True
                 .CheckFileExists = False
                 .CheckPathExists = True
-                .DefaultExt = ".csv"
-
+                .DefaultExt = ".xml"
+                .Filter = "Router CSV File format (*.csv)|*.csv|VLM XML export File format (*.xml)|*.xml"
+                .FilterIndex = 1
                 If .ShowDialog() Then
                     Dim M As RouteManager = CType(DataContext, RouteManager)
-                    R.ExportRoute(.FileName)
 
+                    If .FileName.EndsWith(".csv") Then
+                        R.ExportRoute_CSVFormat(.FileName)
+                    Else
+                        R.ExportRoute_XMLFormat(.FileName)
+
+                    End If
                 End If
+
             End With
         End If
 
