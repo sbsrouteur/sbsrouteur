@@ -107,7 +107,8 @@ Public Class RecordedRoute
 
         With R
             .Generator = New Generator
-            .Generator.ExportDate = New DateTime(Now.Ticks, DateTimeKind.Local)
+            Dim CurTicks As Long = CLng(Math.Floor(Now.Ticks / TimeSpan.TicksPerSecond) * TimeSpan.TicksPerSecond)
+            .Generator.ExportDate = ConvertToUTC(CurTicks)
             .Generator.Name = "SbsRouteur"
             .Generator.Version = My.Application.Info.Version.ToString
 
@@ -125,7 +126,7 @@ Public Class RecordedRoute
             For i As Integer = 0 To Route.Count - 1
                 .Track(i) = New RoutePoint
                 With .Track(i)
-                    .ActionDate = New DateTime(Route(i).ActionDate.Ticks, DateTimeKind.Local)
+                    .ActionDate = ConvertToUTC(Route(i).ActionDate)
                     .ActionValue = New RoutePointActionValue
                     .ActionValue.Item = CType(Route(i).RouteValue, RoutePointDoubleValue).Value
                     .Coords = New RouteCoords() With {.Lat = Route(i).P.Lat_Deg, .Lon = Route(i).P.Lon_Deg}
@@ -295,4 +296,15 @@ Public Class RecordedRoute
         End If
 
     End Sub
+
+    Private Function ConvertToUTC(ByVal DteTicks As Long) As Date
+        Return ConvertToUTC(New DateTime(DteTicks))
+    End Function
+
+
+    Private Function ConvertToUTC(ByVal Dte As Date) As Date
+        Dim OffSet As TimeSpan = TimeZone.CurrentTimeZone.GetUtcOffset(Dte)
+        Return New DateTime(Dte.Add(-OffSet).Ticks, DateTimeKind.Utc)
+    End Function
+
 End Class
