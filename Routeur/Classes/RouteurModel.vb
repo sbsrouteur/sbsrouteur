@@ -29,8 +29,7 @@ Public Class RouteurModel
     Private Shared _PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
     Private Shared _RouteExtensionHours As Double = RacePrefs.RACE_COURSE_EXTENSION_HOURS
     Private _ShowEasyNav As Boolean = False
-    Private _Dispatcher As Windows.Threading.Dispatcher
-
+    
     Private WithEvents _MapLayer As MeteoLayer
 
     Public Shared DebugEvt As New AutoResetEvent(True)
@@ -134,6 +133,8 @@ Public Class RouteurModel
 
     Private WithEvents _RouteManager As RouteManager
 
+    Private _2DViewerLock As New Object
+
 
     Public Function CanvasToCoords(ByVal X As Double, ByVal Y As Double) As Coords
 
@@ -177,6 +178,13 @@ Public Class RouteurModel
     End Sub
 
     Public Sub New()
+        'THIS DEFAULT CONSTRUCTOR IS REQUIRED FOR THE XML!!!
+    End Sub
+
+    Public Sub New(ByVal Dispatcher As Windows.Threading.Dispatcher)
+        Me.Dispatcher = Dispatcher
+        Cron = New Cron(Dispatcher)
+        InitCron()
     End Sub
 
     Public Sub UpdateRaceScale(ByVal C1 As Coords, ByVal C2 As Coords)
@@ -235,6 +243,8 @@ Public Class RouteurModel
             _MapLayer.RefreshInfo(C1, C2, VorHandler.MeteoArrowDate)
         End If
     End Sub
+
+    Private Property Dispatcher As Windows.Threading.Dispatcher
 
     Public Shared Property Exclusions() As Double()()
         Get
@@ -695,6 +705,8 @@ Public Class RouteurModel
 
     End Sub
 
+    Private Property Cron As Cron
+
     Public Shared Property CourseExtensionHours() As Double
         Get
             Return _RouteExtensionHours
@@ -841,7 +853,7 @@ Public Class RouteurModel
         Select e.PropertyName
             Case "Drawn"
                 VorHandler.RedrawComplete()
-                SyncLock Me
+                SyncLock _2DViewerLock
                     _Busy = False
                 End SyncLock
 
@@ -950,6 +962,11 @@ Public Class RouteurModel
         End Get
     End Property
 
+    Private Sub OnAutoStartIsoRouter()
+
+        'If VorHandler.StartIsoRoute Then
+    End Sub
+
     Private Sub OnRecordRouteMenuHandler(ByVal o As Object)
         Dim RouteIndex As Integer = 0
 
@@ -1032,4 +1049,26 @@ Public Class RouteurModel
 
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MapLayer"))
     End Sub
+
+    Private Sub InitCron()
+
+        Cron.Stop()
+        Cron.ClearTasks()
+
+        Dim AppPrefs As New AppPrefs
+        AppPrefs.Load(AppPrefs)
+
+        If AppPrefs.AutoStartRouterAtMeteoUpdate Then
+            Dim T As New CronTask(AddressOf OnAutoStartIsoRouter)
+            Dim CurTime As New DateTime(CLng(Math.Floor(Now.Ticks / TimeSpan.TicksPerHour)), DateTimeKind.Utc)
+            CurTime = CurTime.AddMinutes(-CurTime.Minute).AddSeconds(-CurTime.Second).AddHours(Math.Floor(CurTime.Hour / 6) * 6)
+            CurTime = TimeZoneInfo.ConvertTimeFromUtc(CurTime, TimeZoneInfo.Local)
+            CurTime = CurTime.AddMinutes(5)
+            T.NextStartTime = CurTime
+            T.Period = New TimeSpan(6, 0, 0)
+
+        End If
+        Cron.Start()
+    End Sub
+
 End Class

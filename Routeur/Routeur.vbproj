@@ -60,7 +60,7 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <IncrementalBuild>false</IncrementalBuild>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314,42353,42354,42355</NoWarn>
@@ -98,6 +98,12 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Classes\Configuration\AppPrefs.vb" />
+    <Compile Include="Classes\Cron\Cron.vb" />
+    <Compile Include="Classes\Cron\CronTask.vb" />
+    <Compile Include="Dialogs\frmAppOptions.xaml.vb">
+      <DependentUpon>frmAppOptions.xaml</DependentUpon>
+    </Compile>
     <Compile Include="xml\RouteExport.vb">
       <DependentUpon>RouteExport.xsd</DependentUpon>
     </Compile>
@@ -186,6 +192,10 @@
     <Page Include="Controls\WindArrow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\frmAppOptions.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

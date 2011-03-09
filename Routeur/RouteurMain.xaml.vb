@@ -44,7 +44,6 @@ Partial Public Class RouteurMain
 
     Private Sub FormLoaded(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
-
         Dim M = CType(FindResource(RouteurModelResourceName), RouteurModel)
         M.Init(Dispatcher)
 
@@ -486,6 +485,10 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
         WS_Wrapper.SetBoatHeading(M.VorHandler.PlayerInfo.NumBoat, NewBearing)
         ReloadPilototo(Me, Nothing)
+
+    End Sub
+
+    Private Sub ShowOptionsDlg(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
     End Sub
 End Class
