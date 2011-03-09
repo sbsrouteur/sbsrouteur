@@ -1,0 +1,21 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	x:Class="frmAppOptions"
+	x:Name="Window"
+	Title="frmAppOptions"
+	Width="640" Height="480">
+
+	<Grid x:Name="LayoutRoot">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" MinHeight="18"/>
+			<RowDefinition Height="0.875*"/>
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+		<StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="{DynamicResource DefMargin}">
+			<Button x:Name="cmdCancel" Content="Cancel" Width="100" Click="DlgClose" Margin="{DynamicResource DefMargin}" IsCancel="True"/>
+			<Button x:Name="cmdOK" Content="Ok" Width="100" Click="DlgClose" Margin="{DynamicResource DefMargin}" IsDefault="True" IsEnabled="False"/>		
+		</StackPanel>
+		<CheckBox Content="AutoStart ISORouteur at Meteo update (0.30Z, 6.30Z, 12.30Z,18.30Z)" IsChecked="{Binding AutoStartAtMeteoMAJ}"/>
+	</Grid>
+</Window>

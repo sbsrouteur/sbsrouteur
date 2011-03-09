@@ -6,6 +6,7 @@ Imports System.IO
 
 Public Class GribManager
     Implements INotifyPropertyChanged
+    Public Const METEO_SLEEP_DELAY As Integer = 25
 
     Private Enum DirInterpolation As Integer
 
@@ -79,7 +80,7 @@ Public Class GribManager
                 If NoLoad Then
                     Return False
                 End If
-                System.Threading.Thread.Sleep(250)
+                System.Threading.Thread.Sleep(METEO_SLEEP_DELAY)
             End While
             'SyncLock _GribMonitor
             Try

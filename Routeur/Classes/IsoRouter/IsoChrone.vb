@@ -2,6 +2,7 @@
 
 Public Class IsoChrone
 
+    Private _Locks() As Object
     Private _Data() As clsrouteinfopoints
     Private _Drawn As Boolean=False 
 
@@ -11,7 +12,7 @@ Public Class IsoChrone
     Public Sub New(ByVal AngleStep As Double)
         _AngleStep = AngleStep
         ReDim _Data(MaxIndex)
-
+        ReDim _Locks(MaxIndex)
     End Sub
 
     Public Property Data() As clsrouteinfopoints()
@@ -40,6 +41,7 @@ Public Class IsoChrone
             _Data(index) = value
         End Set
     End Property
+
     Public Property Drawn() As Boolean
         Get
             Return _Drawn
@@ -55,6 +57,18 @@ Public Class IsoChrone
         End Get
     End Property
 
+    Public ReadOnly Property Locks(index As Integer) As Object
+        Get
+            If _Locks(index) Is Nothing Then
+                SyncLock (Me)
+                    If _Locks(index) Is Nothing Then
+                        _Locks(index) = New Object
+                    End If
+                End SyncLock
+            End If
+            Return _Locks(index)
+        End Get
+    End Property
     Public ReadOnly Property MaxIndex() As Integer
         Get
             Return CInt(Math.Floor((360 - _AngleStep) / _AngleStep))
