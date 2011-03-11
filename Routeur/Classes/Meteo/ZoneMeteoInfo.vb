@@ -91,11 +91,16 @@ Public Class ZoneMeteoInfo
                         If S > 70 Then
                             S = 70
                         End If
-                        Dim SIndex As Integer = CInt(Math.Round(S * 10))
+                        'Dim SIndex As Integer = CInt(Math.Round(S * 10))
                         'Points(BITMAP_SIZE * j + i) = V
-                        SyncLock WindColors.WindColorGDIBrushes(SIndex)
-                            G.FillRectangle(WindColors.WindColorGDIBrushes(SIndex), New System.Drawing.RectangleF(CSng(i), CSng(j), 1.0, 1.0))
-                        End SyncLock
+                        'SyncLock WindColors.WindColorGDIBrushes(SIndex)
+                        ' G.FillRectangle(WindColors.WindColorGDIBrushes(SIndex), New System.Drawing.RectangleF(CSng(i), CSng(j), 1.0, 1.0))
+                        'End SyncLock
+                        Dim C As Color = WindColors.GetColor(S)
+                        Using Br As New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(C.R, C.G, C.B))
+                            G.FillRectangle(Br, New System.Drawing.RectangleF(CSng(i), CSng(j), 1.0, 1.0))
+                        End Using
+
                     Next
                 Next
 

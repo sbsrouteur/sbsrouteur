@@ -34,7 +34,7 @@ Partial Public Class frmRoutingProgress
             Me.Owner = owner
             Show()
         Else
-            Dispatcher.Invoke(New Action(Of Window, Object)(AddressOf Me.Show), New Object() {owner, Data})
+            Dispatcher.BeginInvoke(New Action(Of Window, Object)(AddressOf Me.Show), New Object() {owner, Data})
         End If
 
     End Sub

@@ -403,7 +403,6 @@ Render1:
                           ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
 
         Static Invoking As Integer = 0
-        Static lastinvoke As DateTime = New DateTime(0)
         Dim Start As DateTime = Now
         Static dlg As New UpdatePathDelegate(AddressOf UpdatePath)
         Static Q As New Queue(Of System.Windows.Threading.DispatcherOperation)
