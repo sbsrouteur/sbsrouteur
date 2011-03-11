@@ -79,7 +79,7 @@ Public Class IsoRouter
             Dim MaxWindAngle As Double
 
             'Dim IsoStart As DateTime = Now
-            Console.WriteLine("Iso len : " & Iso.Data.Length)
+            'Console.WriteLine("Iso len : " & Iso.Data.Length)
             Dim StartIndex As Integer = 0
             Dim AStep As Double
             Dim CurStep As TimeSpan
@@ -190,10 +190,10 @@ Public Class IsoRouter
                                                                   'If WindAngle(Ortho, alpha) < _SearchAngle Then
                                                                   'Dim ReachPointStart As DateTime = Now
                                                                   'Static ReachCount As Integer = 1
-                                                                  Dim start As DateTime = Now
+                                                                  'Dim start As DateTime = Now
                                                                   P = ReachPoint(rp, alpha, CurStep)
-                                                                  Interlocked.Add(ReachPointDuration, Now.Subtract(start).Ticks)
-                                                                  Interlocked.Increment(ReachPointCount)
+                                                                  'Interlocked.Add(ReachPointDuration, Now.Subtract(start).Ticks)
+                                                                  'Interlocked.Increment(ReachPointCount)
                                                                   'If ReachCount Mod 2000 = 0 Then
                                                                   ' ReachCount = 0
                                                                   'Console.WriteLine("Reached in " & Now.Subtract(ReachPointStart).TotalMilliseconds / 2000)
@@ -261,8 +261,8 @@ Public Class IsoRouter
             '    Else
             '        PrevDtf = 0
             '    End If
-            Console.WriteLine("Avg ReachPoint (ms)" & (ReachPointDuration / ReachPointCount / TimeSpan.TicksPerMillisecond).ToString("f3"))
-            Console.WriteLine("Total ReachPoint (ms)" & (ReachPointDuration / TimeSpan.TicksPerMillisecond).ToString("f3") & " on " & ReachPointCount)
+            'Console.WriteLine("Avg ReachPoint (ms)" & (ReachPointDuration / ReachPointCount / TimeSpan.TicksPerMillisecond).ToString("f3"))
+            'Console.WriteLine("Total ReachPoint (ms)" & (ReachPointDuration / TimeSpan.TicksPerMillisecond).ToString("f3") & " on " & ReachPointCount)
             'Next
             Dim tc2 As New TravelCalculator
             For Index1 = 1 To RetIsoChrone.Data.Count - 1

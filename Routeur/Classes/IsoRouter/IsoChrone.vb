@@ -4,7 +4,8 @@ Public Class IsoChrone
 
     Private _Locks() As Object
     Private _Data() As clsrouteinfopoints
-    Private _Drawn As Boolean=False 
+    Private _Drawn As Boolean = False
+    Private _IsoChroneLock As New Object
 
 
     Private _AngleStep As Double
@@ -60,7 +61,7 @@ Public Class IsoChrone
     Public ReadOnly Property Locks(index As Integer) As Object
         Get
             If _Locks(index) Is Nothing Then
-                SyncLock (Me)
+                SyncLock _IsoChroneLock
                     If _Locks(index) Is Nothing Then
                         _Locks(index) = New Object
                     End If
