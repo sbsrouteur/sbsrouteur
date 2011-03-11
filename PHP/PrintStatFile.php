@@ -1,4 +1,77 @@
-<?
+<?php
+
+  	$errors = array();
+	$showTimezone = false;
+	$service = 'api.ipinfodb.com';
+	$version = 'v2';
+	$apiKey = '';
+	
+	
+	function setKey($key){
+		if(!empty($key)) $apiKey = $key;
+	}
+
+	function showTimezone(){
+		$showTimezone = false;
+	}
+
+	function getError(){
+		return implode("\n", errors);
+	}
+
+	function getGeoLocation($ip)
+	{
+		//$ip = @gethostbyname($host);
+
+		if(preg_match('/^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:[.](?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/', $ip)){
+			$xml = file_get_contents('http://' . $service . '/' . $version . '/' . 'ip_query.php?key=' . $apiKey . '&ip=' . $ip);
+			echo $xml;
+			//try
+			{
+				$response = @new SimpleXMLElement($xml);
+
+				foreach($response as $field=>$value){
+					$result[(string)$field] = (string)$value;
+				}
+				
+				return $result;
+			}
+			//catch(Exception $e){
+				$errors[] = $e->getMessage();
+			//	return;
+			//}
+		}
+
+		$errors[] = '"' . $host . '" is not a valid IP address or hostname.';
+		echo '"' . $host . '" is not a valid IP address or hostname.';
+		return;
+	}
+	
+	function GetCityFromIP($IP)
+	{
+		//Load the class
+		
+		setKey('100198fe7b9541fe7f7ee65a42cbebe6a525a18c728e671ec05cfab2e131189b');
+		echo "<strong>Geolocating".$IP."</strong><br />\n";
+		 
+		//Get errors and locations
+		$locations = getGeoLocation($IP);
+		$errors = getError();
+		 
+		//Getting the result
+		//echo "<p>\n";
+		//echo "<strong>First result</strong><br />\n";
+		if (!empty($locations) && is_array($locations)) 
+		{
+		  foreach ($locations as $field => $val) 
+		  {
+			$ret = $ret. $field . ' : ' . $val . "<br />\n";
+		  }
+		}
+		return $ret;
+ 
+	}
+
   if($_SERVER['SERVER_NAME']=="localhost")
     $dbname='../db_stats/base_dwnload.sqlite';
   else
@@ -41,8 +114,13 @@
 	foreach ($res as $rec)
 	{
 		echo "<tr>";
+		//echo "<td>".$rec['ip'] . " : </td><td>" . $rec['cnt']."</td><td>".GetCityFromIP($rec['ip'])."</td>";
 		echo "<td>".$rec['ip'] . " : </td><td>" . $rec['cnt']."</td>";
+		//echo "<td>".$rec['ip'] . " : </td><td>" . $rec['cnt']."</td>";
 	}
 	echo "</table>";
   }
+  
+
+  
 ?>
