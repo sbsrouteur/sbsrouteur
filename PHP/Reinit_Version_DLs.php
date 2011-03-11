@@ -5,11 +5,11 @@ if($_SERVER['SERVER_NAME']=="localhost")
 else
     $dbname='../data/DB/Routeur_Dwnl.sqlite';
 $mytable ="dwnload";
-$CurVersion = "24.4";
+$CurVersion = "25.0";
 
 $base= sqlite_open($dbname, 0666, $err);
 if ($err)  exit($err); 
 
-$results=sqlite_query($base,"UPDATE $mytable set file_name =\"RouteurV".$CurVersion.".exe\" where file_name=\"RouteurV25.0.exe\"");
+$results=sqlite_query($base,"UPDATE $mytable set file_name =\"RouteurV".$CurVersion.".exe\" where file_name=\"Routeur.exe\"");
 
 ?>
