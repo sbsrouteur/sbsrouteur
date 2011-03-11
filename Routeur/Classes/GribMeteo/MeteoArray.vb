@@ -4,6 +4,7 @@
     Private _LonData()() As MeteoInfo
     Private _MaxLat As Integer = 0
     Private _MaxLon As Integer = 0
+    Private _MeteoArrayLock As New Object
 
     Public Sub New(ByVal Grain As Double)
         'ReDim Data(CInt(360 / GRID_GRAIN) - 1, CInt(180 / GRID_GRAIN) - 1)
@@ -68,22 +69,35 @@
                 Throw New InvalidOperationException("Lat index or lon index out of bound")
             End If
 
-            SyncLock (Me)
-                If _LonData Is Nothing OrElse LonIndex > UBound(_LonData) Then
+            If _LonData Is Nothing OrElse LonIndex > UBound(_LonData) Then
+                SyncLock _MeteoArrayLock
+                    If _LonData Is Nothing OrElse LonIndex > UBound(_LonData) Then
 
-                    ReDim Preserve _LonData(LonIndex)
-                End If
+                        ReDim Preserve _LonData(LonIndex)
+                    End If
+                End SyncLock
+            End If
 
-                If _LonData(LonIndex) Is Nothing OrElse LatIndex > UBound(_LonData(LonIndex)) Then
-                    ReDim Preserve _LonData(LonIndex)(LatIndex)
-                End If
+            If _LonData(LonIndex) Is Nothing OrElse LatIndex > UBound(_LonData(LonIndex)) Then
+                SyncLock _MeteoArrayLock
 
-                If _LonData(LonIndex)(LatIndex) Is Nothing Then
-                    _LonData(LonIndex)(LatIndex) = New MeteoInfo
-                End If
+                    If _LonData(LonIndex) Is Nothing OrElse LatIndex > UBound(_LonData(LonIndex)) Then
+                        ReDim Preserve _LonData(LonIndex)(LatIndex)
+                    End If
+                End SyncLock
+            End If
 
-                Return _LonData(LonIndex)(LatIndex)
-            End SyncLock
+            If _LonData(LonIndex)(LatIndex) Is Nothing Then
+                SyncLock _MeteoArrayLock
+                    If _LonData(LonIndex)(LatIndex) Is Nothing Then
+                        _LonData(LonIndex)(LatIndex) = New MeteoInfo
+                    End If
+
+                End SyncLock
+            End If
+
+            Return _LonData(LonIndex)(LatIndex)
+
 
 
         End Get
