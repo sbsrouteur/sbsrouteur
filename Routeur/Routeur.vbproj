@@ -101,8 +101,12 @@
     <Compile Include="Classes\Configuration\AppPrefs.vb" />
     <Compile Include="Classes\Cron\Cron.vb" />
     <Compile Include="Classes\Cron\CronTask.vb" />
+    <Compile Include="Classes\VLM_JSon_Classes\VLMShortRaceInfo.vb" />
     <Compile Include="Dialogs\frmAppOptions.xaml.vb">
       <DependentUpon>frmAppOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\frmRaceSelection.xaml.vb">
+      <DependentUpon>frmRaceSelection.xaml</DependentUpon>
     </Compile>
     <Compile Include="xml\RouteExport.vb">
       <DependentUpon>RouteExport.xsd</DependentUpon>
@@ -208,6 +212,10 @@
     <Page Include="Dialogs\frmNewBoat.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\frmRaceSelection.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -593,6 +601,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\WindArrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\RaceList.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

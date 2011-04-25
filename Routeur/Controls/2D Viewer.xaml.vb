@@ -279,6 +279,12 @@ Render1:
         'Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
         Dim Width As Double = 360 / Scale ' ._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
         Dim Z As Integer = CInt(Math.Floor(Math.Log(360 / Width) / Math.Log(2))) + 1
+
+        'Limit zoom to 20 (at least for use with VLM cached tiles)
+        If Z > 20 Then
+            Z = 20
+        End If
+
         Dim North As Double = CanvasToLat(0)
         Dim West As Double = CanvasToLon(0)
         _TileCount = 0

@@ -212,6 +212,7 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
         M.VorHandler.startGridRoute(False)
         M.VorHandler.StartIsoRoute(Me, False, False)
+        My.Settings.Save()
     End Sub
 
     Private Sub cmdSimpleVMG(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
@@ -491,4 +492,5 @@ Partial Public Class RouteurMain
     Private Sub ShowOptionsDlg(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
     End Sub
+
 End Class
