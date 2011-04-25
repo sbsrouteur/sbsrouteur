@@ -1,7 +1,5 @@
 ﻿Public Class VLMRaceInfo
 
-    
-
     Private _idraces As String
     Private _RaceName As String
     Private _StartLon As Integer

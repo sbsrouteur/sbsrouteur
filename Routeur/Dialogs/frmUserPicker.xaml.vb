@@ -141,4 +141,15 @@ Partial Public Class frmUserPicker
         e.Cancel = True
     End Sub
 
+    Private Sub OnRaceListRequest(sender As System.Object, e As System.Windows.RoutedEventArgs)
+
+        Dim frm As New frmRaceSelection
+
+        frm.Owner = Me
+
+        If frm.ShowDialog() Then
+
+        End If
+        frm.Close()
+    End Sub
 End Class

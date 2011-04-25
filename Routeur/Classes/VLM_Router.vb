@@ -2725,31 +2725,37 @@ Public Class VLM_Router
         Dim RetC As clsrouteinfopoints = Nothing
         Dim P As RoutePointInfo
 
-        If Not BestRouteAtPoint Is Nothing AndAlso BestRouteAtPoint.Count > 0 Then
-            P = New RoutePointInfo(KEY_ROUTE_THIS_POINT, BestRouteAtPoint(BestRouteAtPoint.Count - 1))
-            RoutePoints.Add(P)
-        End If
+        Try
 
-        If GetRoutePointAtCoords(PlannedRoute, C, RetC) Then
-            P = New RoutePointInfo("Planned", RetC)
-            RoutePoints.Add(P)
-        End If
+            If Not BestRouteAtPoint Is Nothing AndAlso BestRouteAtPoint.Count > 0 Then
+                P = New RoutePointInfo(KEY_ROUTE_THIS_POINT, BestRouteAtPoint(BestRouteAtPoint.Count - 1))
+                RoutePoints.Add(P)
+            End If
 
-        If GetRoutePointAtCoords(BruteRoute, C, RetC) Then
-            P = New RoutePointInfo("Best Route", RetC)
-            RoutePoints.Add(P)
-        End If
+            If GetRoutePointAtCoords(PlannedRoute, C, RetC) Then
+                P = New RoutePointInfo("Planned", RetC)
+                RoutePoints.Add(P)
+            End If
 
-        If GetRoutePointAtCoords(TempRoute, C, RetC) Then
-            P = New RoutePointInfo("Temp Route", RetC)
-            RoutePoints.Add(P)
-        End If
+            If GetRoutePointAtCoords(BruteRoute, C, RetC) Then
+                P = New RoutePointInfo("Best Route", RetC)
+                RoutePoints.Add(P)
+            End If
+
+            If GetRoutePointAtCoords(TempRoute, C, RetC) Then
+                P = New RoutePointInfo("Temp Route", RetC)
+                RoutePoints.Add(P)
+            End If
 
 
-        If GetRoutePointAtCoords(AllureRoute, C, RetC) Then
-            P = New RoutePointInfo("Allure Route", RetC)
-            RoutePoints.Add(P)
-        End If
+            If GetRoutePointAtCoords(AllureRoute, C, RetC) Then
+                P = New RoutePointInfo("Allure Route", RetC)
+                RoutePoints.Add(P)
+            End If
+
+        Catch
+            'Swallow this one
+        End Try
 
 
         If GetRoutePointAtCoords(PilototoRoute, C, RetC) Then

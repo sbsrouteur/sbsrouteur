@@ -47,7 +47,12 @@
     				<TextBlock Text="{Binding RaceInfo, IsAsync=true, Mode=OneWay}" TextWrapping="Wrap" Grid.Row="5" VerticalAlignment="Bottom" Height="Auto" Margin="4,0,4,4" Grid.ColumnSpan="3" FontWeight="Bold" FontSize="16"/>
     				<StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1" VerticalAlignment="Top" Height="40.5">
     					<Image HorizontalAlignment="Left" Width="Auto" Grid.Column="1" Grid.Row="3" Grid.RowSpan="1" Source="/Routeur;Component/Graphics/Sailingship-32.png" Visibility="{Binding IsRacing, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
-    					<Image HorizontalAlignment="Left" Width="Auto" Grid.Column="1" Grid.Row="3" Grid.RowSpan="1" Source="/Routeur;Component/Graphics/Ponton sbs.jpg" Visibility="{Binding IsNotRacing, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
+    					<Button Width="40" Height="40" Name="RaceListButton" Click="OnRaceListRequest" >
+    						<ContentControl>
+    							<Image Source="/Routeur;Component/Graphics/RaceList.png"/>
+							</ContentControl>
+						</Button>
+						<Image HorizontalAlignment="Left" Width="Auto" Grid.Column="1" Grid.Row="3" Grid.RowSpan="1" Source="/Routeur;Component/Graphics/Ponton sbs.jpg" Visibility="{Binding IsNotRacing, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
     					<Button Width="Auto" ToolTip="Delete Boat" Template="{DynamicResource ButtonBaseControlTemplate1}" Click="DeleteBoat" Margin="{DynamicResource DefMargin}"/>
     					<Button Width="Auto" ToolTip="Race properties..." Template="{DynamicResource ButtonBaseControlTemplate2}" Click="ShowRacePrefs" Visibility="{Binding IsRacing, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
     				</StackPanel>
@@ -56,7 +61,12 @@
     			</Grid>
 				</GroupBox>
 				</Grid>
-				
+				<DataTemplate.Triggers >
+					<DataTrigger  Binding="{Binding IsRacing}" Value="x:false">
+						<Setter TargetName="RaceListButton" Property="Visibility" Value="Collapsed" >	
+						</Setter>
+					</DataTrigger>
+				</DataTemplate.Triggers>
 				
     		</DataTemplate>
     		<ControlTemplate x:Key="ButtonBaseControlTemplate1" TargetType="{x:Type ButtonBase}">
