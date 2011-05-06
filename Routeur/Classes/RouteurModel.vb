@@ -21,7 +21,7 @@ Public Class RouteurModel
     Private WithEvents _CurPlayer As clsPlayerInfo
     Public Shared PropTmpRoute As New PropertyChangedEventArgs("TmpRoute")
     Private _RaceZoneOffsets() As Double = New Double() {0.5, 0.5, 0.5, 0.5}
-    Private WithEvents tmrRefresh As System.Timers.Timer(500) With {.Enabled = False}
+    Private WithEvents tmrRefresh As New System.Timers.Timer(500) With {.Enabled = False}
     Private WithEvents _stats As New Stats
     Private Shared _NoObstacle As Boolean
     Private _ClearBoats As Boolean = False
