@@ -370,7 +370,7 @@ Render1:
     End Sub
 
     Private Delegate Sub UpdatePathDelegate(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VLM_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
-                                                ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
+                                                 ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
 
 
     Private Sub SafeDrawLine(ByVal dc As DrawingContext, ByVal PrevP As Coords, ByVal P As Coords, ByVal pe As Pen, ByVal Prevpoint As Point, ByVal NewP As Point)
@@ -406,7 +406,7 @@ Render1:
         End If
     End Sub
     Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VLM_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
-                          ByVal Grid As Queue(Of RoutingGridPoint), ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
+                          ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
 
         Static Invoking As Integer = 0
         Dim Start As DateTime = Now
@@ -424,7 +424,7 @@ Render1:
             '    End If
             '    lastinvoke = Now
             Dim R As System.Windows.Threading.DispatcherOperation = Dispatcher.BeginInvoke(dlg, New Object() {PathString, Routes, _
-                                                                                Opponents, Grid, ClearGrid, ClearBoats, IsoChrones, WPs, ManagedRoutes})
+                                                                                Opponents, ClearGrid, ClearBoats, IsoChrones, WPs, ManagedRoutes})
 
             While Q.Count > 0
                 Dim R2 As System.Windows.Threading.DispatcherOperation = CType(Q.Dequeue, System.Windows.Threading.DispatcherOperation)
@@ -597,7 +597,7 @@ Render1:
             '    DC = D.RenderOpen
             'End If
 
-            
+
 
             '
             ' Draw IsoChrones
@@ -715,7 +715,7 @@ Render1:
             '
             ' Draw routing grid
             '
-            If Not OpponentMap And Not Grid Is Nothing Then
+            If Not OpponentMap Then
 
                 If GridBrushes Is Nothing Then
                     ReDim GridBrushes(255)
@@ -736,34 +736,7 @@ Render1:
                     Dim GridSize As Double = 60 * RouteurModel.GridGrain / 0.01
                     Dim SelectionOffset As Double = GridSize / 6
 
-                    For Each R As RoutingGridPoint In Grid.ToArray
 
-
-                        If Not R Is Nothing AndAlso R.Drawn = False Then
-                            'If CInt(R.CurETA.Subtract(Now).TotalHours) Mod 6 = 0 AndAlso Math.Abs(CInt(R.CurETA.Subtract(Now).TotalHours) - R.CurETA.Subtract(Now).TotalHours) < 0.1 Then
-                            'If (R.CurETA.Hour Mod 12) = (8 + RouteurModel.GribOffset) AndAlso R.CurETA.Minute <= 20 Then
-                            If R.CurETA.Subtract(Now).TotalMinutes Mod GridSize < SelectionOffset Then
-                                'duration = CInt(R.CurETA.Subtract(Now).Totalminut) Mod 256
-                                ShownPoints += 1
-
-                                P1.X = LonToCanvas(R.P.P.Lon_Deg)
-                                P1.Y = LatToCanvas(R.P.P.Lat_Deg)
-
-                                DC.DrawEllipse(Nothing, BlackBrush, P1, 0.2, 0.2)
-                                'DC.DrawEllipse(Nothing, GridBrushes(duration), P1, 0.2, 0.2)
-                                'Debug.WriteLine("Point Brushed " & duration)
-                                R.Drawn = True
-                                'End If
-                            End If
-                        End If
-
-                        'If ShownPoints Mod 100 = 0 And ShownPoints > 0 Then
-                        '    DC.Close()
-                        '    _GridBmp.Render(D)
-                        '    DC = D.RenderOpen
-                        'End If
-
-                    Next
                 Catch ex As Exception
                 End Try
 
@@ -865,7 +838,7 @@ Render1:
                         If Not R Is Nothing Then
                             FirstPoint = True
                             For Each P In R
-                                
+
                                 If Not P Is Nothing AndAlso Not P.P Is Nothing AndAlso (Not RouteIsWP OrElse CurWP >= RouteurModel.CurWP) Then
                                     P1.X = LonToCanvas(P.P.Lon_Deg)
                                     P1.Y = LatToCanvas(P.P.Lat_Deg)
@@ -891,8 +864,8 @@ Render1:
                                     PrevPoint = P1
                                     'PrevSide = P.P.Lon < 0
                                 End If
-                        CurWP += 1
-                    Next
+                                CurWP += 1
+                            Next
                             ShownPoints += 1
                         End If
                         PenNumber += 1

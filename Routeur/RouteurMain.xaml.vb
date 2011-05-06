@@ -210,7 +210,7 @@ Partial Public Class RouteurMain
 
     Private Sub CloseApp()
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
-        M.VorHandler.startGridRoute(False)
+
         M.VorHandler.StartIsoRoute(Me, False, False)
         My.Settings.Save()
     End Sub
@@ -274,15 +274,6 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
 
         M.VorHandler.AddPointToRoute(P)
-
-    End Sub
-
-    Private Sub CheckGridRoute(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
-
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
-
-        M.VorHandler.startGridRoute(CBool(chkGridRoute.IsChecked))
-
 
     End Sub
 

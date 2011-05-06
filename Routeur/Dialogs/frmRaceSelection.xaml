@@ -20,7 +20,7 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 		<TextBlock HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" TextWrapping="Wrap" Width="121"><Run Language="fr-fr" Text="Select race :"/></TextBlock>
-		<ListView Grid.Row="1" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RaceList}">
+		<ListView Grid.Row="1" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RaceList, ElementName=Window}">
 			<ListView.View>
 				<GridView>
 					<GridViewColumn DisplayMemberBinding="{Binding racename}" Header="Race Name"/>

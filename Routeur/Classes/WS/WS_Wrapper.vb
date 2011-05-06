@@ -61,6 +61,42 @@ Module WS_Wrapper
         Return Nothing
     End Function
 
+    Public Function GetRaceList() As List(Of VLMShortRaceInfo)
+
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo/list.php"
+        Dim Retstring As String = ""
+        Try
+            Retstring = RequestPage(URL)
+            Dim List As Dictionary(Of String, Object) = Parse(Retstring)
+            Dim RetList As New List(Of VLMShortRaceInfo)
+
+            If List.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
+                Dim Races As Dictionary(Of String, Object) = CType(List(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object))
+
+                For Each RaceName As String In Races.Keys
+                    Dim Race As New VLMShortRaceInfo()
+                    Dim RaceDict As Dictionary(Of String, Object) = CType(Races(RaceName), Dictionary(Of String, Object))
+
+                    JSonHelper.LoadJSonDataToObject(Race, RaceDict)
+                    RetList.Add(Race)
+                Next
+
+            End If
+            Return RetList
+        Catch wex As WebException
+            If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+                'Login error
+                Return Nothing
+            Else
+                MessageBox.Show(wex.Response.ToString)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
+        End Try
+
+        Return Nothing
+    End Function
+
     Public Function GetRankings(ByVal IdRace As String, ByRef ArrivedCount As Integer) As Dictionary(Of String, Object)
 
         Dim RetJSon As New Dictionary(Of String, Object)
