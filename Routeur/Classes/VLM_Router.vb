@@ -56,7 +56,6 @@ Public Class VLM_Router
     Private _Pass As String
     Private _U As String
 
-    Private WithEvents _gr As GridRouter
     Private WithEvents _iso As IsoRouter
 
 
@@ -94,7 +93,6 @@ Public Class VLM_Router
 
 
     Private _BoatUnderMouse As New ObservableCollection(Of BoatInfo)
-    Private _MeteoUnderMouse As New ObservableCollection(Of RoutingGridPoint)
     Private _RoutesUnderMouse As New ObservableCollection(Of RoutePointInfo)
     Private _Pilototo(5) As String
     Private _HideWindArrow As Boolean = True
@@ -672,24 +670,8 @@ Public Class VLM_Router
         End Set
     End Property
 
-    Public Property HideWindArrow() As Boolean
-        Get
-            Return _HideWindArrow
-        End Get
-        Set(ByVal value As Boolean)
-            If _HideWindArrow <> value Then
-                _HideWindArrow = value
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("HideWindArrow"))
-                _MeteoUnderMouse.Clear()
-            End If
-        End Set
-    End Property
-
     Public ReadOnly Property IsoChrones() As LinkedList(Of IsoChrone)
         Get
-            If Not _gr Is Nothing Then
-                Return _gr.IsoChrones
-            End If
             If _iso IsNot Nothing Then
                 Return _iso.IsoChrones
             End If
@@ -2121,20 +2103,6 @@ Public Class VLM_Router
 
     End Property
 
-
-
-    Public ReadOnly Property GridRoute() As Queue(Of RoutingGridPoint)
-        Get
-            If Not _gr Is Nothing Then
-                Return _gr.TodoList
-            Else
-                Return Nothing
-            End If
-
-
-        End Get
-    End Property
-
     Public ReadOnly Property GoToPointBearingMsg() As String
         Get
             Dim TC As New TravelCalculator
@@ -2235,14 +2203,6 @@ Public Class VLM_Router
         End Get
     End Property
 
-    Public Property MeteoInfoList() As ObservableCollection(Of RoutingGridPoint)
-        Get
-            Return _MeteoUnderMouse
-        End Get
-        Set(ByVal value As ObservableCollection(Of RoutingGridPoint))
-
-        End Set
-    End Property
 
     Public Sub MouseOver(ByVal C As Coords)
 
@@ -2262,18 +2222,6 @@ Public Class VLM_Router
                 Next
             End SyncLock
         End SyncLock
-
-        If Not HideWindArrow AndAlso Not _gr Is Nothing Then
-
-            _MeteoUnderMouse.Clear()
-            Dim C2 As New Coords(C)
-            C2.RoundTo(RouteurModel.GridGrain)
-
-            If _gr.GridPointsList.Contains(C2) Then
-                _MeteoUnderMouse.Add(CType(_gr.GridPointsList(C2), RoutingGridPoint))
-            End If
-
-        End If
 
         System.Threading.ThreadPool.QueueUserWorkItem(AddressOf GetRoutesUnderMouse, C)
 
@@ -3001,14 +2949,6 @@ Public Class VLM_Router
         End Set
     End Property
 
-    Public Sub RedrawComplete()
-
-        If Not _gr Is Nothing Then
-            _gr.StepGrid()
-        End If
-
-    End Sub
-
     Public Sub RefreshActionMenu()
 
         _BearingETA = New DateTime(0)
@@ -3283,10 +3223,6 @@ Public Class VLM_Router
 
     Private Sub UpdateWPDist(ByVal c As Coords)
 
-        If Not _gr Is Nothing Then
-            BestRouteAtPoint = _gr.RouteToPoint(c)
-        End If
-
         If Not _iso Is Nothing Then
             BestRouteAtPoint = _iso.RouteToPoint(c, _PixelSize)
         End If
@@ -3333,100 +3269,6 @@ Public Class VLM_Router
 
     End Property
 
-
-    Public Sub startGridRoute(ByVal StartRouting As Boolean)
-
-
-
-        If StartRouting AndAlso Not _UserInfo Is Nothing AndAlso Now.Subtract(_LastGridRouteStart).TotalMinutes > RouteurModel.VacationMinutes Then
-
-            _LastGridRouteStart = Now
-            Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
-            Dim Tc As New TravelCalculator()
-            Static currentmgr As New CurrentMgr
-
-
-            _StopRouting = False
-
-
-            Tc.StartPoint = start
-
-            Dim StartDate As DateTime
-
-            If Now > _PlayerInfo.RaceInfo.deptime Then
-                StartDate = LastDataDate
-            Else
-                StartDate = _PlayerInfo.RaceInfo.deptime
-            End If
-
-
-            If _gr Is Nothing Then
-                _gr = New GridRouter(start, StartDate, Meteo, Sails, _UserInfo.type)
-            Else
-                _gr.Start(StartDate) = start
-            End If
-
-            _GridProgressWindow.Show(_Owner, _gr.ProgressInfo)
-
-            Dim WP As Integer
-
-            If _CurUserWP = 0 Then
-                WP = RouteurModel.CurWP - 1
-            Else
-                WP = _CurUserWP
-            End If
-
-            If _PlayerInfo.RaceInfo.races_waypoints.Count = 0 Then
-                AddLog("No WP in route, routing aborted!")
-                Return
-            ElseIf WP < 0 Then
-                WP = 0
-            ElseIf WP >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
-                WP = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
-            End If
-
-
-            'Trim the WP to be "in-sea"
-            Dim P0 As Coords = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0)
-            If GSHHS_Reader.HitTest(P0, 0, GSHHS_Reader.Polygons(P0), True) Then
-                Dim Tcl As New TravelCalculator With {.StartPoint = P0, .EndPoint = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1)}
-                Dim Cap As Double = Tcl.OrthoCourse_Deg
-
-                Tcl.EndPoint = Nothing
-                While GSHHS_Reader.HitTest(P0, 0, GSHHS_Reader.Polygons(P0), True)
-                    P0 = Tcl.ReachDistance(RouteurModel.GridGrain, Cap)
-                    Tcl.StartPoint = P0
-                End While
-                _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0) = P0
-            End If
-
-            Dim P1 As Coords = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1)
-            If GSHHS_Reader.HitTest(P1, 0, GSHHS_Reader.Polygons(P1), True) Then
-                Dim Tcl As New TravelCalculator With {.StartPoint = P1, .EndPoint = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0)}
-                Dim Cap As Double = Tcl.OrthoCourse_Deg
-
-                Tcl.EndPoint = Tc.StartPoint
-                While GSHHS_Reader.HitTest(P1, 0, GSHHS_Reader.Polygons(P1), True)
-                    P1 = Tcl.ReachDistance(RouteurModel.GridGrain, Cap)
-                    Tcl.StartPoint = P1
-                End While
-                _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1) = P1
-            End If
-
-            _gr.ComputeBestRoute(1, RouteurModel.GridGrain, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs)
-            'End If
-        ElseIf Not StartRouting Then
-            If Not _gr Is Nothing Then
-                _gr.Stop()
-            End If
-            _StopRouting = True
-        Else
-            'Fast routing start a timer
-            _RoutingRestartPending = True
-        End If
-
-
-    End Sub
 
     Public Function StartIsoRoute(ByVal Owner As RouteurMain, ByVal StartRouting As Boolean, ByVal AutoRestart As Boolean) As Boolean
 
@@ -3610,52 +3452,6 @@ Public Class VLM_Router
         End Set
     End Property
 
-
-
-    Private Sub _gr_Log(ByVal Str As String) Handles _gr.Log
-
-        AddLog(Str)
-
-    End Sub
-
-    Private Sub _gr_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _gr.PropertyChanged
-
-        Static lastchange As New DateTime
-
-        If e.PropertyName = "TmpRoute" And Now.Subtract(lastchange).TotalSeconds > 1 Then
-            lastchange = Now
-            TempRoute(Meteo) = _gr.Route
-        End If
-
-    End Sub
-
-    Private Sub _gr_StepComputed(ByVal GridListSize As Long, ByVal TodoListSize As Integer) Handles _gr.StepComputed
-
-
-        If TodoListSize = 0 Then
-            AddLog("GridComputationComplete")
-            TempRoute(Meteo) = _gr.Route
-            If Not TempRoute Is Nothing AndAlso TempRoute.Count > 0 Then
-                BruteRoute(Meteo) = TempRoute
-                If Not BruteRoute Is Nothing AndAlso BruteRoute.Count > 0 Then
-                    _CurBestRoute = BruteRoute
-                    AddLog("Updating Brute route from Grid ETA " & BruteRoute(BruteRoute.Count - 1).T.ToString)
-                    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Cleared"))
-                Else
-                    AddLog("Grid COmplete, no route")
-                End If
-                UpdatePath(TodoListSize = 0)
-                If Not _StopRouting Then
-                    _RoutingRestartPending = True
-                End If
-            End If
-        Else
-            AddLog("Grid Progress " & GridListSize & " / " & TodoListSize)
-
-        End If
-
-    End Sub
-
     Public Sub New()
 
         AddHandler GSHHS_Reader.BspEvt, AddressOf OnBspEvt
@@ -3676,10 +3472,7 @@ Public Class VLM_Router
     Private Sub _RoutingRestart_Elapsed(ByVal sender As Object, ByVal e As System.Timers.ElapsedEventArgs) Handles _RoutingRestart.Elapsed
 
         _RoutingRestart.Stop()
-        If _RoutingRestartPending Then
-            _RoutingRestartPending = False
-            startGridRoute(True)
-        End If
+        
         If _IsoRoutingRestartPending Then
             _IsoRoutingRestartPending = False
             StartIsoRoute(Nothing, True, True)

@@ -101,6 +101,8 @@
     <Compile Include="Classes\Configuration\AppPrefs.vb" />
     <Compile Include="Classes\Cron\Cron.vb" />
     <Compile Include="Classes\Cron\CronTask.vb" />
+    <Compile Include="Classes\GridRouter\GridProgressContext.vb" />
+    <Compile Include="Classes\GSHHS\GSHHS_Utils.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMShortRaceInfo.vb" />
     <Compile Include="Dialogs\frmAppOptions.xaml.vb">
       <DependentUpon>frmAppOptions.xaml</DependentUpon>
@@ -188,12 +190,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\7SegDisplays\SegmentDigit.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\WindArrow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -337,10 +333,7 @@
     <Compile Include="Classes\eHashTable.vb" />
     <Compile Include="Classes\GribMeteo\GribManager.vb" />
     <Compile Include="Classes\GribMeteo\WindColors.vb" />
-    <Compile Include="Classes\GridRouter\GridProgressContext.vb" />
-    <Compile Include="Classes\GridRouter\GridRouter.vb" />
     <Compile Include="Classes\GridRouter\RouterPrefs.vb" />
-    <Compile Include="Classes\GridRouter\RoutingGridPoint.vb" />
     <Compile Include="Classes\GSHHS\GSHHS_Reader.vb" />
     <Compile Include="Classes\GribMeteo\MeteoArray.vb" />
     <Compile Include="Classes\GribMeteo\MeteoInfo.vb" />
@@ -355,7 +348,6 @@
     <Compile Include="Classes\JSon\JSonParser.vb" />
     <Compile Include="Classes\ListMgr\BSPList.vb" />
     <Compile Include="Classes\ListMgr\CoordsComparer.vb" />
-    <Compile Include="Classes\ListMgr\GridList.vb" />
     <Compile Include="Classes\ListMgr\ICoords.vb" />
     <Compile Include="Classes\MenuCommands\CommandManager.vb" />
     <Compile Include="Classes\Meteo\MeteoDrawer.vb" />
@@ -398,9 +390,6 @@
     </Compile>
     <Compile Include="Controls\7SegDisplays\WindDisplay.xaml.vb">
       <DependentUpon>WindDisplay.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\WindArrow.xaml.vb">
-      <DependentUpon>WindArrow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\frmControlDeck.xaml.vb">
       <DependentUpon>frmControlDeck.xaml</DependentUpon>

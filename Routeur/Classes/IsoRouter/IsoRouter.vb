@@ -540,7 +540,7 @@ Public Class IsoRouter
         '    TotalDist = 0.0001
         'End If
         'TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
-        If GridRouter.CheckSegmentValid(TC) Then
+        If CheckSegmentValid(TC) Then
             RetPoint = New clsrouteinfopoints
             With RetPoint
                 .P = New Coords(TC.EndPoint)

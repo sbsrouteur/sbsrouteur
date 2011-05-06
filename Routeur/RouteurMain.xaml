@@ -83,40 +83,6 @@
 			</Canvas>
 		</DataTemplate>
 		
-		<DataTemplate DataType="{x:Type Routeur:RoutingGridPoint}">
-			<Grid d:DesignWidth="140" d:DesignHeight="148" RenderTransformOrigin="0,0" >
-				<Grid.RenderTransform>
-					<TransformGroup>
-						<ScaleTransform/>
-						<SkewTransform/>
-						<RotateTransform/>
-						<TranslateTransform X="-35" Y="-37"/>
-					</TransformGroup>
-				</Grid.RenderTransform>
-				<Routeur:WindArrow  DataContext="{Binding P, Mode=Default}" RenderTransformOrigin="0.5,0" Height="Auto" Margin="5,0,0,0">
-					<Routeur:WindArrow.RenderTransform>
-						<TransformGroup>
-							<ScaleTransform/>
-							<SkewTransform/>
-							<RotateTransform/>
-							<TranslateTransform X="-5"/>
-						</TransformGroup>
-					</Routeur:WindArrow.RenderTransform>
-				</Routeur:WindArrow>
-				<Path Data="{Binding CurVMGEnveloppe, Mode=Default}" Stroke="#FF2B14E5" Stretch="Fill" Margin="-64,-39,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="150" />
-				<Grid MinWidth="150" MinHeight="150"  RenderTransformOrigin="0.5,0.5">
-					<Grid.RenderTransform>
-						<TransformGroup>
-							<ScaleTransform/>
-							<SkewTransform/>
-							<RotateTransform/>
-							<TranslateTransform X="-75" Y="-75"/>
-						</TransformGroup>
-					</Grid.RenderTransform>
-				</Grid>
-			</Grid>
-		</DataTemplate>
-		
 		<DataTemplate DataType="{x:Type Routeur:BoatInfo}">
 		
 			<Grid x:Name="grid" RenderTransformOrigin="0.5,0.5" >
@@ -257,7 +223,6 @@
     	<Menu HorizontalAlignment="Stretch" Width="Auto" Grid.RowSpan="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="2,1,-2,-1">
             <!--<CheckBox Content="Autorouting" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=comboBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding AutoRouting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ShowAutorouting, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" VerticalAlignment="Center"/>-->
 			<MenuItem Header="Actions" VerticalAlignment="Center">
-	            <CheckBox x:Name="chkGridRoute" Content="Grid Route" Checked="CheckGridRoute" Unchecked="CheckGridRoute" VerticalAlignment="Center"/>
 	            <CheckBox x:Name="chkNoObstacle" Content="Ignore Obstacles" VerticalAlignment="Center" IsChecked="{Binding NoObstacle, Mode=Default}"/>
 				<Separator></Separator>
 	            <CheckBox x:Name="chkIsoRoute" Content="Isochrone Route" Checked="CheckIsoRoute" Unchecked="CheckIsoRoute" VerticalAlignment="Center" IsChecked="{Binding IsoRouterActive, Mode=Default}"/>
