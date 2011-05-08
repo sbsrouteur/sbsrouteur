@@ -434,6 +434,7 @@ Render1:
             'End If
             Return
         End If
+        Console.WriteLine("Update path start " & Now.Subtract(Start).ToString)
 
         Try
             'Static StartPath As DateTime = Now
@@ -844,13 +845,13 @@ Render1:
                                     P1.Y = LatToCanvas(P.P.Lat_Deg)
                                     If FirstPoint Then
 
-                                        If RouteIsWP Then 'Continue WP route from the last path point
-                                            PrevP.Lon = CurPos.Lon
-                                            PrevP.Lat = CurPos.Lat
-                                            PrevPoint.X = LonToCanvas(CurPos.Lon_Deg)
-                                            PrevPoint.Y = LatToCanvas(CurPos.Lat_Deg)
-                                            SafeDrawLine(DC, PrevP, P.P, routePen(PenNumber), PrevPoint, P1)
-                                        End If
+                                        'If RouteIsWP Then 'Continue WP route from the last path point
+                                        PrevP.Lon = CurPos.Lon
+                                        PrevP.Lat = CurPos.Lat
+                                        PrevPoint.X = LonToCanvas(CurPos.Lon_Deg)
+                                        PrevPoint.Y = LatToCanvas(CurPos.Lat_Deg)
+                                        SafeDrawLine(DC, PrevP, P.P, routePen(PenNumber), PrevPoint, P1)
+                                        'End If
 
                                         FirstPoint = False
                                     Else
@@ -864,8 +865,8 @@ Render1:
                                     PrevPoint = P1
                                     'PrevSide = P.P.Lon < 0
                                 End If
-                                CurWP += 1
-                            Next
+                        CurWP += 1
+                    Next
                             ShownPoints += 1
                         End If
                         PenNumber += 1
@@ -893,6 +894,7 @@ Render1:
 
             Console.WriteLine("UpdatePath exception : " & ex.Message)
         Finally
+            Console.WriteLine("Update path drawn in " & Now.Subtract(Start).ToString)
             System.Threading.Interlocked.Exchange(Invoking, 0)
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Drawn"))
         End Try
