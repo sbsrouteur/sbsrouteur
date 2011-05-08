@@ -4,6 +4,7 @@ Imports System.IO
 Imports Routeur.RacePrefs
 Imports Routeur.Commands
 Imports System.Threading
+Imports System.Windows.Threading
 
 Public Class RouteurModel
 
@@ -21,7 +22,7 @@ Public Class RouteurModel
     Private WithEvents _CurPlayer As clsPlayerInfo
     Public Shared PropTmpRoute As New PropertyChangedEventArgs("TmpRoute")
     Private _RaceZoneOffsets() As Double = New Double() {0.5, 0.5, 0.5, 0.5}
-    Private WithEvents tmrRefresh As New System.Timers.Timer(500) With {.Enabled = False}
+    Private WithEvents tmrRefresh As DispatcherTimer
     Private WithEvents _stats As New Stats
     Private Shared _NoObstacle As Boolean
     Private _ClearBoats As Boolean = False
@@ -29,7 +30,7 @@ Public Class RouteurModel
     Private Shared _PlayerList As New ObservableCollection(Of RegistryPlayerInfo)
     Private Shared _RouteExtensionHours As Double = RacePrefs.RACE_COURSE_EXTENSION_HOURS
     Private _ShowEasyNav As Boolean = False
-    
+
     Private WithEvents _MapLayer As MeteoLayer
 
     Public Shared DebugEvt As New AutoResetEvent(True)
@@ -53,7 +54,7 @@ Public Class RouteurModel
 
     Private Shared _Servers As String() = New String() {S10_SERVER, S11_SERVER}
     'Private Shared _BASE_GAME_URL As String = S11_SERVER
-   
+
     Public Shared VacationMinutes As Double = 5
     Public Shared MapLevel As String = "l"
 
@@ -64,7 +65,7 @@ Public Class RouteurModel
     Public Shared START_LON As Double = 1.186
     Public Shared START_LAT As Double = 46.142
 
-    
+
     Public Shared _RaceRect As New Polygon
 
 
@@ -181,11 +182,6 @@ Public Class RouteurModel
         'THIS DEFAULT CONSTRUCTOR IS REQUIRED FOR THE XML!!!
     End Sub
 
-    Public Sub New(ByVal Dispatcher As Windows.Threading.Dispatcher)
-        Me.Dispatcher = Dispatcher
-        Cron = New Cron(Dispatcher)
-        InitCron()
-    End Sub
 
     Public Sub UpdateRaceScale(ByVal C1 As Coords, ByVal C2 As Coords)
         'ReDim RouteurModel._RaceRect(3)
@@ -253,7 +249,7 @@ Public Class RouteurModel
 
         End Get
         Set(ByVal value As Double()())
-            _Exclusions = Value
+            _Exclusions = value
         End Set
     End Property
 
@@ -280,6 +276,11 @@ Public Class RouteurModel
         If frm.PlayerInfo Is Nothing Then
             End
         End If
+
+        Me.Dispatcher = Dispatcher
+        Cron = New Cron(Dispatcher)
+        InitCron()
+        tmrRefresh = New DispatcherTimer(New TimeSpan(0, 0, 0, 0, 500), DispatcherPriority.Render, AddressOf tmrRefresh_Elapsed, Dispatcher)
 
         RouteManager.Load()
         _P_Info(0) = frm.PlayerInfo.Playerinfo
@@ -831,11 +832,13 @@ Public Class RouteurModel
                         RouteManager.Curpos = New Coords(VorHandler.UserInfo.position.latitude, VorHandler.UserInfo.position.longitude)
                     End If
 
-                    End If
-                tmrRefresh.Enabled = True
+                End If
+                If tmrRefresh IsNot Nothing Then
+                    tmrRefresh.IsEnabled = True
+                End If
 
             Case "MeteoArrowDate"
-                If Not _MapLayer Is Nothing Then
+                If Not _MapLayer Is Nothing AndAlso VorHandler.MeteoVisible Then
                     _MapLayer.RefreshInfo(_NOPoint, _SEPoint, _VorHandler.MeteoArrowDate)
                 End If
 
@@ -850,7 +853,7 @@ Public Class RouteurModel
 
     Private Sub _2DViewer_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _2DViewer.PropertyChanged
 
-        Select e.PropertyName
+        Select Case e.PropertyName
             Case "Drawn"
 
                 SyncLock _2DViewerLock
@@ -861,7 +864,7 @@ Public Class RouteurModel
                 System.Threading.ThreadPool.QueueUserWorkItem(AddressOf VorHandler.DeferedUpdateWPDist, _2DViewer.CurCoords)
                 VorHandler.MouseOver(_2DViewer.CurCoords)
             Case "Refresh"
-                tmrRefresh.Enabled = True
+                tmrRefresh.IsEnabled = True
 
             Case "Busy"
                 MapMenuEnabled = Not The2DViewer.TileServerBusy
@@ -869,9 +872,9 @@ Public Class RouteurModel
         End Select
     End Sub
 
-    Private Sub tmrRefresh_Elapsed(ByVal sender As Object, ByVal e As System.Timers.ElapsedEventArgs) Handles tmrRefresh.Elapsed
+    Private Sub tmrRefresh_Elapsed(ByVal sender As Object, ByVal e As EventArgs)
 
-        tmrRefresh.Enabled = False
+        tmrRefresh.IsEnabled = False
         If System.Threading.Monitor.TryEnter(Me) Then
             If Not The2DViewer Is Nothing And Not _Busy Then
 
@@ -891,7 +894,7 @@ Public Class RouteurModel
                 _ClearGrid = False
                 _ClearBoats = False
             Else
-                tmrRefresh.Enabled = True
+                tmrRefresh.IsEnabled = True
             End If
             System.Threading.Monitor.Exit(Me)
         Else
@@ -1041,7 +1044,7 @@ Public Class RouteurModel
 #End Region
 
     Protected Overrides Sub Finalize()
-        
+
         MyBase.Finalize()
     End Sub
 
@@ -1068,6 +1071,8 @@ Public Class RouteurModel
             T.Period = New TimeSpan(6, 0, 0)
 
         End If
+
+
         Cron.Start()
     End Sub
 

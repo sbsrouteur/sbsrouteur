@@ -2011,9 +2011,8 @@ Public Class VLM_Router
             End If
 
             If _PlannedRoute.Count = 0 Then
-                Dim P As New clsrouteinfopoints() With {.P = New Coords(_UserInfo.position.latitude, UserInfo.position.longitude)}
+                Dim P As clsrouteinfopoints
 
-                '_PlannedRoute.Add(P)
                 For Each C In _PlayerInfo.Route
                     P = New clsrouteinfopoints() With {.P = C}
                     _PlannedRoute.Add(P)
