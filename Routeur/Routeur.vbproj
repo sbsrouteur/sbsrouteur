@@ -99,6 +99,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Classes\Configuration\AppPrefs.vb" />
+    <Compile Include="Classes\Converters\EpochToDateConverter.vb" />
+    <Compile Include="Classes\Converters\RaceTypeToString.vb" />
     <Compile Include="Classes\Cron\Cron.vb" />
     <Compile Include="Classes\Cron\CronTask.vb" />
     <Compile Include="Classes\GridRouter\GridProgressContext.vb" />

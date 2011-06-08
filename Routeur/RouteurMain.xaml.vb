@@ -246,7 +246,7 @@ Partial Public Class RouteurMain
     Private Sub Zoom(ByVal Factor As Double, ByVal CenterPosition As Point)
 
         
-        VOR2DViewer.RenderTransformOrigin = New Point(CenterPosition.X / VOR2DViewer.Width, CenterPosition.Y / VOR2DViewer.Height)
+        VOR2DViewer.RenderTransformOrigin = New Point(CenterPosition.X / VOR2DViewer.ActualWidth, CenterPosition.Y / VOR2DViewer.ActualHeight)
         SldZoom.Value *= Factor
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
 
@@ -370,7 +370,7 @@ Partial Public Class RouteurMain
         'P.X = V.BoatCanvasX
         'P.Y = V.BoatCanvasY
         'P = VOR2DViewer.TranslatePoint(P, _2DGrid)
-        VOR2DViewer.RenderTransformOrigin = New Point(M.BoatCanvasX / VOR2DViewer.Width, M.BoatCanvasY / VOR2DViewer.Height)
+        VOR2DViewer.RenderTransformOrigin = New Point(M.BoatCanvasX / VOR2DViewer.ActualWidth, M.BoatCanvasY / VOR2DViewer.ActualHeight)
 
 
         SldLat.Value = _2DGrid.ActualHeight / 2 - M.BoatCanvasY

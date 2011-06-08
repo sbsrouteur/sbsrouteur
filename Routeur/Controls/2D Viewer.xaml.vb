@@ -904,9 +904,7 @@ Render1:
 
     Public Sub RedrawCanvas()
 
-        SyncLock _RBmp
-            Me.RenderBuffer.Source = _RBmp
-        End SyncLock
+        Me.RenderBuffer.Source = _RBmp
 
     End Sub
 

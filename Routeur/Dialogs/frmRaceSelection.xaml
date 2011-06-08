@@ -1,6 +1,7 @@
 ﻿<Window
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:local="clr-namespace:Routeur" mc:Ignorable="d"
 	x:Class="frmRaceSelection"
 	x:Name="Window"
 	Title="frmRaceSelection"
@@ -10,25 +11,43 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="/Routeur;component/Styles/ControlsStyles.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
+			<local:RaceTypeToString x:Key="RaceTypeToString"/>
+			<local:EpochToUTCDateConverter x:Key="EpochToUTCDateConverter"/>
 		</ResourceDictionary>
 	</Window.Resources>
 
 	<Grid x:Name="LayoutRoot">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" MinWidth="64"/>
+			<ColumnDefinition Width="1*"/>
+		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="0.842*"/>
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
-		<TextBlock HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" TextWrapping="Wrap" Width="121"><Run Language="fr-fr" Text="Select race :"/></TextBlock>
-		<ListView Grid.Row="1" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RaceList, ElementName=Window}">
+		<TextBlock Margin="3,3,-9,3" TextWrapping="Wrap"><Run Language="fr-fr" Text="Select race :"/></TextBlock>
+		<ListView x:Name="listView" Grid.Row="1" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RaceList, ElementName=Window}">
 			<ListView.View>
 				<GridView>
 					<GridViewColumn DisplayMemberBinding="{Binding racename}" Header="Race Name"/>
 				</GridView>
 			</ListView.View>
 		</ListView>
-		<StackPanel Grid.Row="3" Orientation=" Horizontal" Margin="{DynamicResource DefMargin}" HorizontalAlignment="Right">
-			<Button Content="Engage" MinWidth="80" Margin="{DynamicResource DefMargin}"/>
+		<Grid Grid.Row="1" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=listView}">
+			<StackPanel>
+				<TextBlock Text="Race is Started" Visibility="{Binding IsStarted, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+				<TextBlock Text="{Binding deptime, Converter={StaticResource EpochToUTCDateConverter}, StringFormat=Race Start Opening Date \{0\} GMT}"/>
+				<TextBlock Text="{Binding closetime, Converter={StaticResource EpochToUTCDateConverter}, StringFormat=Race Start Closing Date \{0\} GMT}"/>
+				<TextBlock Text="{Binding boattype, StringFormat=Boat Type: \{0\}}"/>
+				<TextBlock Text="{Binding racetype, Converter={StaticResource RaceTypeToString},StringFormat=Race Type: \{0\}}"/>
+				<TextBlock Text="{Binding vacfreq, StringFormat=Cranking Freq: \{0\}}"/>
+				
+	
+			</StackPanel>
+		</Grid>
+		<StackPanel Grid.Row="2" Orientation=" Horizontal" Margin="0,3,3,3" HorizontalAlignment="Right" Grid.Column="1" d:LayoutOverrides="GridBox">
+			<Button Content="Engage" MinWidth="80" Margin="{DynamicResource DefMargin}" Visibility="{Binding CanEngage, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" DataContext="{Binding SelectedItem, ElementName=listView}"/>
 			<Button Content="Close" MinWidth="80" Margin="{DynamicResource DefMargin}" Click="OnCloseRequest"/>
 		</StackPanel>
 		

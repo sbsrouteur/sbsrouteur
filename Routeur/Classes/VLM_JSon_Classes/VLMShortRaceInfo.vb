@@ -21,9 +21,26 @@
     Public Property vacfreq As Long
     Public Property updated As String
 
-    Public ReadOnly Property StartDate As DateTime
+    Public ReadOnly Property IsStarted As Boolean
         Get
-            'Return EpochToDate()
+            Return started = 1
         End Get
     End Property
+
+    Public ReadOnly Property CanEngage As Boolean
+        Get
+            Dim StartDate As DateTime
+            Dim EndDate As DateTime
+
+            Dim Cvt As New EpochToUTCDateConverter
+
+            StartDate = CDate(Cvt.Convert(deptime, GetType(DateTime), Nothing, System.Globalization.CultureInfo.CurrentCulture)).ToLocalTime
+            EndDate = CDate(Cvt.Convert(closetime, GetType(DateTime), Nothing, System.Globalization.CultureInfo.CurrentCulture)).ToLocalTime
+
+            Return Now >= StartDate AndAlso Now < EndDate
+
+
+        End Get
+    End Property
+
 End Class
