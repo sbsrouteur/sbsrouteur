@@ -315,4 +315,23 @@ Public Class RecordedRoute
         Return New DateTime(Dte.Add(-OffSet).Ticks, DateTimeKind.Utc)
     End Function
 
+    Sub ExportRoute_JSONFormat(outputfile As String)
+        Dim S1 As New System.IO.StreamWriter(outputfile)
+
+        Dim Data As New List(Of Object)
+        Dim Cvt As New EpochToUTCDateConverter
+
+        For Each Pt In Route
+            Dim JSonPoint(2) As String
+            JSonPoint(0) = CStr(Cvt.ConvertBack(Pt.ActionDate.ToUniversalTime, GetType(Long), Nothing, System.Globalization.CultureInfo.CurrentCulture))
+            JSonPoint(1) = (Pt.P.Lon_Deg * 1000).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            JSonPoint(2) = (Pt.P.Lat_Deg * 1000).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            Data.Add(JSonPoint)
+        Next
+
+        S1.Write(JSonHelper.GetStringFromJsonObject(Data))
+
+        S1.Close()
+    End Sub
+
 End Class

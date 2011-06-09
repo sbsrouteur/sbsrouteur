@@ -1,4 +1,5 @@
 ﻿Imports System.Reflection
+Imports System.Text
 
 Module JSonHelper
 
@@ -28,6 +29,60 @@ Module JSonHelper
         Else
             Return O.ToString
         End If
+
+    End Function
+
+    Public Function GetStringFromJsonObject(ByVal Json As IList(Of Object)) As String
+
+        Dim RetString As String = "["
+        Dim bFirst As Boolean = True
+        For Each Item In Json
+            Dim ItemString As String = ""
+            If Not bFirst Then
+                RetString &= ","
+            Else
+                bFirst = False
+            End If
+
+            If Item Is Nothing Then
+
+                RetString &= "null"
+
+            ElseIf TypeOf Item Is Integer Then
+
+                RetString &= CInt(Item).ToString(System.Globalization.CultureInfo.InvariantCulture)
+
+            ElseIf TypeOf Item Is Boolean Then
+                If CBool(Item) Then
+                    RetString &= "true"
+                Else
+                    RetString &= "false"
+                End If
+            ElseIf TypeOf Item Is Double Then
+                RetString &= CDbl(Item).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            ElseIf TypeOf Item Is Long Then
+                RetString &= CLng(Item).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            ElseIf TypeOf Item Is String Then
+                Dim RetStr As String = CStr(Item)
+
+                For Each c As String In New String() {"""", "\", "/", vbCr, vbLf, vbCrLf, vbTab}
+                    RetStr = RetStr.Replace(c, "\" & c)
+                Next
+                RetString &= """" & RetStr & """"
+            ElseIf TypeOf Json Is Dictionary(Of String, Object) Then
+                ItemString = GetStringFromJsonObject(CType(Item, Dictionary(Of String, Object)))
+            ElseIf TypeOf Item Is IList(Of Object) Then
+                ItemString = GetStringFromJsonObject(CType(Item, IList(Of Object)))
+            Else
+                Throw New InvalidOperationException("unsupported type for json output : " & Item.GetType.ToString)
+
+            End If
+            RetString &= ItemString
+        Next
+
+        RetString &= "]"
+
+        Return RetString
 
     End Function
 
