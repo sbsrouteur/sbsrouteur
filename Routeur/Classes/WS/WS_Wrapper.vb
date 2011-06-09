@@ -11,27 +11,23 @@ Module WS_Wrapper
     Public Function GetBoatInfo(ByVal Player As clsPlayerInfo) As Dictionary(Of String, Object)
 
         If _LastPassword <> Player.Password OrElse _LastUser <> Player.Nick Then
-            If Not Player.NewStyle Then
-                'old style login
-                _LastPassword = Player.Password
-                _LastUser = Player.Nick
-            Else
-                _LastPassword = Player.Password
-                _LastUser = Player.Email
-            End If
+            
+            _LastPassword = Player.Password
+            _LastUser = Player.Email
+
             _Cookies = New CookieContainer
         End If
-        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/boatinfo.php?forcefmt=json"
-        If Player.NewStyle Or Player.NumBoat <> 0 Then
-            URL &= "&select_idu=" & Player.NumBoat
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/boatinfo.php"
+        If Player.NumBoat <> 0 Then
+            URL &= "?select_idu=" & Player.NumBoat
         End If
         Dim Retstring As String = ""
         Try
             Retstring = RequestPage(URL)
             Return Parse(Retstring)
         Catch wex As WebException
-                'Login error
-                Return Nothing            
+            'Login error
+            Return Nothing
         Catch ex As Exception
             MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
         End Try
@@ -234,6 +230,7 @@ Module WS_Wrapper
         Dim Response As String
         Http.UserAgent = GetRouteurUserAgent()
         Http.CookieContainer = _Cookies
+        Http.Accept = "application/json"
         wr = Http.GetResponse()
         rs = New System.IO.StreamReader(wr.GetResponseStream())
         Response = rs.ReadToEnd
@@ -304,6 +301,19 @@ Module WS_Wrapper
 
         Return WS_Wrapper.PostBoatSetup(Idu, verb, GetStringFromJsonObject(Request))
 
+    End Function
+
+    Function EngageBoatInRace(Boat As RegistryPlayerInfo, RaceID As String) As Boolean
+
+        Dim Request As New Dictionary(Of String, Object)
+        Dim verb As String = "race_subscribe"
+        Request.Add("idu", Boat.IDU)
+        Request.Add("idr", RaceID)
+
+        _LastPassword = Boat.Password
+        _LastUser = Boat.Email
+
+        Return WS_Wrapper.PostBoatSetup(Boat.IDU, verb, GetStringFromJsonObject(Request))
     End Function
 
 
