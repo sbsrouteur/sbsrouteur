@@ -10,8 +10,7 @@ Public Class clsPlayerInfo
     Private _Password As String
     Private _NumBoat As Integer
     Private _RaceInfo As New VLMRaceInfo
-    Private _NewStyle As Boolean 
-
+    
 
     'Private _Route() As Coords
 
@@ -26,15 +25,6 @@ Public Class clsPlayerInfo
         End Set
     End Property
 
-    
-    Public Property NewStyle() As Boolean
-        Get
-            Return _NewStyle
-        End Get
-        Set(ByVal value As Boolean)
-            _NewStyle = value
-        End Set
-    End Property
 
     Public Property Nick() As String
         Get

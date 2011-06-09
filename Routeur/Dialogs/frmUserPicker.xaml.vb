@@ -147,8 +147,11 @@ Partial Public Class frmUserPicker
 
         frm.Owner = Me
 
-        If frm.ShowDialog() Then
+        frm.Boat = CType(CType(sender, Button).DataContext, RegistryPlayerInfo)
 
+        If frm.ShowDialog() Then
+            Dim R As RouteurModel = CType(DataContext, RouteurModel)
+            R.RegisteredPlayersUpdated()
         End If
         frm.Close()
     End Sub

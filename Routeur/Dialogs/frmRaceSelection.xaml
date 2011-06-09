@@ -47,7 +47,7 @@
 			</StackPanel>
 		</Grid>
 		<StackPanel Grid.Row="2" Orientation=" Horizontal" Margin="0,3,3,3" HorizontalAlignment="Right" Grid.Column="1" d:LayoutOverrides="GridBox">
-			<Button Content="Engage" MinWidth="80" Margin="{DynamicResource DefMargin}" Visibility="{Binding CanEngage, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" DataContext="{Binding SelectedItem, ElementName=listView}"/>
+			<Button Content="Engage" MinWidth="80" Margin="{DynamicResource DefMargin}" Visibility="{Binding CanEngage, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" DataContext="{Binding SelectedItem, ElementName=listView}" Click="OnEngagementRequest"/>
 			<Button Content="Close" MinWidth="80" Margin="{DynamicResource DefMargin}" Click="OnCloseRequest"/>
 		</StackPanel>
 		

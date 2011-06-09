@@ -14,6 +14,8 @@ Partial Public Class frmRaceSelection
 
     Implements INotifyPropertyChanged
 
+    Public Property Boat As RegistryPlayerInfo
+
     Public Event PropertyChanged(sender As Object, e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
     Private _RaceList As ObservableCollection(Of VLMShortRaceInfo)
@@ -54,4 +56,20 @@ Partial Public Class frmRaceSelection
     End Property
 
 
+    Private Sub OnEngagementRequest(sender As System.Object, e As System.Windows.RoutedEventArgs)
+
+        If TypeOf sender Is Button Then
+            Dim B As Button = CType(sender, Button)
+
+            If TypeOf B.DataContext Is VLMShortRaceInfo Then
+                Dim RaceID As String = CType(B.DataContext, VLMShortRaceInfo).idraces
+                If WS_Wrapper.EngageBoatInRace(Boat, RaceID) Then
+                    DialogResult = True
+                    Hide()
+                End If
+            End If
+        End If
+
+
+    End Sub
 End Class

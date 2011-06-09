@@ -154,7 +154,7 @@ Public Class RegistryPlayerInfo
                 .NumBoat = IDU
                 .Nick = Nick
                 .Password = Password
-                .NewStyle = NewStyle
+
             End With
             Return Ret
         End Get
