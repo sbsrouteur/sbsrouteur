@@ -15,6 +15,13 @@
     End Function
 
     Public Function ConvertBack(value As Object, targetType As System.Type, parameter As Object, culture As System.Globalization.CultureInfo) As Object Implements System.Windows.Data.IValueConverter.ConvertBack
+
+        If TypeOf value Is DateTime AndAlso targetType Is GetType(Long) Then
+
+            Return CLng(CDate(value).Subtract(New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
+
+        End If
+
         Return value
     End Function
 End Class

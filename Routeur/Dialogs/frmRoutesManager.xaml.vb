@@ -92,13 +92,15 @@ Partial Public Class frmRoutesManager
                 .CheckFileExists = False
                 .CheckPathExists = True
                 .DefaultExt = ".xml"
-                .Filter = "Router CSV File format (*.csv)|*.csv|VLM XML export File format (*.xml)|*.xml"
+                .Filter = "Router CSV File format (*.csv)|*.csv|VLM XML export File format (*.xml)|*.xml|FrogTool VLM Archive File format (*.json)|*.json"
                 .FilterIndex = 1
                 If .ShowDialog() Then
                     Dim M As RouteManager = CType(DataContext, RouteManager)
 
                     If .FileName.EndsWith(".csv") Then
                         R.ExportRoute_CSVFormat(.FileName)
+                    ElseIf .FileName.EndsWith(".json") Then
+                        R.ExportRoute_JSONFormat(.FileName)
                     Else
                         R.ExportRoute_XMLFormat(.FileName)
 
