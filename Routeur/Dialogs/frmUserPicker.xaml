@@ -16,6 +16,7 @@
     		<ResourceDictionary.MergedDictionaries>
     			<ResourceDictionary Source="/Routeur;Component/Styles/ControlsStyles.xaml"/>
     		</ResourceDictionary.MergedDictionaries>
+    		<Routeur:InvertedBooleanToVisibilityConverter x:Key="InvertedBooleanToVisibilityConverter"/>
     		<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         
     		<DataTemplate DataType="{x:Type Routeur:RegistryPlayerInfo}">
@@ -31,13 +32,13 @@
     				<Grid.RowDefinitions>
     					<RowDefinition Height="Auto" />
     					<RowDefinition Height="Auto" />
-    					<RowDefinition Height="Auto" />
+    					<RowDefinition Height="0" />
     					<RowDefinition Height="Auto" />
     					<RowDefinition Height="Auto"/>
     					<RowDefinition Height="Auto"/>
     				</Grid.RowDefinitions>
     				
-    				<TextBlock Text="User Name" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}" FontWeight="Bold" Visibility="{Binding NewStyle, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Grid.Row="0"/>
+    				<TextBlock Text="User Name" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}" FontWeight="Bold" Grid.Row="0"/>
     				<TextBlock Text="Password" TextWrapping="Wrap" Grid.Row="2" Margin="{DynamicResource DefMargin}" FontWeight="Bold"/>
     				<TextBlock Text="Boat" TextWrapping="Wrap" Grid.Row="1" Margin="{DynamicResource DefMargin}" FontWeight="Bold" />
     				<CheckBox  Grid.Row="3" Width="Auto" Grid.Column="1" Content="Boat is Mine" IsChecked="{Binding IsMine}"/>
@@ -47,9 +48,9 @@
     				<TextBlock Text="{Binding RaceInfo, IsAsync=true, Mode=OneWay}" TextWrapping="Wrap" Grid.Row="5" VerticalAlignment="Bottom" Height="Auto" Margin="4,0,4,4" Grid.ColumnSpan="3" FontWeight="Bold" FontSize="16"/>
     				<StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1" VerticalAlignment="Top" Height="40.5">
     					<Image HorizontalAlignment="Left" Width="Auto" Grid.Column="1" Grid.Row="3" Grid.RowSpan="1" Source="/Routeur;Component/Graphics/Sailingship-32.png" Visibility="{Binding IsRacing, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
-    					<Button Width="40" Height="40" Name="RaceListButton" Click="OnRaceListRequest" >
+    					<Button Width="40" Height="40" Name="RaceListButton" Click="OnRaceListRequest" Visibility="{Binding IsRacing, Converter={StaticResource InvertedBooleanToVisibilityConverter}, Mode=Default}">
     						<ContentControl>
-    							<Image Source="/Routeur;Component/Graphics/RaceList.png"/>
+    							<Image Source="/Routeur;Component/Graphics/RaceList.png" />
 							</ContentControl>
 						</Button>
 						<Image HorizontalAlignment="Left" Width="Auto" Grid.Column="1" Grid.Row="3" Grid.RowSpan="1" Source="/Routeur;Component/Graphics/Ponton sbs.jpg" Visibility="{Binding IsNotRacing, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
@@ -57,7 +58,7 @@
     					<Button Width="Auto" ToolTip="Race properties..." Template="{DynamicResource ButtonBaseControlTemplate2}" Click="ShowRacePrefs" Visibility="{Binding IsRacing, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
     				</StackPanel>
     				<Image x:Name="ImgPwdOK" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="2" Grid.Row="2" Grid.RowSpan="1" Source="/Routeur;Component/Graphics/OKShield-48.png" Visibility="{Binding IsPasswordOK, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
-					<TextBox Margin="3" Width="Auto" Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Stretch"  Visibility="{Binding NewStyle, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=Default}" />
+					<TextBox Margin="3" Width="Auto" Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Stretch" Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=Default}" />
     			</Grid>
 				</GroupBox>
 				</Grid>
