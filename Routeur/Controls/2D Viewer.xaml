@@ -17,8 +17,8 @@
 		<System:Double x:Key="ThreeWidth">10800</System:Double>
 		<System:Double x:Key="TwoWith">7200</System:Double>
 	</UserControl.Resources>
-	<Canvas x:Name="BackBuffer" >
-		<Image x:Name="RenderBuffer"  RenderTransformOrigin="0.5,0.5" Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Margin="0" Width="{Binding ActualWidth, ElementName=UserControl}" Height="{Binding ActualHeight, ElementName=UserControl}" >
+	<Canvas x:Name="BackBuffer" Width="{DynamicResource ThreeWidth}" Height="{DynamicResource Height}" >
+		<Image x:Name="RenderBuffer"  RenderTransformOrigin="0.5,0.5" Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Margin="0" Width="{DynamicResource Width}" Height="{DynamicResource Height}" Canvas.Left="0" >
 			<Image.RenderTransform>
 				<TransformGroup>
 					<ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -28,7 +28,7 @@
 				</TransformGroup>
 			</Image.RenderTransform>
 		</Image>
-		<!--<Image Width="{DynamicResource Width}" Height="{DynamicResource Height}" x:Name="RenderBuffer1"  RenderTransformOrigin="0.5,0.5" Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Canvas.Left="{DynamicResource Width}" Source="{Binding Source, ElementName=RenderBuffer, Mode=OneWay}" Margin="0" >
+		<Image Width="{DynamicResource Width}" Height="{DynamicResource Height}" x:Name="RenderBuffer1"  RenderTransformOrigin="0.5,0.5" Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Canvas.Left="{DynamicResource Width}" Source="{Binding Source, ElementName=RenderBuffer, Mode=OneWay}" Margin="0" >
 			<Image.RenderTransform>
 				<TransformGroup>
 					<ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -47,6 +47,6 @@
 					<TranslateTransform X="0" Y="0"/>
 				</TransformGroup>
 			</Image.RenderTransform>
-		</Image>-->
+		</Image>
 	</Canvas>
 </UserControl>
