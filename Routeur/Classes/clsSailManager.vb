@@ -39,9 +39,9 @@ Public Class clsSailManager
     Private _Polar(1800, MaxWindSpeedHundedth) As UInt16
     Private _PolarCorner(MaxWindSpeedHundedth, 2) As Double
 
-    Public Const CORNER_SPEED As Integer = 0
-    Public Const CORNER_UPWIND As Integer = 1
-    Public Const CORNER_DOWNWIND As Integer = 2
+    Private Const CORNER_SPEED As Integer = 0
+    Private Const CORNER_UPWIND As Integer = 1
+    Private Const CORNER_DOWNWIND As Integer = 2
 
 
 

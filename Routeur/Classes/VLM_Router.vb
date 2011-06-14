@@ -259,8 +259,10 @@ Public Class VLM_Router
             End Set
         End Property
 
+        Private Property GoalETA As DateTime = New DateTime(0)
 
-        Public Function Improve(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double, ByVal Start As clsrouteinfopoints) As Boolean
+
+        Public Function Improve(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double, ByVal Start As clsrouteinfopoints, MeteoOrganizer As GribManager, Dest1 As Coords, Dest2 As Coords) As Boolean
 
 
             If P Is Nothing Then
@@ -272,6 +274,8 @@ Public Class VLM_Router
             Return ImproveDTF(P)
 #ElseIf IMPROVE_MODE = 1 Then
             Return ImproveMixDTF_TS(P, DTFRatio, Start)
+#ElseIf IMPROVE_MODE = 2 Then
+            Return ImproveDTF_ETA_VMG(P, Sails, MeteoOrganizer, Dest1, Dest2)
 #End If
         End Function
 
@@ -308,6 +312,18 @@ Public Class VLM_Router
             'Dim RetVal As Boolean = (AvgVMG * DTFRatio + (1 - DTFRatio) * AvgSpeed) > (PAvgVMG * DTFRatio + (1 - DTFRatio) * PAvgSpeed)
             Return RetVal
 
+        End Function
+
+        Private Function ImproveDTF_ETA_VMG(P As clsrouteinfopoints, Sails As clsSailManager, MeteoOrganizer As GribManager, Dest1 As Coords, Dest2 As Coords) As Boolean
+
+            If GoalETA.Ticks = 0 Then
+                ComputeVMGETA(MeteoOrganizer, Sails, BoatType, Dest1, Dest2)
+            End If
+
+            If P.GoalETA.Ticks = 0 Then
+                P.ComputeVMGETA(MeteoOrganizer, Sails, BoatType, Dest1, Dest2)
+            End If
+            Return P.GoalETA < GoalETA
         End Function
 
         Public Property Loch() As Double
@@ -436,6 +452,24 @@ Public Class VLM_Router
             End Set
         End Property
 
+        Private Sub ComputeVMGETA(MeteoSource As GribManager, Sails As clsSailManager, BoatType As String, Dest1 As Coords, Dest2 As Coords)
+
+            Dim CurP As New Coords(P)
+            Dim CurEta As DateTime = T
+            Dim DTF As Double = DTF
+            Dim mi As MeteoInfo
+
+            While CurP IsNot Nothing
+                mi = MeteoSource.GetMeteoToDate(CurEta, CurP.Lon_Deg, CurP.Lat_Deg, False, False)
+                CurP = ReachPointVMG_1H(mi, Sails, BoatType, CurP, Dest1, Dest2)
+                If CurP IsNot Nothing Then
+                    CurEta = CurEta.AddMinutes(60)
+                End If
+            End While
+            GoalETA = CurEta
+
+            Return
+        End Sub
 
     End Class
 
@@ -1143,6 +1177,7 @@ Public Class VLM_Router
                                     'End If
 
                                 End If
+
 
                                 Tc.EndPoint = CurWPDest
                                 Dim CapOrtho As Double = Tc.OrthoCourse_Deg

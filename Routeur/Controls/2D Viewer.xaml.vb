@@ -23,6 +23,8 @@ Partial Public Class _2D_Viewer
     Private Const YBMP_RES As Integer = 180
     Public Const DEFINITION As Integer = 10
 
+#Const DBG_UPDATE_PATH = 1
+
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
 
@@ -415,26 +417,29 @@ Render1:
         Static CurPos As New Coords
 
 
-        If Not Dispatcher.Thread Is System.Threading.Thread.CurrentThread Then
-            'Invoking = System.Threading.Interlocked.CompareExchange(Invoking, 1, 0)
-            'If Invoking = 0 Then
-            '    If Not ClearGrid And Now.Subtract(lastinvoke).TotalSeconds < 5 Then
-            '        System.Threading.Interlocked.Exchange(Invoking, 0)
-            '        Return
-            '    End If
-            '    lastinvoke = Now
-            Dim R As System.Windows.Threading.DispatcherOperation = Dispatcher.BeginInvoke(dlg, New Object() {PathString, Routes, _
-                                                                                Opponents, ClearGrid, ClearBoats, IsoChrones, WPs, ManagedRoutes})
+        'If Not Dispatcher.Thread Is System.Threading.Thread.CurrentThread Then
+        '    'Invoking = System.Threading.Interlocked.CompareExchange(Invoking, 1, 0)
+        '    'If Invoking = 0 Then
+        '    '    If Not ClearGrid And Now.Subtract(lastinvoke).TotalSeconds < 5 Then
+        '    '        System.Threading.Interlocked.Exchange(Invoking, 0)
+        '    '        Return
+        '    '    End If
+        '    '    lastinvoke = Now
+        '    Dim R As System.Windows.Threading.DispatcherOperation = Dispatcher.BeginInvoke(dlg, New Object() {PathString, Routes, _
+        '                                                                        Opponents, ClearGrid, ClearBoats, IsoChrones, WPs, ManagedRoutes})
 
-            While Q.Count > 0
-                Dim R2 As System.Windows.Threading.DispatcherOperation = CType(Q.Dequeue, System.Windows.Threading.DispatcherOperation)
-                R2.Abort()
-            End While
-            Q.Enqueue(R)
-            'End If
-            Return
-        End If
+        '    While Q.Count > 0
+        '        Dim R2 As System.Windows.Threading.DispatcherOperation = CType(Q.Dequeue, System.Windows.Threading.DispatcherOperation)
+        '        R2.Abort()
+        '    End While
+        '    Q.Enqueue(R)
+        '    'End If
+        '    Return
+        'End If
+
+#If DBG_UPDATE_PATH = 1 Then
         Console.WriteLine("Update path start " & Now.Subtract(Start).ToString)
+#End If
 
         Try
             'Static StartPath As DateTime = Now
@@ -537,6 +542,9 @@ Render1:
 
 #End If
             End If
+#If DBG_UPDATE_PATH = 1 Then
+            Console.WriteLine("Update path Tiles Done " & Now.Subtract(Start).ToString)
+#End If
 
 #If NO_TILES = 1 Then
                 If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
@@ -547,6 +555,9 @@ Render1:
                 DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
             End If
 
+#If DBG_UPDATE_PATH = 1 Then
+            Console.WriteLine("Update path Tiles Rendered " & Now.Subtract(Start).ToString)
+#End If
 
 
 
@@ -679,6 +690,11 @@ Render1:
                 End If
             End If
 
+#If DBG_UPDATE_PATH = 1 Then
+            Console.WriteLine("Update path IsoChrones Done " & Now.Subtract(Start).ToString)
+#End If
+
+
             If ClearBoats OrElse _EraseBoatMap Then
                 _OpponentsBmp.Clear()
                 _EraseBoatMap = False
@@ -711,6 +727,11 @@ Render1:
                 DC = D.RenderOpen
                 'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
             End If
+
+#If DBG_UPDATE_PATH = 1 Then
+            Console.WriteLine("Update path Opponents Done " & Now.Subtract(Start).ToString)
+#End If
+
 
             'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
             '
@@ -752,7 +773,12 @@ Render1:
             DC.DrawImage(_RoutesBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
             DC.DrawImage(_OpponentsBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
             DC.DrawImage(_GridBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
-
+            DC.Close()
+            _RBmp.Render(D)
+            DC = D.RenderOpen
+#If DBG_UPDATE_PATH = 1 Then
+            Console.WriteLine("Update path BM Rendered " & Now.Subtract(Start).ToString)
+#End If
 
 
             '
@@ -824,7 +850,12 @@ Render1:
                 Next
             End If
             'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
-
+#If DBG_UPDATE_PATH = 1 Then
+            Console.WriteLine("Update path Path Done " & Now.Subtract(Start).ToString)
+#End If
+            DC.Close()
+            _RBmp.Render(D)
+            DC = D.RenderOpen
             '
             ' Draw the other routes
             '
@@ -884,9 +915,17 @@ Render1:
                 End Try
             End If
 
-
+#If DBG_UPDATE_PATH = 1 Then
+            Console.WriteLine("Update path Routes Done " & Now.Subtract(Start).ToString)
+#End If
             DC.Close()
+#If DBG_UPDATE_PATH = 1 Then
+            Console.WriteLine("Update path DCClosed Done " & Now.Subtract(Start).ToString)
+#End If
             _RBmp.Render(D)
+#If DBG_UPDATE_PATH = 1 Then
+            Console.WriteLine("Update path Render Done " & Now.Subtract(Start).ToString)
+#End If
             'Monitor.Exit(Me)
             'Console.WriteLine("Update path complete in " & Now.Subtract(Start).TotalMilliseconds)
             'End If

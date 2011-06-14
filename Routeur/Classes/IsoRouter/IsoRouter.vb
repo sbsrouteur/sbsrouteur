@@ -33,6 +33,7 @@ Public Class IsoRouter
     Private _FastRoute As Boolean = False
     Private IsoRouterLock As New Object
 
+#Const DBG_ISO = 1
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan)
         _AngleStep = AngleStep
@@ -75,9 +76,7 @@ Public Class IsoRouter
 
         Else
             'Dim PIndex As Integer
-            Dim MinWindAngle As Double
-            Dim MaxWindAngle As Double
-
+            
             'Dim IsoStart As DateTime = Now
             'Console.WriteLine("Iso len : " & Iso.Data.Length)
             Dim StartIndex As Integer = 0
@@ -198,7 +197,6 @@ Public Class IsoRouter
                                                                   Dim P As clsrouteinfopoints
                                                                   Dim tc As New TravelCalculator
                                                                   Dim Index As Integer
-                                                                  Dim PrevIndex As Integer
                                                                   Dim OldP As clsrouteinfopoints
 
                                                                   'If WindAngle(Ortho, alpha) < _SearchAngle Then
@@ -228,7 +226,7 @@ Public Class IsoRouter
                                                                               'End If
                                                                               SyncLock RetIsoChrone.Locks(Index)
                                                                                   OldP = RetIsoChrone.Data(Index)
-                                                                                  If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint) Then
+                                                                                  If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2) Then
                                                                                       RetIsoChrone.Data(Index) = P
 
                                                                                       'Update Polygon
@@ -398,14 +396,16 @@ Public Class IsoRouter
             Dim LoopStart As DateTime = Now
 
             CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
+#If DBG_ISO = 1 Then
             Console.WriteLine("IsoDone" & Now.Subtract(LoopStart).TotalMilliseconds)
+#End If
             'CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
             'RouteComplete = CheckCompletion(CurIsoChrone)
             If Not CurIsoChrone Is Nothing Then
                 _IsoChrones.AddLast(CurIsoChrone)
                 For Each rp As clsrouteinfopoints In CurIsoChrone.Data
                     If Not rp Is Nothing Then
-                        If rp.Improve(P, _DTFRatio, _StartPoint) Then
+                        If rp.Improve(P, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2) Then
                             P = rp
                             CurDTF = P.DTF
 

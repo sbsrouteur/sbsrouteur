@@ -127,7 +127,7 @@
             Dim WP(1) As Coords
             Dim L As New List(Of Coords())
             WP(0) = New Coords(latitude1 / 1000, longitude1 / 1000)
-            If latitude1 <> latitude2 OrElse longitude1 <> longitude2 Then
+            If wpformat = 0 Then ' latitude1 <> latitude2 OrElse longitude1 <> longitude2 Then
                 WP(1) = New Coords(latitude2 / 1000, longitude2 / 1000)
             Else
                 Dim TC As New TravelCalculator
