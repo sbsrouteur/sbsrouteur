@@ -309,7 +309,7 @@
 							</ItemsControl>
 						</Canvas>
 					</Canvas>
-					<Canvas Height="1069" x:Name="_2D_Renderer" Grid.ColumnSpan="4" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler" Width="1920">
+					<Canvas Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler" Width="Auto">
 						
 						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" Canvas.Top="0" ContextMenuOpening="OnMapContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}" Width="{Binding ActualWidth, ElementName=_2D_Renderer}" Height="{Binding ActualHeight, ElementName=_2D_Renderer}">
 							<Routeur:_2D_Viewer.RenderTransform>

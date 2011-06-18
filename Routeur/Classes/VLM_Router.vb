@@ -458,12 +458,14 @@ Public Class VLM_Router
             Dim CurEta As DateTime = T
             Dim DTF As Double = DTF
             Dim mi As MeteoInfo
+            Dim Reached As Boolean = False
 
-            While CurP IsNot Nothing
+            While Not reached
+                Dim MS As Double
                 mi = MeteoSource.GetMeteoToDate(CurEta, CurP.Lon_Deg, CurP.Lat_Deg, False, False)
-                CurP = ReachPointVMG_1H(mi, Sails, BoatType, CurP, Dest1, Dest2)
-                If CurP IsNot Nothing Then
-                    CurEta = CurEta.AddMinutes(60)
+                CurP = ComputeTrackVMG(mi, Sails, BoatType, CurP, Dest1, Dest2, MS, Reached)
+                If Not Reached Then
+                    CurEta = CurEta.AddMinutes(RouteurModel.VacationMinutes)
                 End If
             End While
             GoalETA = CurEta
@@ -1180,27 +1182,29 @@ Public Class VLM_Router
 
 
                                 Tc.EndPoint = CurWPDest
-                                Dim CapOrtho As Double = Tc.OrthoCourse_Deg
-                                Dim Angle As Double
+                                'Dim CapOrtho As Double = Tc.OrthoCourse_Deg
                                 Dim MaxSpeed As Double = 0
-                                Dim BestAngle As Double = 0
-                                Dim dir As Integer
+                                Dim Reached As Boolean = False
+
+                                CurPos = ComputeTrackVMG(Mi, _Sails, BoatType, CurPos, CurWPDest, Nothing, MaxSpeed, Reached)
+                                'Dim Angle As Double
+                                'Dim BestAngle As Double = 0
+                                'Dim dir As Integer
                                 WPDist = Tc.SurfaceDistance
 
-                                For Angle = 0 To 90 Step 0.5
+                                'For Angle = 0 To 90 Step 0.5
 
-                                    For dir = -1 To 1 Step 2
-                                        BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho + Angle * dir, Mi.Dir), Mi.Strength)
+                                '    For dir = -1 To 1 Step 2
+                                '        BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho + Angle * dir, Mi.Dir), Mi.Strength)
 
-                                        If BoatSpeed * Math.Cos(Angle / 180 * Math.PI) > MaxSpeed Then
-                                            MaxSpeed = BoatSpeed '* Math.Cos(Angle / 180 * Math.PI)
-                                            BestAngle = CapOrtho + Angle * dir
-                                        End If
-                                    Next
+                                '        If BoatSpeed * Math.Cos(Angle / 180 * Math.PI) > MaxSpeed Then
+                                '            MaxSpeed = BoatSpeed '* Math.Cos(Angle / 180 * Math.PI)
+                                '            BestAngle = CapOrtho + Angle * dir
+                                '        End If
+                                '    Next
 
-                                Next
-                                CurPos = Tc.ReachDistance(MaxSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
-
+                                'Next
+                                'CurPos = Tc.ReachDistance(MaxSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = MaxSpeed}
 
 

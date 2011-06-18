@@ -32,10 +32,10 @@
     Private _laisser_au As Integer
     Private _wptype As String
     Private _wpformat As Integer
-    Private _latitude1 As Integer
-    Private _longitude1 As Integer
-    Private _latitude2 As Integer
-    Private _longitude2 As Integer
+    Private _latitude1 As Double
+    Private _longitude1 As Double
+    Private _latitude2 As Double
+    Private _longitude2 As Double
     Private _libelle As String
     Private _maparea As Integer
 
@@ -50,20 +50,20 @@
         End Set
     End Property
 
-    Public Property latitude1() As Integer
+    Public Property latitude1() As Double
         Get
             Return _latitude1
         End Get
-        Set(ByVal value As Integer)
+        Set(ByVal value As Double)
             _latitude1 = value
         End Set
     End Property
 
-    Public Property latitude2() As Integer
+    Public Property latitude2() As Double
         Get
             Return _latitude2
         End Get
-        Set(ByVal value As Integer)
+        Set(ByVal value As Double)
             _latitude2 = value
         End Set
     End Property
@@ -77,20 +77,20 @@
         End Set
     End Property
 
-    Public Property longitude1() As Integer
+    Public Property longitude1() As Double
         Get
             Return _longitude1
         End Get
-        Set(ByVal value As Integer)
+        Set(ByVal value As Double)
             _longitude1 = value
         End Set
     End Property
 
-    Public Property longitude2() As Integer
+    Public Property longitude2() As Double
         Get
             Return _longitude2
         End Get
-        Set(ByVal value As Integer)
+        Set(ByVal value As Double)
             _longitude2 = value
         End Set
     End Property
