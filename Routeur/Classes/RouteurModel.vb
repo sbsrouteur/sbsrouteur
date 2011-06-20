@@ -610,7 +610,12 @@ Public Class RouteurModel
     Private Sub LoadRaceInfo(ByVal P As RegistryPlayerInfo)
 
         Dim RaceNum As String = P.RaceNum
+#If TESTING Then
+        Dim RaceFileName As String = BaseFileDir & "\T_RI_" & RaceNum & ".ini"
+#Else
         Dim RaceFileName As String = BaseFileDir & "\RI_" & RaceNum & ".ini"
+
+#End If
         Dim RaceInfo As String
 
         If Not System.IO.File.Exists(RaceFileName) Then

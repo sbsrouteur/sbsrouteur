@@ -62,7 +62,12 @@ Public Class RacePrefs
     Public Shared Function GetRaceInfo(ByVal RaceID As String) As RacePrefs
 
         Dim RetValue As RacePrefs = Nothing
+#If TESTING = 1 Then
+        Dim fName As String = RouteurModel.BaseFileDir & "\T_ri_" & RaceID & ".xml"
+#Else
         Dim fName As String = RouteurModel.BaseFileDir & "\ri_" & RaceID & ".xml"
+#End If
+
         Dim xmlloaded As Boolean = False
 
         If System.IO.File.Exists(fName) Then
@@ -444,7 +449,12 @@ Public Class RacePrefs
 
     Public Shared Sub Save(ByVal RaceID As String, ByVal Data As RacePrefs)
 
+#If TESTING = 1 Then
+        Dim fName As String = RouteurModel.BaseFileDir & "\T_ri_" & RaceID & ".xml"
+#Else
         Dim fName As String = RouteurModel.BaseFileDir & "\ri_" & RaceID & ".xml"
+#End If
+
         Dim Ser As New System.Xml.Serialization.XmlSerializer(Data.GetType)
 
         If Not System.IO.Directory.Exists(RouteurModel.BaseFileDir) Then
