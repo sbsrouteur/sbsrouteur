@@ -29,7 +29,7 @@
             Dim MaxAngle As Double
             Sails.GetCornerAngles(mi.Strength, MinAngle, MaxAngle)
 
-            If (Angle + CapOrtho + 360) Mod 180 >= MinAngle AndAlso (Angle + CapOrtho + 360) Mod 180 <= MaxAngle Then
+            If (Angle * dir + CapOrtho + 360) Mod 180 >= MinAngle AndAlso (Angle * dir + CapOrtho + 360) Mod 180 <= MaxAngle Then
                 For dir = -1 To 1 Step 2
 
                     BoatSpeed = Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(CapOrtho + Angle * dir, mi.Dir), mi.Strength)
