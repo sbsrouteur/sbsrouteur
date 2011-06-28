@@ -23,6 +23,7 @@
         Dim dir As Integer
         Dim WPDist As Double = TC.SurfaceDistance
         Dim BoatSpeed As Double = 0
+        Dim BestVMG As Double = 0
 
         For Angle = 0 To 90 Step 0.1
             Dim MinAngle As Double
@@ -34,9 +35,10 @@
 
                     BoatSpeed = Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(CapOrtho + Angle * dir, mi.Dir), mi.Strength)
 
-                    If BoatSpeed * Math.Cos(Angle / 180 * Math.PI) > MaxSPeed Then
+                    If BoatSpeed * Math.Cos(Angle / 180 * Math.PI) > BestVMG Then
                         MaxSPeed = BoatSpeed '* Math.Cos(Angle / 180 * Math.PI)
                         BestAngle = CapOrtho + Angle * dir
+                        BestVMG = BoatSpeed * Math.Cos(Angle / 180 * Math.PI)
                     End If
                 Next
             End If
