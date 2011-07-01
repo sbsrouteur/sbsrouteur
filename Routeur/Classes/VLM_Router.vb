@@ -1153,9 +1153,10 @@ Public Class VLM_Router
 
                             Case 2
                                 'Angle fixe
-                                BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(PrevValue), Mi.Strength)
-                                CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + PrevValue))
+                                Dim Reached As Boolean = False
+                                CurPos = ComputeTrackAngle(Mi, _Sails, BoatType, CurPos, PrevValue, CurWPDest, Nothing, BoatSpeed, Reached)
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
+                                WPDist = Tc.SurfaceDistance
 
                             Case 3
                                 'Ortho
