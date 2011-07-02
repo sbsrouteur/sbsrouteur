@@ -1143,27 +1143,35 @@ Public Class VLM_Router
                         End If
                         Tc.StartPoint = CurPos
                         P = Nothing
-
+                        Dim WPReached As Boolean = False
                         Select Case PrevMode
                             Case 1
                                 'Cap fixe
                                 BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(PrevValue, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, PrevValue)
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
-
+                                WPReached = False
                             Case 2
                                 'Angle fixe
-                                Dim Reached As Boolean = False
-                                CurPos = ComputeTrackAngle(Mi, _Sails, BoatType, CurPos, PrevValue, CurWPDest, Nothing, BoatSpeed, Reached)
+
+                                CurPos = ComputeTrackAngle(Mi, _Sails, BoatType, CurPos, PrevValue, CurWPDest, Nothing, BoatSpeed, WPReached)
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
-                                WPDist = Tc.SurfaceDistance
+
 
                             Case 3
                                 'Ortho
-                                Tc.EndPoint = CurWPDest
-                                Dim CapOrtho As Double = Tc.OrthoCourse_Deg
-                                BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(CapOrtho, Mi.Dir), Mi.Strength)
-                                CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, CapOrtho)
+                                If CurWPNUm <> -1 Then
+
+
+                                    'If CurWPNUm >= _PlayerInfo.RaceInfo.races_waypoints.Count Then
+                                    CurWPDest = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0) _
+                                                                                     , _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(1))
+                                    'CurWPNUm = _PlayerInfo.RaceInfo.races_waypoints.Count - 1
+                                    'End If
+
+                                End If
+                                BoatSpeed = 0
+                                CurPos = ComputeTrackOrtho(Mi, _Sails, BoatType, CurPos, CurWPDest, Nothing, BoatSpeed, WPReached)
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
 
                             Case 4
@@ -1185,9 +1193,8 @@ Public Class VLM_Router
                                 Tc.EndPoint = CurWPDest
                                 'Dim CapOrtho As Double = Tc.OrthoCourse_Deg
                                 Dim MaxSpeed As Double = 0
-                                Dim Reached As Boolean = False
 
-                                CurPos = ComputeTrackVMG(Mi, _Sails, BoatType, CurPos, CurWPDest, Nothing, MaxSpeed, Reached)
+                                CurPos = ComputeTrackVMG(Mi, _Sails, BoatType, CurPos, CurWPDest, Nothing, MaxSpeed, WPReached)
                                 'Dim Angle As Double
                                 'Dim BestAngle As Double = 0
                                 'Dim dir As Integer
@@ -1229,34 +1236,31 @@ Public Class VLM_Router
                                 BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(angle, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, angle)
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
-
+                                WPReached = False
 
                             Case Else
                                 Return
 
                         End Select
 
-                        If PrevMode = 3 OrElse PrevMode = 4 OrElse PrevMode = 5 Then
-                            'Check WP completion
-                            Tc.EndPoint = CurPos
-                            If Tc.SurfaceDistance > WPDist Then
-                                'WP Reached change for next WP
-                                If ModeAtWP <> 1 Then
-                                    If CurWPNUm = -1 Then
-                                        CurWPNUm = GetNextRankingWP(RouteurModel.CurWP - 1)
-                                    Else
-                                        CurWPNUm = GetNextRankingWP(CurWPNUm)
-                                        If CurWPNUm < 0 Then
-                                            RouteComplete = True
-                                        End If
-
-                                    End If
+                        If WPReached Then
+                            'WP Reached change for next WP
+                            If ModeAtWP <> 1 Then
+                                If CurWPNUm = -1 Then
+                                    CurWPNUm = GetNextRankingWP(RouteurModel.CurWP - 1)
                                 Else
-                                    PrevMode = 1
-                                    PrevValue = CapAtWP
+                                    CurWPNUm = GetNextRankingWP(CurWPNUm)
+                                    If CurWPNUm < 0 Then
+                                        RouteComplete = True
+                                    End If
+
                                 End If
+                            Else
+                                PrevMode = 1
+                                PrevValue = CapAtWP
                             End If
                         End If
+
                         If Not P Is Nothing Then
                             If PilototoRoute.Count = 0 OrElse ((CurDate.Ticks - LastPTick > TimeSpan.TicksPerMinute * 5 AndAlso _
                                 CurDate.Ticks - PilototoRoute(0).T.Ticks < TimeSpan.TicksPerHour * 24) OrElse _

@@ -107,6 +107,7 @@
     <Compile Include="Classes\GridRouter\GridProgressContext.vb" />
     <Compile Include="Classes\GSHHS\GSHHS_Utils.vb" />
     <Compile Include="Classes\NavHelper\AngleNavHelper.vb" />
+    <Compile Include="Classes\NavHelper\OrthoNavHelper.vb" />
     <Compile Include="Classes\NavHelper\VMGNavHelper.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMShortRaceInfo.vb" />
     <Compile Include="Dialogs\frmAppOptions.xaml.vb">
