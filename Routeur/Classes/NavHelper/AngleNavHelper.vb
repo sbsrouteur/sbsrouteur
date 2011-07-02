@@ -17,9 +17,7 @@
         End If
         TC.EndPoint = Dest
         Dim CapOrtho As Double = TC.OrthoCourse_Deg
-        Dim Angle As Double
-
-
+        
         Dim WPDist As Double = TC.SurfaceDistance
         Dim BestVMG As Double = 0
 
