@@ -27,7 +27,29 @@ Public Class TravelCalculator
     'Private _CapCached As Boolean = False
     'Private _DistanceCached As Boolean = False
 
-    Public ReadOnly Property LoxoCourse_Deg() As Double
+    Public ReadOnly Property LoxoCourse_Deg As Double
+        Get
+            Return LoxoCourse_Deg_Aviat
+        End Get
+    End Property
+
+
+    Private ReadOnly Property LoxoCourse_Deg_Aviat As Double
+        Get
+
+            Dim Lon1 As Double = -StartPoint.Lon
+            Dim Lon2 As Double = -EndPoint.Lon
+            Dim Lat1 As Double = StartPoint.Lat
+            Dim Lat2 As Double = EndPoint.Lat
+
+            Dim tc As Double = Atan2(Lon1 - Lon2, Log(Tan(Lat2 / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))) Mod (2 * PI)
+
+            Return tc / PI * 180
+
+        End Get
+    End Property
+
+    Private ReadOnly Property LoxoCourse_Deg_VLM() As Double
         Get
             'If _CapCached AndAlso Not Double.IsNaN(_Cap) Then
             '    Return _Cap
@@ -209,7 +231,7 @@ Public Class TravelCalculator
         Dim t_lat As Double = (RetCoords.Lat + StartPoint.Lat) / 2
         '69	  longitude = aboat->longitude + (d*sin(aboat->heading))/cos(t_lat);
         RetCoords.Lon = StartPoint.Lon + (d * Sin(tc_rad)) / Cos(t_lat)
-        
+
         Return RetCoords
     End Function
 
@@ -462,7 +484,7 @@ Public Class TravelCalculator
         '    retval += PI
         'End If
         retval = retval Mod (2 * PI)
-        Return RetVal
+        Return retval
 
     End Function
 
@@ -499,4 +521,35 @@ Public Class TravelCalculator
         Return D
 
     End Function
+
+    Function ReachDistanceOrtho(f As Double) As Coords
+        'A = Sin((1 - f) * d) / Sin(d)
+        'B = Sin(f * d) / Sin(d)
+        'x = A * Cos(lat1) * Cos(lon1) + B * Cos(lat2) * Cos(lon2)
+        'y = A * Cos(lat1) * Sin(lon1) + B * Cos(lat2) * Sin(lon2)
+        'z = A * Sin(lat1) + B * Sin(lat2)
+        'lat = Atan2(z, Sqrt(x ^ 2 + y ^ 2))
+        'lon = Atan2(y, x)
+
+        Dim RetP As New Coords
+        Dim A As Double
+        Dim B As Double
+        Dim d As Double = DistanceAngle
+        Dim x As Double
+        Dim y As Double
+        Dim z As Double
+        Dim lat1 As Double = StartPoint.Lat
+        Dim lon1 As Double = -StartPoint.Lon
+        Dim lat2 As Double = EndPoint.Lat
+        Dim lon2 As Double = -EndPoint.Lon
+        A = Sin((1 - f) * d) / Sin(d)
+        B = Sin(f * d) / Sin(d)
+        x = A * Cos(lat1) * Cos(lon1) + B * Cos(lat2) * Cos(lon2)
+        y = A * Cos(lat1) * Sin(lon1) + B * Cos(lat2) * Sin(lon2)
+        z = A * Sin(lat1) + B * Sin(lat2)
+        RetP.Lat = Atan2(z, Sqrt(x ^ 2 + y ^ 2))
+        RetP.Lon = -Atan2(y, x)
+        Return RetP
+    End Function
+
 End Class
