@@ -937,6 +937,28 @@ Public Class VLM_Router
         End If
     End Function
 
+    Private Sub BuildOrthoToP(userPosition As Coords, P As clsrouteinfopoints, PlannedRoute As ObservableCollection(Of clsrouteinfopoints))
+
+        Dim TC As New TravelCalculator
+        TC.StartPoint = userPosition
+        TC.EndPoint = P.P
+
+        If Abs((TC.LoxoCourse_Deg - TC.OrthoCourse_Deg + 360) Mod 360) < 0.1 Then
+            PlannedRoute.Add(P)
+            Return
+        Else
+            Dim Dest As Coords = TC.ReachDistanceOrtho(0.5)
+            Dim P1 As New clsrouteinfopoints With {.P = Dest}
+            BuildOrthoToP(userPosition, P1, PlannedRoute)
+            BuildOrthoToP(P1.P, P, PlannedRoute)
+        End If
+
+        TC.StartPoint = Nothing
+        TC.EndPoint = Nothing
+        TC = Nothing
+
+    End Sub
+
     Public Function CheckLogin(ByVal User As String, ByVal Password As String) As Boolean
 
         Dim cookies As CookieContainer = Login(User, Password)
@@ -1756,10 +1778,12 @@ Public Class VLM_Router
 
             If _PlannedRoute.Count = 0 Then
                 Dim P As clsrouteinfopoints
-
+                Dim CurPos As New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
                 For Each C In _PlayerInfo.Route
                     P = New clsrouteinfopoints() With {.P = C}
-                    _PlannedRoute.Add(P)
+                    BuildOrthoToP(CurPos, P, _PlannedRoute)
+                    '_PlannedRoute.Add(P)
+                    CurPos = C
                 Next
                 'Else
                 '    _PlannedRoute(0).P.Lat_Deg = _UserInfo.position.latitude
@@ -3248,4 +3272,7 @@ Public Class VLM_Router
         End If
 
     End Sub
+
+
+
 End Class
