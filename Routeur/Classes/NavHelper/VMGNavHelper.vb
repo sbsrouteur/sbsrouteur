@@ -30,8 +30,8 @@
             Dim MaxAngle As Double
             Sails.GetCornerAngles(mi.Strength, MinAngle, MaxAngle)
 
-            If (Angle * dir + CapOrtho + 360) Mod 180 >= MinAngle AndAlso (Angle * dir + CapOrtho + 360) Mod 180 <= MaxAngle Then
                 For dir = -1 To 1 Step 2
+                If (Angle * dir + CapOrtho + 360) Mod 180 >= MinAngle AndAlso (Angle * dir + CapOrtho + 360) Mod 180 <= MaxAngle Then
 
                     BoatSpeed = Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(CapOrtho + Angle * dir, mi.Dir), mi.Strength)
 
@@ -40,8 +40,8 @@
                         BestAngle = CapOrtho + Angle * dir
                         BestVMG = BoatSpeed * Math.Cos(Angle / 180 * Math.PI)
                     End If
-                Next
-            End If
+                End If
+            Next
         Next
         If WPDist <= MaxSPeed / 60 * RouteurModel.VacationMinutes Then
             ReachedWP = True

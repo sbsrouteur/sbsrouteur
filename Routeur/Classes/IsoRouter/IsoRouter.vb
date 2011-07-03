@@ -29,7 +29,7 @@ Public Class IsoRouter
     Private _SailManager As clsSailManager
     Private _BoatType As String
     Private _CurBest As clsrouteinfopoints
-    Private _DTFRatio As Double = 0.85
+    Private _DTFRatio As Double = 0.9
     Private _FastRoute As Boolean = False
     Private IsoRouterLock As New Object
 
