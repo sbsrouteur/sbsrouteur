@@ -25,7 +25,7 @@
         BoatSpeed = Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, Math.Abs(WindAngle), mi.Strength)
 
 
-        If WPDist <= BoatSpeed / 60 * RouteurModel.VacationMinutes Then
+        If Dest1 IsNot Nothing AndAlso WPDist <= BoatSpeed / 60 * RouteurModel.VacationMinutes Then
             ReachedWP = True
         End If
         RetP = TC.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, mi.Dir + WindAngle)
