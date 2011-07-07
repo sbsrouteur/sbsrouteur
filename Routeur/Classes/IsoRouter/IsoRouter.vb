@@ -146,7 +146,7 @@ Public Class IsoRouter
                                                               '        End If
                                                               '    End SyncLock
                                                               'End If
-                                                              Dim Loxo As Double
+                                                              Dim Ortho As Double
                                                               tcfn1.StartPoint = rp.P
                                                               If _DestPoint2 IsNot Nothing Then
                                                                   tcfn1.EndPoint = GSHHS_Reader.PointToSegmentIntersect(rp.P, _DestPoint1, _DestPoint2)
@@ -154,11 +154,11 @@ Public Class IsoRouter
                                                                   tcfn1.EndPoint = _DestPoint1
                                                               End If
 
-                                                              Loxo = tcfn1.LoxoCourse_Deg
+                                                              Ortho = tcfn1.OrthoCourse_Deg
                                                               tcfn1.EndPoint = _StartPoint.P
 
-                                                              Dim RefAlpha As Double = (tcfn1.LoxoCourse_Deg + 180) Mod 360
-                                                              Dim MinAngle As Double = Loxo - _SearchAngle
+                                                              'Dim RefAlpha As Double = tcfn1.LoxoCourse_Deg
+                                                              Dim MinAngle As Double = Ortho - _SearchAngle
                                                               'Index = (PIndex - 1 + Iso.Data.Length) Mod Iso.Data.Length
                                                               'If Not OuterIso.Data(Index) Is Nothing Then
                                                               '    tc.EndPoint = OuterIso.Data(Index).P
@@ -168,7 +168,7 @@ Public Class IsoRouter
                                                               '    End If
                                                               'End If
 
-                                                              Dim MaxAngle As Double = Loxo + _SearchAngle
+                                                              Dim MaxAngle As Double = Ortho + _SearchAngle
                                                               'Index = (PIndex + 1 + Iso.Data.Length) Mod Iso.Data.Length
                                                               'If Not OuterIso.Data(Index) Is Nothing Then
                                                               '    tc.EndPoint = OuterIso.Data(Index).P
@@ -190,6 +190,7 @@ Public Class IsoRouter
                                                               'Parallel.For(MinAngle, MaxAngle + 3 * _AngleStep,
                                                               Dim StepCount As Integer = CInt(Math.Floor((MaxAngle - MinAngle) / 3 / _AngleStep) + 1)
                                                               ' Console.WriteLine("SC" & StepCount)
+                                                              'Console.WriteLine("L" & Loxo & " min " & MinAngle & " max " & MaxAngle)
                                                               Parallel.For(0, StepCount,
                                                               Sub(AlphaIndex As Integer)
                                                                   'For alpha = MinAngle To MaxAngle Step 3 * _AngleStep
