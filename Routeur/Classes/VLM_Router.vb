@@ -942,8 +942,10 @@ Public Class VLM_Router
         Dim TC As New TravelCalculator
         TC.StartPoint = userPosition
         TC.EndPoint = P.P
+        Dim L As Double = TC.LoxoCourse_Deg
+        Dim O As Double = TC.OrthoCourse_Deg
 
-        If Abs((TC.LoxoCourse_Deg - TC.OrthoCourse_Deg + 360) Mod 360) < 0.1 Then
+        If Abs(L - O) < 0.5 OrElse 360 - Abs(L - O) < 1 Then
             PlannedRoute.Add(P)
             Return
         Else

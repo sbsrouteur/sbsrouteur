@@ -44,7 +44,7 @@ Public Class TravelCalculator
 
             Dim tc As Double = Atan2(Lon1 - Lon2, Log(Tan(Lat2 / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))) Mod (2 * PI)
 
-            Return tc / PI * 180
+            Return ((tc / PI * 180) + 360) Mod 360
 
         End Get
     End Property
