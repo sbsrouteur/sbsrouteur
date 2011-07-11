@@ -37,7 +37,7 @@
             StartDate = CDate(Cvt.Convert(deptime, GetType(DateTime), Nothing, System.Globalization.CultureInfo.CurrentCulture)).ToLocalTime
             EndDate = CDate(Cvt.Convert(closetime, GetType(DateTime), Nothing, System.Globalization.CultureInfo.CurrentCulture)).ToLocalTime
 
-            Return Now >= StartDate AndAlso Now < EndDate
+            Return Now <= StartDate Or Now < EndDate
 
 
         End Get
