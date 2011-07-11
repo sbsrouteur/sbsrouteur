@@ -3167,7 +3167,7 @@ Public Class VLM_Router
 
     Public Shared Function WindAngle(ByVal Cap As Double, ByVal Wind As Double) As Double
 
-        Dim I As Double = (360 - Cap + Wind) Mod 180
+        Dim I As Double = 0
 
         If Cap >= Wind Then
             If Cap - Wind <= 180 Then
