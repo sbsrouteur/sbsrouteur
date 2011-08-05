@@ -719,7 +719,7 @@ Public Class VLM_Router
     Public ReadOnly Property IsoChrones() As LinkedList(Of IsoChrone)
         Get
             If _iso IsNot Nothing Then
-                Return _iso.IsoChrones
+                Return New LinkedList(Of IsoChrone)(_iso.IsoChrones)
             End If
             Return Nothing
         End Get
