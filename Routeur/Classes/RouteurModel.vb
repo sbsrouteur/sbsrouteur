@@ -895,7 +895,15 @@ Public Class RouteurModel
 
                 End If
                 _Busy = True
-                The2DViewer.UpdatePath(Traj, routes, VorHandler.Opponents, _ClearGrid, _ClearBoats, VorHandler.IsoChrones, CurPlayer.RaceInfo.races_waypoints, _RouteManager.VisibleRoutes)
+
+                Dim Rtes As List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)) = New List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints))(routes)
+                'ReDim Rtes(routes.Length)
+                'Dim Index As Integer = 0
+                'For Each Item In routes
+                'Rtes(Index) = New ObservableCollection(Of VLM_Router.clsrouteinfopoints)(Item)
+                'Index += 1
+                'Next
+                The2DViewer.UpdatePath(Traj, Rtes, VorHandler.Opponents, _ClearGrid, _ClearBoats, VorHandler.IsoChrones, CurPlayer.RaceInfo.races_waypoints, _RouteManager.VisibleRoutes)
                 _ClearGrid = False
                 _ClearBoats = False
             Else

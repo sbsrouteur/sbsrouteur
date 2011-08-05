@@ -407,7 +407,7 @@ Render1:
 
         End If
     End Sub
-    Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VLM_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
+    Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As IList(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)), ByVal Opponents As Dictionary(Of String, BoatInfo), _
                           ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
 
         Static Invoking As Integer = 0
@@ -616,70 +616,70 @@ Render1:
             '
             If Not HideIsochrones AndAlso Not _EraseIsoChrones Then
                 Dim StartIsochrone As DateTime = Now
-                Try
-                    If WindBrushes Is Nothing Then
-                        ReDim WindBrushes(70)
+                'Try
+                If WindBrushes Is Nothing Then
+                    ReDim WindBrushes(70)
 
-                        For i = 0 To 69
-                            WindBrushes(i) = New Pen(New SolidColorBrush(WindColors.GetColor(i)), 0.5)
-                            WindBrushes(i).Freeze()
-                        Next
-
-
-                    End If
-
-                    If ClearGrid Then
-                        _GridBmp.Clear()
-                    End If
+                    For i = 0 To 69
+                        WindBrushes(i) = New Pen(New SolidColorBrush(WindColors.GetColor(i)), 0.5)
+                        WindBrushes(i).Freeze()
+                    Next
 
 
-                    If Not IsoChrones Is Nothing Then
-                        For Each iso As IsoChrone In IsoChrones
+                End If
+
+                If ClearGrid Then
+                    _GridBmp.Clear()
+                End If
+
+
+                If Not IsoChrones Is Nothing Then
+                    For Each iso As IsoChrone In IsoChrones
+                        FirstPoint = True
+                        If Not iso.Drawn Or ForceIsoRedraw Then
+                            Dim MaxIndex As Integer = iso.MaxIndex
+                            Dim index As Integer
+                            'Dim PrevIndex As Integer
+                            Dim CurP As Coords
                             FirstPoint = True
-                            If Not iso.Drawn Or ForceIsoRedraw Then
-                                Dim MaxIndex As Integer = iso.MaxIndex
-                                Dim index As Integer
-                                'Dim PrevIndex As Integer
-                                Dim CurP As Coords
-                                FirstPoint = True
-                                For index = 0 To MaxIndex
-                                    If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
-                                        CurP = iso.Data(index).P
-                                        P1.X = LonToCanvas(CurP.Lon_Deg)
-                                        P1.Y = LatToCanvas(CurP.Lat_Deg)
+                            For index = 0 To MaxIndex
+                                If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
+                                    CurP = iso.Data(index).P
+                                    P1.X = LonToCanvas(CurP.Lon_Deg)
+                                    P1.Y = LatToCanvas(CurP.Lat_Deg)
 
-                                        If Not FirstPoint Then 'And index - PrevIndex < 4 Then
-                                            If iso.Data(index).WindStrength <> 0 Then
-                                                SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
-                                            End If
-                                        Else
-                                            FirstPoint = False
+                                    If Not FirstPoint Then 'And index - PrevIndex < 4 Then
+                                        If iso.Data(index).WindStrength <> 0 Then
+                                            SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
                                         End If
-                                        'PrevIndex = index
-                                        PrevP.Lon = CurP.Lon
-                                        PrevP.Lat = CurP.Lat
-                                        PrevPoint = P1
-
                                     Else
-                                        FirstPoint = True
+                                        FirstPoint = False
                                     End If
-                                Next
-                                iso.Drawn = True
-                            End If
+                                    'PrevIndex = index
+                                    PrevP.Lon = CurP.Lon
+                                    PrevP.Lat = CurP.Lat
+                                    PrevPoint = P1
 
-                            If Now.Subtract(Start).TotalMilliseconds > 100 Then
-                                Exit For
-                            End If
-                        Next
-                    End If
+                                Else
+                                    FirstPoint = True
+                                End If
+                            Next
+                            iso.Drawn = True
+                        End If
 
-                Catch ex As Exception
-                Finally
-                    DC.Close()
-                    _GridBmp.Render(D)
-                    DC = D.RenderOpen
+                        If Now.Subtract(Start).TotalMilliseconds > 100 Then
+                            Exit For
+                        End If
+                    Next
+                End If
 
-                End Try
+                'Catch ex As Exception
+                'Finally
+                DC.Close()
+                _GridBmp.Render(D)
+                DC = D.RenderOpen
+
+                'End Try
             ElseIf _EraseIsoChrones Then
                 _GridBmp.Clear()
                 _EraseIsoChrones = False
@@ -860,59 +860,59 @@ Render1:
             ' Draw the other routes
             '
             If Not OpponentMap And Not Routes Is Nothing Then
-                Try
-                    ShownPoints += 1
-                    PenNumber = 0
-                    Dim RouteIsWP As Boolean = True
-                    Dim CurWP As Integer = 1
-                    For Each R In Routes
+                'Try
+                ShownPoints += 1
+                PenNumber = 0
+                Dim RouteIsWP As Boolean = True
+                Dim CurWP As Integer = 1
+                For Each R In Routes
 
-                        If Not R Is Nothing Then
-                            FirstPoint = True
-                            For Each P In R
+                    If Not R Is Nothing Then
+                        FirstPoint = True
+                        For Each P In R
 
-                                If Not P Is Nothing AndAlso Not P.P Is Nothing AndAlso (Not RouteIsWP OrElse CurWP >= RouteurModel.CurWP) Then
-                                    P1.X = LonToCanvas(P.P.Lon_Deg)
-                                    P1.Y = LatToCanvas(P.P.Lat_Deg)
-                                    If FirstPoint Then
+                            If Not P Is Nothing AndAlso Not P.P Is Nothing AndAlso (Not RouteIsWP OrElse CurWP >= RouteurModel.CurWP) Then
+                                P1.X = LonToCanvas(P.P.Lon_Deg)
+                                P1.Y = LatToCanvas(P.P.Lat_Deg)
+                                If FirstPoint Then
 
-                                        'If RouteIsWP Then 'Continue WP route from the last path point
-                                        PrevP.Lon = CurPos.Lon
-                                        PrevP.Lat = CurPos.Lat
-                                        PrevPoint.X = LonToCanvas(CurPos.Lon_Deg)
-                                        PrevPoint.Y = LatToCanvas(CurPos.Lat_Deg)
-                                        SafeDrawLine(DC, PrevP, P.P, routePen(PenNumber), PrevPoint, P1)
-                                        'End If
+                                    'If RouteIsWP Then 'Continue WP route from the last path point
+                                    PrevP.Lon = CurPos.Lon
+                                    PrevP.Lat = CurPos.Lat
+                                    PrevPoint.X = LonToCanvas(CurPos.Lon_Deg)
+                                    PrevPoint.Y = LatToCanvas(CurPos.Lat_Deg)
+                                    SafeDrawLine(DC, PrevP, P.P, routePen(PenNumber), PrevPoint, P1)
+                                    'End If
 
-                                        FirstPoint = False
-                                    Else
-                                        Dim Pe As Pen = routePen(PenNumber)
+                                    FirstPoint = False
+                                Else
+                                    Dim Pe As Pen = routePen(PenNumber)
 
 
-                                        SafeDrawLine(DC, PrevP, P.P, Pe, PrevPoint, P1)
-                                    End If
-                                    PrevP.Lon = P.P.Lon
-                                    PrevP.Lat = P.P.Lat
-                                    PrevPoint = P1
-                                    'PrevSide = P.P.Lon < 0
+                                    SafeDrawLine(DC, PrevP, P.P, Pe, PrevPoint, P1)
                                 End If
-                        CurWP += 1
-                    Next
-                            ShownPoints += 1
-                        End If
-                        PenNumber += 1
-                        PenNumber = PenNumber Mod routePen.Count
-                        RouteIsWP = False 'Only the first route holds the waypoints
+                                PrevP.Lon = P.P.Lon
+                                PrevP.Lat = P.P.Lat
+                                PrevPoint = P1
+                                'PrevSide = P.P.Lon < 0
+                            End If
+                            CurWP += 1
+                        Next
+                        ShownPoints += 1
+                    End If
+                    PenNumber += 1
+                    PenNumber = PenNumber Mod routePen.Count
+                    RouteIsWP = False 'Only the first route holds the waypoints
 
-                        'If ShownPoints Mod 100 = 0 And ShownPoints > 0 Then
-                        '    DC.Close()
-                        '    _RBmp.Render(D)
-                        '    DC = D.RenderOpen
-                        'End If
-                        'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Exit For
-                    Next
-                Catch
-                End Try
+                    'If ShownPoints Mod 100 = 0 And ShownPoints > 0 Then
+                    '    DC.Close()
+                    '    _RBmp.Render(D)
+                    '    DC = D.RenderOpen
+                    'End If
+                    'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Exit For
+                Next
+                'Catch
+                'End Try
             End If
 
 #If DBG_UPDATE_PATH = 1 Then
