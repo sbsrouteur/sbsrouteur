@@ -1627,7 +1627,7 @@ Public Class VLM_Router
                 '    _WindAngleETA = Now
                 '    Exit While
                 'Else
-                If Abs(TC.LoxoCourse_Deg - RefLoxo) < 0.01 OrElse (NewDelta * PrevDelta < 0 AndAlso NewDelta * PrevDelta > -3) Then
+                If Abs(TC.LoxoCourse_Deg - RefLoxo) < 0.01 OrElse (NewDelta * PrevDelta < 0 AndAlso NewDelta * PrevDelta > -1) Then
                     Found = True
                 ElseIf Correction = 0 OrElse PrevDelta = 0 OrElse Abs(PrevDelta) > Abs(NewDelta) Then
                     Correction -= NewDelta
