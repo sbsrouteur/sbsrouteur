@@ -1778,10 +1778,16 @@ Public Class VLM_Router
                 Return Nothing
             End If
 
-            If _PlannedRoute.Count = 0 Then
+            Static LastLat As Double
+            Static LastLon As Double
+
+            If _PlannedRoute.Count = 0 OrElse LastLat <> _UserInfo.position.latitude OrElse LastLon <> _UserInfo.position.longitude Then
                 Dim P As clsrouteinfopoints
-                Dim CurPos As New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
-                For Each C In _PlayerInfo.Route
+                LastLat = _UserInfo.position.latitude
+                LastLon = _UserInfo.position.longitude
+                Dim CurPos As New Coords(LastLat, LastLon)
+                _PlannedRoute.Clear()
+                For Each C In (From Pt In _PlayerInfo.Route).Skip(RouteurModel.CurWP - 1)
                     P = New clsrouteinfopoints() With {.P = C}
                     BuildOrthoToP(CurPos, P, _PlannedRoute)
                     '_PlannedRoute.Add(P)
@@ -2449,10 +2455,10 @@ Public Class VLM_Router
                 RoutePoints.Add(P)
             End If
 
-            If GetRoutePointAtCoords(PlannedRoute, C, RetC) Then
-                P = New RoutePointInfo("Planned", RetC)
-                RoutePoints.Add(P)
-            End If
+            'If GetRoutePointAtCoords(PlannedRoute, C, RetC) Then
+            '    P = New RoutePointInfo("Planned", RetC)
+            '    RoutePoints.Add(P)
+            'End If
 
             If GetRoutePointAtCoords(BruteRoute, C, RetC) Then
                 P = New RoutePointInfo("Best Route", RetC)
