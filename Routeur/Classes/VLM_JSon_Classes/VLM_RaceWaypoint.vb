@@ -16,12 +16,13 @@
     '#define WP_CROSS_ONCE           (1 << 10)
 
     Public Enum Enum_WP_TypeMasks As Integer
-        [Default] = 0
+        WP_TWO_BUOYS = 0
+        WP_ONE_BUOY = 1
         ICE_GATE_N = (1 << 4)
         WP_ICE_GATE_S = (1 << 5)
         WP_ICE_GATE_E = (1 << 6)
         WP_ICE_GATE_W = (1 << 7)
-        WP_GATE_KIND_MASK = &HF0
+        WP_GATE_KIND_MASK = &HF
 
         WP_CROSS_CLOCKWISE = (1 << 8)
         WP_CROSS_ANTI_CLOCKWISE = (1 << 9)
@@ -127,7 +128,7 @@
             Dim WP(1) As Coords
             Dim L As New List(Of Coords())
             WP(0) = New Coords(latitude1 / 1000, longitude1 / 1000)
-            If (wpformat And Enum_WP_TypeMasks.WP_GATE_KIND_MASK) = 0 Then ' latitude1 <> latitude2 OrElse longitude1 <> longitude2 Then
+            If (wpformat And Enum_WP_TypeMasks.WP_GATE_KIND_MASK) = Enum_WP_TypeMasks.WP_TWO_BUOYS Then ' latitude1 <> latitude2 OrElse longitude1 <> longitude2 Then
                 '2 buoys
                 WP(1) = New Coords(latitude2 / 1000, longitude2 / 1000)
             Else
