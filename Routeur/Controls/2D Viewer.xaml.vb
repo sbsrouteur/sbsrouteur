@@ -863,7 +863,7 @@ Render1:
                 'Try
                 ShownPoints += 1
                 PenNumber = 0
-                Dim RouteIsWP As Boolean = True
+                'Dim RouteIsWP As Boolean = True
                 Dim CurWP As Integer = 1
                 For Each R In Routes
 
@@ -871,7 +871,7 @@ Render1:
                         FirstPoint = True
                         For Each P In R
 
-                            If Not P Is Nothing AndAlso Not P.P Is Nothing AndAlso (Not RouteIsWP OrElse CurWP >= RouteurModel.CurWP) Then
+                            If Not P Is Nothing AndAlso Not P.P Is Nothing Then 'AndAlso (Not RouteIsWP OrElse CurWP >= RouteurModel.CurWP) Then
                                 P1.X = LonToCanvas(P.P.Lon_Deg)
                                 P1.Y = LatToCanvas(P.P.Lat_Deg)
                                 If FirstPoint Then
@@ -902,7 +902,7 @@ Render1:
                     End If
                     PenNumber += 1
                     PenNumber = PenNumber Mod routePen.Count
-                    RouteIsWP = False 'Only the first route holds the waypoints
+                    'RouteIsWP = False 'Only the first route holds the waypoints
 
                     'If ShownPoints Mod 100 = 0 And ShownPoints > 0 Then
                     '    DC.Close()
