@@ -31,10 +31,10 @@ Partial Public Class _2D_Viewer
 
     Private _WindArrows(30, 30) As Path
     Private _TrajPath As Path
-    Private _RBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+    Private _RBmp As RenderTargetBitmap
     Private _BackDropBmp As RenderTargetBitmap
     Private _OpponentsBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
-    Private _GridBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+    Private _ISOBmp As RenderTargetBitmap
     Private _RoutesBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
     'Private _gshhs As New GSHHS_Reader
     Private _CurCoords As New Coords
@@ -464,7 +464,7 @@ Render1:
             Static opponentPenPassDown As New Pen(New SolidColorBrush(System.Windows.Media.Colors.DarkRed), RouteurModel.PenWidth)
             Static opponentPenNeutral As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Blue), RouteurModel.PenWidth)
             Static BlackBrush As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Black), RouteurModel.PenWidth / 2)
-            Static GridBrushes() As Pen
+            'Static GridBrushes() As Pen
             Static WindBrushes() As Pen
 
             Static LocalDash As New DashStyle(New Double() {0, 2}, 0)
@@ -503,7 +503,7 @@ Render1:
             Dim CrossLine As Boolean = False
 
             Dim PrevSide As Double
-            Dim b As Byte
+            'Dim b As Byte
             Dim ShownPoints As Integer
             Static LimitDate As New DateTime(3000, 1, 1)
             Dim OpponentMap As Boolean = False
@@ -515,7 +515,7 @@ Render1:
 
             'Dim Pixels As Array
             'If Monitor.TryEnter(Me) Then
-            _RBmp.Clear()
+            _RBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
 
             If _ClearBgMap Then
                 BgStarted = False
@@ -529,6 +529,7 @@ Render1:
                 ForceIsoRedraw = True
                 _Frm.DataContext = _MapPg
                 System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, WPs)
+
 #If NO_TILES = 0 Then
             ElseIf _ReadyTilesQueue.Count <> 0 Then
                 SyncLock _ReadyTilesQueue
@@ -547,13 +548,14 @@ Render1:
 #End If
 
 #If NO_TILES = 1 Then
-                If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
-#Else
-            If _BackDropBmp IsNot Nothing Then 'AndAlso _BackDropBmp.IsFrozen Then
-#End If
+            If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
+
 
                 DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
             End If
+#Else
+            DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
+#End If
 
 #If DBG_UPDATE_PATH = 1 Then
             Console.WriteLine("Update path Tiles Rendered " & Now.Subtract(Start).ToString)
@@ -628,20 +630,19 @@ Render1:
 
                 End If
 
-                If ClearGrid Then
-                    _GridBmp.Clear()
+                If ClearGrid OrElse _ISOBmp Is Nothing Then
+                    _ISOBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+
                 End If
 
 
                 If Not IsoChrones Is Nothing Then
                     For Each iso As IsoChrone In IsoChrones
-                        FirstPoint = True
                         If Not iso.Drawn Or ForceIsoRedraw Then
                             Dim MaxIndex As Integer = iso.MaxIndex
                             Dim index As Integer
                             'Dim PrevIndex As Integer
                             Dim CurP As Coords
-                            FirstPoint = True
                             For index = 0 To MaxIndex
                                 If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
                                     CurP = iso.Data(index).P
@@ -667,21 +668,20 @@ Render1:
                             iso.Drawn = True
                         End If
 
-                        If Now.Subtract(Start).TotalMilliseconds > 100 Then
-                            Exit For
-                        End If
+                        'If Now.Subtract(Start).TotalMilliseconds > 100 Then
+                        'Exit For
+                        'End If
                     Next
                 End If
 
                 'Catch ex As Exception
                 'Finally
                 DC.Close()
-                _GridBmp.Render(D)
+                _ISOBmp.Render(D)
                 DC = D.RenderOpen
-
                 'End Try
             ElseIf _EraseIsoChrones Then
-                _GridBmp.Clear()
+                _ISOBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
                 _EraseIsoChrones = False
                 If IsoChrones IsNot Nothing Then
                     For Each iso In IsoChrones
@@ -737,42 +737,48 @@ Render1:
             '
             ' Draw routing grid
             '
-            If Not OpponentMap Then
+            'If Not OpponentMap Then
 
-                If GridBrushes Is Nothing Then
-                    ReDim GridBrushes(255)
+            '    If GridBrushes Is Nothing Then
+            '        ReDim GridBrushes(255)
 
-                    For i = 0 To 255
-                        b = CByte(i)
-                        GridBrushes(b) = New Pen(New SolidColorBrush(Color.FromRgb(128, b, 0)), 0.5)
-                        GridBrushes(b).Freeze()
-                    Next
+            '        For i = 0 To 255
+            '            b = CByte(i)
+            '            GridBrushes(b) = New Pen(New SolidColorBrush(Color.FromRgb(128, b, 0)), 0.5)
+            '            GridBrushes(b).Freeze()
+            '        Next
 
-                End If
-                ShownPoints = 0
-                Try
-                    If ClearGrid Then
-                        _GridBmp.Clear()
-                    End If
+            '    End If
+            '    ShownPoints = 0
+            '    Try
+            '        If ClearGrid Then
+            '            _GridBmp.Clear()
+            '        End If
 
-                    Dim GridSize As Double = 60 * RouteurModel.GridGrain / 0.01
-                    Dim SelectionOffset As Double = GridSize / 6
-
-
-                Catch ex As Exception
-                End Try
+            '        Dim GridSize As Double = 60 * RouteurModel.GridGrain / 0.01
+            '        Dim SelectionOffset As Double = GridSize / 6
 
 
-                DC.Close()
-                _GridBmp.Render(D)
-                DC = D.RenderOpen
-                'Debug.WriteLine("Grid : " & ShownPoints)
-                'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
-            End If
+            '    Catch ex As Exception
+            '    End Try
+
+
+            '    DC.Close()
+            '    _GridBmp.Render(D)
+            '    DC = D.RenderOpen
+            '    'Debug.WriteLine("Grid : " & ShownPoints)
+            '    'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
+            'End If
 
             DC.DrawImage(_RoutesBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
+            DC.Close()
+            _RBmp.Render(D)
+            DC = D.RenderOpen
             DC.DrawImage(_OpponentsBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
-            DC.DrawImage(_GridBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
+            DC.Close()
+            _RBmp.Render(D)
+            DC = D.RenderOpen
+            DC.DrawImage(_ISOBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
             DC.Close()
             _RBmp.Render(D)
             DC = D.RenderOpen
