@@ -2398,7 +2398,7 @@ Public Class VLM_Router
             If WP >= RouteurModel.WPList.Count Then
                 Return -1
             End If
-            If (_PlayerInfo.RaceInfo.races_waypoints(WP).Wpformat And VLM_RaceWaypoint.Enum_WP_TypeMasks.WP_GATE_KIND_MASK) = 0 Then
+            If (_PlayerInfo.RaceInfo.races_waypoints(WP).wpformat And VLM_RaceWaypoint.Enum_WP_TypeMasks.WP_GATE_KIND_MASK) <> 0 Then
                 Return WP
             End If
         End While

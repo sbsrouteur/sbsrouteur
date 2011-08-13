@@ -28,10 +28,8 @@ Module VBVMGNavHelper
 
         BoatSpeed = Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(Angle, mi.Dir), mi.Strength)
 
-        If WPDist <= BoatSpeed / 60 * RouteurModel.VacationMinutes Then
-            ReachedWP = True
-        End If
-
+        ReachedWP = WPDist <= BoatSpeed / 60 * RouteurModel.VacationMinutes
+             
         RetP = TC.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Angle))
 
 
