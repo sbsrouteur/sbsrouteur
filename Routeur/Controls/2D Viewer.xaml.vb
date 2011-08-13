@@ -107,9 +107,6 @@ Partial Public Class _2D_Viewer
 
     End Function
 
-    Private Sub RenDerBackDrop(ByVal D As DrawingVisual)
-
-    End Sub
 
     Private Sub LoadPolygonComplete()
 
@@ -976,19 +973,29 @@ Render1:
     Private Sub DrawGates(ByVal WPs As List(Of VLM_RaceWaypoint))
         Dim D As New DrawingVisual
         Dim DC As DrawingContext = D.RenderOpen()
-        Dim WPPen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Red), 2)
+        Dim FutureGates As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Blue), 0.5)
+        Dim CurrentGate As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Red), 1)
+        Dim ValidatedGates As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Green), 0.5)
+        Dim WPPen As Pen
         Dim P0 As Point
         Dim P1 As Point
 
         Dim WP As VLM_RaceWaypoint
-
+        Dim WPIndex As Integer = 1
         For Each WP In WPs
             P0.X = LonToCanvas(WP.WPs(0)(0).Lon_Deg)
             P0.Y = LatToCanvas(WP.WPs(0)(0).Lat_Deg)
             P1.X = LonToCanvas(WP.WPs(0)(1).Lon_Deg)
             P1.Y = LatToCanvas(WP.WPs(0)(1).Lat_Deg)
-
+            If WPIndex < RouteurModel.CurWP Then
+                WPPen = ValidatedGates
+            ElseIf WPIndex = RouteurModel.CurWP Then
+                WPPen = CurrentGate
+            Else
+                WPPen = FutureGates
+            End If
             SafeDrawLine(DC, WP.WPs(0)(0), WP.WPs(0)(1), WPPen, P0, P1)
+            WPIndex += 1
         Next
         DC.Close()
         _BackDropBmp.Render(D)
