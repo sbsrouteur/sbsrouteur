@@ -272,7 +272,7 @@
 				<MenuItem Header="Pilototo Route" Click="ShowPilototoRouteDlg" ></MenuItem>
 				<MenuItem Header="Recorded Routes manager" Click="ShowRouteMgr"  />
 			</MenuItem>
-			<MenuItem Header="Options..." VerticalAlignment="Center" Checked="ShowOptionsDlg"/>
+			<MenuItem Header="Options..." VerticalAlignment="Center" Checked="ShowOptionsDlg" Visibility="Collapsed"/>
             <ComboBox     Height="26.92" ItemsSource="{Binding WPList, Mode=Default}" ToolTip="Route to this WP" SelectedIndex="{Binding VorHandler.CurUserWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"     />
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureDuration, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Durée de la trajectoire" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
