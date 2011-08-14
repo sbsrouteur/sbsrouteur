@@ -882,10 +882,16 @@ Public Class RouteurModel
         tmrRefresh.IsEnabled = False
         If System.Threading.Monitor.TryEnter(Me) Then
             If Not The2DViewer Is Nothing And Not _Busy Then
+                _Busy = True
+                Dim routes(6) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
 
-                Static routes As ObservableCollection(Of VLM_Router.clsrouteinfopoints)() = New ObservableCollection(Of VLM_Router.clsrouteinfopoints)() _
-                                {VorHandler.PlannedRoute, VorHandler.BestRouteAtPoint, VorHandler.BruteRoute, VorHandler.TempRoute, _
-                                 VorHandler.TempVMGRoute, VorHandler.AllureRoute, VorHandler.PilototoRoute}
+                routes(0) = VorHandler.PlannedRoute
+                routes(1) = VorHandler.BestRouteAtPoint
+                routes(2) = VorHandler.BruteRoute
+                routes(3) = VorHandler.TempRoute
+                routes(4) = VorHandler.TempVMGRoute
+                routes(5) = VorHandler.AllureRoute
+                routes(6) = VorHandler.PilototoRoute
                 Dim Traj As String
 
                 If VorHandler Is Nothing OrElse VorHandler.UserInfo Is Nothing OrElse VorHandler.UserInfo.trajectoire Is Nothing Then
@@ -894,7 +900,7 @@ Public Class RouteurModel
                     Traj = VorHandler.Track
 
                 End If
-                _Busy = True
+
 
                 Dim Rtes As List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)) = New List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints))(routes)
                 'ReDim Rtes(routes.Length)

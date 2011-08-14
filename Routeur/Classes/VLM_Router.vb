@@ -2602,7 +2602,7 @@ Public Class VLM_Router
                 Dest = New Coords(UserInfo.position.WP_latitude, UserInfo.position.WP_longitude)
             End If
             CurrentDest = Dest
-
+            
             If RouteurModel.CurWP <> prevwp Then
                 'If CurUserWP = 0 Then
                 'Force userwaypoint to other then 0 to refresh the list
