@@ -1001,9 +1001,8 @@ Public Class VLM_Router
         End Try
     End Sub
 
-    Public Function ComputeBoatEstimate(Route() As RoutePointView, CurWP As Integer, StartPos As Coords, StartDate As DateTime) As ObservableCollection(Of clsrouteinfopoints)
+    Public Function ComputeBoatEstimate(Route() As RoutePointView, CurWP As Integer, StartPos As Coords, StartDate As DateTime, ByRef CancelRequest As Boolean) As ObservableCollection(Of clsrouteinfopoints)
 
-        Dim RouteComplete As Boolean
         Dim RetRoute As New ObservableCollection(Of clsrouteinfopoints)
         Dim CurDate As DateTime = StartDate
         Dim NextDate As DateTime
@@ -1015,7 +1014,7 @@ Public Class VLM_Router
         Dim CurRaceWP As Integer = CurWP
         Dim CurBoatSpeed As Double
 
-        While Not RouteComplete
+        While Not CancelRequest
 
             ' Get last applicable pilote order
             Dim NextOrder = (From O In Route Where O IsNot Nothing AndAlso O.ActionDate < CurDate Select O Order By O.ActionDate Descending).FirstOrDefault
@@ -1077,7 +1076,8 @@ Public Class VLM_Router
                             NextOrder.RouteValue = New RoutePointDoubleValue With {.Value = UserWP.BearingAtWP}
                             NextOrder.RouteMode = EnumRouteMode.Bearing
                         Else
-                            UserWP.UseRaceWP = True
+                            'UserWP.UseRaceWP = True
+                            CType(NextOrder.RouteValue, RoutePointWPValue).UseRaceWP = True
                         End If
                     End If
 
@@ -1103,14 +1103,14 @@ Public Class VLM_Router
                 End If
             End If
 
-                ' Check route completion
-                If RetRoute.Count >= 1500 Then
-                    Return RetRoute
-                End If
+            ' Check route completion
+            If RetRoute.Count >= 1500 Then
+                Return RetRoute
+            End If
 
-                'Move time and pos
-                CurPos = NextPos
-                CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
+            'Move time and pos
+            CurPos = NextPos
+            CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
         End While
 
         Return RetRoute
@@ -1119,6 +1119,7 @@ Public Class VLM_Router
 
     Private Sub ComputePilototo()
         Static Computing As Boolean = False
+        Static CancelComputation As Boolean = False
 
         If Not Computing Then
             Computing = True
@@ -1142,7 +1143,7 @@ Public Class VLM_Router
                             Select Case .RouteMode
                                 Case EnumRouteMode.Angle, EnumRouteMode.Bearing
                                     Dim PtDoubleValue As New RoutePointDoubleValue
-                                    If Not GetBearingAngleValue(Fields(FLD_DATEVALUE), PtDoubleValue.Value) Then
+                                    If Not GetBearingAngleValue(Fields(FLD_ORDERVALUE), PtDoubleValue.Value) Then
                                         Continue For
                                     End If
                                     RP.RouteValue = PtDoubleValue
@@ -1194,11 +1195,14 @@ Public Class VLM_Router
 
                 End With
                 Route(5) = RP
-                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, GetNextCrankingDate())
+                CancelComputation = False
+                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, GetNextCrankingDate(), CancelComputation)
 
             Finally
                 Computing = False
             End Try
+        Else
+            CancelComputation = True
         End If
 
 

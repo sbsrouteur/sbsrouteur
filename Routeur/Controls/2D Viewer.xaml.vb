@@ -404,48 +404,18 @@ Render1:
 
         End If
     End Sub
-    Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As IList(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)), ByVal Opponents As Dictionary(Of String, BoatInfo), _
+    Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As IList(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)), EstimateRouteIndex As Integer, ByVal Opponents As Dictionary(Of String, BoatInfo), _
                           ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
 
-        Static Invoking As Integer = 0
         Dim Start As DateTime = Now
-        Static dlg As New UpdatePathDelegate(AddressOf UpdatePath)
-        Static Q As New Queue(Of System.Windows.Threading.DispatcherOperation)
-        Static CurPos As New Coords
-
-
-        'If Not Dispatcher.Thread Is System.Threading.Thread.CurrentThread Then
-        '    'Invoking = System.Threading.Interlocked.CompareExchange(Invoking, 1, 0)
-        '    'If Invoking = 0 Then
-        '    '    If Not ClearGrid And Now.Subtract(lastinvoke).TotalSeconds < 5 Then
-        '    '        System.Threading.Interlocked.Exchange(Invoking, 0)
-        '    '        Return
-        '    '    End If
-        '    '    lastinvoke = Now
-        '    Dim R As System.Windows.Threading.DispatcherOperation = Dispatcher.BeginInvoke(dlg, New Object() {PathString, Routes, _
-        '                                                                        Opponents, ClearGrid, ClearBoats, IsoChrones, WPs, ManagedRoutes})
-
-        '    While Q.Count > 0
-        '        Dim R2 As System.Windows.Threading.DispatcherOperation = CType(Q.Dequeue, System.Windows.Threading.DispatcherOperation)
-        '        R2.Abort()
-        '    End While
-        '    Q.Enqueue(R)
-        '    'End If
-        '    Return
-        'End If
+        Dim CurPos As New Coords
 
 #If DBG_UPDATE_PATH = 1 Then
         Console.WriteLine("Update path start " & Now.Subtract(Start).ToString)
 #End If
 
         Try
-            'Static StartPath As DateTime = Now
-            ' Const MAX_DRAW_MS As Integer = 100
-            'If Not _RacePolygonsInited Then
-            '    Return
-            'End If
 
-            'System.Threading.Interlocked.Exchange(Invoking, 1)
             Dim Coords() As String = Nothing
             Dim FirstPoint As Boolean = True
             Dim FirstLine As Boolean = True
@@ -472,11 +442,7 @@ Render1:
                                                   New Pen(New SolidColorBrush(System.Windows.Media.Colors.Purple), RouteurModel.PenWidth) With {.LineJoin = PenLineJoin.Round} _
                                                }
 
-            'Static SecondroutePen() As Pen = New Pen() {New Pen(New SolidColorBrush(System.Windows.Media.Colors.Blue), RouteurModel.PenWidth) With {.LineJoin = PenLineJoin.Round}, _
-            '                                            New Pen(New SolidColorBrush(System.Windows.Media.Colors.Red), RouteurModel.PenWidth) With {.LineJoin = PenLineJoin.Round, .DashStyle = LocalDash}, _
-            '                                           New Pen(New SolidColorBrush(System.Windows.Media.Colors.Lime), RouteurModel.PenWidth) With {.LineJoin = PenLineJoin.Round, .DashStyle = LocalDash}, _
-            '                                           New Pen(New SolidColorBrush(System.Windows.Media.Colors.Pink), RouteurModel.PenWidth) With {.LineJoin = PenLineJoin.Round, .DashStyle = LocalDash} _
-            '                                   }
+            
             Static Frozen As Boolean = False
 
             If Not Frozen Then
@@ -729,44 +695,6 @@ Render1:
             Console.WriteLine("Update path Opponents Done " & Now.Subtract(Start).ToString)
 #End If
 
-
-            'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
-            '
-            ' Draw routing grid
-            '
-            'If Not OpponentMap Then
-
-            '    If GridBrushes Is Nothing Then
-            '        ReDim GridBrushes(255)
-
-            '        For i = 0 To 255
-            '            b = CByte(i)
-            '            GridBrushes(b) = New Pen(New SolidColorBrush(Color.FromRgb(128, b, 0)), 0.5)
-            '            GridBrushes(b).Freeze()
-            '        Next
-
-            '    End If
-            '    ShownPoints = 0
-            '    Try
-            '        If ClearGrid Then
-            '            _GridBmp.Clear()
-            '        End If
-
-            '        Dim GridSize As Double = 60 * RouteurModel.GridGrain / 0.01
-            '        Dim SelectionOffset As Double = GridSize / 6
-
-
-            '    Catch ex As Exception
-            '    End Try
-
-
-            '    DC.Close()
-            '    _GridBmp.Render(D)
-            '    DC = D.RenderOpen
-            '    'Debug.WriteLine("Grid : " & ShownPoints)
-            '    'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
-            'End If
-
             DC.DrawImage(_RoutesBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
             DC.Close()
             _RBmp.Render(D)
@@ -818,16 +746,6 @@ Render1:
                             CrossLine = (Val(CoordValue(0)) - PrevSide) > 180
                             If ShownPoints > 0 Then
 
-                                'If PrevP.Lon * lon < 0 AndAlso Math.Abs(lon - PrevP.Lon) >= 180 Then
-                                '    Dim Pint As Point
-                                '    Pint.X = LonToCanvas(-180)
-                                '    Pint.Y = LatToCanvas(PrevP.Lat_Deg + (lat - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - lon))
-                                '    DC.DrawLine(PathPen, PrevPoint, Pint)
-                                '    Pint.X = LonToCanvas(180)
-                                '    DC.DrawLine(routePen(PenNumber), Pint, P1)
-                                'Else
-                                '    DC.DrawLine(PathPen, PrevPoint, P1)
-                                'End If
                                 Pnt.Lon_Deg = lon
                                 Pnt.Lat_Deg = lat
 
@@ -866,47 +784,45 @@ Render1:
                 'Try
                 ShownPoints += 1
                 PenNumber = 0
-                'Dim RouteIsWP As Boolean = True
                 Dim CurWP As Integer = 1
+                Dim RouteIndex As Integer = 0
                 For Each R In Routes
 
                     If Not R Is Nothing Then
                         FirstPoint = True
                         For Each P In R
 
-                            If Not P Is Nothing AndAlso Not P.P Is Nothing Then 'AndAlso (Not RouteIsWP OrElse CurWP >= RouteurModel.CurWP) Then
+                            If Not P Is Nothing AndAlso Not P.P Is Nothing Then
                                 P1.X = LonToCanvas(P.P.Lon_Deg)
                                 P1.Y = LatToCanvas(P.P.Lat_Deg)
                                 If FirstPoint Then
-
-                                    'If RouteIsWP Then 'Continue WP route from the last path point
                                     PrevP.Lon = CurPos.Lon
                                     PrevP.Lat = CurPos.Lat
                                     PrevPoint.X = LonToCanvas(CurPos.Lon_Deg)
                                     PrevPoint.Y = LatToCanvas(CurPos.Lat_Deg)
                                     SafeDrawLine(DC, PrevP, P.P, routePen(PenNumber), PrevPoint, P1)
-                                    'End If
 
                                     FirstPoint = False
                                 Else
                                     Dim Pe As Pen = routePen(PenNumber)
-
-
                                     SafeDrawLine(DC, PrevP, P.P, Pe, PrevPoint, P1)
+                                End If
+                                If RouteIndex = EstimateRouteIndex Then
+                                    DC.DrawEllipse(Nothing, routePen(PenNumber), PrevPoint, 1, 1)
                                 End If
                                 PrevP.Lon = P.P.Lon
                                 PrevP.Lat = P.P.Lat
                                 PrevPoint = P1
-                                'PrevSide = P.P.Lon < 0
+
                             End If
                             CurWP += 1
                         Next
                         ShownPoints += 1
                     End If
+                    RouteIndex += 1
                     PenNumber += 1
                     PenNumber = PenNumber Mod routePen.Count
-                    'RouteIsWP = False 'Only the first route holds the waypoints
-
+                    
                     'If ShownPoints Mod 100 = 0 And ShownPoints > 0 Then
                     '    DC.Close()
                     '    _RBmp.Render(D)
@@ -937,7 +853,6 @@ Render1:
             Console.WriteLine("UpdatePath exception : " & ex.Message)
         Finally
             Console.WriteLine("Update path drawn in " & Now.Subtract(Start).ToString)
-            System.Threading.Interlocked.Exchange(Invoking, 0)
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Drawn"))
         End Try
 
