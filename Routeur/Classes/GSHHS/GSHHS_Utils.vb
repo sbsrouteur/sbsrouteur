@@ -70,4 +70,56 @@ Module GSHHS_Utils
 
     End Function
 
+    Public Function IntersectSegments(S1_P1 As Coords, S1_P2 As Coords, S2_P1 As Coords, S2_P2 As Coords) As Boolean
+
+        If S1_P1.Equals1(S2_P1) OrElse
+           S1_P1.Equals1(S2_P1) OrElse
+           S2_P1.Equals(S1_P2) OrElse
+           S2_P2.Equals1(S1_P2) Then
+            Return True
+        End If
+
+        'Normalize S1 for antemeridian
+        Dim X11 As Double
+        Dim X12 As Double
+        Dim X21 As Double
+        Dim X22 As Double
+        Dim Y11 As Double
+        Dim Y12 As Double
+        Dim Y21 As Double
+        Dim Y22 As Double
+        If S1_P1.Lon * S1_P2.Lon < 0 AndAlso Abs(S1_P1.Lon * S1_P2.Lon) > PI Then
+            X11 = (S1_P1.Lon + PI) Mod (2 * PI)
+            X12 = (S1_P2.Lon + PI) Mod (2 * PI)
+        Else
+            X11 = S1_P1.Lon
+            X12 = S1_P2.Lon
+        End If
+
+        If S2_P1.Lon * S2_P2.Lon < 0 AndAlso Abs(S2_P1.Lon * S2_P2.Lon) > PI Then
+            X21 = (S2_P1.Lon + PI) Mod (2 * PI)
+            X22 = (S2_P2.Lon + PI) Mod (2 * PI)
+        Else
+            X21 = S2_P1.Lon
+            X22 = S2_P2.Lon
+        End If
+
+        Y11 = S1_P1.Lat
+        Y12 = S1_P2.Lat
+        Y21 = S2_P1.Lat
+        Y22 = S2_P2.Lat
+
+        Dim P1 As Double = (X21 - X11) * (X22 - X11) + (Y21 - Y11) * (Y22 - Y11)
+        If P1 = 0 Then
+            Return True
+        End If
+        Dim P2 As Double = (X21 - X12) * (X22 - X12) + (Y21 - Y12) * (Y22 - Y12)
+        If P2 = 0 Then
+            Return True
+        End If
+
+        Return P1 * P2 < 0
+
+    End Function
+
 End Module

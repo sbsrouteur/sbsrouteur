@@ -261,7 +261,6 @@ Public Class Coords
         End Get
     End Property
 
-
     Public Function Equals1(ByVal C As ICoords) As Boolean Implements ICoords.Equals
         Return CoordsComparer.Equals1(Me, C)
     End Function

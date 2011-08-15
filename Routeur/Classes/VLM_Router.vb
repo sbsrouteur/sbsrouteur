@@ -94,7 +94,7 @@ Public Class VLM_Router
 
     Private _BoatUnderMouse As New ObservableCollection(Of BoatInfo)
     Private _RoutesUnderMouse As New ObservableCollection(Of RoutePointInfo)
-    Private _Pilototo(5) As String
+    Private _Pilototo(4) As String
     Private _HideWindArrow As Boolean = True
 
     Private _WayPointDest As New Coords
@@ -1001,9 +1001,210 @@ Public Class VLM_Router
         End Try
     End Sub
 
+    Public Function ComputeBoatEstimate(Route() As RoutePointView, CurWP As Integer, StartPos As Coords, StartDate As DateTime) As ObservableCollection(Of clsrouteinfopoints)
 
+        Dim RouteComplete As Boolean
+        Dim RetRoute As New ObservableCollection(Of clsrouteinfopoints)
+        Dim CurDate As DateTime = StartDate
+        Dim NextDate As DateTime
+        Dim mi As MeteoInfo
+        Dim CurPos As Coords = StartPos
+        Dim NextPos As Coords = Nothing
+        Dim CurWP1 As Coords
+        Dim CurWP2 As Coords
+        Dim CurRaceWP As Integer = CurWP
+        Dim CurBoatSpeed As Double
+
+        While Not RouteComplete
+
+            ' Get last applicable pilote order
+            Dim NextOrder = (From O In Route Where O IsNot Nothing AndAlso O.ActionDate < CurDate Select O Order By O.ActionDate Descending).FirstOrDefault
+
+            If NextOrder Is Nothing Then
+                Return RetRoute
+            End If
+
+            'Get Meteo at date
+            mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
+
+            If mi Is Nothing Then
+                Return RetRoute
+            End If
+
+            ' compute next pos according to current routing order
+            Select Case NextOrder.RouteMode
+                Case EnumRouteMode.Angle
+                    CurWP1 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(0)
+                    CurWP2 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(1)
+                    Dim reachdest As Boolean
+
+                    NextPos = ComputeTrackAngle(mi, _Sails, BoatType, CurPos, CType(NextOrder.RouteValue, RoutePointDoubleValue).Value, CurWP1, CurWP2, CurBoatSpeed, reachdest)
+
+                Case EnumRouteMode.Bearing
+                    CurWP1 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(0)
+                    CurWP2 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(1)
+
+                    NextPos = BearingNavHelper.ComputeTrackBearing(mi, _Sails, BoatType, CurPos, CType(NextOrder.RouteValue, RoutePointDoubleValue).Value, CurBoatSpeed)
+
+                Case EnumRouteMode.Ortho, EnumRouteMode.VBVMG, EnumRouteMode.VMG
+
+                    'Compute current WP
+                    Dim UserWP As RoutePointWPValue = CType(NextOrder.RouteValue, RoutePointWPValue)
+                    Dim ReachedWP As Boolean = False
+
+                    If UserWP.UseRaceWP Then
+                        CurWP1 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(0)
+                        CurWP2 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(1)
+                    Else
+                        CurWP1 = New Coords(UserWP.WPLat, UserWP.WPLon)
+                        CurWP2 = Nothing
+                    End If
+
+                    Select Case NextOrder.RouteMode
+                        Case EnumRouteMode.Ortho
+                            NextPos = ComputeTrackOrtho(mi, _Sails, BoatType, CurPos, CurWP1, CurWP2, CurBoatSpeed, ReachedWP)
+                        Case EnumRouteMode.VMG
+                            NextPos = ComputeTrackVMG(mi, _Sails, BoatType, CurPos, CurWP1, CurWP2, CurBoatSpeed, ReachedWP)
+                        Case EnumRouteMode.VBVMG
+                            NextPos = ComputeTrackVBVMG(mi, _Sails, BoatType, CurPos, CurWP1, CurWP2, CurBoatSpeed, ReachedWP)
+
+                    End Select
+
+                    If ReachedWP AndAlso Not UserWP.UseRaceWP Then
+                        'Way point has been reached, change nextorder to  bearing mode if there is an @
+                        ' change to use racewp otherwise
+                        If UserWP.SetBearingAtWP Then
+                            NextOrder.RouteValue = New RoutePointDoubleValue With {.Value = UserWP.BearingAtWP}
+                            NextOrder.RouteMode = EnumRouteMode.Bearing
+                        Else
+                            UserWP.UseRaceWP = True
+                        End If
+                    End If
+
+            End Select
+
+            ' Add new point to the route
+            Dim MoveTC As New TravelCalculator With {.StartPoint = CurPos, .EndPoint = NextPos}
+            NextDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
+            Dim NewPoint As New clsrouteinfopoints With {.P = NextPos, .Cap = MoveTC.LoxoCourse_Deg, .Speed = CurBoatSpeed, .WindDir = mi.Dir, .WindStrength = mi.Strength, .T = NextDate}
+
+            RetRoute.Add(NewPoint)
+
+            ' Check Wp passage
+            If GSHHS_Utils.IntersectSegments(CurPos, NextPos, _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(0),
+                                                               _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(1)) Then
+                If CurRaceWP = -1 Then
+                    CurRaceWP = GetNextRankingWP(RouteurModel.CurWP - 1)
+                Else
+                    CurRaceWP = GetNextRankingWP(CurRaceWP)
+                    If CurRaceWP < 0 Then
+                        Return RetRoute
+                    End If
+                End If
+            End If
+
+                ' Check route completion
+                If RetRoute.Count >= 1500 Then
+                    Return RetRoute
+                End If
+
+                'Move time and pos
+                CurPos = NextPos
+                CurDate = CurDate.AddMinutes(RouteurModel.VacationMinutes)
+        End While
+
+        Return RetRoute
+
+    End Function
 
     Private Sub ComputePilototo()
+        Static Computing As Boolean = False
+
+        If Not Computing Then
+            Computing = True
+            Try
+                Dim Route(5) As RoutePointView
+                Dim CurPos As New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+                Dim RP As RoutePointView
+
+                For i As Integer = 0 To 4
+                    Dim Fields() As String = _Pilototo(i).Split(","c)
+                    If Fields.Count >= 5 AndAlso _Pilototo(i).ToLowerInvariant.Contains("pending") Then
+                        RP = New RoutePointView
+                        With RP
+                            If Not GetOrderDate(Fields(FLD_DATEVALUE), .ActionDate) Then
+                            End If
+
+                            If Not GetOrderType(Fields(FLD_ORDERTYPE), .RouteMode) Then
+                                Continue For
+                            End If
+
+                            Select Case .RouteMode
+                                Case EnumRouteMode.Angle, EnumRouteMode.Bearing
+                                    Dim PtDoubleValue As New RoutePointDoubleValue
+                                    If Not GetBearingAngleValue(Fields(FLD_DATEVALUE), PtDoubleValue.Value) Then
+                                        Continue For
+                                    End If
+                                    RP.RouteValue = PtDoubleValue
+                                Case Else
+                                    Dim PtWPValue As New RoutePointWPValue
+
+                                    If Not GetWPInfo(Fields(FLD_LATVALUE), Fields(FLD_LONVALUE), PtWPValue.WPLon,
+                                                     PtWPValue.WPLon, PtWPValue.SetBearingAtWP, PtWPValue.BearingAtWP) Then
+                                        Continue For
+                                    End If
+
+                                    PtWPValue.UseRaceWP = PtWPValue.WPLon = 0 AndAlso PtWPValue.WPLon = PtWPValue.WPLat
+                                    RP.RouteValue = PtWPValue
+                            End Select
+
+                        End With
+                        Route(i) = RP
+                    End If
+                Next
+
+                'Add current navigation order
+                RP = New RoutePointView
+                With RP
+                    .ActionDate = Now
+
+                    .RouteMode = CType(_UserInfo.position.PIM, EnumRouteMode)
+
+                    
+        Select Case .RouteMode
+                        Case EnumRouteMode.Bearing
+                            Dim PtDoubleValue As New RoutePointDoubleValue
+                            PtDoubleValue.Value = _UserInfo.position.cap
+                            RP.RouteValue = PtDoubleValue
+
+                        Case EnumRouteMode.Angle
+                            Dim PtDoubleValue As New RoutePointDoubleValue
+                            PtDoubleValue.Value = _UserInfo.position.AngleAllure
+                            RP.RouteValue = PtDoubleValue
+
+                        Case Else
+                            Dim PtWPValue As New RoutePointWPValue
+
+                            PtWPValue.WPLon = _UserInfo.position.WP_longitude
+                            PtWPValue.WPLat = UserInfo.position.WP_latitude
+                            PtWPValue.SetBearingAtWP = False
+                            PtWPValue.UseRaceWP = PtWPValue.WPLon = 0 AndAlso PtWPValue.WPLon = PtWPValue.WPLat
+                            RP.RouteValue = PtWPValue
+                    End Select
+
+                End With
+                Route(5) = RP
+                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, GetNextCrankingDate())
+
+            Finally
+                Computing = False
+            End Try
+        End If
+
+
+    End Sub
+
+    Private Sub ComputePilototo_Orig()
         Static Computing As Boolean = False
 
         If Not Computing Then
@@ -1025,10 +1226,11 @@ Public Class VLM_Router
                 Dim PrevMode As Integer = _UserInfo.position.ModePilote
                 Dim PrevWPDest As Coords = Nothing
                 Dim PrevWPNum As Integer = Nothing
+                Dim IsUserWP As Boolean
 
 
                 If (_WayPointDest.Lon = 0 AndAlso _WayPointDest.Lat = 0) Then
-
+                    IsUserWP = False
                     Dim Retries As Integer = 0
                     While Retries < 2
                         Try
@@ -1051,6 +1253,7 @@ Public Class VLM_Router
                     End While
 
                 Else
+                    IsUserWP = True
                     PrevWPDest = New Coords(_WayPointDest)
 
                 End If
@@ -1178,6 +1381,7 @@ Public Class VLM_Router
                         Tc.StartPoint = CurPos
                         P = Nothing
                         Dim WPReached As Boolean = False
+                        Dim PrevPos As New Coords(CurPos)
                         Select Case PrevMode
                             Case 1
                                 'Cap fixe
@@ -1226,7 +1430,7 @@ Public Class VLM_Router
 
                                 Tc.EndPoint = CurWPDest
                                 'Dim CapOrtho As Double = Tc.OrthoCourse_Deg
-                                
+
                                 CurPos = ComputeTrackVMG(Mi, _Sails, BoatType, CurPos, CurWPDest, Nothing, BoatSpeed, WPReached)
                                 'Dim Angle As Double
                                 'Dim BestAngle As Double = 0
@@ -1279,7 +1483,21 @@ Public Class VLM_Router
 
                         End Select
 
-                        If WPReached Then
+                        If CurWPNUm <> 0 Then
+                            If GSHHS_Utils.IntersectSegments(PrevPos, CurPos, _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(0) _
+                                                                                             , _PlayerInfo.RaceInfo.races_waypoints(CurWPNUm).WPs(0)(1)) Then
+                                If CurWPNUm = -1 Then
+                                    CurWPNUm = GetNextRankingWP(RouteurModel.CurWP - 1)
+                                Else
+                                    CurWPNUm = GetNextRankingWP(CurWPNUm)
+                                    If CurWPNUm < 0 Then
+                                        RouteComplete = True
+                                    End If
+
+                                End If
+                            End If
+                        End If
+                        If IsUserWP AndAlso WPReached Then
                             'WP Reached change for next WP
                             If ModeAtWP <> 1 Then
                                 If CurWPNUm = -1 Then
@@ -1718,10 +1936,10 @@ Public Class VLM_Router
         End If
 
         Dim Cp(3) As Coords
-        Cp(0) = BearingNavHelper.ReachPointBearingMode(C, Bearing, StartDate, StartDate.AddHours(3), Meteo, UserInfo.type, Sails, False)
-        Cp(1) = BearingNavHelper.ReachPointBearingMode(C, Bearing, StartDate, StartDate.AddHours(6), Meteo, UserInfo.type, Sails, False)
-        Cp(2) = BearingNavHelper.ReachPointBearingMode(C, Bearing, StartDate, StartDate.AddHours(12), Meteo, UserInfo.type, Sails, False)
-        Cp(3) = BearingNavHelper.ReachPointBearingMode(C, Bearing, StartDate, StartDate.AddHours(24), Meteo, UserInfo.type, Sails, False)
+        Cp(0) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(3), Meteo, UserInfo.type, Sails, False)
+        Cp(1) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(6), Meteo, UserInfo.type, Sails, False)
+        Cp(2) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(12), Meteo, UserInfo.type, Sails, False)
+        Cp(3) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(24), Meteo, UserInfo.type, Sails, False)
         Dim L As New List(Of Coords)
 
         For Each v In Cp
@@ -2398,7 +2616,7 @@ Public Class VLM_Router
             If WP >= RouteurModel.WPList.Count Then
                 Return -1
             End If
-            If (_PlayerInfo.RaceInfo.races_waypoints(WP).wpformat And VLM_RaceWaypoint.Enum_WP_TypeMasks.WP_GATE_KIND_MASK) <> 0 Then
+            If (_PlayerInfo.RaceInfo.races_waypoints(WP).wpformat And VLM_RaceWaypoint.Enum_WP_TypeMasks.WP_NOT_GATE_KIND_MASK) = 0 Then
                 Return WP
             End If
         End While
@@ -2602,7 +2820,7 @@ Public Class VLM_Router
                 Dest = New Coords(UserInfo.position.WP_latitude, UserInfo.position.WP_longitude)
             End If
             CurrentDest = Dest
-            
+
             If RouteurModel.CurWP <> prevwp Then
                 'If CurUserWP = 0 Then
                 'Force userwaypoint to other then 0 to refresh the list
@@ -3247,7 +3465,7 @@ Public Class VLM_Router
     Private Sub _RoutingRestart_Elapsed(ByVal sender As Object, ByVal e As System.Timers.ElapsedEventArgs) Handles _RoutingRestart.Elapsed
 
         _RoutingRestart.Stop()
-        
+
         If _IsoRoutingRestartPending Then
             _IsoRoutingRestartPending = False
             StartIsoRoute(Nothing, True, True)
