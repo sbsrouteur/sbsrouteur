@@ -23,7 +23,7 @@
         WP_ICE_GATE_E = (1 << 6)
         WP_ICE_GATE_W = (1 << 7)
         WP_GATE_KIND_MASK = &HF
-
+        WP_NOT_GATE_KIND_MASK = &HF0
         WP_CROSS_CLOCKWISE = (1 << 8)
         WP_CROSS_ANTI_CLOCKWISE = (1 << 9)
         WP_CROSS_ONCE = (1 << 10)
@@ -128,16 +128,16 @@
             Dim WP(1) As Coords
             Dim L As New List(Of Coords())
             WP(0) = New Coords(latitude1 / 1000, longitude1 / 1000)
-            If (wpformat And Enum_WP_TypeMasks.WP_GATE_KIND_MASK) = Enum_WP_TypeMasks.WP_TWO_BUOYS Then ' latitude1 <> latitude2 OrElse longitude1 <> longitude2 Then
-                '2 buoys
-                WP(1) = New Coords(latitude2 / 1000, longitude2 / 1000)
-            Else
+            If (wpformat And Enum_WP_TypeMasks.WP_GATE_KIND_MASK) = Enum_WP_TypeMasks.WP_ONE_BUOY OrElse (latitude1 = latitude2 AndAlso longitude1 = longitude2) Then
                 Dim TC As New TravelCalculator
                 TC.StartPoint = WP(0)
                 WP(1) = TC.ReachDistance(60, 180 + _laisser_au)
                 TC.StartPoint = Nothing
                 TC.EndPoint = Nothing
                 TC = Nothing
+            Else
+                '2 buoys
+                WP(1) = New Coords(latitude2 / 1000, longitude2 / 1000)
             End If
             L.Add(WP)
             Return L
