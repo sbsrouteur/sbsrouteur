@@ -909,7 +909,7 @@ Public Class RouteurModel
                 'Rtes(Index) = New ObservableCollection(Of VLM_Router.clsrouteinfopoints)(Item)
                 'Index += 1
                 'Next
-                The2DViewer.UpdatePath(Traj, Rtes, VorHandler.Opponents, _ClearGrid, _ClearBoats, VorHandler.IsoChrones, CurPlayer.RaceInfo.races_waypoints, _RouteManager.VisibleRoutes)
+                The2DViewer.UpdatePath(Traj, Rtes, 6, VorHandler.Opponents, _ClearGrid, _ClearBoats, VorHandler.IsoChrones, CurPlayer.RaceInfo.races_waypoints, _RouteManager.VisibleRoutes)
                 _ClearGrid = False
                 _ClearBoats = False
             Else
