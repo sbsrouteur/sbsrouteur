@@ -1151,7 +1151,7 @@ Public Class VLM_Router
                                     Dim PtWPValue As New RoutePointWPValue
 
                                     If Not GetWPInfo(Fields(FLD_LATVALUE), Fields(FLD_LONVALUE), PtWPValue.WPLon,
-                                                     PtWPValue.WPLon, PtWPValue.SetBearingAtWP, PtWPValue.BearingAtWP) Then
+                                                     PtWPValue.WPLat, PtWPValue.SetBearingAtWP, PtWPValue.BearingAtWP) Then
                                         Continue For
                                     End If
 
