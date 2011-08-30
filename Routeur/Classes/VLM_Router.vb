@@ -2432,7 +2432,12 @@ Public Class VLM_Router
         Lup = BoatInfo.LUP
         RetUser.position.ModePilote = BoatInfo.PIM
         If BoatInfo.PIM = 2 Then
-            RetUser.position.AngleAllure = CDbl(BoatInfo.PIP)
+            If Not Double.TryParse(BoatInfo.PIP, RetUser.position.AngleAllure) Then
+                If Not Double.TryParse(BoatInfo.PIP, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.AngleAllure) Then
+                    Throw New ArgumentException("Invalid PIP value : " & BoatInfo.PIP)
+                End If
+            End If
+            'RetUser.position.AngleAllure = CDbl(BoatInfo.PIP)
             'Double.TryParse(BoatInfo.PIP, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.AngleAllure)
         Else
             RetUser.position.AngleAllure = WindAngleWithSign(BoatInfo.HDG, BoatInfo.TWD)
