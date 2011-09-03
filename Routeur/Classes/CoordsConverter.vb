@@ -25,8 +25,8 @@ Public Class CoordsConverter
                     Return CStr(C.Lat_Deg) & CStr(If(North, " N ", " S ")) & " " & CStr(C.Lon_Deg) & CStr(If(West, " W ", " E "))
                 Case CoordsDisplayMode.DegsMinSec
                     Dim North As Boolean = C.Lat >= 0
-                    Dim West As Boolean = C.Lon < 0
-                    Return CStr(Convert(C.Lat_Deg, GetType(String), parameter, culture)) & CStr(If(North, " N ", " S ")) & " " & CStr(Convert(C.Lon_Deg, GetType(String), parameter, culture)) & _
+                    Dim West As Boolean = C.N_Lon < 0
+                    Return CStr(Convert(C.Lat_Deg, GetType(String), parameter, culture)) & CStr(If(North, " N ", " S ")) & " " & CStr(Convert(C.N_Lon_Deg, GetType(String), parameter, culture)) & _
                                     CStr(If(West, " W ", " E "))
             End Select
         ElseIf (TypeOf value Is Double Or TypeOf value Is Decimal) And targetType Is GetType(String) Then
