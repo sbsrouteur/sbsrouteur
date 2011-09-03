@@ -342,7 +342,7 @@ Public Class GSHHS_Reader
 
     End Sub
 
-    Private Shared Sub ReaPolyToTiles(ByVal S As FileStream, ByVal Renderer As _2D_Viewer, ByVal Tiles As SortedList(Of String, TileInfo), ByVal Image() As Graphics)
+    Private Shared Sub ReadPolyToTiles(ByVal S As FileStream, ByVal Renderer As _2D_Viewer, ByVal Tiles As SortedList(Of String, TileInfo), ByVal Image() As Graphics)
 
         Dim H As GSHHS_Header = ReadHeader(S)
         Dim Pen As New Pen(Color.FromArgb(255, 200, 160, 0))
@@ -444,7 +444,7 @@ Public Class GSHHS_Reader
             G(i).FillRectangle(New SolidBrush(Color.FromArgb(0, 0, 0, 0)), New System.Drawing.RectangleF(0, 0, TileServer.TILE_SIZE, TileServer.TILE_SIZE))
         Next
         Do
-            ReaPolyToTiles(S, Renderer, Tiles, G)
+            ReadPolyToTiles(S, Renderer, Tiles, G)
         Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
         RaiseEvent TilesProgress(100)
         For i = 0 To G.Length - 1
