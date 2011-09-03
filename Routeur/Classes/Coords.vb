@@ -58,14 +58,14 @@ Public Class Coords
         End Get
         Set(ByVal value As Double)
 
-            While value > Math.PI
-                value -= 2 * Math.PI
-            End While
+            'While value > Math.PI
+            '    value -= 2 * Math.PI
+            'End While
 
-            While value < -Math.PI
-                value += 2 * Math.PI
+            'While value < -Math.PI
+            '    value += 2 * Math.PI
 
-            End While
+            'End While
             _Lon = value
             'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon"))
             'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon_Deg"))
@@ -111,6 +111,24 @@ Public Class Coords
     Public Shared Operator <>(ByVal v1 As Coords, ByVal v2 As Coords) As Boolean
         Return Not v1 = v2
     End Operator
+
+    Public ReadOnly Property N_Lon_Deg As Double
+        Get
+            Return N_Lon / PI * 180
+        End Get
+    End Property
+
+    Public ReadOnly Property N_Lon As Double
+        Get
+            If Lon < -PI Or Lon > PI Then
+                Return ((Lon + PI) Mod (2 * PI)) - PI
+            Else
+                Return Lon
+            End If
+
+        End Get
+    End Property
+
 
     Public Sub RoundTo(ByVal RoundingGrain As Double)
 
@@ -174,29 +192,29 @@ Public Class Coords
 
     Public Sub New(ByVal Lat_Deg As Decimal, ByVal LonDeg As Decimal)
 
-        If Lat_Deg > 90 Then
-            Me.Lat_Deg = Lat_Deg - 180
-        ElseIf Lat_Deg < -90 Then
-            Me.Lat_Deg = Lat_Deg + 180
-        Else
-            Me.Lat_Deg = Lat_Deg
-        End If
+        'If Lat_Deg > 90 Then
+        '    Me.Lat_Deg = Lat_Deg - 180
+        'ElseIf Lat_Deg < -90 Then
+        '    Me.Lat_Deg = Lat_Deg + 180
+        'Else
+        Me.Lat_Deg = Lat_Deg
+        'End If
 
-        If LonDeg > 180 Then
-            Me.Lon_Deg = LonDeg - 360
-        ElseIf LonDeg < -180 Then
-            Me.Lon_Deg = LonDeg + 360
-        Else
-            Me.Lon_Deg = LonDeg
-        End If
+        'If LonDeg > 180 Then
+        '    Me.Lon_Deg = LonDeg - 360
+        'ElseIf LonDeg < -180 Then
+        '    Me.Lon_Deg = LonDeg + 360
+        'Else
+        Me.Lon_Deg = LonDeg
+        'End If
 
 
     End Sub
 
     Public Sub New(ByVal Lat_Deg As Integer, ByVal Lat_Min As Integer, ByVal Lat_Sec As Integer, ByVal NS As NORTH_SOUTH, ByVal Lon_Deg As Integer, ByVal Lon_Min As Integer, ByVal Lon_Sec As Integer, ByVal EW As EAST_WEST)
 
-        Me.Lat_Deg = (CInt(NS) * (Lat_Deg + Lat_Min / 60 + Lat_Sec / 3600)) Mod 180
-        Me.Lon_Deg = (CInt(EW) * (Lon_Deg + Lon_Min / 60 + Lon_Sec / 3600)) Mod 180
+        Me.Lat_Deg = (CInt(NS) * (Lat_Deg + Lat_Min / 60 + Lat_Sec / 3600)) ' Mod 180
+        Me.Lon_Deg = (CInt(EW) * (Lon_Deg + Lon_Min / 60 + Lon_Sec / 3600)) ' Mod 180
 
     End Sub
 

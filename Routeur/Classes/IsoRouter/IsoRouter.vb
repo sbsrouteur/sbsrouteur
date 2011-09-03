@@ -479,7 +479,7 @@ Public Class IsoRouter
                 CurDate = Start.T.AddTicks(i)
                 MI = Nothing
                 While MI Is Nothing And Not _CancelRequested
-                    MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.Lon_Deg, TC.StartPoint.Lat_Deg, True)
+                    MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, True)
                     If MI Is Nothing Then
                         System.Threading.Thread.Sleep(GribManager.METEO_SLEEP_DELAY)
                     End If
@@ -506,7 +506,7 @@ Public Class IsoRouter
             CurDate = Start.T
             MI = Nothing
             While MI Is Nothing And Not _CancelRequested
-                MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.Lon_Deg, TC.StartPoint.Lat_Deg, True)
+                MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, True)
                 If MI Is Nothing Then
                     System.Threading.Thread.Sleep(50)
                 End If
@@ -528,6 +528,15 @@ Public Class IsoRouter
         End If
         TC.EndPoint = TC.StartPoint
         TC.StartPoint = Start.P
+
+        If Math.Abs(TC.EndPoint.Lon - TC.StartPoint.Lon) > Math.PI AndAlso TC.EndPoint.Lon * TC.StartPoint.Lon < 0 Then
+            If TC.StartPoint.Lon < 0 Then
+                TC.EndPoint.Lon += (Math.Ceiling(TC.StartPoint.Lon / 2 / Math.PI) - 1) * 2 * Math.PI
+            Else
+                TC.EndPoint.Lon += (1 + Math.Floor(TC.StartPoint.Lon / 2 / Math.PI)) * 2 * Math.PI
+            End If
+
+        End If
 
 
         'ReachPointCounts += 1
@@ -682,7 +691,7 @@ Public Class IsoRouter
 
             Dim mi As MeteoInfo = Nothing
             While mi Is Nothing
-                mi = _Meteo.GetMeteoToDate(StartDate, From.Lon_Deg, From.Lat_Deg, False, False)
+                mi = _Meteo.GetMeteoToDate(StartDate, From.N_Lon_Deg, From.Lat_Deg, False, False)
                 System.Threading.Thread.Sleep(250)
             End While
 

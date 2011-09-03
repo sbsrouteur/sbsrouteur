@@ -472,7 +472,7 @@ Public Class VLM_Router
 
             While Not reached
                 Dim MS As Double
-                mi = MeteoSource.GetMeteoToDate(CurEta, CurP.Lon_Deg, CurP.Lat_Deg, False, False)
+                mi = MeteoSource.GetMeteoToDate(CurEta, CurP.N_Lon_Deg, CurP.Lat_Deg, False, False)
                 CurP = ComputeTrackVMG(mi, Sails, BoatType, CurP, Dest1, Dest2, MS, Reached)
                 If Not Reached Then
                     CurEta = CurEta.AddMinutes(RouteurModel.VacationMinutes)

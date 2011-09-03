@@ -621,6 +621,10 @@ Public Class GribManager
 
 #Const METEO = 2
 
+        'Normalize coordinates for meteo
+        lon = lon Mod 360
+
+
 #If METEO = 0 Then
         Return GetMeteoToDateSelectiveTWSA(dte, lon, lat, nolock)
 #ElseIf METEO = 1 Then
