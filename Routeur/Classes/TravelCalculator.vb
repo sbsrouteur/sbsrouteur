@@ -42,7 +42,69 @@ Public Class TravelCalculator
             Dim Lat1 As Double = StartPoint.Lat
             Dim Lat2 As Double = EndPoint.Lat
 
+            If Abs(Lon2 - Lon1) > PI Then
+                If Lon2 < Lon1 Then
+                    Lon2 += 2 * PI
+                Else
+                    Lon2 -= 2 * PI
+                End If
+
+            End If
+
             Dim tc As Double = Atan2(Lon1 - Lon2, Log(Tan(Lat2 / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))) Mod (2 * PI)
+
+            Return ((tc / PI * 180) + 360) Mod 360
+
+        End Get
+    End Property
+
+    Private ReadOnly Property LoxoCourse_Deg_Aviat_withante As Double
+        Get
+
+            Dim Lon1 As Double = -StartPoint.Lon
+            Dim Lon2 As Double = -EndPoint.Lon
+            Dim Lat1 As Double = StartPoint.Lat
+            Dim Lat2 As Double = EndPoint.Lat
+            Const TOL As Double = 0.00001
+
+            'dlon_W=mod(lon2-lon1,2*pi)
+            'dlon_E=mod(lon1-lon2,2*pi)
+
+            'dphi = Log(Tan(Lat2 / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))
+
+            'if (abs(lat2-lat1) < sqrt(TOL)){
+            '              q = Cos(Lat1)
+            '} else {
+            '              q = (Lat2 - Lat1) / dphi
+            '}
+            'if (dlon_W < dlon_E){// Westerly rhumb line is the shortest
+            '    tc=mod(atan2(-dlon_W,dphi),2*pi)
+            '                  d = Sqrt(q ^ 2 * dlon_W ^ 2 + (Lat2 - Lat1) ^ 2)
+            '} else{
+            '    tc=mod(atan2(dlon_E,dphi),2*pi)
+            '                  d = Sqrt(q ^ 2 * dlon_E ^ 2 + (Lat2 - Lat1) ^ 2)
+            '    }
+
+            Dim dlon_w As Double = (Lon2 - Lon1) Mod (2 * PI)
+            Dim dlon_e As Double = (Lon1 - Lon2) Mod (2 * PI)
+            Dim dphi As Double = Log(Tan(Lat2 / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))
+            Dim q As Double
+            Dim d As Double
+            Dim tc As Double
+
+            If (Abs(Lat2 - Lat1) < TOL) Then
+                q = Cos(Lat1)
+            Else
+                q = (Lat2 - Lat1) / dphi
+            End If
+
+            If (dlon_w < dlon_e) Then '{// Westerly rhumb line is the shortest
+                tc = Atan2(-dlon_w, dphi) Mod (2 * PI)
+                d = Sqrt(q ^ 2 * dlon_w ^ 2 + (Lat2 - Lat1) ^ 2)
+            Else
+                tc = Atan2(dlon_e, dphi) Mod (2 * PI)
+                d = Sqrt(q ^ 2 * dlon_e ^ 2 + (Lat2 - Lat1) ^ 2)
+            End If
 
             Return ((tc / PI * 180) + 360) Mod 360
 
