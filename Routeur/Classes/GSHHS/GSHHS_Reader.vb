@@ -44,6 +44,7 @@ Public Class GSHHS_Reader
 
     Public Shared ReadOnly Property Polygons(ByVal C As Coords) As LinkedList(Of Polygon)
         Get
+            Return Nothing
             Return _Tree.GetPolygons(C, _PolyGons, RouteurModel.GridGrain)
         End Get
     End Property
@@ -51,17 +52,21 @@ Public Class GSHHS_Reader
     Public Shared Sub Read(ByVal State As Object)
 
         Dim SI As GSHHS_StartInfo = CType(State, GSHHS_StartInfo)
-        Try
-            Dim A As Polygon
-            Dim landpoly As Boolean
+        Dim MapLevel As Integer = DBWrapper.GetMapLevel(SI.StartPath)
+        Dim DB As New DBWrapper
+        If _Tree Is Nothing Then
+            _Tree = New BspRect(_P1, _P2, 1)
+        End If
+        If Not DB.DataMapInited(MapLevel) Then
+            Try
+                Dim A As Polygon
+                Dim landpoly As Boolean
 
-            Dim PolyCount As Long = 0
-            If Not File.Exists(SI.StartPath) Then
-                Return
-            End If
-            If _Tree Is Nothing Then
-                _Tree = New BspRect(_P1, _P2, 1)
-            End If
+                Dim PolyCount As Long = 0
+                If Not File.Exists(SI.StartPath) Then
+                    Return
+                End If
+
 
 #If NO_MAP = 0 Then
                 Dim S As FileStream = New FileStream(SI.StartPath, FileMode.Open, FileAccess.Read)
@@ -70,11 +75,12 @@ Public Class GSHHS_Reader
                 Do
                     A = ReadPoly(S, SI, landpoly)
                     If Not A Is Nothing Then
-                        If landpoly Then
-                            _PolyGons.AddLast(A)
-                        Else
-                            _LakePolyGons.AddLast(A)
-                        End If
+                        'If landpoly Then
+                        '    _PolyGons.AddLast(A)
+                        'Else
+                        '    _LakePolyGons.AddLast(A)
+                        'End If
+                        DB.AddPoly(MapLevel, A)
                         PolyCount += A.Count
                     End If
                     SI.ProgressWindows.Progress(S.Position)
@@ -100,12 +106,16 @@ Public Class GSHHS_Reader
                 End If
 #End If
 
-        Catch ex As Exception
+            Catch ex As Exception
 
-            MessageBox.Show(ex.Message, "Error loading Map data")
-        Finally
+                MessageBox.Show(ex.Message, "Error loading Map data")
+            Finally
+                SI.CompleteCallBack()
+            End Try
+        Else
             SI.CompleteCallBack()
-        End Try
+        End If
+
     End Sub
 
     Private Shared Function ReadHeader(ByVal S As FileStream) As GSHHS_Header
@@ -578,104 +588,104 @@ Public Class GSHHS_Reader
 
     End Function
 
-    Public Shared Function HitTest(ByVal P As Coords, ByVal HitDistance As Double, ByVal LookupZone As LinkedList(Of Polygon), ByVal UseBoxes As Boolean, Optional ByVal IgnoreBSP As Boolean = False) As Boolean
+    '    Public Shared Function HitTest(ByVal P As Coords, ByVal HitDistance As Double, ByVal LookupZone As LinkedList(Of Polygon), ByVal UseBoxes As Boolean, Optional ByVal IgnoreBSP As Boolean = False) As Boolean
 
-        'Static calls As Long = 0
-        Dim StartTick As DateTime = Now
+    '        'Static calls As Long = 0
+    '        Dim StartTick As DateTime = Now
 
-        If _Tree IsNot Nothing And Not IgnoreBSP Then
-#If HIT_STATS Then
-            Try
-#End If
+    '        If _Tree IsNot Nothing And Not IgnoreBSP Then
+    '#If HIT_STATS Then
+    '            Try
+    '#End If
 
-            Return _Tree.InLand(P, RouteurModel.GridGrain, 0) = BspRect.inlandstate.InLand
+    '            Return _Tree.InLand(P, RouteurModel.GridGrain, 0) = BspRect.inlandstate.InLand
 
-#If HIT_STATS Then
-            Finally
-                _HitTestBspCount += 1
-                _HitTestBspTicks += Now.Subtract(StartTick).Ticks
+    '#If HIT_STATS Then
+    '            Finally
+    '                _HitTestBspCount += 1
+    '                _HitTestBspTicks += Now.Subtract(StartTick).Ticks
 
-                Stats.SetStatValue(Stats.StatID.HitTestBspAvgMS) = _HitTestBspTicks / _HitTestBspCount / TimeSpan.TicksPerMillisecond
+    '                Stats.SetStatValue(Stats.StatID.HitTestBspAvgMS) = _HitTestBspTicks / _HitTestBspCount / TimeSpan.TicksPerMillisecond
 
-            End Try
-#End If
+    '            End Try
+    '#End If
 
-        End If
-
-
-        Dim i As Integer
-        Dim j As Integer
-        Dim RetVal As Boolean = False
-
-        If LookupZone.Count = 0 Then
-            Return False
-        End If
-
-        Dim NbLoops As Long
-
-#If HIT_STATS Then
-        Try
-#End If
-
-        'Dim P As New Coords(PTest)
-        UseBoxes = False
-        Dim Poly As Polygon
-        'Dim Box As Coords() = Nothing
-        Dim x As Integer
-
-        For x = 0 To LookupZone.Count - 1
-            Poly = LookupZone(x)
-
-            Dim MaxIndex As Integer = Poly.Count
-
-            j = Poly.Count
-            If j = 0 Then
-                Continue For
-            End If
-
-            While Poly(j) Is Nothing AndAlso MaxIndex > 0
-                j -= 1
-            End While
-            MaxIndex = j
-
-            For i = 0 To MaxIndex
+    '        End If
 
 
-                If ((Poly(i).Lat > P.Lat) <> (Poly(j).Lat > P.Lat)) AndAlso (P.Lon < (Poly(j).Lon - Poly(i).Lon) * (P.Lat - Poly(i).Lat) / (Poly(j).Lat - Poly(i).Lat) + Poly(i).Lon) Then
-                    RetVal = Not RetVal
-                End If
+    '        Dim i As Integer
+    '        Dim j As Integer
+    '        Dim RetVal As Boolean = False
 
-                j = i
-            Next
-            NbLoops += i
+    '        If LookupZone.Count = 0 Then
+    '            Return False
+    '        End If
 
-            If RetVal Then
-                Return RetVal
-            End If
+    '        Dim NbLoops As Long
+
+    '#If HIT_STATS Then
+    '        Try
+    '#End If
+
+    '        'Dim P As New Coords(PTest)
+    '        UseBoxes = False
+    '        Dim Poly As Polygon
+    '        'Dim Box As Coords() = Nothing
+    '        Dim x As Integer
+
+    '        For x = 0 To LookupZone.Count - 1
+    '            Poly = LookupZone(x)
+
+    '            Dim MaxIndex As Integer = Poly.Count
+
+    '            j = Poly.Count
+    '            If j = 0 Then
+    '                Continue For
+    '            End If
+
+    '            While Poly(j) Is Nothing AndAlso MaxIndex > 0
+    '                j -= 1
+    '            End While
+    '            MaxIndex = j
+
+    '            For i = 0 To MaxIndex
 
 
-        Next
+    '                If ((Poly(i).Lat > P.Lat) <> (Poly(j).Lat > P.Lat)) AndAlso (P.Lon < (Poly(j).Lon - Poly(i).Lon) * (P.Lat - Poly(i).Lat) / (Poly(j).Lat - Poly(i).Lat) + Poly(i).Lon) Then
+    '                    RetVal = Not RetVal
+    '                End If
 
-        If RetVal AndAlso RouteurModel.LAKE_RACE Then
-            Return HitTest(P, HitDistance, _LakePolyGons, False, IgnoreBSP)
-        End If
+    '                j = i
+    '            Next
+    '            NbLoops += i
 
-        Return RetVal
+    '            If RetVal Then
+    '                Return RetVal
+    '            End If
 
-#If HIT_STATS Then
 
-        Finally
-            _HitTestNoBspCount += 1
-            _HitTestNoBspTicks += Now.Subtract(starttick).ticks
-            _HitTestNoBspPoly += NbLoops
+    '        Next
 
-            Stats.SetStatValue(Stats.StatID.HitTestNoBSPAvgLoops) = _HitTestNoBspPoly / _HitTestNoBspCount
-            Stats.SetStatValue(Stats.StatID.HitTestNoBspAvgMS) = _HitTestNoBspTicks / _HitTestNoBspCount / TimeSpan.TicksPerMillisecond
+    '        If RetVal AndAlso RouteurModel.LAKE_RACE Then
+    '            Return HitTest(P, HitDistance, _LakePolyGons, False, IgnoreBSP)
+    '        End If
 
-        End Try
-#End If
+    '        Return RetVal
 
-    End Function
+    '#If HIT_STATS Then
+
+    '        Finally
+    '            _HitTestNoBspCount += 1
+    '            _HitTestNoBspTicks += Now.Subtract(starttick).ticks
+    '            _HitTestNoBspPoly += NbLoops
+
+    '            Stats.SetStatValue(Stats.StatID.HitTestNoBSPAvgLoops) = _HitTestNoBspPoly / _HitTestNoBspCount
+    '            Stats.SetStatValue(Stats.StatID.HitTestNoBspAvgMS) = _HitTestNoBspTicks / _HitTestNoBspCount / TimeSpan.TicksPerMillisecond
+
+    '        End Try
+    '#End If
+
+    '    End Function
 
     Private Shared Function PointsDistance(ByVal x1 As Double, ByVal y1 As Double, ByVal x2 As Double, ByVal y2 As Double) As Double
 

@@ -32,10 +32,12 @@ Public Class IsoRouter
     Private _DTFRatio As Double = 0.9
     Private _FastRoute As Boolean = False
     Private IsoRouterLock As New Object
+    Private _DB As DBWrapper
+    Private _MapLevel As Integer
 
 #Const DBG_ISO = 1
 
-    Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan)
+    Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan, MapLevel As Integer)
         _AngleStep = AngleStep
         _IsoStep = IsoStep
         _IsoStep_24 = IsoStep_24
@@ -44,6 +46,9 @@ Public Class IsoRouter
         _Meteo = Meteo
         _SailManager = SailManager
         _BoatType = BoatType
+        _DB = New DBWrapper()
+        _DB.MapLevel = MapLevel
+        _MapLevel = MapLevel
     End Sub
 
 
@@ -214,7 +219,9 @@ Public Class IsoRouter
                                                                   'ReachCount += 1
                                                                   If Not P Is Nothing Then
                                                                       SyncLock Iso
-                                                                          If Not GSHHS_Reader.HitTest(P.P, 0, LP, False, True) Then 'tc.SurfaceDistance > 0 Then
+                                                                          If Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree) Then
+
+                                                                              'If Not GSHHS_Reader.HitTest(P.P, 0, LP, False, True) Then 'tc.SurfaceDistance > 0 Then
                                                                               tc.StartPoint = tcfn1.StartPoint
                                                                               tc.EndPoint = P.P
                                                                               alpha2 = tc.LoxoCourse_Deg
@@ -550,7 +557,8 @@ Public Class IsoRouter
         '    TotalDist = 0.0001
         'End If
         'TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
-        If CheckSegmentValid(TC) Then
+        If Not _DB.IntersectMapSegment(TC.StartPoint, TC.EndPoint, GSHHS_Reader._Tree) Then
+            'If CheckSegmentValid(TC) Then
             RetPoint = New clsrouteinfopoints
             With RetPoint
                 .P = New Coords(TC.EndPoint)

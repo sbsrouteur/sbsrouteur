@@ -118,7 +118,7 @@ Public Class Coords
         End Get
     End Property
 
-    Public ReadOnly Property N_Lon As Double
+    Public ReadOnly Property N_Lon As Double Implements ICoords.N_Lon
         Get
             If Lon < -PI Or Lon > PI Then
                 Return ((Lon + PI) Mod (2 * PI)) - PI

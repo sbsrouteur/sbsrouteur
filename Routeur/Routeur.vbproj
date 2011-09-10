@@ -52,7 +52,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314,42353,42354,42355</NoWarn>
-    <DefineConstants>NO_TILE=0, TESTING=1,HIT_STATS=1,BSP_STATS=1</DefineConstants>
+    <DefineConstants>NO_TILE=0, TESTING=0,HIT_STATS=1,BSP_STATS=1</DefineConstants>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -110,6 +110,8 @@
     <Compile Include="Classes\NavHelper\OrthoNavHelper.vb" />
     <Compile Include="Classes\NavHelper\VBVMGNavHelper.vb" />
     <Compile Include="Classes\NavHelper\VMGNavHelper.vb" />
+    <Compile Include="Classes\SQLLite\DBWrapper.vb" />
+    <Compile Include="Classes\SQLLite\MapSegment.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMShortRaceInfo.vb" />
     <Compile Include="Dialogs\frmAppOptions.xaml.vb">
       <DependentUpon>frmAppOptions.xaml</DependentUpon>
@@ -126,6 +128,9 @@
     </Reference>
     <Reference Include="System.Data.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.SQLite, Version=1.0.74.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=AMD64">
+      <HintPath>..\..\..\..\Program Files\System.Data.SQLite\GAC\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />

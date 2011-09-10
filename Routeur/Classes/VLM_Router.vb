@@ -3293,7 +3293,7 @@ Public Class VLM_Router
 
 
             _iso = New IsoRouter(_UserInfo.type, Sails, Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, prefs.IsoStep, _
-                                 prefs.IsoStep_24, prefs.IsoStep_48)
+                                 prefs.IsoStep_24, prefs.IsoStep_48, DBWrapper.GetMapLevel(prefs.MapLevel))
             Dim WP As Integer
 
             If CurUserWP = 0 Then
@@ -3496,7 +3496,12 @@ Public Class VLM_Router
 
     Private Sub _iso_RouteComplete() Handles _iso.RouteComplete
         BruteRoute(Meteo) = _iso.Route
-        RaiseEvent IsoComplete(_iso.Route.Last)
+        If _iso.Route.Any Then
+            RaiseEvent IsoComplete(_iso.Route.Last)
+        Else
+            RaiseEvent IsoComplete(Nothing)
+        End If
+
 
         If RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces).AutoRestartRouter Then
             _IsoRoutingRestartPending = True
