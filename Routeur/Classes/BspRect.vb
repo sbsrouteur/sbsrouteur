@@ -31,7 +31,8 @@ Public Class BspRect
     Private _SubRects(3) As BspRect
     Private _Inland As inlandstate
     Private _PolyGons As LinkedList(Of Polygon)
-    Private _Z as Integer 
+    Private _Z As Integer
+    Private _Segments As List(Of MapSegment)
 
     Shared Optimizer As New bspOptimizer
 
@@ -64,6 +65,39 @@ Public Class BspRect
 
     End Sub
 
+    Public ReadOnly Property GetSegments(C As Coords, GridGrain As Double, db As DBWrapper) As List(Of MapSegment)
+        Get
+            If _Segments Is Nothing AndAlso Abs((P2.Lat - P1.Lat)) > MIN_POLYGON_SPLIT Then
+
+                If _SubRects(0) Is Nothing Then
+                    If Not Split(GridGrain) Then
+                        Return Nothing
+                    End If
+                End If
+                Return GetChildFromCoords(C, GridGrain).GetSegments(C, GridGrain, db)
+
+            Else
+                If _Segments Is Nothing Then
+
+                    Dim Seg As MapSegment
+                    Dim PolygonIndex As Integer = 0
+                    Dim Corner As New Coords
+                    'Build the polygons list using the proper "trimmed " polygons
+                    _Segments = New List(Of MapSegment)
+
+
+                    For Each Seg In db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg)
+
+                        _Segments.Add(Seg)
+
+
+                    Next
+
+                End If
+                Return _Segments
+            End If
+        End Get
+    End Property
 
     Public ReadOnly Property GetPolygons(ByVal C As Coords, ByVal Polygons As LinkedList(Of Polygon), ByVal gridgrain As Double) As LinkedList(Of Polygon)
         Get
@@ -173,8 +207,8 @@ Public Class BspRect
             End If
 
             For i = 0 To 3
-                If Not _SubRects(i).polygons Is Nothing Then
-                    For Each p In _SubRects(i).polygons
+                If Not _SubRects(i).Polygons Is Nothing Then
+                    For Each p In _SubRects(i).Polygons
                         _PolyGons.AddLast(p)
                     Next
                 End If
@@ -202,10 +236,10 @@ Public Class BspRect
         Dim RetString As String = ""
         Dim Child As BspRect = GetChildFromCoords(c, RouteurModel.GridGrain)
 
-        If child Is Nothing Then
+        If Child Is Nothing Then
             RetString = c.ToString & " in " & _Inland.ToString & "dx " & (_p1.Lon_Deg - _p2.Lon_Deg).ToString("f2") & " and " & (_p1.Lat_Deg - _p2.Lat_Deg).ToString("f2")
         Else
-            RetString = child.DebugInfo(c)
+            RetString = Child.DebugInfo(c)
         End If
 
         Return RetString
@@ -237,88 +271,88 @@ Public Class BspRect
 
     End Property
 
-    Public Property Inland(ByVal C As Coords, ByVal gridgrain As Double, ByVal Depth As Integer, Optional ByVal Merge As Boolean = True) As inlandstate
-        Get
-            Dim curvalue As inlandstate
-            Dim i As Integer
+    '    Public Property Inland(ByVal C As Coords, ByVal gridgrain As Double, ByVal Depth As Integer, Optional ByVal Merge As Boolean = True) As inlandstate
+    '        Get
+    '            Dim curvalue As inlandstate
+    '            Dim i As Integer
 
-            'If Abs(_MidLat / Math.PI * 180 - 31.175) <= gridgrain AndAlso Abs(_MidLon / Math.PI * 180 - 29.725) <= gridgrain Then
-            '    Dim ibreak As Integer = 0
-            'End If
-            If _SubRects(0) Is Nothing And _Inland <> inlandstate.Unknown Then
-#If BSP_STATS Then
-                _HitTestDepth += Depth
-                _HitTestCount += 1
-                Stats.SetStatValue(Stats.StatID.BSPCellAvgDepth) = _HitTestDepth / _HitTestCount
-#End If
-                Return _Inland
-            Else
-                SyncLock GSHHS_Reader._Tree
-
-
-                    'recheck just in case
-                    If _SubRects(0) Is Nothing And _Inland <> inlandstate.Unknown Then
-                        Return _Inland
-                    End If
-                    If _SubRects(0) Is Nothing Then
-                        'RaiseEvent Log("Synclock bsp1 th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
-                        If Not Split(gridgrain / GRID_GRAIN_OVERSAMPLE) Then
-
-                            'Dim lNewCoords As Coords = New Coords((_p1.Lat_Deg + _p2.Lat_Deg) / 2, (_p1.Lon_Deg + _p2.Lon_Deg) / 2)
-                            Dim lNewCoords As New Coords
-                            lNewCoords.Lon = _MidLon
-                            lNewCoords.Lat = _MidLat
+    '            'If Abs(_MidLat / Math.PI * 180 - 31.175) <= gridgrain AndAlso Abs(_MidLon / Math.PI * 180 - 29.725) <= gridgrain Then
+    '            '    Dim ibreak As Integer = 0
+    '            'End If
+    '            If _SubRects(0) Is Nothing And _Inland <> inlandstate.Unknown Then
+    '#If BSP_STATS Then
+    '                _HitTestDepth += Depth
+    '                _HitTestCount += 1
+    '                Stats.SetStatValue(Stats.StatID.BSPCellAvgDepth) = _HitTestDepth / _HitTestCount
+    '#End If
+    '                Return _Inland
+    '            Else
+    '                SyncLock GSHHS_Reader._Tree
 
 
+    '                    'recheck just in case
+    '                    If _SubRects(0) Is Nothing And _Inland <> inlandstate.Unknown Then
+    '                        Return _Inland
+    '                    End If
+    '                    If _SubRects(0) Is Nothing Then
+    '                        'RaiseEvent Log("Synclock bsp1 th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
+    '                        If Not Split(gridgrain / GRID_GRAIN_OVERSAMPLE) Then
 
-                            Dim Polys = GSHHS_Reader.Polygons(lNewCoords)
-                            If Polys Is Nothing OrElse Polys.Count = 0 Then
-                                _Inland = inlandstate.InSea
-                            ElseIf GSHHS_Reader.HitTest(lNewCoords, 0, Polys, True, True) Then
-                                _Inland = inlandstate.InLand
-                            Else
-                                _Inland = inlandstate.InSea
-                            End If
-                            Return _Inland
-                        ElseIf GridGrainDepth = -1 AndAlso Abs(P1.Lon_Deg - P2.Lon_Deg) < gridgrain Then
-                            GridGrainDepth = Depth
+    '                            'Dim lNewCoords As Coords = New Coords((_p1.Lat_Deg + _p2.Lat_Deg) / 2, (_p1.Lon_Deg + _p2.Lon_Deg) / 2)
+    '                            Dim lNewCoords As New Coords
+    '                            lNewCoords.Lon = _MidLon
+    '                            lNewCoords.Lat = _MidLat
 
 
 
-
-                        End If
-
-                    End If
-
-                    'Dim x As Integer
-                    Dim retvalue As inlandstate = GetChildFromCoords(C, gridgrain).InLand(C, gridgrain, Depth + 1)
-                    'If Merge AndAlso GridGrainDepth <> -1 AndAlso Depth > GridGrainDepth Then
-                    '    For i = 0 To 3
-                    '        If SubRects(i) IsNot Nothing AndAlso SubRects(i).InLand = inlandstate.Unknown Then
-                    '            Dim v = Inland(New Coords() With {.Lat = (SubRects(i).P1.Lat + SubRects(i).P2.Lat) / 2, _
-                    '                                      .Lon = (SubRects(i).P1.Lon + SubRects(i).P1.Lon) / 2}, gridgrain, Depth + 1, False)
-                    '        End If
-                    '    Next
-                    'End If
-
-                    Dim lShouldReturn As Boolean
-                    Dim lResult As inlandstate = OptimizeBSP(curvalue, i, retvalue, lShouldReturn)
-                    If lShouldReturn Then
-                        Return lResult
-                    End If
-
-                    Return retvalue
-                End SyncLock
-
-            End If
+    '                            Dim Polys = GSHHS_Reader.Polygons(lNewCoords)
+    '                            If Polys Is Nothing OrElse Polys.Count = 0 Then
+    '                                _Inland = inlandstate.InSea
+    '                            ElseIf GSHHS_Reader.HitTest(lNewCoords, 0, Polys, True, True) Then
+    '                                _Inland = inlandstate.InLand
+    '                            Else
+    '                                _Inland = inlandstate.InSea
+    '                            End If
+    '                            Return _Inland
+    '                        ElseIf GridGrainDepth = -1 AndAlso Abs(P1.Lon_Deg - P2.Lon_Deg) < gridgrain Then
+    '                            GridGrainDepth = Depth
 
 
 
-        End Get
-        Set(ByVal value As inlandstate)
-            _Inland = value
-        End Set
-    End Property
+
+    '                        End If
+
+    '                    End If
+
+    '                    'Dim x As Integer
+    '                    Dim retvalue As inlandstate = GetChildFromCoords(C, gridgrain).InLand(C, gridgrain, Depth + 1)
+    '                    'If Merge AndAlso GridGrainDepth <> -1 AndAlso Depth > GridGrainDepth Then
+    '                    '    For i = 0 To 3
+    '                    '        If SubRects(i) IsNot Nothing AndAlso SubRects(i).InLand = inlandstate.Unknown Then
+    '                    '            Dim v = Inland(New Coords() With {.Lat = (SubRects(i).P1.Lat + SubRects(i).P2.Lat) / 2, _
+    '                    '                                      .Lon = (SubRects(i).P1.Lon + SubRects(i).P1.Lon) / 2}, gridgrain, Depth + 1, False)
+    '                    '        End If
+    '                    '    Next
+    '                    'End If
+
+    '                    Dim lShouldReturn As Boolean
+    '                    Dim lResult As inlandstate = OptimizeBSP(curvalue, i, retvalue, lShouldReturn)
+    '                    If lShouldReturn Then
+    '                        Return lResult
+    '                    End If
+
+    '                    Return retvalue
+    '                End SyncLock
+
+    '            End If
+
+
+
+    '        End Get
+    '        Set(ByVal value As inlandstate)
+    '            _Inland = value
+    '        End Set
+    '    End Property
 
 
     Public Sub InSert(ByVal C As Coords, ByVal State As inlandstate, ByVal GridGrain As Double)
@@ -409,7 +443,7 @@ Public Class BspRect
             For y As Integer = 0 To 1
 
                 Dim P1 As New Coords With {.Lat = lP1Lat - DeltaY * y, .Lon = lP1Lon - (1 - x) * DeltaX}
-                Dim P2 As New Coords With {.lat = lP2Lat + DeltaY * (1 - y), .lon = lP2Lon + x * DeltaX}
+                Dim P2 As New Coords With {.Lat = lP2Lat + DeltaY * (1 - y), .Lon = lP2Lon + x * DeltaX}
 
                 _SubRects(2 * x + y) = New BspRect(P1, P2, Z + 1)
             Next
