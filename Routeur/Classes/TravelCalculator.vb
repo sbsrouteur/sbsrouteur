@@ -39,17 +39,17 @@ Public Class TravelCalculator
 
             Dim Lon1 As Double = -StartPoint.Lon
             Dim Lon2 As Double = -EndPoint.Lon
-            Dim Lat1 As Double = StartPoint.Lat
-            Dim Lat2 As Double = EndPoint.Lat
+            Dim Lat1 As Double = StartPoint.N_Lat
+            Dim Lat2 As Double = EndPoint.N_Lat
 
-            If Abs(Lon2 - Lon1) > PI Then
-                If Lon2 < Lon1 Then
-                    Lon2 += 2 * PI
-                Else
-                    Lon2 -= 2 * PI
-                End If
+            'If Abs(Lon2 - Lon1) > PI Then
+            '    If Lon2 < Lon1 Then
+            '        Lon2 += 2 * PI
+            '    Else
+            '        Lon2 -= 2 * PI
+            '    End If
 
-            End If
+            'End If
 
             Dim tc As Double = Atan2(Lon1 - Lon2, Log(Tan(Lat2 / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))) Mod (2 * PI)
 
@@ -243,7 +243,7 @@ Public Class TravelCalculator
 
         With retCoords
             .Lat = StartPoint.Lat + DistAngle * Cos(tc_rad)
-            dPhi = Log(Tan(.Lat / 2 + Math.PI / 4) / Tan(StartPoint.Lat / 2 + Math.PI / 4))
+            dPhi = Log(Tan(.N_Lat / 2 + Math.PI / 4) / Tan(StartPoint.N_Lat / 2 + Math.PI / 4))
             If (Abs(.Lat - StartPoint.Lat) < Sqrt(EPSILON)) Then
                 q = Cos(StartPoint.Lat)
             Else
