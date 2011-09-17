@@ -205,12 +205,17 @@ Public Class DBWrapper
 
     Public Function IntersectMapSegment(coords As Coords, coords1 As Coords, bspRect As BspRect) As Boolean
 
-        For Each Seg As MapSegment In bspRect.GetSegments(coords, 0.01, Me)
-            If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
-                Return True
-            End If
+        Dim SegList As IList = bspRect.GetSegments(coords, 0.01, Me)
 
-        Next
+        If SegList IsNot Nothing Then
+            For Each Seg As MapSegment In SegList
+                If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
+                    Return True
+                End If
+
+            Next
+        End If
+
 
         Return False
     End Function

@@ -21,6 +21,7 @@ Public Class BspRect
 #End If
 
     Private Shared GridGrainDepth As Integer = -1
+    
     Shared Event Log(ByVal Msg As String)
     'Private Shared CollectionCount As Long
 
@@ -33,6 +34,7 @@ Public Class BspRect
     Private _PolyGons As LinkedList(Of Polygon)
     Private _Z As Integer
     Private _Segments As List(Of MapSegment)
+    Private _lockObj As New Object
 
     Shared Optimizer As New bspOptimizer
 
@@ -57,11 +59,11 @@ Public Class BspRect
         _MidLat = _p2.Lat + (_p1.Lat - _p2.Lat) / 2
         _MidLon = _p2.Lon + (_p1.Lon - _p2.Lon) / 2
 
-        If 16 * RouteurModel.GridGrain < MIN_POLYGON_SPLIT Then
-            MIN_POLYGON_SPLIT = 16 * RouteurModel.GridGrain
-        Else
-            MIN_POLYGON_SPLIT = RouteurModel.GridGrain
-        End If
+        'If 16 * RouteurModel.GridGrain < MIN_POLYGON_SPLIT Then
+        '    MIN_POLYGON_SPLIT = 16 * RouteurModel.GridGrain
+        'Else
+        '    MIN_POLYGON_SPLIT = RouteurModel.GridGrain
+        'End If
 
     End Sub
 
@@ -74,27 +76,33 @@ Public Class BspRect
                         Return Nothing
                     End If
                 End If
-                Return GetChildFromCoords(C, GridGrain).GetSegments(C, GridGrain, db)
-
-            Else
-                If _Segments Is Nothing Then
-
-                    Dim Seg As MapSegment
-                    Dim PolygonIndex As Integer = 0
-                    Dim Corner As New Coords
-                    'Build the polygons list using the proper "trimmed " polygons
-                    _Segments = New List(Of MapSegment)
-
-
-                    For Each Seg In db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg)
-
-                        _Segments.Add(Seg)
-
-
-                    Next
-
+                Dim Rect As BspRect = GetChildFromCoords(C, GridGrain)
+                If Rect Is Nothing Then
+                    Return Nothing
+                Else
+                    Return Rect.GetSegments(C, GridGrain, db)
                 End If
-                Return _Segments
+            Else
+                SyncLock _lockObj
+                    If _Segments Is Nothing Then
+
+                        Dim Seg As MapSegment
+                        Dim PolygonIndex As Integer = 0
+                        Dim Corner As New Coords
+                        'Build the polygons list using the proper "trimmed " polygons
+                        _Segments = New List(Of MapSegment)
+
+
+                        For Each Seg In db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg)
+
+                            _Segments.Add(Seg)
+
+
+                        Next
+
+                    End If
+                    Return _Segments
+                End SyncLock
             End If
         End Get
     End Property
@@ -178,59 +186,59 @@ Public Class BspRect
     End Property
 
 
-    Private Function OptimizeBSP(ByRef curvalue As inlandstate, ByRef i As Integer, ByVal retvalue As inlandstate, ByRef shouldReturn As Boolean) As inlandstate
+    '    Private Function OptimizeBSP(ByRef curvalue As inlandstate, ByRef i As Integer, ByVal retvalue As inlandstate, ByRef shouldReturn As Boolean) As inlandstate
 
-        shouldReturn = False
-        If _Inland = inlandstate.Unknown Then
+    '        shouldReturn = False
+    '        If _Inland = inlandstate.Unknown Then
 
-            For i = 0 To 3
+    '            For i = 0 To 3
 
-                curvalue = _SubRects(i).InLand
-                If curvalue = inlandstate.Unknown Then
-                    shouldReturn = True
-                    Optimizer.AddToOptimizationList(Me)
-                    Return retvalue
-                ElseIf curvalue = inlandstate.Mixed Then
-                    _Inland = inlandstate.Mixed
-                    shouldReturn = True : Return retvalue
-                ElseIf curvalue <> retvalue Then
-                    _Inland = inlandstate.Mixed
-                    shouldReturn = True : Return retvalue
-                End If
+    '                curvalue = _SubRects(i).InLand
+    '                If curvalue = inlandstate.Unknown Then
+    '                    shouldReturn = True
+    '                    Optimizer.AddToOptimizationList(Me)
+    '                    Return retvalue
+    '                ElseIf curvalue = inlandstate.Mixed Then
+    '                    _Inland = inlandstate.Mixed
+    '                    shouldReturn = True : Return retvalue
+    '                ElseIf curvalue <> retvalue Then
+    '                    _Inland = inlandstate.Mixed
+    '                    shouldReturn = True : Return retvalue
+    '                End If
 
-            Next
+    '            Next
 
 
-            _Inland = retvalue
-            If _PolyGons Is Nothing OrElse _PolyGons Is _NoPolyGons Then
-                _PolyGons = New LinkedList(Of Polygon)
-            End If
+    '            _Inland = retvalue
+    '            If _PolyGons Is Nothing OrElse _PolyGons Is _NoPolyGons Then
+    '                _PolyGons = New LinkedList(Of Polygon)
+    '            End If
 
-            For i = 0 To 3
-                If Not _SubRects(i).Polygons Is Nothing Then
-                    For Each p In _SubRects(i).Polygons
-                        _PolyGons.AddLast(p)
-                    Next
-                End If
-                _SubRects(i).P1 = Nothing
-                _SubRects(i).P2 = Nothing
-                _SubRects(i) = Nothing
-            Next
+    '            For i = 0 To 3
+    '                If Not _SubRects(i).Polygons Is Nothing Then
+    '                    For Each p In _SubRects(i).Polygons
+    '                        _PolyGons.AddLast(p)
+    '                    Next
+    '                End If
+    '                _SubRects(i).P1 = Nothing
+    '                _SubRects(i).P2 = Nothing
+    '                _SubRects(i) = Nothing
+    '            Next
 
-#If BSP_STATS Then
-            BspCount -= 4
-            Stats.SetStatValue(Stats.StatID.BSPCellCount) = CDbl(BspCount)
-#End If
-            'CollectionCount += 1
-            'If CollectionCount Mod 50000 = 0 Then
-            'GC.Collect()
-            'End If
+    '#If BSP_STATS Then
+    '            BspCount -= 4
+    '            Stats.SetStatValue(Stats.StatID.BSPCellCount) = CDbl(BspCount)
+    '#End If
+    '            'CollectionCount += 1
+    '            'If CollectionCount Mod 50000 = 0 Then
+    '            'GC.Collect()
+    '            'End If
 
-        End If
+    '        End If
 
-        Return inlandstate.Unknown
+    '        Return inlandstate.Unknown
 
-    End Function
+    '    End Function
 
     Public Function DebugInfo(ByVal c As Coords) As String
         Dim RetString As String = ""
@@ -265,6 +273,7 @@ Public Class BspRect
                 'x = 0
                 retvalue = _SubRects(y)
             End If
+            
             Return retvalue
 
         End Get
@@ -355,37 +364,37 @@ Public Class BspRect
     '    End Property
 
 
-    Public Sub InSert(ByVal C As Coords, ByVal State As inlandstate, ByVal GridGrain As Double)
+    'Public Sub InSert(ByVal C As Coords, ByVal State As inlandstate, ByVal GridGrain As Double)
 
-        SyncLock GSHHS_Reader._Tree
-
-
-            'recheck just in case
-            If _SubRects(0) Is Nothing And _Inland <> inlandstate.Unknown Then
-                'Force state to inland, if it was for see before
-                If State <> _Inland AndAlso State = inlandstate.InLand Then
-                    _Inland = inlandstate.InLand
-                End If
-                Return
-            End If
-            If _SubRects(0) Is Nothing Then
-                'RaiseEvent Log("Synclock bsp1 th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
-                If Not Split(GridGrain / GRID_GRAIN_OVERSAMPLE) Then
-
-                    _Inland = State
-                    Return
-                End If
-
-            End If
+    '    SyncLock GSHHS_Reader._Tree
 
 
-            GetChildFromCoords(C, GridGrain).InSert(C, State, GridGrain)
+    '        'recheck just in case
+    '        If _SubRects(0) Is Nothing And _Inland <> inlandstate.Unknown Then
+    '            'Force state to inland, if it was for see before
+    '            If State <> _Inland AndAlso State = inlandstate.InLand Then
+    '                _Inland = inlandstate.InLand
+    '            End If
+    '            Return
+    '        End If
+    '        If _SubRects(0) Is Nothing Then
+    '            'RaiseEvent Log("Synclock bsp1 th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
+    '            If Not Split(GridGrain / GRID_GRAIN_OVERSAMPLE) Then
 
-            Return
-        End SyncLock
-        Return
+    '                _Inland = State
+    '                Return
+    '            End If
 
-    End Sub
+    '        End If
+
+
+    '        GetChildFromCoords(C, GridGrain).InSert(C, State, GridGrain)
+
+    '        Return
+    '    End SyncLock
+    '    Return
+
+    'End Sub
 
     Public Property P1() As Coords
         Get
@@ -438,16 +447,23 @@ Public Class BspRect
             Return False
 
         End If
+        If _SubRects(0) Is Nothing Then
+            SyncLock _lockObj
 
-        For x As Integer = 0 To 1
-            For y As Integer = 0 To 1
+                If _SubRects(0) Is Nothing Then
+                    For x As Integer = 0 To 1
+                        For y As Integer = 0 To 1
 
-                Dim P1 As New Coords With {.Lat = lP1Lat - DeltaY * y, .Lon = lP1Lon - (1 - x) * DeltaX}
-                Dim P2 As New Coords With {.Lat = lP2Lat + DeltaY * (1 - y), .Lon = lP2Lon + x * DeltaX}
+                            Dim P1 As New Coords With {.Lat = lP1Lat - DeltaY * y, .Lon = lP1Lon - (1 - x) * DeltaX}
+                            Dim P2 As New Coords With {.Lat = lP2Lat + DeltaY * (1 - y), .Lon = lP2Lon + x * DeltaX}
 
-                _SubRects(2 * x + y) = New BspRect(P1, P2, Z + 1)
-            Next
-        Next
+                            _SubRects(2 * x + y) = New BspRect(P1, P2, Z + 1)
+                        Next
+                    Next
+                End If
+
+            End SyncLock
+        End If
 
 #If BSP_STATS Then
         BspCount += 4

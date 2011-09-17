@@ -617,18 +617,17 @@ Render1:
                                         If iso.Data(index).WindStrength <> 0 Then
                                             SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
                                         End If
-                                    Else
-                                        FirstPoint = False
                                     End If
                                     'PrevIndex = index
                                     PrevP.Lon = CurP.Lon
                                     PrevP.Lat = CurP.Lat
                                     PrevPoint = P1
-
+                                    FirstPoint = False
                                 Else
                                     FirstPoint = True
                                 End If
                             Next
+                            FirstPoint = True
                             iso.Drawn = True
                         End If
 
