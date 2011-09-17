@@ -58,6 +58,12 @@ Public Class IsoChrone
         End Get
     End Property
 
+    Public ReadOnly Property AngleFromIndex(ByVal Index As Integer) As Double
+        Get
+            Return Index * _AngleStep
+        End Get
+    End Property
+
     Public ReadOnly Property Locks(index As Integer) As Object
         Get
             If _Locks(index) Is Nothing Then
