@@ -66,6 +66,9 @@ Public Class Coords
             '    value += 2 * Math.PI
 
             'End While
+            If Double.IsNaN(value) Then
+                Dim bp As Integer = 0
+            End If
             _Lon = value
             'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon"))
             'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon_Deg"))
@@ -112,20 +115,29 @@ Public Class Coords
         Return Not v1 = v2
     End Operator
 
+    <XmlIgnore()> _
     Public ReadOnly Property N_Lon_Deg As Double
         Get
             Return N_Lon / PI * 180
         End Get
     End Property
 
+    <XmlIgnore()> _
     Public ReadOnly Property N_Lon As Double Implements ICoords.N_Lon
         Get
             If Lon < -PI Or Lon > PI Then
-                Return ((Lon + PI) Mod (2 * PI)) - PI
+                Return ((Lon + 3 * PI) Mod (2 * PI)) - PI
             Else
                 Return Lon
             End If
 
+        End Get
+    End Property
+
+    <XmlIgnore()> _
+    Public ReadOnly Property N_Lat As Double Implements ICoords.N_Lat
+        Get
+            Return Lat Mod (PI / 2)
         End Get
     End Property
 
