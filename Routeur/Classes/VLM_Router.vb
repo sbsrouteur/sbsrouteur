@@ -269,7 +269,7 @@ Public Class VLM_Router
                 Return True
             End If
 
-#Const IMPROVE_MODE = 1
+#Const IMPROVE_MODE = 3
 #If IMPROVE_MODE = 0 Then
             Return ImproveDTF(P)
 #ElseIf IMPROVE_MODE = 1 Then
@@ -331,7 +331,7 @@ Public Class VLM_Router
 
         Private Function Improve_ISO(P As clsrouteinfopoints, clsSailManager As clsSailManager, MeteoOrganizer As GribManager, Dest1 As Coords, Dest2 As Coords) As Boolean
 
-            Return P.DistFromPos > DistFromPos
+            Return P.DistFromPos < DistFromPos
 
         End Function
 
@@ -1017,7 +1017,7 @@ Public Class VLM_Router
         While Not CancelRequest
 
             ' Get last applicable pilote order
-            Dim NextOrder = (From O In Route Where O IsNot Nothing AndAlso O.ActionDate < CurDate Select O Order By O.ActionDate Descending).FirstOrDefault
+            Dim NextOrder = (From O In Route Where O IsNot Nothing AndAlso O.ActionDate <= CurDate Select O Order By O.ActionDate Descending).FirstOrDefault
 
             If NextOrder Is Nothing Then
                 Return RetRoute
@@ -1167,7 +1167,7 @@ Public Class VLM_Router
                 'Add current navigation order
                 RP = New RoutePointView
                 With RP
-                    .ActionDate = Now
+                    .ActionDate = _UserInfo.date
 
                     .RouteMode = CType(_UserInfo.position.PIM, EnumRouteMode)
 
@@ -1196,7 +1196,7 @@ Public Class VLM_Router
                 End With
                 Route(5) = RP
                 CancelComputation = False
-                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, GetNextCrankingDate(), CancelComputation)
+                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, _UserInfo.date, CancelComputation)
 
             Finally
                 Computing = False
