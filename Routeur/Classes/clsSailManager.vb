@@ -136,6 +136,10 @@ Public Class clsSailManager
         Dim D As Integer = CInt(10 * ((WindAngle + 360) Mod 180))
         Dim F As Integer = CInt(100 * WindSpeed)
 
+        If F > MaxWindSpeedHundedth Then
+            F = MaxWindSpeedHundedth
+        End If
+
 #Const POLAR_STAT = 0
 #If POLAR_STAT = 1 Then
         Static NbCall As Long = 0
