@@ -70,6 +70,20 @@ Module GSHHS_Utils
 
     '    End Function
 
+    Private Function GetLineCoefs(P1 As Coords, P2 As Coords) As Coords
+        Dim RetCoords As New Coords
+        If P1.N_Lon <> P2.N_Lon Then
+            RetCoords.Lat = (P2.N_Lat - P1.N_Lat) / (P2.N_Lon - P1.N_Lon)
+            RetCoords.Lon = P1.N_Lat - (RetCoords.Lat * P1.N_Lon)
+            
+        Else
+            RetCoords.Lat = Double.NaN
+            RetCoords.Lon = P1.N_Lon
+
+        End If
+        Return RetCoords
+    End Function
+
     Public Function IntersectSegments(S1_P1 As Coords, S1_P2 As Coords, S2_P1 As Coords, S2_P2 As Coords) As Boolean
 
         If S1_P1.Equals1(S2_P1) OrElse
@@ -79,19 +93,35 @@ Module GSHHS_Utils
             Return True
         End If
 
-        Dim tc As New TravelCalculator With {.StartPoint = S1_P1, .EndPoint = S2_P1}
 
-        Dim Alpha1 As Double = tc.OrthoCourse_Deg
-        tc.EndPoint = S2_P2
-        Dim Alpha2 As Double = tc.OrthoCourse_Deg
-        tc.StartPoint = S1_P2
-        Dim Beta2 As Double = tc.OrthoCourse_Deg
-        tc.EndPoint = S2_P1
-        Dim Beta1 As Double = tc.OrthoCourse_Deg
+        Dim CoefS1 As Coords = GetLineCoefs(S1_P1, S1_P2)
+        Dim CoefS2 As Coords = GetLineCoefs(S2_P1, S2_P2)
 
-        Dim A1 As Double = VLM_Router.WindAngleWithSign(Alpha1, Alpha2)
-        Dim A2 As Double = VLM_Router.WindAngleWithSign(Beta1, Beta2)
-        Return A1 * A2 < 0
+        If CoefS1.Lat = CoefS2.Lat Then
+            Return False
+        ElseIf Not Double.IsNaN(CoefS1.Lat) And Not Double.IsNaN(CoefS2.Lat) Then
+            Dim x As Double = (CoefS2.Lon - CoefS1.Lon) / (CoefS2.Lat - CoefS1.Lat)
+            Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) And x <= (Max(S1_P1.Lon, S1_P2.Lon))
+            If SegmentIntersect = True Then
+                Dim bp As Integer = 0
+            End If
+            Return SegmentIntersect
+        ElseIf Double.IsNaN(CoefS1.Lat) Then
+            Dim SegmentIntersect As Boolean = CoefS1.Lon >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.Lon <= (Max(S2_P1.Lon, S2_P2.Lon))
+            If SegmentIntersect = True Then
+                Dim bp As Integer = 0
+            End If
+            Return True
+        ElseIf Double.IsNaN(CoefS2.Lat) Then
+            Dim SegmentIntersect As Boolean = CoefS2.Lon >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.Lon <= (Max(S1_P1.Lon, S1_P2.Lon))
+            If SegmentIntersect = True Then
+                Dim bp As Integer = 0
+            End If
+            Return SegmentIntersect
+        Else
+
+            Throw New NotImplementedException
+        End If
         ''Normalize S1 for antemeridian
         'Dim X11 As Double
         'Dim X12 As Double
