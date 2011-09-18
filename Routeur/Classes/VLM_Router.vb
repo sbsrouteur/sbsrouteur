@@ -1017,7 +1017,7 @@ Public Class VLM_Router
         While Not CancelRequest
 
             ' Get last applicable pilote order
-            Dim NextOrder = (From O In Route Where O IsNot Nothing AndAlso O.ActionDate <= CurDate Select O Order By O.ActionDate Descending).FirstOrDefault
+            Dim NextOrder = (From O In Route Where O IsNot Nothing AndAlso O.ActionDate <= CurDate.AddMinutes(RouteurModel.VacationMinutes) Select O Order By O.ActionDate Descending).FirstOrDefault
 
             If NextOrder Is Nothing Then
                 Return RetRoute
