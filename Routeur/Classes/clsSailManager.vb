@@ -74,7 +74,7 @@ Public Class clsSailManager
 
     Private Function GetArrayIndex(ByVal A() As Integer, ByVal Value As Double, ByVal ValueBelow As Boolean) As Integer
 
-        Dim RetIndex As Integer = 0
+        'Dim RetIndex As Integer = 0
         Dim CurIndex As Integer = 0
 
         While CurIndex < A.Length
@@ -91,7 +91,7 @@ Public Class clsSailManager
             CurIndex += 1
         End While
 
-        Return RetIndex
+        Return A.Length - 1
     End Function
 
 
@@ -184,8 +184,9 @@ Public Class clsSailManager
         Dim WMax As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, False)
         Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, True)
         Dim AMax As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, False)
-        'Dim amax As Integer = AMin
-
+        If AMin = 37 Or AMax = 37 Then
+            Dim bp As Integer = 0
+        End If
         If WMin = WMax AndAlso WMin = 0 Then
             WMax = 1
         End If
@@ -219,7 +220,12 @@ Public Class clsSailManager
             RetVal = V1
         End If
 
-        _Polar(D, F) = CUShort(RetVal * 1000)
+        SyncLock _Polar
+            _Polar(D, F) = CUShort(RetVal * 1000)
+        End SyncLock
+        If RetVal = 15.714 Then
+            Dim Bp As Integer = 0
+        End If
 #If POLAR_STAT = 1 Then
         Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
 #End If
@@ -335,7 +341,7 @@ Public Class clsSailManager
                 'WindLine
                 bWindRead = True
                 winds = Line.Replace("TWA", "").Split(";"c)
-                _NbWinds(SailIndex) = winds.GetUpperBound(0)
+                _NbWinds(SailIndex) = winds.GetUpperBound(0) - 1
 
                 ReDim _WindList(SailIndex)(_NbWinds(SailIndex) - 1)
                 For i = 1 To _NbWinds(SailIndex)
@@ -343,7 +349,7 @@ Public Class clsSailManager
                 Next
 
                 _NbAngles = Lines.Length - 2
-                ReDim _TWAList(SailIndex)(_NbAngles)
+                ReDim _TWAList(SailIndex)(_NbAngles - 1)
                 If _PolarLut Is Nothing Then
                     ReDim _PolarLut(6, _NbWinds(SailIndex), _NbAngles)
                 End If
