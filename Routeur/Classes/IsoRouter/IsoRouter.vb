@@ -489,11 +489,11 @@ Public Class IsoRouter
                 End If
 
                 'If _FastRoute Then
-                _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
-                Dim Alpha As Double = Math.Abs(WindAngle(Cap, MI.Dir))
-                If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
-                    Return Nothing
-                End If
+                '_SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
+                'Dim Alpha As Double = Math.Abs(WindAngle(Cap, MI.Dir))
+                'If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
+                'Return Nothing
+                'End If
                 'End If
 
                 Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
