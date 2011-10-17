@@ -35,7 +35,7 @@ Public Class IsoRouter
     Private _DB As DBWrapper
     Private _MapLevel As Integer
 
-#Const DBG_ISO = 1
+#Const DBG_ISO = 0
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan, MapLevel As Integer)
         _AngleStep = AngleStep
@@ -289,25 +289,25 @@ Public Class IsoRouter
 
             'Console.WriteLine("Iso complete " & Now.Subtract(IsoStart).ToString)
             'Clean up bad points
-            
-            For Index1 = 0 To RetIsoChrone.Data.Count - 1
-                If RetIsoChrone.Data(Index1) IsNot Nothing Then
-                    Dim Alpha1 As Double = RetIsoChrone.AngleFromIndex(Index1)
-                    Dim OldP As clsrouteinfopoints = Iso.Data(Alpha1)
-                    If OldP IsNot Nothing AndAlso OldP.DistFromPos > RetIsoChrone.Data(Index1).DistFromPos Then
-                        RetIsoChrone.Data(Index1) = Nothing
+            If RetIsoChrone IsNot Nothing Then
+                For Index1 = 0 To RetIsoChrone.Data.Count - 1
+                    If RetIsoChrone.Data(Index1) IsNot Nothing Then
+                        Dim Alpha1 As Double = RetIsoChrone.AngleFromIndex(Index1)
+                        Dim OldP As clsrouteinfopoints = Iso.Data(Alpha1)
+                        If OldP IsNot Nothing AndAlso OldP.DistFromPos > RetIsoChrone.Data(Index1).DistFromPos Then
+                            RetIsoChrone.Data(Index1) = Nothing
+                        End If
                     End If
-                End If
-            Next
-            'Console.WriteLine("Iso complete2 " & Now.Subtract(IsoStart).ToString)
-
+                Next
+                'Console.WriteLine("Iso complete2 " & Now.Subtract(IsoStart).ToString)
+            End If
 
             tc2.EndPoint = Nothing
             tc2.StartPoint = Nothing
             tc2 = Nothing
-        End If
+            End If
 
-        Return RetIsoChrone
+            Return RetIsoChrone
 
     End Function
 
@@ -378,7 +378,9 @@ Public Class IsoRouter
             End If
             'Console.WriteLine("TmpRouted" & Now.Subtract(LoopStart).TotalMilliseconds)
             'Console.WriteLine("FromStart" & Now.Subtract(Start).ToString)
-
+#If DBG_ISO = 1 Then
+            MessageBox.Show("Iso")
+#End If
 
         End While
         RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
