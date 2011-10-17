@@ -100,7 +100,7 @@ Module GSHHS_Utils
         If CoefS1.Lat = CoefS2.Lat Then
             Return False
         ElseIf Not Double.IsNaN(CoefS1.Lat) And Not Double.IsNaN(CoefS2.Lat) Then
-            Dim x As Double = (CoefS2.Lon - CoefS1.Lon) / (CoefS2.Lat - CoefS1.Lat)
+            Dim x As Double = (CoefS2.Lon - CoefS1.Lon) / (CoefS1.Lat - CoefS2.Lat)
             Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) And x <= (Max(S1_P1.Lon, S1_P2.Lon))
             If SegmentIntersect = True Then
                 Dim bp As Integer = 0
