@@ -73,8 +73,8 @@ Module GSHHS_Utils
     Private Function GetLineCoefs(P1 As Coords, P2 As Coords) As Coords
         Dim RetCoords As New Coords
         If P1.N_Lon <> P2.N_Lon Then
-            RetCoords.Lat = (P2.N_Lat - P1.N_Lat) / (P2.N_Lon - P1.N_Lon)
-            RetCoords.Lon = P1.N_Lat - (RetCoords.Lat * P1.N_Lon)
+            RetCoords.Lat = (P2.Lat - P1.Lat) / (P2.Lon - P1.Lon)
+            RetCoords.Lon = P1.Lat - (RetCoords.Lat * P1.Lon)
             
         Else
             RetCoords.Lat = Double.NaN
@@ -101,7 +101,7 @@ Module GSHHS_Utils
             Return False
         ElseIf Not Double.IsNaN(CoefS1.Lat) And Not Double.IsNaN(CoefS2.Lat) Then
             Dim x As Double = (CoefS2.Lon - CoefS1.Lon) / (CoefS1.Lat - CoefS2.Lat)
-            Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) And x <= (Max(S1_P1.Lon, S1_P2.Lon))
+            Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) AndAlso x <= (Max(S1_P1.Lon, S1_P2.Lon)) AndAlso x >= (Min(S2_P1.Lon, S2_P2.Lon)) AndAlso x <= (Max(S2_P1.Lon, S2_P2.Lon))
             If SegmentIntersect = True Then
                 Dim bp As Integer = 0
             End If
@@ -111,7 +111,7 @@ Module GSHHS_Utils
             If SegmentIntersect = True Then
                 Dim bp As Integer = 0
             End If
-            Return True
+            Return SegmentIntersect
         ElseIf Double.IsNaN(CoefS2.Lat) Then
             Dim SegmentIntersect As Boolean = CoefS2.Lon >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.Lon <= (Max(S1_P1.Lon, S1_P2.Lon))
             If SegmentIntersect = True Then
