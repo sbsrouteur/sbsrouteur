@@ -281,8 +281,13 @@ Public Class VLM_Router
 #End If
         End Function
 
-        Private Function ImproveDTF(ByVal P As clsrouteinfopoints) As Boolean
-            Return DTF < P.DTF
+        Public Function ImproveDTF(ByVal P As clsrouteinfopoints) As Boolean
+            If P Is Nothing Then
+                Return True
+            Else
+                Return DTF < P.DTF
+            End If
+
         End Function
 
         Private Function ImproveMixDTF_TS(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double, ByVal Start As clsrouteinfopoints) As Boolean

@@ -345,7 +345,7 @@ Public Class IsoRouter
                 _IsoChrones.AddLast(CurIsoChrone)
                 For Each rp As clsrouteinfopoints In CurIsoChrone.Data
                     If Not rp Is Nothing Then
-                        If rp.Improve(P, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2) Then
+                        If rp.ImproveDTF(P) Then
                             P = rp
                             CurDTF = P.DTF
 
@@ -430,11 +430,11 @@ Public Class IsoRouter
                 End If
 
                 'If _FastRoute Then
-                _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
-                Dim Alpha As Double = Math.Abs(WindAngle(Cap, MI.Dir))
-                If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
-                    Return Nothing
-                End If
+                '_SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
+                'Dim Alpha As Double = Math.Abs(WindAngle(Cap, MI.Dir))
+                'If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
+                'Return Nothing
+                'End If
                 'End If
 
                 Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
@@ -491,7 +491,7 @@ Public Class IsoRouter
         '    TotalDist = 0.0001
         'End If
         'TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
-        If RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(TC.StartPoint, TC.EndPoint, GSHHS_Reader._Tree) Then
+        If RouteurModel.NoObstacle OrElse (TC.SurfaceDistance > 0 AndAlso Not _DB.IntersectMapSegment(TC.StartPoint, TC.EndPoint, GSHHS_Reader._Tree)) Then
             'If CheckSegmentValid(TC) Then
             RetPoint = New clsrouteinfopoints
             With RetPoint
