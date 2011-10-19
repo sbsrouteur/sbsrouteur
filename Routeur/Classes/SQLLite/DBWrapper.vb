@@ -207,6 +207,10 @@ Public Class DBWrapper
 
         Dim SegList As IList = bspRect.GetSegments(coords, 0.01, Me)
 
+        If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
+            Return False
+        End If
+
         If SegList IsNot Nothing Then
             For Each Seg As MapSegment In SegList
                 If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then

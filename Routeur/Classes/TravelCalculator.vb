@@ -189,6 +189,8 @@ Public Class TravelCalculator
             'End If
             If StartPoint Is Nothing Or EndPoint Is Nothing Then
                 _DistanceAngle = 0
+            ElseIf StartPoint.Lon = EndPoint.Lon AndAlso StartPoint.Lat = EndPoint.Lon Then
+                _DistanceAngle = 0
             Else
 
                 'If StartPoint.Lat - EndPoint.Lat < EPSILON And StartPoint.Lon - EndPoint.Lon < EPSILON Then
