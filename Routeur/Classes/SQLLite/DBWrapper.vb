@@ -156,7 +156,9 @@ Public Class DBWrapper
                         Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
 
                         Cmd.CommandText = "Select * from mapssegments where maplevel = " & MapLevel & " and (" &
-                                            " (lon1 between " & MinLon & " and " & MaxLon & ") and ( lat1 between " & MinLat & " and " & MaxLat & ") )"
+                                            " (lon1 between " & MinLon & " and " & MaxLon & ") and ( lat1 between " & MinLat & " and " & MaxLat & ") " &
+                                            " or (lon2 between " & MinLon & " and " & MaxLon & ") and ( lat2 between " & MinLat & " and " & MaxLat & ") " &
+                                            ")"
 
                         Reader = Cmd.ExecuteReader
                         If Reader.HasRows Then
@@ -211,11 +213,14 @@ Public Class DBWrapper
             Return False
         End If
 
+        'Debug.WriteLine(coords.ToString & ";" & coords1.ToString)
         If SegList IsNot Nothing Then
             For Each Seg As MapSegment In SegList
                 If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
                     Return True
                 End If
+
+                'Debug.WriteLine(";;" & Seg.Lat1 & ";" & Seg.Lon1 & ";" & Seg.Lat2 & ";" & Seg.Lon2)
 
             Next
         End If
