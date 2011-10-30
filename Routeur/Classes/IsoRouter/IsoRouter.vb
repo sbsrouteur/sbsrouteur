@@ -288,19 +288,21 @@ Public Class IsoRouter
                                                       End Sub)
 
             'Console.WriteLine("Iso complete " & Now.Subtract(IsoStart).ToString)
+
+
             'Clean up bad points
-            If RetIsoChrone IsNot Nothing Then
-                For Index1 = 0 To RetIsoChrone.Data.Count - 1
-                    If RetIsoChrone.Data(Index1) IsNot Nothing Then
-                        Dim Alpha1 As Double = RetIsoChrone.AngleFromIndex(Index1)
-                        Dim OldP As clsrouteinfopoints = Iso.Data(Alpha1)
-                        If OldP IsNot Nothing AndAlso OldP.DistFromPos > RetIsoChrone.Data(Index1).DistFromPos Then
-                            RetIsoChrone.Data(Index1) = Nothing
-                        End If
-                    End If
-                Next
-                'Console.WriteLine("Iso complete2 " & Now.Subtract(IsoStart).ToString)
-            End If
+            'If RetIsoChrone IsNot Nothing Then
+            '    For Index1 = 0 To RetIsoChrone.Data.Count - 1
+            '        If RetIsoChrone.Data(Index1) IsNot Nothing Then
+            '            Dim Alpha1 As Double = RetIsoChrone.AngleFromIndex(Index1)
+            '            Dim OldP As clsrouteinfopoints = Iso.Data(Alpha1)
+            '            If OldP IsNot Nothing AndAlso OldP.DistFromPos > RetIsoChrone.Data(Index1).DistFromPos Then
+            '                RetIsoChrone.Data(Index1) = Nothing
+            '            End If
+            '        End If
+            '    Next
+            '    'Console.WriteLine("Iso complete2 " & Now.Subtract(IsoStart).ToString)
+            'End If
 
             tc2.EndPoint = Nothing
             tc2.StartPoint = Nothing
