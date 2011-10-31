@@ -4,6 +4,7 @@ Imports System.Collections.ObjectModel
 Imports System.Collections.Generic
 Imports System.Net
 Imports System.Xml.Serialization
+Imports System.IO
 
 Public Class clsSailManager
     Private Const MaxWindSpeedHundedth As Integer = 6000
@@ -135,7 +136,9 @@ Public Class clsSailManager
 
         Dim D As Integer = CInt(10 * ((WindAngle + 360) Mod 180))
         Dim F As Integer = CInt(100 * WindSpeed)
-
+        If WindAngle = 180 Then
+            D = 1800
+        End If
         If F > MaxWindSpeedHundedth Then
             F = MaxWindSpeedHundedth
         End If
@@ -149,15 +152,16 @@ Public Class clsSailManager
         NbCall += 1
 #End If
         If SailMode = EnumSail.OneSail Then
-
-            If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
+            SyncLock _Polar
+                If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
 
 #If POLAR_STAT = 1 Then
                 NbCallCached += 1
                 Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
 #End If
-                Return _Polar(D, F) / 1000
-            End If
+                    Return _Polar(D, F) / 1000
+                End If
+            End SyncLock
         End If
 
         Dim SailIndex = GetSailIndex(SailMode)
@@ -176,6 +180,26 @@ Public Class clsSailManager
                 Return -1
             End If
             _SailLoaded = True
+
+#If GEN_TCV = 1 Then
+            SyncLock Me
+                Dim fName As String = Path.Combine(RouteurModel.BaseFileDir, BoatType & ".dat")
+                Using Out As New StreamWriter(fName, False, System.Text.Encoding.ASCII)
+
+                    For Angle As Double = 0 To 180
+                        For Wind As Double = 0 To 60
+                            Out.Write(GetSpeed(BoatType, SailMode, Angle, Wind).ToString("0.0###", System.Globalization.CultureInfo.InvariantCulture))
+                            If Wind < 60 Then
+                                Out.Write(";")
+                            Else
+                                Out.WriteLine()
+                            End If
+                        Next
+                    Next
+                    Out.Close()
+                End Using
+            End SyncLock
+#End If
         ElseIf BoatType Is Nothing Then
             Return -1
         End If
@@ -184,7 +208,7 @@ Public Class clsSailManager
         Dim WMax As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, False)
         Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, True)
         Dim AMax As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, False)
-        If AMin = 37 Or AMax = 37 Then
+        If WindAngle = 179 And WindSpeed > 30 Then
             Dim bp As Integer = 0
         End If
         If WMin = WMax AndAlso WMin = 0 Then
@@ -318,6 +342,7 @@ Public Class clsSailManager
 
             Return True
         Catch ex As Exception
+            Dim i As Integer = 0
             'MessageBox.Show("LoadSails Error " & ex.Message)
         End Try
         Return False
