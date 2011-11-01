@@ -52,18 +52,31 @@ Public Class DBWrapper
 
     End Function
 
-    Public Sub AddPoly(MapLevel As Integer, A As Polygon)
+    Public Sub AddPoly(MapLevel As Integer, A As Polygon, Optional Flush As Boolean = False)
 
-        If A.Length = 0 Then
+        Static Conn As SQLiteConnection
+        Static PolyCount As Long = 0
+        Static Trans As SQLiteTransaction = Nothing
+
+        If Flush Then
+            Trans.Commit()
+            Conn.Close()
+        End If
+
+        If A Is Nothing OrElse A.Length = 0 Then
             Return
         End If
-        Dim conn As New SQLiteConnection(_DBPath)
-        conn.Open()
-        Dim Cmd As New SQLiteCommand(conn)
+
+        If Conn Is Nothing Then
+            Conn = New SQLiteConnection(_DBPath)
+            Conn.Open()
+            Trans = Conn.BeginTransaction()
+        End If
+
+
+        Dim Cmd As New SQLiteCommand(Conn)
         Dim StartCoords As Coords = A(0)
-        Dim Trans As SQLiteTransaction = Nothing
         Try
-            Trans = conn.BeginTransaction()
             For i As Integer = 0 To A.Length - 1
 
                 Dim CmdText As String = "insert into mapssegments (maplevel,lon1,lat1,lon2,lat2) values (" & MapLevel & "," &
@@ -74,9 +87,10 @@ Public Class DBWrapper
                 Cmd.CommandText = CmdText
                 Cmd.ExecuteNonQuery()
 
-                If i Mod 1000 = 999 Then
+                PolyCount += 1
+                If PolyCount Mod 3000 = 0 Then
                     Trans.Commit()
-                    Trans = conn.BeginTransaction
+                    Trans = Conn.BeginTransaction
                 End If
 
             Next
@@ -89,10 +103,10 @@ Public Class DBWrapper
             Cmd.ExecuteNonQuery()
 
         Finally
-            If Trans IsNot Nothing Then
-                Trans.Commit()
-            End If
-            conn.Close()
+            'If Trans IsNot Nothing Then
+            '    Trans.Commit()
+            'End If
+            'Conn.Close()
         End Try
 
     End Sub

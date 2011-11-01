@@ -87,6 +87,7 @@ Public Class GSHHS_Reader
                 Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
 
                 S.Close()
+                DB.AddPoly(MapLevel, Nothing, True)
 
                 ExclusionCount = 0
                 If Not SI.NoExclusionZone Then
