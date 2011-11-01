@@ -208,7 +208,7 @@ Public Class clsSailManager
         Dim WMax As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, False)
         Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, True)
         Dim AMax As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, False)
-        If WindAngle = 179 And WindSpeed > 30 Then
+        If WindAngle = 62 And WindSpeed > 55 Then
             Dim bp As Integer = 0
         End If
         If WMin = WMax AndAlso WMin = 0 Then
@@ -366,7 +366,7 @@ Public Class clsSailManager
                 'WindLine
                 bWindRead = True
                 winds = Line.Replace("TWA", "").Split(";"c)
-                _NbWinds(SailIndex) = winds.GetUpperBound(0) - 1
+                _NbWinds(SailIndex) = winds.GetUpperBound(0)
 
                 ReDim _WindList(SailIndex)(_NbWinds(SailIndex) - 1)
                 For i = 1 To _NbWinds(SailIndex)
