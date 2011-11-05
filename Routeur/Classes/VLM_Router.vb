@@ -23,6 +23,7 @@ Public Class VLM_Router
     Private _CookiesContainer As CookieContainer = Nothing
     Private _LastRefreshTime As DateTime
     Private _LastDataDate As DateTime
+   
 
     Private _WindChangeDist As Double
     Private _WindChangeDate As DateTime
@@ -867,6 +868,13 @@ Public Class VLM_Router
         End Set
     End Property
 
+    Public ReadOnly Property RaceStartDate As DateTime
+        Get
+            Return _PlayerInfo.RaceInfo.deptime
+        End Get
+
+    End Property
+
     Public ReadOnly Property RoutesUnderMouse() As ObservableCollection(Of RoutePointInfo)
         Get
             Return _RoutesUnderMouse
@@ -1201,7 +1209,11 @@ Public Class VLM_Router
                 End With
                 Route(5) = RP
                 CancelComputation = False
-                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, _UserInfo.date, CancelComputation)
+                Dim startdate As DateTime = _UserInfo.date
+                If startdate < RaceStartDate Then
+                    startdate = racestartdate
+                End If
+                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, startdate, CancelComputation)
 
             Finally
                 Computing = False
