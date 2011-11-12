@@ -39,8 +39,11 @@
 					<ColumnDefinition Width="Auto" MinWidth="24"/>
 				</Grid.ColumnDefinitions>
 				<TextBlock HorizontalAlignment="Stretch"  Text="{Binding RouteName, Mode=Default}" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}"/>
-				<TextBlock HorizontalAlignment="Stretch"  Text="{Binding P.T, Mode=Default}" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}" Grid.Column="1"/>
-				<TextBlock HorizontalAlignment="Right" Margin="0,-9.5,-190.54,0" VerticalAlignment="Top" Width="2" Height="0" Text="TextBlock" TextWrapping="Wrap" Grid.Column="1"/>
+				<StackPanel Grid.Column="1" Orientation="Horizontal">
+					<TextBlock HorizontalAlignment="Stretch"  Text="{Binding P.T, Mode=Default}" Margin="{DynamicResource DefMargin}" />
+					<TextBlock HorizontalAlignment="Stretch"  Text="{Binding P.WindDir,StringFormat={}Dir {0:F2}, Mode=Default}" Margin="{DynamicResource DefMargin}" />
+					<TextBlock HorizontalAlignment="Stretch"  Text="{Binding P.WindStrength,StringFormat={}Str {0:F2}, Mode=Default}" Margin="{DynamicResource DefMargin}" />
+				</StackPanel>
 			</Grid>
 		</DataTemplate>
 		
