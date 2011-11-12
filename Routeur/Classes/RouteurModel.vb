@@ -431,7 +431,8 @@ Public Class RouteurModel
 
     Public Shared ReadOnly Property BaseFileDir() As String
         Get
-            If Not System.IO.Directory.Exists(_BaseFileDir) Then
+            Static Checked As Boolean = False
+            If Not Checked AndAlso Not System.IO.Directory.Exists(_BaseFileDir) Then
                 Try
                     System.IO.Directory.CreateDirectory(_BaseFileDir)
                 Catch ex As Exception
@@ -439,6 +440,7 @@ Public Class RouteurModel
                     Throw ex
                 End Try
             End If
+            Checked = True
             Return _BaseFileDir
         End Get
     End Property
