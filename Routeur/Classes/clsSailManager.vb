@@ -4,9 +4,11 @@ Imports System.Collections.ObjectModel
 Imports System.Collections.Generic
 Imports System.Net
 Imports System.Xml.Serialization
+Imports System.IO
 
 Public Class clsSailManager
     Private Const MaxWindSpeedHundedth As Integer = 6000
+    Private Const MaxWindSpeedTenth As Integer = 600
 
     Public Enum EnumSail As Integer
         OneSail = 0
@@ -37,7 +39,7 @@ Public Class clsSailManager
     Private _NbAngles As Integer
 
     Private _Polar(1800, MaxWindSpeedHundedth) As UInt16
-    Private _PolarCorner(MaxWindSpeedHundedth, 2) As Double
+    Private _PolarCorner(MaxWindSpeedTenth, 2) As Double
 
     Private Const CORNER_SPEED As Integer = 0
     Private Const CORNER_UPWIND As Integer = 1
@@ -74,7 +76,7 @@ Public Class clsSailManager
 
     Private Function GetArrayIndex(ByVal A() As Integer, ByVal Value As Double, ByVal ValueBelow As Boolean) As Integer
 
-        Dim RetIndex As Integer = 0
+        'Dim RetIndex As Integer = 0
         Dim CurIndex As Integer = 0
 
         While CurIndex < A.Length
@@ -91,7 +93,7 @@ Public Class clsSailManager
             CurIndex += 1
         End While
 
-        Return RetIndex
+        Return A.Length - 1
     End Function
 
 
@@ -121,7 +123,10 @@ Public Class clsSailManager
 
     Public Sub GetCornerAngles(ByVal WindStrength As Double, ByRef MinAngle As Double, ByRef MaxAngle As Double)
 
-        If _PolarCorner(6000, CORNER_SPEED) <> 0 Then
+        If WindStrength > 60 Then
+            WindStrength = 60
+        End If
+        If _PolarCorner(600, CORNER_SPEED) <> 0 Then
             Dim WindStrengthIndex As Integer = CInt(10 * Math.Round(WindStrength, 2))
             MinAngle = _PolarCorner(WindStrengthIndex, CORNER_UPWIND)
             MaxAngle = _PolarCorner(WindStrengthIndex, CORNER_DOWNWIND)
@@ -135,7 +140,9 @@ Public Class clsSailManager
 
         Dim D As Integer = CInt(10 * ((WindAngle + 360) Mod 180))
         Dim F As Integer = CInt(100 * WindSpeed)
-
+        If WindAngle = 180 Then
+            D = 1800
+        End If
         If F > MaxWindSpeedHundedth Then
             F = MaxWindSpeedHundedth
         End If
@@ -149,15 +156,16 @@ Public Class clsSailManager
         NbCall += 1
 #End If
         If SailMode = EnumSail.OneSail Then
-
-            If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
+            SyncLock _Polar
+                If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
 
 #If POLAR_STAT = 1 Then
                 NbCallCached += 1
                 Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
 #End If
-                Return _Polar(D, F) / 1000
-            End If
+                    Return _Polar(D, F) / 1000
+                End If
+            End SyncLock
         End If
 
         Dim SailIndex = GetSailIndex(SailMode)
@@ -176,6 +184,26 @@ Public Class clsSailManager
                 Return -1
             End If
             _SailLoaded = True
+
+#If GEN_TCV = 1 Then
+            SyncLock Me
+                Dim fName As String = Path.Combine(RouteurModel.BaseFileDir, BoatType & ".dat")
+                Using Out As New StreamWriter(fName, False, System.Text.Encoding.ASCII)
+
+                    For Angle As Double = 0 To 180
+                        For Wind As Double = 0 To 60
+                            Out.Write(GetSpeed(BoatType, SailMode, Angle, Wind).ToString("0.0###", System.Globalization.CultureInfo.InvariantCulture))
+                            If Wind < 60 Then
+                                Out.Write(";")
+                            Else
+                                Out.WriteLine()
+                            End If
+                        Next
+                    Next
+                    Out.Close()
+                End Using
+            End SyncLock
+#End If
         ElseIf BoatType Is Nothing Then
             Return -1
         End If
@@ -184,8 +212,9 @@ Public Class clsSailManager
         Dim WMax As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, False)
         Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, True)
         Dim AMax As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, False)
-        'Dim amax As Integer = AMin
-
+        If WindAngle = 62 And WindSpeed > 55 Then
+            Dim bp As Integer = 0
+        End If
         If WMin = WMax AndAlso WMin = 0 Then
             WMax = 1
         End If
@@ -219,7 +248,12 @@ Public Class clsSailManager
             RetVal = V1
         End If
 
-        _Polar(D, F) = CUShort(RetVal * 1000)
+        SyncLock _Polar
+            _Polar(D, F) = CUShort(RetVal * 1000)
+        End SyncLock
+        If RetVal = 15.714 Then
+            Dim Bp As Integer = 0
+        End If
 #If POLAR_STAT = 1 Then
         Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
 #End If
@@ -241,44 +275,44 @@ Public Class clsSailManager
         End While
 
         Dim start As DateTime = Now
-        For i = 0 To MaxWindSpeedHundedth
+        For WindStrength = 0 To MaxWindSpeedTenth
 
             Dim BestUpWind As Double = 0
             Dim BestDownWind As Double = 0
 
             For alpha = 0 To 1800
 
-                Dim S As Double = GetSpeed("", EnumSail.OneSail, alpha / 10, i / 100)
+                Dim S As Double = GetSpeed("", EnumSail.OneSail, alpha / 10, WindStrength / 10)
 
-                If S > _PolarCorner(i, CORNER_SPEED) Then
-                    _PolarCorner(i, 0) = S
+                If S > _PolarCorner(WindStrength, CORNER_SPEED) Then
+                    _PolarCorner(WindStrength, 0) = S
                 End If
 
                 If alpha < 900 AndAlso S * Cos(alpha / 1800 * PI) > BestUpWind Then
-                    _PolarCorner(i, CORNER_UPWIND) = alpha / 10
+                    _PolarCorner(WindStrength, CORNER_UPWIND) = alpha / 10
                     BestUpWind = S * Cos(alpha / 1800 * PI)
                 ElseIf alpha >= 900 AndAlso -S * Cos(alpha / 1800 * PI) > BestDownWind Then
-                    _PolarCorner(i, CORNER_DOWNWIND) = alpha / 10
+                    _PolarCorner(WindStrength, CORNER_DOWNWIND) = alpha / 10
                     BestDownWind = -S * Cos(alpha / 1800 * PI)
                 End If
 
             Next
 
-            For angle As Integer = CInt(_PolarCorner(i, CORNER_UPWIND) * 10) To 0 Step -1
-                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, i / 100)
+            For angle As Integer = CInt(_PolarCorner(WindStrength, CORNER_UPWIND) * 10) To 0 Step -1
+                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, WindStrength / 100)
 
                 If S < 0.85 * BestUpWind Then
-                    _PolarCorner(i, CORNER_UPWIND) = angle / 10
+                    _PolarCorner(WindStrength, CORNER_UPWIND) = angle / 10
                     Exit For
                 End If
             Next
 
 
-            For angle As Integer = CInt(_PolarCorner(i, CORNER_DOWNWIND) * 10) To 1800 Step 1
-                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, i / 100)
+            For angle As Integer = CInt(_PolarCorner(WindStrength, CORNER_DOWNWIND) * 10) To 1800 Step 1
+                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, WindStrength / 100)
 
                 If S < 0.85 * BestDownWind Then
-                    _PolarCorner(i, CORNER_DOWNWIND) = angle / 10
+                    _PolarCorner(WindStrength, CORNER_DOWNWIND) = angle / 10
                     Exit For
                 End If
             Next
@@ -312,6 +346,7 @@ Public Class clsSailManager
 
             Return True
         Catch ex As Exception
+            Dim i As Integer = 0
             'MessageBox.Show("LoadSails Error " & ex.Message)
         End Try
         Return False
@@ -343,7 +378,7 @@ Public Class clsSailManager
                 Next
 
                 _NbAngles = Lines.Length - 2
-                ReDim _TWAList(SailIndex)(_NbAngles)
+                ReDim _TWAList(SailIndex)(_NbAngles - 1)
                 If _PolarLut Is Nothing Then
                     ReDim _PolarLut(6, _NbWinds(SailIndex), _NbAngles)
                 End If

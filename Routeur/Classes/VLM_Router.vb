@@ -23,6 +23,7 @@ Public Class VLM_Router
     Private _CookiesContainer As CookieContainer = Nothing
     Private _LastRefreshTime As DateTime
     Private _LastDataDate As DateTime
+   
 
     Private _WindChangeDist As Double
     Private _WindChangeDate As DateTime
@@ -262,27 +263,35 @@ Public Class VLM_Router
         Private Property GoalETA As DateTime = New DateTime(0)
 
 
-        Public Function Improve(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double, ByVal Start As clsrouteinfopoints, MeteoOrganizer As GribManager, Dest1 As Coords, Dest2 As Coords) As Boolean
+        Public Function Improve(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double, ByVal Start As clsrouteinfopoints, MeteoOrganizer As GribManager, Dest1 As Coords, Dest2 As Coords, Mode As RacePrefs.RouterMode) As Boolean
 
 
             If P Is Nothing Then
                 Return True
             End If
 
-#Const IMPROVE_MODE = 1
-#If IMPROVE_MODE = 0 Then
-            Return ImproveDTF(P)
-#ElseIf IMPROVE_MODE = 1 Then
-            Return ImproveMixDTF_TS(P, DTFRatio, Start)
-#ElseIf IMPROVE_MODE = 2 Then
-            Return ImproveDTF_ETA_VMG(P, Sails, MeteoOrganizer, Dest1, Dest2)
-#ElseIf IMPROVE_MODE = 3 Then
-            Return Improve_ISO(P, Sails, MeteoOrganizer, Dest1, Dest2)
-#End If
+            Select Case Mode
+                Case RacePrefs.RouterMode.DTF
+                    Return ImproveDTF(P)
+                Case RacePrefs.RouterMode.ISO
+                    Return Improve_ISO(P, Sails, MeteoOrganizer, Dest1, Dest2)
+                Case RacePrefs.RouterMode.MIX_DTF_ETA
+                    Return ImproveDTF_ETA_VMG(P, Sails, MeteoOrganizer, Dest1, Dest2)
+                Case RacePrefs.RouterMode.MIX_DTF_SPEED
+                    Return ImproveMixDTF_TS(P, DTFRatio, Start)
+                Case Else
+                    Return False
+            End Select
+
         End Function
 
-        Private Function ImproveDTF(ByVal P As clsrouteinfopoints) As Boolean
-            Return DTF < P.DTF
+        Public Function ImproveDTF(ByVal P As clsrouteinfopoints) As Boolean
+            If P Is Nothing Then
+                Return True
+            Else
+                Return DTF < P.DTF
+            End If
+
         End Function
 
         Private Function ImproveMixDTF_TS(ByVal P As clsrouteinfopoints, ByVal DTFRatio As Double, ByVal Start As clsrouteinfopoints) As Boolean
@@ -331,7 +340,7 @@ Public Class VLM_Router
 
         Private Function Improve_ISO(P As clsrouteinfopoints, clsSailManager As clsSailManager, MeteoOrganizer As GribManager, Dest1 As Coords, Dest2 As Coords) As Boolean
 
-            Return P.DistFromPos > DistFromPos
+            Return P.DistFromPos < DistFromPos
 
         End Function
 
@@ -862,6 +871,13 @@ Public Class VLM_Router
         End Set
     End Property
 
+    Public ReadOnly Property RaceStartDate As DateTime
+        Get
+            Return _PlayerInfo.RaceInfo.deptime
+        End Get
+
+    End Property
+
     Public ReadOnly Property RoutesUnderMouse() As ObservableCollection(Of RoutePointInfo)
         Get
             Return _RoutesUnderMouse
@@ -1017,7 +1033,7 @@ Public Class VLM_Router
         While Not CancelRequest
 
             ' Get last applicable pilote order
-            Dim NextOrder = (From O In Route Where O IsNot Nothing AndAlso O.ActionDate < CurDate Select O Order By O.ActionDate Descending).FirstOrDefault
+            Dim NextOrder = (From O In Route Where O IsNot Nothing AndAlso O.ActionDate <= CurDate.AddMinutes(RouteurModel.VacationMinutes) Select O Order By O.ActionDate Descending).FirstOrDefault
 
             If NextOrder Is Nothing Then
                 Return RetRoute
@@ -1167,11 +1183,11 @@ Public Class VLM_Router
                 'Add current navigation order
                 RP = New RoutePointView
                 With RP
-                    .ActionDate = Now
+                    .ActionDate = _UserInfo.date
 
                     .RouteMode = CType(_UserInfo.position.PIM, EnumRouteMode)
 
-                    
+
         Select Case .RouteMode
                         Case EnumRouteMode.Bearing
                             Dim PtDoubleValue As New RoutePointDoubleValue
@@ -1196,7 +1212,11 @@ Public Class VLM_Router
                 End With
                 Route(5) = RP
                 CancelComputation = False
-                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, GetNextCrankingDate(), CancelComputation)
+                Dim startdate As DateTime = _UserInfo.date
+                If startdate < RaceStartDate Then
+                    startdate = racestartdate
+                End If
+                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, startdate, CancelComputation)
 
             Finally
                 Computing = False
@@ -3293,7 +3313,7 @@ Public Class VLM_Router
 
 
             _iso = New IsoRouter(_UserInfo.type, Sails, Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, prefs.IsoStep, _
-                                 prefs.IsoStep_24, prefs.IsoStep_48)
+                                 prefs.IsoStep_24, prefs.IsoStep_48, DBWrapper.GetMapLevel(prefs.MapLevel))
             Dim WP As Integer
 
             If CurUserWP = 0 Then
@@ -3333,7 +3353,7 @@ Public Class VLM_Router
                 StartDate = prefs.CustomStartDate
             End If
 
-            _iso.StartIsoRoute(StartCoords, EndCoords1, EndCoords2, StartDate, prefs.FastRoute)
+            _iso.StartIsoRoute(StartCoords, EndCoords1, EndCoords2, StartDate, prefs)
             'End If
 
         ElseIf Not _iso Is Nothing Then
@@ -3392,6 +3412,24 @@ Public Class VLM_Router
 
 
     Public Sub DebugTest()
+        Return
+        'Dim S1_P1 As Coords = New Coords(38.185, -0.593)
+        'Dim S1_P2 As Coords = New Coords(38.25, -0.6)
+        'Dim _P1 As New Coords(90, 179.999999)
+        'Dim _P2 As New Coords(-90, -179.99999)
+        'Dim db As New DBWrapper()
+        'Dim rect = New BspRect(_P1, _P2, 1)
+        'db.MapLevel = 5
+        'Dim tc As New TravelCalculator With {.StartPoint = S1_P1}
+
+        'For i = 225 To 444
+
+        '    tc.EndPoint = tc.ReachDistance(3, i Mod 360)
+        '    If Not db.IntersectMapSegment(S1_P1, tc.EndPoint, rect) Then
+        '        MessageBox.Show("Oops la côte!!!")
+        '    End If
+
+        'Next
 
         Return
 
@@ -3496,7 +3534,12 @@ Public Class VLM_Router
 
     Private Sub _iso_RouteComplete() Handles _iso.RouteComplete
         BruteRoute(Meteo) = _iso.Route
-        RaiseEvent IsoComplete(_iso.Route.Last)
+        If _iso.Route.Any Then
+            RaiseEvent IsoComplete(_iso.Route.Last)
+        Else
+            RaiseEvent IsoComplete(Nothing)
+        End If
+
 
         If RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces).AutoRestartRouter Then
             _IsoRoutingRestartPending = True
