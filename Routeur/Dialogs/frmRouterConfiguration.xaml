@@ -6,7 +6,7 @@
 	x:Class="frmRouterConfiguration"
 	x:Name="Window"
 	Title="Grid Route Setup"
-	Width="640" Height="480" Icon="/Routeur;Component/Graphics/System-Preferences.ico">
+	Width="624" Height="480" Icon="/Routeur;Component/Graphics/System-Preferences.ico">
 
 	<Window.Resources>
 		<ResourceDictionary>
@@ -31,10 +31,10 @@
 		</ResourceDictionary>
 	</Window.Resources>
 
-	<Grid x:Name="LayoutRoot">
+	<Grid x:Name="LayoutRoot" VerticalAlignment="Bottom">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="150" />
-			<ColumnDefinition Width="*"/>
+			<ColumnDefinition/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" MinHeight="24"/>
@@ -45,31 +45,65 @@
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
 			<RowDefinition Height="Auto" MinHeight="24"/>
-			<RowDefinition Height="Auto" MinHeight="24"/>
-			<RowDefinition Height="Auto" MinHeight="24"/>
-			<RowDefinition Height="Auto" MinHeight="24"/>
-			<RowDefinition Height="Auto" MinHeight="24"/>
-			<RowDefinition Height="1*"/>
-			<RowDefinition Height="Auto" MinHeight="36 "/>
+			<RowDefinition Height="Auto" MinHeight="48.172"/>
+			
 		</Grid.RowDefinitions>
-		<StackPanel Grid.Column="2" Grid.Row="22" Orientation="Horizontal" HorizontalAlignment="Right">
+		<StackPanel Grid.Column="1" Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Right" d:LayoutOverrides="GridBox">
 			<Button x:Name="cmdCancel" Content="Cancel" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172" HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" d:LayoutOverrides="Height" Style="{DynamicResource DefaultButton}" Click="cmdCancelClick"/>
 			<Button x:Name="cmdOK" Content="OK" Width="100" Height="42.172" HorizontalAlignment="Left" Margin="{DynamicResource DefMargin}" d:LayoutOverrides="Height" Style="{DynamicResource DefaultButton}" Click="cmdOKClick"/>
 		</StackPanel>
 		<TextBlock Text="Track forward Angle:" TextWrapping="Wrap" Grid.Row="1"/>
-		<TextBlock Text="Isochrones Step 1st 24h:" TextWrapping="Wrap" Grid.Row="2"/>
-		<TextBlock Text="Isochrones Step 24h-48h:" TextWrapping="Wrap" Grid.Row="3"/>
-		<TextBlock Text="Isochrones Step &gt;48h:" TextWrapping="Wrap" Grid.Row="4"/>
-		<TextBlock Text="Angle Step:" TextWrapping="Wrap" Grid.Row="5"/>
-		<TextBlock Text="Alternate Start Date:" TextWrapping="Wrap" Grid.Row="6"/>
-		<TextBox Text="{Binding IsoStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="2" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
-		<TextBox Text="{Binding IsoStep_24, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="3" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
-		<TextBox Text="{Binding IsoStep_48, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="4" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
-		<TextBox Text="{Binding IsoAngleStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="5" Style="{DynamicResource DoubleFormatCheckTextBox}" />
-		<StackPanel Grid.Row="6" Grid.Column="2" Orientation="Horizontal">
-			<CheckBox HorizontalAlignment="Left" IsChecked="{Binding UseCustomStartDate, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
-			<TextBox Text="{Binding CustomStartDate, Mode=TwoWay, UpdateSourceTrigger=Default}" Margin="3,3,-209,3" MinWidth="206" HorizontalContentAlignment="Stretch" />
-		</StackPanel>
+		<Grid Grid.ColumnSpan="2" Grid.Row="2" Background="#FFD4E2FF">
+			<Grid.ColumnDefinitions >
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="1*"/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions >
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+			</Grid.RowDefinitions>
+			<TextBlock Text="Isochrones Step 1st 24h:" TextWrapping="Wrap" Grid.Column="0" Grid.Row="0" TextAlignment="Center"/>
+			<TextBlock Text="Isochrones Step 24h-48h:" TextWrapping="Wrap" Grid.Column="1" Grid.Row="0" TextAlignment="Center"/>
+			<TextBlock Text="Isochrones Step &gt;48h:" TextWrapping="Wrap" Grid.Column="2" Grid.Row="0" TextAlignment="Center"/>
+			<TextBox Text="{Binding IsoStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="0" Grid.Row="1" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
+			<TextBox Text="{Binding IsoStep_24, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="1" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
+			<TextBox Text="{Binding IsoStep_48, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="2" Grid.Row="1" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
+			<StackPanel Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="3" >
+				<TextBlock Text="Angle Step:" TextWrapping="Wrap" />
+				<TextBox MinWidth="40" Text="{Binding IsoAngleStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Style="{DynamicResource DoubleFormatCheckTextBox}" />
+			</StackPanel>
+		</Grid>
+		<Grid Grid.Row="3" Grid.ColumnSpan="2" Background="#FFF2F1FF">
+			<Grid.ColumnDefinitions >
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="1*"/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions >
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+			</Grid.RowDefinitions>
+			<StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+				<TextBlock Text="Alternate Start Date:" TextWrapping="Wrap" Grid.Row="6"/>
+				<CheckBox HorizontalAlignment="Left" IsChecked="{Binding UseCustomStartDate, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
+				<TextBox Text="{Binding CustomStartDate, Mode=TwoWay, UpdateSourceTrigger=Default}" Margin="{DynamicResource DefMargin}" MinWidth="150" HorizontalContentAlignment="Stretch" />
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Height="29" Grid.Row="1" >
+				<TextBlock Text="Alt.Start Point:" />
+				<CheckBox HorizontalAlignment="Left" IsChecked="{Binding UseCustomStart, Mode=Default}"/>
+				<Image x:Name="imageStart" Source="/Routeur;Component/Graphics/Target-32.png" Stretch="Fill" Width="23" Height="23" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" Margin="0,0,0,6" ToolTip="Drag to set routing start point"/>
+				<TextBox Text="{Binding RouteStart, Converter={StaticResource CoordsConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" IsEnabled="{Binding UseCustomStart, Mode=Default}" VerticalAlignment="Bottom" Height="21.96" Grid.Column="1" Grid.Row="1" Margin="{DynamicResource DefMargin}" d:LayoutOverrides="GridBox" MinWidth="150"  />
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Grid.Row="1" Grid.Column="1" >
+				<TextBlock Text="Use alternate Dest:" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="29"/>
+				<CheckBox HorizontalAlignment="Left" IsChecked="{Binding UseCustomDest, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
+				<Image x:Name="image" Source="/Routeur;Component/Graphics/Target-32.png" Stretch="Fill" Width="23" Height="23" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" Margin="0,0,0,6" ToolTip="Drag to set routing destination point"/>
+				<TextBox Text="{Binding RouteDest, Converter={StaticResource CoordsConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" IsEnabled="{Binding UseCustomDest, Mode=Default}" Height="21.96" Grid.Column="1" Grid.Row="2" Margin="{DynamicResource DefMargin}" MinWidth="150"  />
+			</StackPanel>
+			
+		</Grid>
 		<Grid Grid.Column="1" Grid.Row="1 ">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="0.09*"/>
@@ -78,22 +112,19 @@
 			<TextBox Text="{Binding IsoLookupAngle, Mode=TwoWay, UpdateSourceTrigger=Default}" Style="{DynamicResource DoubleFormatCheckTextBox}" />
 			<Slider VerticalAlignment="Center" Grid.Column="1" Maximum="180" SmallChange="1" TickFrequency="10" TickPlacement="BottomRight" LargeChange="10" Value="{Binding IsoLookupAngle, Mode=TwoWay, UpdateSourceTrigger=Default}"/>
 		</Grid>
-		<Grid Grid.ColumnSpan="3" Grid.Row="8">
+		<Grid Grid.ColumnSpan="2" Grid.Row="4" Background="#FFE1E9FF" d:LayoutOverrides="GridBox">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="150"/>
-				<ColumnDefinition Width="0.758*"/>
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="1*"/>
 			</Grid.ColumnDefinitions>
-			<TextBlock Text="Use alternate Dest:" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="29"/>
-			<TextBlock Text="Route Dest:" TextWrapping="Wrap" IsEnabled="{Binding UseCustomDest, Mode=Default}" VerticalAlignment="Bottom" Height="21.96" Grid.Row="1"/>
-			<StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Grid.Column="1" >
-				<CheckBox HorizontalAlignment="Left" IsChecked="{Binding UseCustomDest, Mode=Default}" Margin="{DynamicResource DefMargin}"/>
-				<Image x:Name="image" Source="/Routeur;Component/Graphics/Target-32.png" Stretch="Fill" Width="23" Height="23" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" Margin="0,0,0,6" ToolTip="Drag to set routing destination point"/>
+			<StackPanel Orientation="Horizontal" Grid.ColumnSpan="2">
+				<TextBlock Text="Routhing Algorithm"/>
+				<ComboBox />
 			</StackPanel>
-			<TextBox Text="{Binding RouteDest, Converter={StaticResource CoordsConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" IsEnabled="{Binding UseCustomDest, Mode=Default}" VerticalAlignment="Bottom" Height="21.96" Grid.Column="1" Grid.Row="2" Margin="{DynamicResource DefMargin}"  />
 		</Grid>
 		
 		<Grid Grid.ColumnSpan="2" Grid.Row="7" >
@@ -105,18 +136,14 @@
 				<ColumnDefinition Width="150"/>
 				<ColumnDefinition Width="0.758*"/>
 			</Grid.ColumnDefinitions>
-			<TextBlock Text="Use Alternate Start:" />
-			<TextBlock Text="Route Start:" Grid.Row="1" />
-			<StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Height="29" Grid.Column="1" >
-				<CheckBox HorizontalAlignment="Left" IsChecked="{Binding UseCustomStart, Mode=Default}"/>
-				<Image x:Name="imageStart" Source="/Routeur;Component/Graphics/Target-32.png" Stretch="Fill" Width="23" Height="23" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" Margin="0,0,0,6" ToolTip="Drag to set routing start point"/>
-			</StackPanel>
-			<TextBox Text="{Binding RouteStart, Converter={StaticResource CoordsConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" IsEnabled="{Binding UseCustomStart, Mode=Default}" VerticalAlignment="Bottom" Height="21.96" Grid.Column="1" Grid.Row="1" Margin="{DynamicResource DefMargin}" d:LayoutOverrides="GridBox"  />
-
 		</Grid>
-        <CheckBox  Content =" Autorestart routing when complete" Grid.Row="9" Grid.ColumnSpan ="2" IsChecked="{Binding AutoRestartRouter,Mode=TwoWay}"/>
-		<CheckBox  Content =" Use Fast Routing" Grid.Row="10" Grid.ColumnSpan ="2" IsChecked="{Binding FastRoute,Mode=TwoWay}"/>
-		<CheckBox  Content =" Save Route when complete" Grid.Row="11" Grid.ColumnSpan ="2" IsChecked="{Binding SaveRoute,Mode=TwoWay}"/>
+        <StackPanel Grid.Row="5" Grid.ColumnSpan="2">
+        	<ComboBox Grid.Column="1" ItemsSource="{Binding RouteurModes}" SelectedValue="{Binding RouteurMode}"/>
+			<CheckBox  Content =" Use Fast Routing (ignore high angles and low angles in polar)" Grid.Row="10" Grid.ColumnSpan ="2" IsChecked="{Binding FastRouteShortPolar,Mode=TwoWay}"/>
+			<CheckBox  Content =" Use Fast Routing (do not update meteo in isochrone interval)" Grid.Row="7" Grid.ColumnSpan ="2" IsChecked="{Binding FastRouteShortMeteo,Mode=TwoWay}"/>
+			<CheckBox  Content =" Save Route when complete" Grid.Row="11" Grid.ColumnSpan ="2" IsChecked="{Binding SaveRoute,Mode=TwoWay}"/>
+			<CheckBox  Content =" Autorestart routing when complete" Grid.Row="6" Grid.ColumnSpan ="2" IsChecked="{Binding AutoRestartRouter,Mode=TwoWay}"/>
+		</StackPanel>
 
     </Grid>
 </Window>

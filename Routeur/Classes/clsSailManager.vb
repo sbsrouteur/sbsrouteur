@@ -8,6 +8,7 @@ Imports System.IO
 
 Public Class clsSailManager
     Private Const MaxWindSpeedHundedth As Integer = 6000
+    Private Const MaxWindSpeedTenth As Integer = 600
 
     Public Enum EnumSail As Integer
         OneSail = 0
@@ -38,7 +39,7 @@ Public Class clsSailManager
     Private _NbAngles As Integer
 
     Private _Polar(1800, MaxWindSpeedHundedth) As UInt16
-    Private _PolarCorner(MaxWindSpeedHundedth, 2) As Double
+    Private _PolarCorner(MaxWindSpeedTenth, 2) As Double
 
     Private Const CORNER_SPEED As Integer = 0
     Private Const CORNER_UPWIND As Integer = 1
@@ -122,7 +123,10 @@ Public Class clsSailManager
 
     Public Sub GetCornerAngles(ByVal WindStrength As Double, ByRef MinAngle As Double, ByRef MaxAngle As Double)
 
-        If _PolarCorner(6000, CORNER_SPEED) <> 0 Then
+        If WindStrength > 60 Then
+            WindStrength = 60
+        End If
+        If _PolarCorner(600, CORNER_SPEED) <> 0 Then
             Dim WindStrengthIndex As Integer = CInt(10 * Math.Round(WindStrength, 2))
             MinAngle = _PolarCorner(WindStrengthIndex, CORNER_UPWIND)
             MaxAngle = _PolarCorner(WindStrengthIndex, CORNER_DOWNWIND)
@@ -271,44 +275,44 @@ Public Class clsSailManager
         End While
 
         Dim start As DateTime = Now
-        For i = 0 To MaxWindSpeedHundedth
+        For WindStrength = 0 To MaxWindSpeedTenth
 
             Dim BestUpWind As Double = 0
             Dim BestDownWind As Double = 0
 
             For alpha = 0 To 1800
 
-                Dim S As Double = GetSpeed("", EnumSail.OneSail, alpha / 10, i / 100)
+                Dim S As Double = GetSpeed("", EnumSail.OneSail, alpha / 10, WindStrength / 10)
 
-                If S > _PolarCorner(i, CORNER_SPEED) Then
-                    _PolarCorner(i, 0) = S
+                If S > _PolarCorner(WindStrength, CORNER_SPEED) Then
+                    _PolarCorner(WindStrength, 0) = S
                 End If
 
                 If alpha < 900 AndAlso S * Cos(alpha / 1800 * PI) > BestUpWind Then
-                    _PolarCorner(i, CORNER_UPWIND) = alpha / 10
+                    _PolarCorner(WindStrength, CORNER_UPWIND) = alpha / 10
                     BestUpWind = S * Cos(alpha / 1800 * PI)
                 ElseIf alpha >= 900 AndAlso -S * Cos(alpha / 1800 * PI) > BestDownWind Then
-                    _PolarCorner(i, CORNER_DOWNWIND) = alpha / 10
+                    _PolarCorner(WindStrength, CORNER_DOWNWIND) = alpha / 10
                     BestDownWind = -S * Cos(alpha / 1800 * PI)
                 End If
 
             Next
 
-            For angle As Integer = CInt(_PolarCorner(i, CORNER_UPWIND) * 10) To 0 Step -1
-                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, i / 100)
+            For angle As Integer = CInt(_PolarCorner(WindStrength, CORNER_UPWIND) * 10) To 0 Step -1
+                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, WindStrength / 100)
 
                 If S < 0.85 * BestUpWind Then
-                    _PolarCorner(i, CORNER_UPWIND) = angle / 10
+                    _PolarCorner(WindStrength, CORNER_UPWIND) = angle / 10
                     Exit For
                 End If
             Next
 
 
-            For angle As Integer = CInt(_PolarCorner(i, CORNER_DOWNWIND) * 10) To 1800 Step 1
-                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, i / 100)
+            For angle As Integer = CInt(_PolarCorner(WindStrength, CORNER_DOWNWIND) * 10) To 1800 Step 1
+                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, WindStrength / 100)
 
                 If S < 0.85 * BestDownWind Then
-                    _PolarCorner(i, CORNER_DOWNWIND) = angle / 10
+                    _PolarCorner(WindStrength, CORNER_DOWNWIND) = angle / 10
                     Exit For
                 End If
             Next

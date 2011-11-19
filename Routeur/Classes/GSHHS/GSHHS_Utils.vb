@@ -106,10 +106,26 @@ Module GSHHS_Utils
                 Dim bp As Integer = 0
             End If
             Return SegmentIntersect
+        ElseIf Double.IsNaN(CoefS1.Lat) AndAlso CoefS2.Lat = 0 Then
+            Dim x As Double = (CoefS2.Lon)
+            Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lat, S1_P2.Lat)) AndAlso x <= (Max(S1_P1.Lat, S1_P2.Lat))
+            'Dim SegmentIntersect As Boolean = CoefS1.Lon >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.Lon <= (Max(S2_P1.Lon, S2_P2.Lon))
+            If SegmentIntersect = True Then
+                Dim bp As Integer = 0
+            End If
+            Return SegmentIntersect
         ElseIf Double.IsNaN(CoefS1.Lat) Then
             Dim x As Double = (CoefS2.Lon - CoefS1.Lon) / (CoefS2.Lat)
             Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) AndAlso x <= (Max(S1_P1.Lon, S1_P2.Lon)) AndAlso x >= (Min(S2_P1.Lon, S2_P2.Lon)) AndAlso x <= (Max(S2_P1.Lon, S2_P2.Lon))
             'Dim SegmentIntersect As Boolean = CoefS1.Lon >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.Lon <= (Max(S2_P1.Lon, S2_P2.Lon))
+            If SegmentIntersect = True Then
+                Dim bp As Integer = 0
+            End If
+            Return SegmentIntersect
+        ElseIf Double.IsNaN(CoefS2.Lat) And CoefS1.Lat = 0 Then
+            Dim x As Double = CoefS1.Lon
+            Dim SegmentIntersect As Boolean = x >= (Min(S2_P1.Lat, S2_P2.Lat)) AndAlso x <= (Max(S2_P1.Lat, S2_P2.Lat))
+            'Dim SegmentIntersect As Boolean = CoefS2.Lon >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.Lon <= (Max(S1_P1.Lon, S1_P2.Lon))
             If SegmentIntersect = True Then
                 Dim bp As Integer = 0
             End If
