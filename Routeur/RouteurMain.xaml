@@ -260,7 +260,8 @@
 				<MenuItem Header="Rescale Map" Click="ReScaleMap" IsEnabled="{Binding MapMenuEnabled}" />
                 <MenuItem Header="Restore Race Zone Map Scale" Click="RestoreMapScale" IsEnabled="{Binding MapMenuEnabled}" />
                 <Separator/>
-				<CheckBox Content="Hide Isochrones" IsChecked="{Binding The2DViewer.HideIsochrones, Mode=Default}"/>
+				<CheckBox Content="Hide Isochrones lines" IsChecked="{Binding The2DViewer.HideIsochronesLines, Mode=Default}"/>
+				<CheckBox Content="Hide Isochrones dots" IsChecked="{Binding The2DViewer.HideIsochronesDots, Mode=Default}"/>
 				
 			</MenuItem>
 			<MenuItem Header="Meteo" VerticalAlignment="Center">
