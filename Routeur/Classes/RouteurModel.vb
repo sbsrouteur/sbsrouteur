@@ -5,6 +5,7 @@ Imports Routeur.RacePrefs
 Imports Routeur.Commands
 Imports System.Threading
 Imports System.Windows.Threading
+Imports Routeur.VLM_Router
 
 Public Class RouteurModel
 
@@ -430,7 +431,8 @@ Public Class RouteurModel
 
     Public Shared ReadOnly Property BaseFileDir() As String
         Get
-            If Not System.IO.Directory.Exists(_BaseFileDir) Then
+            Static Checked As Boolean = False
+            If Not Checked AndAlso Not System.IO.Directory.Exists(_BaseFileDir) Then
                 Try
                     System.IO.Directory.CreateDirectory(_BaseFileDir)
                 Catch ex As Exception
@@ -438,6 +440,7 @@ Public Class RouteurModel
                     Throw ex
                 End Try
             End If
+            Checked = True
             Return _BaseFileDir
         End Get
     End Property
@@ -884,6 +887,7 @@ Public Class RouteurModel
             If Not The2DViewer Is Nothing And Not _Busy Then
                 _Busy = True
                 Dim routes(6) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
+                'Static Moorea As ObservableCollection(Of VLM_Router.clsrouteinfopoints) = Nothing
 
                 routes(0) = VorHandler.PlannedRoute
                 routes(1) = VorHandler.BestRouteAtPoint
@@ -892,6 +896,17 @@ Public Class RouteurModel
                 routes(4) = VorHandler.TempVMGRoute
                 routes(5) = VorHandler.AllureRoute
                 routes(6) = VorHandler.PilototoRoute
+                'If Moorea Is Nothing Then
+                '    Moorea = New ObservableCollection(Of clsrouteinfopoints)
+                '    Dim db As New DBWrapper
+                '    db.MapLevel = 5
+                '    Dim segments As List(Of MapSegment) = db.SegmentList(-150, -17, -149.45, -17.6, True)
+                '    For Each seg In segments
+                '        Moorea.Add(New clsrouteinfopoints() With {.P = New Coords(seg.Lat1, seg.Lon1)})
+                '    Next
+                'End If
+                'routes(7) = Moorea
+
                 Dim Traj As String
 
                 If VorHandler Is Nothing OrElse VorHandler.UserInfo Is Nothing OrElse VorHandler.UserInfo.trajectoire Is Nothing Then

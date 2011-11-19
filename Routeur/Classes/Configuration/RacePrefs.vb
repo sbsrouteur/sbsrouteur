@@ -1,6 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports System.Xml.Serialization
 Imports System.Xml
+Imports System.Collections.ObjectModel
 
 Public Class RacePrefs
 
@@ -25,6 +26,13 @@ Public Class RacePrefs
         South = 3
     End Enum
 
+    Public Enum RouterMode As Integer
+        DTF = 0
+        MIX_DTF_SPEED = 1
+        MIX_DTF_ETA = 2
+        ISO = 3
+    End Enum
+
 
     Private _GridGrain As Double
     Private _MapLevel As EnumMapLevels
@@ -35,8 +43,10 @@ Public Class RacePrefs
     Private _CourseExtensionHours As Double
     Private _NoExclusionZone As Boolean
     Private _AutoRestartRouter As Boolean = False
-    Private _FastRoute As Boolean = False
+    Private _FastRouteShortMeteo As Boolean = False
+    Private _FastRouteShortPolar As Boolean = False
     Private _SaveRoute As Boolean = False
+    Private _RouteurMode As RouterMode = RouterMode.MIX_DTF_SPEED
 
     'IsoChrones Prefs
     Private _IsoLookupAngle As Double
@@ -162,16 +172,25 @@ Public Class RacePrefs
         End Set
     End Property
 
-    Public Property FastRoute() As Boolean
+    Public Property FastRouteShortMeteo() As Boolean
         Get
-            Return _FastRoute
+            Return _FastRouteShortMeteo
         End Get
         Set(ByVal value As Boolean)
-            _FastRoute = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("FastRoute"))
+            _FastRouteShortMeteo = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("FastRouteShortMeteo"))
         End Set
     End Property
 
+    Public Property FastRouteShortPolar() As Boolean
+        Get
+            Return _FastRouteShortPolar
+        End Get
+        Set(ByVal value As Boolean)
+            _FastRouteShortPolar = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("FastRouteShortPolar"))
+        End Set
+    End Property
 
     Public Property GridGrain() As Double
         Get
@@ -337,12 +356,34 @@ Public Class RacePrefs
         End Set
     End Property
 
+    Public Property RouteurMode As RouterMode
+        Get
+            Return _RouteurMode
+        End Get
+        Set(value As RouterMode)
+            _RouteurMode = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RouteurMode"))
+        End Set
+    End Property
+
+    Public ReadOnly Property RouteurModes As ObservableCollection(Of RouterMode)
+        Get
+            Dim ret As New ObservableCollection(Of RouterMode)
+            ret.Add(RouterMode.DTF)
+            ret.Add(RouterMode.MIX_DTF_SPEED)
+            ret.Add(RouterMode.MIX_DTF_ETA)
+            ret.Add(RouterMode.ISO)
+
+            Return ret
+        End Get
+    End Property
+
     Public Property SaveRoute() As Boolean
         Get
             Return _SaveRoute
         End Get
         Set(ByVal value As Boolean)
-            _SaveRoute = Value
+            _SaveRoute = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("SaveRoute"))
         End Set
     End Property

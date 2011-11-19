@@ -58,7 +58,8 @@ Partial Public Class _2D_Viewer
     Private _LonOffset As Double
     Private _LatOffset As Double
     Private Shared _CenterOnAnteMeridien As Boolean = False
-    Private _HideIsochrones As Boolean = False
+    Private _HideIsochroneLines As Boolean = False
+    Private _HideIsochroneDots As Boolean = False
     Private _EraseIsoChrones As Boolean = False
     Private _EraseBoatMap As Boolean = False
     Private WithEvents _TileServer As TileServer
@@ -276,6 +277,11 @@ Render1:
 
     Private Sub BgBackDropDrawing(ByVal state As Object)
 
+#If NO_TILE = 1 Then
+        Return
+#End If
+
+
         'Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
         Dim Width As Double = 360 / Scale ' ._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
         Dim Z As Integer = CInt(Math.Floor(Math.Log(360 / Width) / Math.Log(2))) + 1
@@ -320,12 +326,7 @@ Render1:
             Next
         Next
         _MapPg.Start(_PendingTileRequestCount)
-        '_MapPg.Start(100)
-        '_TileServer.Render()
-        '_TileServer.RequestTile(New TileInfo(1, -1, 0))
-        '_TileServer.RequestTile(New TileInfo(1, 0, 0))
-        '_TileServer.RequestTile(New TileInfo(1, -1, -1))
-        '_TileServer.RequestTile(New TileInfo(1, 0, -1))
+
 #Else
         Const Max As Integer = 1
         For i As Integer = 0 - CInt(2.0 ^ Max - 1) To CInt(2.0 ^ Max - 1) - 1
@@ -443,7 +444,7 @@ Render1:
                                                   New Pen(New SolidColorBrush(System.Windows.Media.Colors.Purple), RouteurModel.PenWidth) With {.LineJoin = PenLineJoin.Round} _
                                                }
 
-            
+
             Static Frozen As Boolean = False
 
             If Not Frozen Then
@@ -580,7 +581,7 @@ Render1:
             '
             ' Draw IsoChrones
             '
-            If Not HideIsochrones AndAlso Not _EraseIsoChrones Then
+            If Not _EraseIsoChrones Then
                 Dim StartIsochrone As DateTime = Now
                 'Try
                 If WindBrushes Is Nothing Then
@@ -608,27 +609,37 @@ Render1:
                             'Dim PrevIndex As Integer
                             Dim CurP As Coords
                             For index = 0 To MaxIndex
-                                If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
-                                    CurP = iso.Data(index).P
-                                    P1.X = LonToCanvas(CurP.Lon_Deg)
-                                    P1.Y = LatToCanvas(CurP.Lat_Deg)
+                                If Not HideIsochronesLines Then
+                                    If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
+                                        CurP = iso.Data(index).P
+                                        P1.X = LonToCanvas(CurP.Lon_Deg)
+                                        P1.Y = LatToCanvas(CurP.Lat_Deg)
 
-                                    If Not FirstPoint Then 'And index - PrevIndex < 4 Then
-                                        If iso.Data(index).WindStrength <> 0 Then
-                                            SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
+                                        If Not FirstPoint Then 'And index - PrevIndex < 4 Then
+                                            If iso.Data(index).WindStrength <> 0 Then
+                                                SafeDrawLine(DC, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), PrevPoint, P1)
+                                            End If
                                         End If
-                                    Else
+                                        'PrevIndex = index
+                                        PrevP.Lon = CurP.Lon
+                                        PrevP.Lat = CurP.Lat
+                                        PrevPoint = P1
                                         FirstPoint = False
+                                    Else
+                                        FirstPoint = True
                                     End If
-                                    'PrevIndex = index
-                                    PrevP.Lon = CurP.Lon
-                                    PrevP.Lat = CurP.Lat
-                                    PrevPoint = P1
+                                End If
 
-                                Else
-                                    FirstPoint = True
+                                If Not HideIsochronesDots Then
+                                    If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
+                                        CurP = iso.Data(index).P
+                                        P1.X = LonToCanvas(CurP.Lon_Deg)
+                                        P1.Y = LatToCanvas(CurP.Lat_Deg)
+                                        DC.DrawEllipse(Nothing, WindBrushes(CInt(iso.Data(index).WindStrength)), P1, 1, 1)
+                                    End If
                                 End If
                             Next
+                            FirstPoint = True
                             iso.Drawn = True
                         End If
 
@@ -823,7 +834,7 @@ Render1:
                     RouteIndex += 1
                     PenNumber += 1
                     PenNumber = PenNumber Mod routePen.Count
-                    
+
                     'If ShownPoints Mod 100 = 0 And ShownPoints > 0 Then
                     '    DC.Close()
                     '    _RBmp.Render(D)
@@ -952,14 +963,26 @@ Render1:
         End Set
     End Property
 
-    Public Property HideIsochrones() As Boolean
+    Public Property HideIsochronesDots() As Boolean
         Get
-            Return _HideIsochrones
+            Return _HideIsochroneDots
         End Get
         Set(ByVal value As Boolean)
-            _HideIsochrones = value
+            _HideIsochroneDots = value
             _EraseIsoChrones = True
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("HideIsochrones"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("HideIsochronesDots"))
+        End Set
+    End Property
+
+
+    Public Property HideIsochronesLines() As Boolean
+        Get
+            Return _HideIsochroneLines
+        End Get
+        Set(ByVal value As Boolean)
+            _HideIsochroneLines = value
+            _EraseIsoChrones = True
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("HideIsochronesLines"))
         End Set
     End Property
 

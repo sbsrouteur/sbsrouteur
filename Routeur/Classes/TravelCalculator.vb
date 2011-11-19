@@ -29,7 +29,7 @@ Public Class TravelCalculator
 
     Public ReadOnly Property LoxoCourse_Deg As Double
         Get
-            Return LoxoCourse_Deg_Aviat
+            Return LoxoCourse_Deg_VLM
         End Get
     End Property
 
@@ -188,6 +188,8 @@ Public Class TravelCalculator
             '    Return _DistanceAngle
             'End If
             If StartPoint Is Nothing Or EndPoint Is Nothing Then
+                _DistanceAngle = 0
+            ElseIf StartPoint.Lon = EndPoint.Lon AndAlso StartPoint.Lat = EndPoint.Lon Then
                 _DistanceAngle = 0
             Else
 

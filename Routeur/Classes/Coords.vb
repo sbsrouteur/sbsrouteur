@@ -123,7 +123,7 @@ Public Class Coords
     End Property
 
     <XmlIgnore()> _
-    Public ReadOnly Property N_Lon As Double
+    Public ReadOnly Property N_Lon As Double Implements ICoords.N_Lon
         Get
             If Lon < -PI Or Lon > PI Then
                 Return ((Lon + 3 * PI) Mod (2 * PI)) - PI
@@ -135,7 +135,7 @@ Public Class Coords
     End Property
 
     <XmlIgnore()> _
-    Public ReadOnly Property N_Lat As Double
+    Public ReadOnly Property N_Lat As Double Implements ICoords.N_Lat
         Get
             Return Lat Mod (PI / 2)
         End Get
