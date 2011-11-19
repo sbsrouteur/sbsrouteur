@@ -30,7 +30,7 @@ Public Class IsoRouter
     Private _BoatType As String
     Private _CurBest As clsrouteinfopoints
     Private _DTFRatio As Double = 0.9
-    Private _FastRoute As Boolean = False
+    Private _RouterPrefs As RacePrefs
     Private IsoRouterLock As New Object
     Private _DB As DBWrapper
     Private _MapLevel As Integer
@@ -239,7 +239,14 @@ Public Class IsoRouter
                                                                               'End If
                                                                               SyncLock RetIsoChrone.Locks(Index)
                                                                                   OldP = RetIsoChrone.Data(Index)
-                                                                                  If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2) Then
+                                                                                  If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
+                                                                                      'If OldP Is Nothing Then
+                                                                                      '    Console.WriteLine(P.P.ToString & " improves nothing @ " & Index.ToString)
+
+                                                                                      'Else
+                                                                                      '    Console.WriteLine(P.P.ToString & " improves" & OldP.ToString & " @ " & Index.ToString)
+
+                                                                                      'End If
                                                                                       RetIsoChrone.Data(Index) = P
 
                                                                                       'Update Polygon
@@ -290,7 +297,7 @@ Public Class IsoRouter
             'Console.WriteLine("Iso complete " & Now.Subtract(IsoStart).ToString)
 
 
-            'Clean up bad points
+            ''Clean up bad points
             'If RetIsoChrone IsNot Nothing Then
             '    For Index1 = 0 To RetIsoChrone.Data.Count - 1
             '        If RetIsoChrone.Data(Index1) IsNot Nothing Then
@@ -375,8 +382,9 @@ Public Class IsoRouter
 
                 End If
             End If
-            If Now.Subtract(LastUpdate).TotalSeconds > 3 Then
+            If Now.Subtract(LastUpdate).TotalSeconds > 6 Then
                 RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
+                LastUpdate = Now
             End If
             'Console.WriteLine("TmpRouted" & Now.Subtract(LoopStart).TotalMilliseconds)
             'Console.WriteLine("FromStart" & Now.Subtract(Start).ToString)
@@ -416,7 +424,7 @@ Public Class IsoRouter
         'Dim LoopCount As Integer
         'Static LoopMs As Double = 0
         'Dim LoopStart As DateTime = Now
-        If Not _FastRoute Then
+        If Not _RouterPrefs.FastRouteShortMeteo Then
             MI = Nothing
             For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
                 CurDate = Start.T.AddTicks(i)
@@ -430,14 +438,13 @@ Public Class IsoRouter
                 If _CancelRequested Then
                     Return Nothing
                 End If
-
-                'If _FastRoute Then
-                '_SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
-                'Dim Alpha As Double = Math.Abs(WindAngle(Cap, MI.Dir))
-                'If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
-                'Return Nothing
-                'End If
-                'End If
+                If _RouterPrefs.FastRouteShortPolar Then
+                    _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
+                    Dim Alpha As Double = WindAngle(Cap, MI.Dir)
+                    If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
+                        Return Nothing
+                    End If
+                End If
 
                 Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
                 TotalDist += Speed / 60 * RouteurModel.VacationMinutes
@@ -457,78 +464,80 @@ Public Class IsoRouter
             If _CancelRequested Then
                 Return Nothing
             End If
-            _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
-            Dim Alpha As Double = WindAngle(Cap, MI.Dir)
-            If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
-                Return Nothing
-            End If
 
+            If _RouterPrefs.FastRouteShortPolar Then
+                _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
+                Dim Alpha As Double = WindAngle(Cap, MI.Dir)
+                If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
+                    Return Nothing
+                End If
+            End If
 
             Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
             TotalDist = Speed * Duration.TotalHours
             TC.StartPoint = TC.ReachDistance(TotalDist, Cap)
             CurDate = CurDate.Add(Duration)
-        End If
-        TC.EndPoint = TC.StartPoint
-        TC.StartPoint = Start.P
+            End If
+            TC.EndPoint = TC.StartPoint
+            TC.StartPoint = Start.P
 
-        If Math.Abs(TC.EndPoint.Lon - TC.StartPoint.Lon) > Math.PI AndAlso TC.EndPoint.Lon * TC.StartPoint.Lon < 0 Then
-            If TC.StartPoint.Lon < 0 Then
-                TC.EndPoint.Lon += (Math.Ceiling(TC.StartPoint.Lon / 2 / Math.PI) - 1) * 2 * Math.PI
-            Else
-                TC.EndPoint.Lon += (1 + Math.Floor(TC.StartPoint.Lon / 2 / Math.PI)) * 2 * Math.PI
+            If Math.Abs(TC.EndPoint.Lon - TC.StartPoint.Lon) > Math.PI AndAlso TC.EndPoint.Lon * TC.StartPoint.Lon < 0 Then
+                If TC.StartPoint.Lon < 0 Then
+                    TC.EndPoint.Lon += (Math.Ceiling(TC.StartPoint.Lon / 2 / Math.PI) - 1) * 2 * Math.PI
+                Else
+                    TC.EndPoint.Lon += (1 + Math.Floor(TC.StartPoint.Lon / 2 / Math.PI)) * 2 * Math.PI
+                End If
+
             End If
 
-        End If
 
+            'ReachPointCounts += 1
+            'If PrevDist <> 0 AndAlso TotalDist / PrevDist > 20 Then
+            '    Dim br As Integer = 0
+            'ElseIf PrevDist <> 0 Then
+            '    PrevDist = TotalDist
 
-        'ReachPointCounts += 1
-        'If PrevDist <> 0 AndAlso TotalDist / PrevDist > 20 Then
-        '    Dim br As Integer = 0
-        'ElseIf PrevDist <> 0 Then
-        '    PrevDist = TotalDist
+            'End If
+            'If TotalDist < 0.0001 Then
+            '    TotalDist = 0.0001
+            'End If
+            'TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
+            If RouteurModel.NoObstacle OrElse (TC.SurfaceDistance > 0 AndAlso Not _DB.IntersectMapSegment(TC.StartPoint, TC.EndPoint, GSHHS_Reader._Tree)) Then
+                'If CheckSegmentValid(TC) Then
+                RetPoint = New clsrouteinfopoints
+                With RetPoint
+                    .P = New Coords(TC.EndPoint)
+                    .T = CurDate
+                    .Speed = Speed
+                    .WindStrength = MI.Strength
+                    .WindDir = MI.Dir
+                    .Loch = TotalDist
+                    .LochFromStart = .Loch + Start.LochFromStart
+                    If _DestPoint2 Is Nothing Then
+                        TC.StartPoint = _DestPoint1
+                        .DTF = TC.SurfaceDistance
+                    Else
+                        TC.StartPoint = GSHHS_Reader.PointToSegmentIntersect(.P, _DestPoint1, _DestPoint2)
+                        .DTF = TC.SurfaceDistance
+                    End If
+                    .From = Start
+                    .Cap = Cap
+                End With
 
-        'End If
-        'If TotalDist < 0.0001 Then
-        '    TotalDist = 0.0001
-        'End If
-        'TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
-        If RouteurModel.NoObstacle OrElse (TC.SurfaceDistance > 0 AndAlso Not _DB.IntersectMapSegment(TC.StartPoint, TC.EndPoint, GSHHS_Reader._Tree)) Then
-            'If CheckSegmentValid(TC) Then
-            RetPoint = New clsrouteinfopoints
-            With RetPoint
-                .P = New Coords(TC.EndPoint)
-                .T = CurDate
-                .Speed = Speed
-                .WindStrength = MI.Strength
-                .WindDir = MI.Dir
-                .Loch = TotalDist
-                .LochFromStart = .Loch + Start.LochFromStart
-                If _DestPoint2 Is Nothing Then
-                    TC.StartPoint = _DestPoint1
-                    .DTF = TC.SurfaceDistance
-                Else
-                    TC.StartPoint = GSHHS_Reader.PointToSegmentIntersect(.P, _DestPoint1, _DestPoint2)
-                    .DTF = TC.SurfaceDistance
-                End If
-                .From = Start
-                .Cap = Cap
-            End With
+            Else
+                Dim bp As Integer = 0
 
-        Else
-            Dim bp As Integer = 0
+            End If
 
-        End If
-
-        TC.StartPoint = Nothing
-        TC.EndPoint = Nothing
-        TC = Nothing
-        'LoopMs += Now.Subtract(LoopStart).TotalMilliseconds
-        'If ReachPointCounts Mod 500 = 0 Then
-        'Console.WriteLine("ReachPointLoops " & LoopCount & " in " & LoopMs / 500 & " for " & Duration.ToString)
-        'LoopMs = 0
-        'End If
-        Return RetPoint
+            TC.StartPoint = Nothing
+            TC.EndPoint = Nothing
+            TC = Nothing
+            'LoopMs += Now.Subtract(LoopStart).TotalMilliseconds
+            'If ReachPointCounts Mod 500 = 0 Then
+            'Console.WriteLine("ReachPointLoops " & LoopCount & " in " & LoopMs / 500 & " for " & Duration.ToString)
+            'LoopMs = 0
+            'End If
+            Return RetPoint
 
     End Function
 
@@ -622,7 +631,7 @@ Public Class IsoRouter
 
 
 
-    Public Sub StartIsoRoute(ByVal From As Coords, ByVal WP1 As Coords, ByVal WP2 As Coords, ByVal StartDate As Date, ByVal FastRoute As Boolean)
+    Public Sub StartIsoRoute(ByVal From As Coords, ByVal WP1 As Coords, ByVal WP2 As Coords, ByVal StartDate As Date, Prefs As RacePrefs)
 
         If _IsoRouteThread Is Nothing Then
             _IsoRouteThread = New Thread(AddressOf IsoRouteThread)
@@ -630,7 +639,7 @@ Public Class IsoRouter
             _StartPoint = New VLM_Router.clsrouteinfopoints
             _TC.StartPoint = From
             _TC.EndPoint = WP1
-            _FastRoute = FastRoute
+            _RouterPrefs = Prefs
 
 
             Dim mi As MeteoInfo = Nothing
