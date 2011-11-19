@@ -138,4 +138,20 @@ Public Class GSHHS_UtilsTest
         Assert.AreEqual(expected, actual)
 
     End Sub
+
+    '''<summary>
+    '''Test pour IntersectSegments
+    '''</summary>
+    <TestMethod()> _
+    Public Sub IntersectSegmentsVOR_CoastStart()
+        Dim S1_P1 As Coords = New Coords(38.25, -0.3)
+        Dim S1_P2 As Coords = New Coords(38.25, -0.6)
+        Dim _P1 As New Coords(90, 179.999999)
+        Dim _P2 As New Coords(-90, -179.99999)
+        Dim db As New DBWrapper()
+        db.MapLevel = 3
+        
+        Assert.IsTrue(db.IntersectMapSegment(S1_P1, S1_P2, New BspRect(_P1, _P2, 1)))
+        
+    End Sub
 End Class
