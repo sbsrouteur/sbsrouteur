@@ -29,7 +29,7 @@ Public Class TravelCalculator
 
     Public ReadOnly Property LoxoCourse_Deg As Double
         Get
-            Return LoxoCourse_Deg_Aviat
+            Return LoxoCourse_Deg_VLM
         End Get
     End Property
 

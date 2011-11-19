@@ -82,7 +82,7 @@ Public Class BspRect
                 Else
                     Return Rect.GetSegments(C, GridGrain, db)
                 End If
-            Else
+            ElseIf _Segments Is Nothing Then
                 SyncLock _lockObj
                     If _Segments Is Nothing Then
 
@@ -103,6 +103,8 @@ Public Class BspRect
                     End If
                     Return _Segments
                 End SyncLock
+            Else
+                Return _Segments
             End If
         End Get
     End Property
