@@ -5,7 +5,7 @@ if($_SERVER['SERVER_NAME']=="localhost")
 else
     $dbname='../data/DB/Routeur_Dwnl.sqlite';
 $mytable ="dwnload";
-$CurVersion = "25.0";
+$CurVersion = "25.1";
 
 $base= sqlite_open($dbname, 0666, $err);
 if ($err)  exit($err); 
