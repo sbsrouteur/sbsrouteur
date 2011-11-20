@@ -45,14 +45,15 @@ Partial Public Class RouteurMain
     Private Sub FormLoaded(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
         Dim M = CType(FindResource(RouteurModelResourceName), RouteurModel)
-        M.Init(Dispatcher)
-
         If M.The2DViewer Is Nothing Then
             M.The2DViewer = Me.VOR2DViewer
-            M.The2DViewer.InitViewer(Me)
-            RedrawClick(Nothing, Nothing)
+            'RedrawClick(Nothing, Nothing)
 
         End If
+        M.Init(Dispatcher)
+        M.The2DViewer.InitViewer(Me)
+
+
 
         Dim sApp As String = System.IO.Path.Combine(My.Application.Info.DirectoryPath, My.Application.Info.AssemblyName & ".exe")
         Title = M.AppString & " - Build " & RetrieveLinkerTimestamp(sApp)
@@ -60,7 +61,7 @@ Partial Public Class RouteurMain
         _WallTimer.Start()
         M.VorHandler.Owner = Me
         CenterOnBoat(Me, Nothing)
-        UpdateCoordsExtent(M, False, False)
+        UpdateCoordsExtent(M, True, False)
         _frmControlDeck.DataContext = M
         _frmControlDeck.Owner = Me
         _frmControlDeck.Show()
@@ -103,18 +104,18 @@ Partial Public Class RouteurMain
 
     End Sub
 
-    Private Sub UpdateCoordsExtent(ByVal M As RouteurModel, ByVal FromRace As Boolean, ByVal RescaleMap As Boolean)
+    Private Sub UpdateCoordsExtent(ByVal M As RouteurModel, ByVal UseRaceDefinitionExtent As Boolean, ByVal RescaleMap As Boolean)
 
         If M.The2DViewer Is Nothing Then
             Return
         End If
 
         Dim Pos1 As New Point(0, 0)
-        Dim Pos2 As New Point(Me.TabCanvas.ActualWidth, Me.TabCanvas.ActualHeight)
+        Dim Pos2 As New Point(Me.VOR2DViewer.ActualWidth, Me.VOR2DViewer.ActualHeight)
         Dim C1 As Coords
         Dim C2 As Coords
 
-        If Not FromRace Then
+        If Not UseRaceDefinitionExtent Then
             C1 = New Coords
             C2 = New Coords
             Pos1 = _2DGrid.TranslatePoint(Pos1, VOR2DViewer)
@@ -389,8 +390,7 @@ Partial Public Class RouteurMain
     Private Sub RendererSizeChanged(ByVal sender As Object, ByVal e As System.Windows.SizeChangedEventArgs)
 
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
-
-        UpdateCoordsExtent(M, False, False)
+        UpdateCoordsExtent(M, False, True)
 
     End Sub
 

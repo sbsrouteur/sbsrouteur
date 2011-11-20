@@ -8,7 +8,7 @@
 	mc:Ignorable="d"
 	x:Class="_2D_Viewer"
 	x:Name="UserControl"
-	d:DesignWidth="640" d:DesignHeight="480" BorderBrush="#FFF1FF00">
+	d:DesignWidth="640" d:DesignHeight="480" SizeChanged="OnMapSizeChanged">
 	
 	<UserControl.Resources>
 		<Image x:Key="BackDrop" Source="..\Graphics\world.png" Width="3600" />
@@ -17,36 +17,8 @@
 		<System:Double x:Key="ThreeWidth">10800</System:Double>
 		<System:Double x:Key="TwoWith">7200</System:Double>
 	</UserControl.Resources>
-	<Canvas x:Name="BackBuffer" Width="{DynamicResource ThreeWidth}" Height="{DynamicResource Height}" >
-		<Image x:Name="RenderBuffer"  RenderTransformOrigin="0.5,0.5" Canvas.Top="0" MouseMove="MouseOverMap" Stretch="Fill" Margin="0" Width="{DynamicResource Width}" Height="{DynamicResource Height}" Canvas.Left="0" >
-			<Image.RenderTransform>
-				<TransformGroup>
-					<ScaleTransform ScaleX="1" ScaleY="1"/>
-					<SkewTransform AngleX="0" AngleY="0"/>
-					<RotateTransform Angle="0"/>
-					<TranslateTransform X="0" Y="0"/>
-				</TransformGroup>
-			</Image.RenderTransform>
-		</Image>
-		<Image Width="{DynamicResource Width}" Height="{DynamicResource Height}" x:Name="RenderBuffer1"  RenderTransformOrigin="0.5,0.5" Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Canvas.Left="{DynamicResource Width}" Source="{Binding Source, ElementName=RenderBuffer, Mode=OneWay}" Margin="0" >
-			<Image.RenderTransform>
-				<TransformGroup>
-					<ScaleTransform ScaleX="1" ScaleY="1"/>
-					<SkewTransform AngleX="0" AngleY="0"/>
-					<RotateTransform Angle="0"/>
-					<TranslateTransform X="0" Y="0"/>
-				</TransformGroup>
-			</Image.RenderTransform>
-		</Image>
-		<Image Width="{DynamicResource Width}" x:Name="RenderBuffer2"  RenderTransformOrigin="0.5,0.5" Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Canvas.Left="{DynamicResource TwoWith}" Source="{Binding Source, ElementName=RenderBuffer, Mode=OneWay}" Margin="0" Height="{DynamicResource Height}" >
-			<Image.RenderTransform>
-				<TransformGroup>
-					<ScaleTransform ScaleX="1" ScaleY="1"/>
-					<SkewTransform AngleX="0" AngleY="0"/>
-					<RotateTransform Angle="0"/>
-					<TranslateTransform X="0" Y="0"/>
-				</TransformGroup>
-			</Image.RenderTransform>
-		</Image>
-	</Canvas>
+	<Grid x:Name="BackBuffer" >
+		<Image x:Name="RenderBuffer"  Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Margin="0" Canvas.Left="0" VerticalAlignment="Top" />
+		<Rectangle Canvas.Top="0" Width="{Binding ActualWidth, ElementName=RenderBuffer}" Height="{Binding ActualHeight, ElementName=RenderBuffer}" Stroke="#FFDA0E0E" StrokeThickness="11"></Rectangle>
+	</Grid>
 </UserControl>
