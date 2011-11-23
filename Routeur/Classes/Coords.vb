@@ -164,8 +164,8 @@ Public Class Coords
 
     Public ReadOnly Property Mercator_Y_Deg() As Double
         Get
-            Dim ret As Double = Log(Tan(Lat) + 1 / Cos(Lat)) / PI * 180
-
+            Dim ret As Double = Log(Tan(N_Lat) + 1 / Cos(N_Lat)) / PI * 180
+            'Debug.Assert(Not Double.IsNaN(ret))
             If ret < -90 Then
                 ret = -90
             ElseIf ret > 90 Then

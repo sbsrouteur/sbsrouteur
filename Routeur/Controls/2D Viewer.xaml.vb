@@ -502,7 +502,7 @@ Render1:
                 _BgStarted = False
                 _ClearBgMap = False
                 _BackDropBmp = Nothing
-
+                OnMapSizeChanged(Nothing, Nothing)
             End If
 
             'If Not _BgStarted AndAlso _BackDropBmp Is Nothing Then
@@ -1012,6 +1012,7 @@ Render1:
             Return _LatOffset
         End Get
         Set(ByVal value As Double)
+            Debug.Assert(Not Double.IsNaN(value))
             _LatOffset = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LatOffset"))
         End Set
@@ -1022,6 +1023,7 @@ Render1:
             Return _LonOffset
         End Get
         Set(ByVal value As Double)
+            Debug.Assert(Not Double.IsNaN(value))
             _LonOffset = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LonOffset"))
         End Set
