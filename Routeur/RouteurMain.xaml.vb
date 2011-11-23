@@ -241,18 +241,25 @@ Partial Public Class RouteurMain
             Zoom(1 / 1.2, e.GetPosition(Me.VOR2DViewer))
         End If
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
-        UpdateCoordsExtent(M, False, False)
+
     End Sub
 
     Private Sub Zoom(ByVal Factor As Double, ByVal CenterPosition As Point)
-
-        
-        VOR2DViewer.RenderTransformOrigin = New Point(CenterPosition.X / VOR2DViewer.ActualWidth, CenterPosition.Y / VOR2DViewer.ActualHeight)
-        SldZoom.Value *= Factor
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         If M.RouteManager IsNot Nothing Then
-            M.RouteManager.rescale()
+
+            Dim dx As Double = VOR2DViewer.ActualWidth / 2 / Factor
+            Dim dy As Double = VOR2DViewer.ActualHeight / 2 / Factor
+            Dim C1 As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y - dy), VOR2DViewer.CanvasToLon(CenterPosition.X - dx))
+            Dim C2 As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y + dy), VOR2DViewer.CanvasToLon(CenterPosition.X + dx))
+            'TODO handle antemeridien
+            
+            M.VorHandler.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
+            M.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
+            M.UpdateRaceScale(C1, C2)
+            M.RouteManager.Rescale()
+            RedrawClick(Nothing, Nothing)
         End If
     End Sub
 
