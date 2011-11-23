@@ -3313,7 +3313,7 @@ Public Class VLM_Router
 
 
             _iso = New IsoRouter(_UserInfo.type, Sails, Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, prefs.IsoStep, _
-                                 prefs.IsoStep_24, prefs.IsoStep_48, DBWrapper.GetMapLevel(prefs.MapLevel))
+                                 prefs.IsoStep_24, prefs.IsoStep_48, DBWrapper.GetMapLevel(prefs.MapLevel), prefs.EllipseExtFactor)
             Dim WP As Integer
 
             If CurUserWP = 0 Then
