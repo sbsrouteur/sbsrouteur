@@ -162,6 +162,20 @@ Public Class Coords
         End Get
     End Property
 
+    Public Shared ReadOnly Property Mercator_Y_Deg(Lat_Deg As Double) As Double
+        Get
+            Dim ret As Double = Log(Tan(Lat_Deg) + 1 / Cos(Lat_Deg)) / PI * 180
+            'Debug.Assert(Not Double.IsNaN(ret))
+            If ret < -90 Then
+                ret = -90
+            ElseIf ret > 90 Then
+                ret = 90
+            End If
+            Return ret
+
+        End Get
+    End Property
+
     Public ReadOnly Property Mercator_Y_Deg() As Double
         Get
             Dim ret As Double = Log(Tan(N_Lat) + 1 / Cos(N_Lat)) / PI * 180

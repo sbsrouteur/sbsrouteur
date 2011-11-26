@@ -210,12 +210,12 @@ Public Class RouteurModel
             End If
         End If
         _LatOffset = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
-
-        Dim Scale2 As Double = The2DViewer.ActualHeight / 1.1 / Math.Abs(C1.Mercator_Y_Deg - C2.Mercator_Y_Deg)
-        If Scale2 < Scale Then
-            Scale = Scale2
-        End If
-        Scale *= 1
+        '_LatOffset = (C1.Lat_Deg + C2.Lat_Deg) / 2
+        'Dim Scale2 As Double = The2DViewer.ActualHeight / 1.1 / Math.Abs(C1.Mercator_Y_Deg - C2.Mercator_Y_Deg)
+        'If Scale2 < Scale Then
+        '    Scale = Scale2
+        'End If
+        'Scale *= 1
         Debug.Assert(Scale <> 0)
 
         '#If NO_TILES = 0 Then
