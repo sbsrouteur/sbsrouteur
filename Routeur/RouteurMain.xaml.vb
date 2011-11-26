@@ -249,17 +249,30 @@ Partial Public Class RouteurMain
 
         If M.RouteManager IsNot Nothing Then
 
-            Dim dx As Double = VOR2DViewer.ActualWidth / 2 / Factor
-            Dim dy As Double = VOR2DViewer.ActualHeight / 2 / Factor
-            Dim C1 As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y - dy), VOR2DViewer.CanvasToLon(CenterPosition.X - dx))
-            Dim C2 As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y + dy), VOR2DViewer.CanvasToLon(CenterPosition.X + dx))
+            Dim dx As Double = VOR2DViewer.ActualWidth / Factor
+            Dim dx1 As Double = dx * CenterPosition.X / VOR2DViewer.ActualWidth
+            Dim dx2 As Double = dx - dx1
+            Dim dy As Double = dx * VOR2DViewer.ActualHeight / VOR2DViewer.ActualWidth
+            Dim dy1 As Double = dy * CenterPosition.Y / VOR2DViewer.ActualHeight
+            Dim dy2 As Double = dy - dy1
+
+            Debug.WriteLine(dx & " / " & dy)
+
+            Dim C1 As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y - dy1), VOR2DViewer.CanvasToLon(CenterPosition.X - dx1))
+            Dim C2 As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y + dy2), VOR2DViewer.CanvasToLon(CenterPosition.X + dx2))
             'TODO handle antemeridien
-            
+            Dim ZoomCenter As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y), VOR2DViewer.CanvasToLon(CenterPosition.X))
+            Debug.WriteLine("ZoomCenter" & ZoomCenter.ToString & " vs " & (C1.Lat_Deg + C2.Lat_Deg) / 2 & " = " & (C1.Lat_Deg + C2.Lat_Deg) / 2 - ZoomCenter.Lat_Deg)
+            Debug.WriteLine("ZoomCenter" & ZoomCenter.ToString & " vs " & (C1.Lon_Deg + C2.Lon_Deg) / 2 & " = " & (C1.Lon_Deg + C2.Lon_Deg) / 2 - ZoomCenter.Lon_Deg)
+            Debug.WriteLine("zoom to " & C1.ToString & " / " & C2.ToString)
             M.VorHandler.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
             M.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
             M.UpdateRaceScale(C1, C2)
             M.RouteManager.Rescale()
             RedrawClick(Nothing, Nothing)
+            ZoomCenter = New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y), VOR2DViewer.CanvasToLon(CenterPosition.X))
+            Debug.WriteLine("New mouse pos" & ZoomCenter.ToString)
+
         End If
     End Sub
 
