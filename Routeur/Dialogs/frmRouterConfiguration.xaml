@@ -73,6 +73,8 @@
 			<StackPanel Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="3" >
 				<TextBlock Text="Angle Step:" TextWrapping="Wrap" />
 				<TextBox MinWidth="40" Text="{Binding IsoAngleStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Style="{DynamicResource DoubleFormatCheckTextBox}" />
+				<TextBlock Text="Routing zone excenticity:" TextWrapping="Wrap" />
+				<TextBox MinWidth="40" Text="{Binding EllipseExtFactor, Mode=TwoWay, UpdateSourceTrigger=Default}" Style="{DynamicResource DoubleFormatCheckTextBox}" />
 			</StackPanel>
 		</Grid>
 		<Grid Grid.Row="3" Grid.ColumnSpan="2" Background="#FFF2F1FF">
