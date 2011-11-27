@@ -408,8 +408,8 @@
 						</Label.LayoutTransform>
 					</Label>
 					<Slider Grid.Row="2" x:Name="SldZoom" Value="1" Minimum="0.00001" Maximum="20" Margin="0,0,0,2.142" ValueChanged="OnRenderPosChanged"/>
-					<Slider Grid.Row="3" x:Name="SldLat" Minimum="-180000" Visibility="Hidden" Maximum="180000" ValueChanged="OnRenderPosChanged"/>
-					<Slider Grid.Row="4" x:Name="SldLon" Maximum="108000" Minimum="-108000" Visibility="Hidden" ValueChanged="OnRenderPosChanged"/>
+					<Slider Grid.Row="3" x:Name="SldLat" Minimum="-10080000" Visibility="Hidden" Maximum="10080000" ValueChanged="OnRenderPosChanged"/>
+				    <Slider Grid.Row="4" x:Name="SldLon" Maximum="10008000" Minimum="-10008000" Visibility="Hidden" ValueChanged="OnRenderPosChanged"/>
 					<StackPanel Grid.Row="3" Width="Auto" Height="Auto" Grid.ColumnSpan="2" Grid.RowSpan="4">
 						<GroupBox  Grid.RowSpan="1"  Header="" Background="#6DFFFFFF">
 							<GroupBox.BitmapEffect>
