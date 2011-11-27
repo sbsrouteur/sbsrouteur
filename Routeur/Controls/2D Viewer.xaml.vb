@@ -83,21 +83,21 @@ Partial Public Class _2D_Viewer
         Debug.Assert(Scale <> 0)
         Dim Ret As Double = (ActualHeight / 2 - C) / Scale + LatOffset '90 / RouteurModel.SCALE - C / DEFINITION / RouteurModel.SCALE + RouteurModel.LAT_OFFSET
         Ret = Ret / 180 * PI
-        Return (Math.Atan(Math.Sinh(Ret)) / PI * 180) Mod 90
+        Return (Math.Atan(Math.Sinh(Ret)) / PI * 180)
     End Function
 
     Public Function CanvasToLon(ByVal V As Double) As Double
         Debug.Assert(Scale <> 0)
         Dim Ret As Double = ((V - ActualWidth / 2) / Scale + LonOffset) '(V - 180 * DEFINITION) / DEFINITION / RouteurModel.SCALE
-        If Ret > 180 Then
-            While Ret > 180
-                Ret -= 180
-            End While
-        ElseIf Ret < -180 Then
-            While Ret < -180
-                Ret += 180
-            End While
-        End If
+        'If Ret > 180 Then
+        '    While Ret > 180
+        '        Ret -= 180
+        '    End While
+        'ElseIf Ret < -180 Then
+        '    While Ret < -180
+        '        Ret += 180
+        '    End While
+        'End If
         Return Ret
     End Function
 
