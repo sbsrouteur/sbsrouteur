@@ -156,25 +156,24 @@ Partial Public Class RouteurMain
 
     Private Sub MouseEndDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
         DragCanvas = False
-        Console.WriteLine("dragged to " & Me.SldLon.Value & " " & Me.SldLat.Value & " Z " & Me.SldZoom.Value)
-        'If e.ClickCount > 1 Then
-        'Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
-        'M.VorHandler.DebugBSP(e.GetPosition(Me.VOR2DViewer))
-        'End If
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
 
-        UpdateCoordsExtent(M, False, False)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+        Dim EndDragPoint As Point = e.GetPosition(Me.VOR2DViewer)
+        Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
+        Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
+
+
+        Dim C1 As New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
+        Dim C2 As New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
+
+        M.UpdateRaceScale(C1, C2)
+        RedrawClick(Nothing, Nothing)
     End Sub
 
     Private Sub MouseMoveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
 
 
-        If DragCanvas Then
-            Me.SldLon.Value += (e.GetPosition(Me.VOR2DViewer).X - _DragStartPoint.X) * SldZoom.Value
-            Me.SldLat.Value += (e.GetPosition(Me.VOR2DViewer).Y - _DragStartPoint.Y) * SldZoom.Value
-
-            _DragStartPoint = e.GetPosition(Me.VOR2DViewer)
-        End If
+        
 
     End Sub
 
@@ -265,10 +264,11 @@ Partial Public Class RouteurMain
             Debug.WriteLine("ZoomCenter" & ZoomCenter.ToString & " vs " & (C1.Lat_Deg + C2.Lat_Deg) / 2 & " = " & (C1.Lat_Deg + C2.Lat_Deg) / 2 - ZoomCenter.Lat_Deg)
             Debug.WriteLine("ZoomCenter" & ZoomCenter.ToString & " vs " & (C1.Lon_Deg + C2.Lon_Deg) / 2 & " = " & (C1.Lon_Deg + C2.Lon_Deg) / 2 - ZoomCenter.Lon_Deg)
             Debug.WriteLine("zoom to " & C1.ToString & " / " & C2.ToString)
-            M.VorHandler.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
-            M.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
+            'M.VorHandler.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
+            'M.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
+            Debug.Assert(C1.Lon < C2.Lon And C1.Lat > C2.Lat)
             M.UpdateRaceScale(C1, C2)
-            M.RouteManager.Rescale()
+            'M.RouteManager.Rescale()
             RedrawClick(Nothing, Nothing)
             ZoomCenter = New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y), VOR2DViewer.CanvasToLon(CenterPosition.X))
             Debug.WriteLine("New mouse pos" & ZoomCenter.ToString)
