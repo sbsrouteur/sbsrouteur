@@ -10,7 +10,7 @@
   $base= sqlite_open($dbname, 0666, $err);
   if (!$err)
   {
-    $result = sqlite_array_query($base, "SELECT  file_name,ip, count(*) as cnt FROM $mytable where file_name ='Routeur.exe' group by file_name,ip",SQLITE_ASSOC,$err_str);
+    $result = sqlite_array_query($base, "SELECT  file_name,ip, count(*) as cnt FROM $mytable group by file_name,ip",SQLITE_ASSOC,$err_str);
    
     
     foreach($result as $entry)

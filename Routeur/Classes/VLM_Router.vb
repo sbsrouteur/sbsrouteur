@@ -1137,7 +1137,7 @@ Public Class VLM_Router
         Static Computing As Boolean = False
         Static CancelComputation As Boolean = False
 
-        If Not Computing Then
+        If Not Computing AndAlso Not _Pilototo Is Nothing Then
             Computing = True
             Try
                 Dim Route(5) As RoutePointView
@@ -1188,7 +1188,7 @@ Public Class VLM_Router
                     .RouteMode = CType(_UserInfo.position.PIM, EnumRouteMode)
 
 
-        Select Case .RouteMode
+                    Select Case .RouteMode
                         Case EnumRouteMode.Bearing
                             Dim PtDoubleValue As New RoutePointDoubleValue
                             PtDoubleValue.Value = _UserInfo.position.cap
@@ -1214,7 +1214,7 @@ Public Class VLM_Router
                 CancelComputation = False
                 Dim startdate As DateTime = _UserInfo.date
                 If startdate < RaceStartDate Then
-                    startdate = racestartdate
+                    startdate = RaceStartDate
                 End If
                 PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, startdate, CancelComputation)
 
@@ -3313,7 +3313,7 @@ Public Class VLM_Router
 
 
             _iso = New IsoRouter(_UserInfo.type, Sails, Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, prefs.IsoStep, _
-                                 prefs.IsoStep_24, prefs.IsoStep_48, DBWrapper.GetMapLevel(prefs.MapLevel))
+                                 prefs.IsoStep_24, prefs.IsoStep_48, DBWrapper.GetMapLevel(prefs.MapLevel), prefs.EllipseExtFactor)
             Dim WP As Integer
 
             If CurUserWP = 0 Then
