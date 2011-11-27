@@ -21,7 +21,7 @@ Partial Public Class RouteurMain
 
     Private _DragCanvas As Boolean = False
     Private _DragStartPoint As Point
-    Private _ZoomIn As Boolean = False
+
     Private WithEvents _RouteForm As frmRouteViewer
     Private WithEvents _frmControlDeck As New frmControlDeck
 
@@ -140,7 +140,7 @@ Partial Public Class RouteurMain
         M.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
         If RescaleMap Then
             M.UpdateRaceScale(C1, C2)
-            SldZoom.Value = 1
+            'SldZoom.Value = 1
         End If
         RaiseEvent PropertyChanged(M, New PropertyChangedEventArgs("WPsPath"))
         RedrawClick(Nothing, Nothing)
@@ -173,20 +173,12 @@ Partial Public Class RouteurMain
     Private Sub MouseMoveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
 
 
-        
-
     End Sub
 
     Private Sub _WallTimer_Tick(ByVal sender As Object, ByVal e As System.EventArgs) Handles _WallTimer.Tick
         Static Dlg As Action
         Static DlgRefresh As Action
         Static LastSec As Integer
-
-        If _ZoomIn Then
-            _ZoomIn = False
-            SldZoom.Value *= 2
-
-        End If
 
         If Now.Second = LastSec Then
             Return
@@ -387,18 +379,11 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
 
         Dim V As VLM_Router = M.VorHandler
-        'Dim P As New Point
-        'P.X = V.BoatCanvasX
-        'P.Y = V.BoatCanvasY
-        'P = VOR2DViewer.TranslatePoint(P, _2DGrid)
-        VOR2DViewer.RenderTransformOrigin = New Point(M.BoatCanvasX / VOR2DViewer.ActualWidth, M.BoatCanvasY / VOR2DViewer.ActualHeight)
+
+        Dim Center As New Point(M.BoatCanvasX, M.BoatCanvasY)
+        Zoom(1, Center)
 
 
-        SldLat.Value = _2DGrid.ActualHeight / 2 - M.BoatCanvasY
-        SldLon.Value = _2DGrid.ActualWidth / 2 - M.BoatCanvasX
-        SldZoom.Value = 0.5
-
-        _ZoomIn = True
     End Sub
 
     Public Function RenderCanvasCoords(ByVal e As System.Windows.Input.MouseEventArgs) As Point
@@ -478,10 +463,6 @@ Partial Public Class RouteurMain
 
     Private Sub OnRenderPosChanged(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
-        'If NavControl.Renderer Is Nothing Then
-        '    Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
-        '    NavControl.Renderer = M.The2DViewer
-        'End If
         NavControl.RefreshPosition()
 
     End Sub
