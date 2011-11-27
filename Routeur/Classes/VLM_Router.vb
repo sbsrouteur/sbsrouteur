@@ -1655,6 +1655,7 @@ Public Class VLM_Router
         Dim wc As New WebClient
         Dim Cookies As CookieContainer = Login()
         Dim NbArrived As Integer = 0
+        Static RaceHasReals As Boolean = True
         Dim JSonRanking As Dictionary(Of String, Object) = WS_Wrapper.GetRankings(_PlayerInfo.RaceInfo.idraces, NbArrived)
 
         If JSonRanking IsNot Nothing Then
@@ -1714,6 +1715,10 @@ Public Class VLM_Router
 
         End If
 
+        If RaceHasReals Then
+            Dim RealPos As Dictionary(Of String, Object) = WS_Wrapper.GetReals(_PlayerInfo.RaceInfo.idraces)
+        End If
+
 
         If _Opponents.ContainsKey(_PlayerInfo.NumBoat.ToString) Then
             Dim MyBoat As BoatInfo = _Opponents(_PlayerInfo.NumBoat.ToString)
@@ -1751,7 +1756,7 @@ Public Class VLM_Router
             End If
         End If
 
-        AddLog("Worker " & Id & " complete")
+        'AddLog("Worker " & Id & " complete")
         OnBoatWorkerComplete()
 
     End Sub
