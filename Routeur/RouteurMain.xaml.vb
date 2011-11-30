@@ -21,7 +21,7 @@ Partial Public Class RouteurMain
 
     Private _DragCanvas As Boolean = False
     Private _DragStartPoint As Point
-    Private _ZoomIn As Boolean = False
+
     Private WithEvents _RouteForm As frmRouteViewer
     Private WithEvents _frmControlDeck As New frmControlDeck
 
@@ -45,14 +45,15 @@ Partial Public Class RouteurMain
     Private Sub FormLoaded(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
         Dim M = CType(FindResource(RouteurModelResourceName), RouteurModel)
-        M.Init(Dispatcher)
-
         If M.The2DViewer Is Nothing Then
             M.The2DViewer = Me.VOR2DViewer
-            M.The2DViewer.InitViewer(Me)
-            RedrawClick(Nothing, Nothing)
+            'RedrawClick(Nothing, Nothing)
 
         End If
+        M.Init(Dispatcher)
+        M.The2DViewer.InitViewer(Me)
+
+
 
         Dim sApp As String = System.IO.Path.Combine(My.Application.Info.DirectoryPath, My.Application.Info.AssemblyName & ".exe")
         Title = M.AppString & " - Build " & RetrieveLinkerTimestamp(sApp)
@@ -60,7 +61,7 @@ Partial Public Class RouteurMain
         _WallTimer.Start()
         M.VorHandler.Owner = Me
         CenterOnBoat(Me, Nothing)
-        UpdateCoordsExtent(M, False, False)
+        UpdateCoordsExtent(M, True, False)
         _frmControlDeck.DataContext = M
         _frmControlDeck.Owner = Me
         _frmControlDeck.Show()
@@ -103,18 +104,18 @@ Partial Public Class RouteurMain
 
     End Sub
 
-    Private Sub UpdateCoordsExtent(ByVal M As RouteurModel, ByVal FromRace As Boolean, ByVal RescaleMap As Boolean)
+    Private Sub UpdateCoordsExtent(ByVal M As RouteurModel, ByVal UseRaceDefinitionExtent As Boolean, ByVal RescaleMap As Boolean)
 
         If M.The2DViewer Is Nothing Then
             Return
         End If
 
         Dim Pos1 As New Point(0, 0)
-        Dim Pos2 As New Point(Me.TabCanvas.ActualWidth, Me.TabCanvas.ActualHeight)
+        Dim Pos2 As New Point(Me.VOR2DViewer.ActualWidth, Me.VOR2DViewer.ActualHeight)
         Dim C1 As Coords
         Dim C2 As Coords
 
-        If Not FromRace Then
+        If Not UseRaceDefinitionExtent Then
             C1 = New Coords
             C2 = New Coords
             Pos1 = _2DGrid.TranslatePoint(Pos1, VOR2DViewer)
@@ -139,7 +140,7 @@ Partial Public Class RouteurMain
         M.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
         If RescaleMap Then
             M.UpdateRaceScale(C1, C2)
-            SldZoom.Value = 1
+            'SldZoom.Value = 1
         End If
         RaiseEvent PropertyChanged(M, New PropertyChangedEventArgs("WPsPath"))
         RedrawClick(Nothing, Nothing)
@@ -155,25 +156,22 @@ Partial Public Class RouteurMain
 
     Private Sub MouseEndDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
         DragCanvas = False
-        Console.WriteLine("dragged to " & Me.SldLon.Value & " " & Me.SldLat.Value & " Z " & Me.SldZoom.Value)
-        'If e.ClickCount > 1 Then
-        'Dim M As RouteurModel = CType(FindResource("RouteurModel"), RouteurModel)
-        'M.VorHandler.DebugBSP(e.GetPosition(Me.VOR2DViewer))
-        'End If
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
 
-        UpdateCoordsExtent(M, False, False)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+        Dim EndDragPoint As Point = e.GetPosition(Me.VOR2DViewer)
+        Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
+        Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
+
+
+        Dim C1 As New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
+        Dim C2 As New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
+
+        M.UpdateRaceScale(C1, C2)
+        RedrawClick(Nothing, Nothing)
     End Sub
 
     Private Sub MouseMoveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
 
-
-        If DragCanvas Then
-            Me.SldLon.Value += (e.GetPosition(Me.VOR2DViewer).X - _DragStartPoint.X) * SldZoom.Value
-            Me.SldLat.Value += (e.GetPosition(Me.VOR2DViewer).Y - _DragStartPoint.Y) * SldZoom.Value
-
-            _DragStartPoint = e.GetPosition(Me.VOR2DViewer)
-        End If
 
     End Sub
 
@@ -181,12 +179,6 @@ Partial Public Class RouteurMain
         Static Dlg As Action
         Static DlgRefresh As Action
         Static LastSec As Integer
-
-        If _ZoomIn Then
-            _ZoomIn = False
-            SldZoom.Value *= 2
-
-        End If
 
         If Now.Second = LastSec Then
             Return
@@ -240,18 +232,39 @@ Partial Public Class RouteurMain
             Zoom(1 / 1.2, e.GetPosition(Me.VOR2DViewer))
         End If
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
-        UpdateCoordsExtent(M, False, False)
+
     End Sub
 
     Private Sub Zoom(ByVal Factor As Double, ByVal CenterPosition As Point)
-
-        
-        VOR2DViewer.RenderTransformOrigin = New Point(CenterPosition.X / VOR2DViewer.ActualWidth, CenterPosition.Y / VOR2DViewer.ActualHeight)
-        SldZoom.Value *= Factor
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         If M.RouteManager IsNot Nothing Then
-            M.RouteManager.rescale()
+
+            Dim dx As Double = VOR2DViewer.ActualWidth / Factor
+            Dim dx1 As Double = dx * CenterPosition.X / VOR2DViewer.ActualWidth
+            Dim dx2 As Double = dx - dx1
+            Dim dy As Double = dx * VOR2DViewer.ActualHeight / VOR2DViewer.ActualWidth
+            Dim dy1 As Double = dy * CenterPosition.Y / VOR2DViewer.ActualHeight
+            Dim dy2 As Double = dy - dy1
+
+            Debug.WriteLine(dx & " / " & dy)
+
+            Dim C1 As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y - dy1), VOR2DViewer.CanvasToLon(CenterPosition.X - dx1))
+            Dim C2 As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y + dy2), VOR2DViewer.CanvasToLon(CenterPosition.X + dx2))
+            'TODO handle antemeridien
+            Dim ZoomCenter As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y), VOR2DViewer.CanvasToLon(CenterPosition.X))
+            Debug.WriteLine("ZoomCenter" & ZoomCenter.ToString & " vs " & (C1.Lat_Deg + C2.Lat_Deg) / 2 & " = " & (C1.Lat_Deg + C2.Lat_Deg) / 2 - ZoomCenter.Lat_Deg)
+            Debug.WriteLine("ZoomCenter" & ZoomCenter.ToString & " vs " & (C1.Lon_Deg + C2.Lon_Deg) / 2 & " = " & (C1.Lon_Deg + C2.Lon_Deg) / 2 - ZoomCenter.Lon_Deg)
+            Debug.WriteLine("zoom to " & C1.ToString & " / " & C2.ToString)
+            'M.VorHandler.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
+            'M.CoordsExtent(C1, C2, _2DGrid.ActualWidth, _2DGrid.ActualHeight)
+            Debug.Assert(C1.Lon < C2.Lon And C1.Lat > C2.Lat)
+            M.UpdateRaceScale(C1, C2)
+            'M.RouteManager.Rescale()
+            RedrawClick(Nothing, Nothing)
+            ZoomCenter = New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y), VOR2DViewer.CanvasToLon(CenterPosition.X))
+            Debug.WriteLine("New mouse pos" & ZoomCenter.ToString)
+
         End If
     End Sub
 
@@ -366,18 +379,11 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
 
         Dim V As VLM_Router = M.VorHandler
-        'Dim P As New Point
-        'P.X = V.BoatCanvasX
-        'P.Y = V.BoatCanvasY
-        'P = VOR2DViewer.TranslatePoint(P, _2DGrid)
-        VOR2DViewer.RenderTransformOrigin = New Point(M.BoatCanvasX / VOR2DViewer.ActualWidth, M.BoatCanvasY / VOR2DViewer.ActualHeight)
+
+        Dim Center As New Point(M.BoatCanvasX, M.BoatCanvasY)
+        Zoom(1, Center)
 
 
-        SldLat.Value = _2DGrid.ActualHeight / 2 - M.BoatCanvasY
-        SldLon.Value = _2DGrid.ActualWidth / 2 - M.BoatCanvasX
-        SldZoom.Value = 0.5
-
-        _ZoomIn = True
     End Sub
 
     Public Function RenderCanvasCoords(ByVal e As System.Windows.Input.MouseEventArgs) As Point
@@ -389,8 +395,7 @@ Partial Public Class RouteurMain
     Private Sub RendererSizeChanged(ByVal sender As Object, ByVal e As System.Windows.SizeChangedEventArgs)
 
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
-
-        UpdateCoordsExtent(M, False, False)
+        UpdateCoordsExtent(M, False, True)
 
     End Sub
 
@@ -458,10 +463,6 @@ Partial Public Class RouteurMain
 
     Private Sub OnRenderPosChanged(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
-        'If NavControl.Renderer Is Nothing Then
-        '    Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
-        '    NavControl.Renderer = M.The2DViewer
-        'End If
         NavControl.RefreshPosition()
 
     End Sub

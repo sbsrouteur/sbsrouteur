@@ -1017,7 +1017,7 @@ Public Class VLM_Router
         End Try
     End Sub
 
-    Public Function ComputeBoatEstimate(Route() As RoutePointView, CurWP As Integer, StartPos As Coords, StartDate As DateTime, ByRef CancelRequest As Boolean) As ObservableCollection(Of clsrouteinfopoints)
+    Public Function ComputeBoatEstimate(Route() As RoutePointView, CurWP As Integer, StartPos As Coords, StartDate As DateTime, ByRef CancelRequest As Boolean, MapLevel As Integer) As ObservableCollection(Of clsrouteinfopoints)
 
         Dim RetRoute As New ObservableCollection(Of clsrouteinfopoints)
         Dim CurDate As DateTime = StartDate
@@ -1029,6 +1029,8 @@ Public Class VLM_Router
         Dim CurWP2 As Coords
         Dim CurRaceWP As Integer = CurWP
         Dim CurBoatSpeed As Double
+        Dim Db As New DBWrapper
+        Db.MapLevel = MapLevel
 
         While Not CancelRequest
 
@@ -1117,6 +1119,11 @@ Public Class VLM_Router
                         Return RetRoute
                     End If
                 End If
+            End If
+
+            If Db.IntersectMapSegment(CurPos, NextPos, GSHHS_Reader._Tree) Then
+                AddLog("Estimate collision with coast!!!")
+                Return RetRoute
             End If
 
             ' Check route completion
@@ -1216,7 +1223,9 @@ Public Class VLM_Router
                 If startdate < RaceStartDate Then
                     startdate = RaceStartDate
                 End If
-                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, startdate, CancelComputation)
+                Dim prefs As RacePrefs = RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces)
+
+                PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, startdate, CancelComputation, DBWrapper.GetMapLevel(prefs.MapLevel))
 
             Finally
                 Computing = False

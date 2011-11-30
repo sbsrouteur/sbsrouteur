@@ -125,7 +125,7 @@
 			</Grid.ColumnDefinitions>
 			<StackPanel Orientation="Horizontal" Grid.ColumnSpan="2">
 				<TextBlock Text="Routhing Algorithm"/>
-				<ComboBox />
+				<ComboBox Grid.Column="1" ItemsSource="{Binding RouteurModes}" SelectedValue="{Binding RouteurMode}"/>
 			</StackPanel>
 		</Grid>
 		
@@ -140,8 +140,7 @@
 			</Grid.ColumnDefinitions>
 		</Grid>
         <StackPanel Grid.Row="5" Grid.ColumnSpan="2">
-        	<ComboBox Grid.Column="1" ItemsSource="{Binding RouteurModes}" SelectedValue="{Binding RouteurMode}"/>
-			<CheckBox  Content =" Use Fast Routing (ignore high angles and low angles in polar)" Grid.Row="10" Grid.ColumnSpan ="2" IsChecked="{Binding FastRouteShortPolar,Mode=TwoWay}"/>
+        	<CheckBox  Content =" Use Fast Routing (ignore high angles and low angles in polar)" Grid.Row="10" Grid.ColumnSpan ="2" IsChecked="{Binding FastRouteShortPolar,Mode=TwoWay}"/>
 			<CheckBox  Content =" Use Fast Routing (do not update meteo in isochrone interval)" Grid.Row="7" Grid.ColumnSpan ="2" IsChecked="{Binding FastRouteShortMeteo,Mode=TwoWay}"/>
 			<CheckBox  Content =" Save Route when complete" Grid.Row="11" Grid.ColumnSpan ="2" IsChecked="{Binding SaveRoute,Mode=TwoWay}"/>
 			<CheckBox  Content =" Autorestart routing when complete" Grid.Row="6" Grid.ColumnSpan ="2" IsChecked="{Binding AutoRestartRouter,Mode=TwoWay}"/>
