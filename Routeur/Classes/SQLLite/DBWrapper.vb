@@ -149,7 +149,7 @@ Public Class DBWrapper
         End Select
     End Function
 
-    Public Function SegmentList(ByVal lon1 As Double, ByVal lat1 As Double, ByVal lon2 As Double, ByVal lat2 As Double, Optional sorted As Boolean = False) As List(Of MapSegment)
+    Public Function SegmentList(ByVal lon1 As Double, ByVal lat1 As Double, ByVal lon2 As Double, ByVal lat2 As Double) As List(Of MapSegment)
 
         Static count As Long = 0
         Static ticks As Long = 0
@@ -169,14 +169,15 @@ Public Class DBWrapper
                         Dim MinLat As String = Math.Min(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
                         Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
 
+                        'Cmd.CommandText = "Select * from mapssegments where maplevel = " & MapLevel & " and (" &
+                        '                    " ((lon1 between " & MinLon & " and " & MaxLon & ") and ( lat1 between " & MinLat & " and " & MaxLat & ")) " &
+                        '                    " or ((lon2 between " & MinLon & " and " & MaxLon & ") and ( lat2 between " & MinLat & " and " & MaxLat & ")) " &
+                        '                    ")"
                         Cmd.CommandText = "Select * from mapssegments where maplevel = " & MapLevel & " and (" &
-                                            " ((lon1 between " & MinLon & " and " & MaxLon & ") and ( lat1 between " & MinLat & " and " & MaxLat & ")) " &
-                                            " or ((lon2 between " & MinLon & " and " & MaxLon & ") and ( lat2 between " & MinLat & " and " & MaxLat & ")) " &
+                                            " (lon1  >=" & MinLon & " and lon1 <=" & MaxLon & " and  lat1 >=" & MinLat & " and lat1 <=" & MaxLat & ") " &
+                                            " or (lon2 >=" & MinLon & " and lon2 <=" & MaxLon & " and lat2 >=" & MinLat & " and lat2 <=" & MaxLat & ") " &
                                             ")"
 
-                        If sorted Then
-                            Cmd.CommandText = Cmd.CommandText & " order by IdSegment asc"
-                        End If
                         Reader = Cmd.ExecuteReader
                         If Reader.HasRows Then
 
@@ -224,8 +225,11 @@ Public Class DBWrapper
 
     Public Function IntersectMapSegment(coords As Coords, coords1 As Coords, bspRect As BspRect) As Boolean
 
+        If bspRect Is Nothing Then
+            Return True
+        End If
 
-        Dim SegList As IList = bspRect.GetSegments(coords, 1, Me)
+        Dim SegList As IList = bspRect.GetSegments(coords, 0.01, Me)
 
         If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
             Return False
@@ -246,7 +250,5 @@ Public Class DBWrapper
 
         Return False
     End Function
-
-
 
 End Class

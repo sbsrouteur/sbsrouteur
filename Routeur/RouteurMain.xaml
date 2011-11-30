@@ -300,6 +300,15 @@
 						<RowDefinition Height="0.86*"/>
 						<RowDefinition Height="0.14*" MinHeight="34.572"/>
 					</Grid.RowDefinitions>
+					<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" ContextMenuOpening="OnMapContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}" Grid.ColumnSpan="4" Grid.RowSpan="8">
+						<!--<Routeur:_2D_Viewer.RenderTransform>
+								<TransformGroup>
+									<ScaleTransform ScaleX="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ScaleY="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+									<TranslateTransform X="{Binding Value, ElementName=SldLon, Mode=Default}" Y="{Binding Value, ElementName=SldLat}"/>
+								</TransformGroup>
+							</Routeur:_2D_Viewer.RenderTransform>-->
+					</Routeur:_2D_Viewer>
+						
 					<GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<Canvas Height="Auto" x:Name="BgWeatherObjects" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7">
@@ -313,18 +322,7 @@
 							</ItemsControl>
 						</Canvas>
 					</Canvas>
-					<Canvas Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="1" Grid.RowSpan="7" MouseMove="_2D_Renderer_MouseMoveHandler" Width="Auto" Grid.Row="1" Grid.Column="1">
-						
-						<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" Canvas.Left="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" Canvas.Top="0" ContextMenuOpening="OnMapContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}">
-							<Routeur:_2D_Viewer.RenderTransform>
-								<TransformGroup>
-									<ScaleTransform ScaleX="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ScaleY="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-									<TranslateTransform X="{Binding Value, ElementName=SldLon, Mode=Default}" Y="{Binding Value, ElementName=SldLat}"/>
-								</TransformGroup>
-							</Routeur:_2D_Viewer.RenderTransform>
-						</Routeur:_2D_Viewer>
-						
-					</Canvas>
+					<Grid Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="6" Grid.RowSpan="15" MouseMove="_2D_Renderer_MouseMoveHandler" Width="Auto"/>
 					<Canvas Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Visibility="{Binding HideNonMapCanvas, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window, Mode=Default}" Grid.Row="1" Grid.RowSpan="7" Grid.Column="1">
 						<!--<Grid x:Name="Weather_Map" >
 							<Path Data="{Binding VorHandler.MeteoArrow, IsAsync=false, Mode=Default}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
@@ -407,9 +405,11 @@
 							</TransformGroup>
 						</Label.LayoutTransform>
 					</Label>
-					<Slider Grid.Row="2" x:Name="SldZoom" Value="1" Minimum="0.00001" Maximum="20" Margin="0,0,0,2.142" ValueChanged="OnRenderPosChanged"/>
-					<Slider Grid.Row="3" x:Name="SldLat" Minimum="-10080000" Visibility="Hidden" Maximum="10080000" ValueChanged="OnRenderPosChanged"/>
-				    <Slider Grid.Row="4" x:Name="SldLon" Maximum="10008000" Minimum="-10008000" Visibility="Hidden" ValueChanged="OnRenderPosChanged"/>
+					<!--
+                        <Slider Grid.Row="2" x:Name="SldZoom" Value="1" Minimum="0.00001" Maximum="20" Margin="0,0,0,2.142" ValueChanged="OnRenderPosChanged"/>
+					    <Slider Grid.Row="3" x:Name="SldLat" Minimum="-10080000" Visibility="Hidden" Maximum="10080000" ValueChanged="OnRenderPosChanged"/>
+				        <Slider Grid.Row="4" x:Name="SldLon" Maximum="10008000" Minimum="-10008000" Visibility="Hidden" ValueChanged="OnRenderPosChanged"/>
+                    -->
 					<StackPanel Grid.Row="3" Width="Auto" Height="Auto" Grid.ColumnSpan="2" Grid.RowSpan="4">
 						<GroupBox  Grid.RowSpan="1"  Header="" Background="#6DFFFFFF">
 							<GroupBox.BitmapEffect>

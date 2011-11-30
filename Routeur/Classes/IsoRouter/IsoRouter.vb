@@ -643,6 +643,7 @@ Public Class IsoRouter
 
         If _IsoRouteThread Is Nothing Then
             _IsoRouteThread = New Thread(AddressOf IsoRouteThread)
+            _IsoRouteThread.Priority = ThreadPriority.BelowNormal
             _CancelRequested = False
             _StartPoint = New VLM_Router.clsrouteinfopoints
             _TC.StartPoint = From

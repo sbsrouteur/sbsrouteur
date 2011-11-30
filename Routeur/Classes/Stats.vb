@@ -27,6 +27,7 @@ Public Class Stats
         HitDistanceAvgPolyCount
         Grib_GetMeteoToDateAvgMS
         Polar_CacheRatio
+        DRAW_FPS
     End Enum
 
     Public Shared ReadOnly Property Stats() As ObservableCollection(Of StatInfo)

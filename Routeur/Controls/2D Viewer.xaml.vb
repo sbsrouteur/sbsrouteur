@@ -19,23 +19,22 @@ Partial Public Class _2D_Viewer
 
     Implements INotifyPropertyChanged
     Private Const DPI_RES As Integer = 96
-    Private Const XBMP_RES As Integer = 360
-    Private Const YBMP_RES As Integer = 180
-    Public Const DEFINITION As Integer = 10
-
-#Const DBG_UPDATE_PATH = 1
+    
+#Const DBG_UPDATE_PATH = 0
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
-
-
 
     Private _WindArrows(30, 30) As Path
     Private _TrajPath As Path
     Private _RBmp As RenderTargetBitmap
     Private _BackDropBmp As RenderTargetBitmap
-    Private _OpponentsBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+    Private _BgStarted As Boolean = False
+    Private _AbortBGDrawing As Boolean = False
+    Private _ThBgDraw As System.Threading.Thread = Nothing
+    Private _ThreadLastStart As DateTime = Now
+    Private _OpponentsBmp As RenderTargetBitmap
     Private _ISOBmp As RenderTargetBitmap
-    Private _RoutesBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+    Private _RoutesBmp As RenderTargetBitmap
     'Private _gshhs As New GSHHS_Reader
     Private _CurCoords As New Coords
     Private _P As Point
@@ -79,13 +78,25 @@ Partial Public Class _2D_Viewer
     End Sub
 
     Public Function CanvasToLat(ByVal C As Double) As Double
-        Dim Ret As Double = (90 * DEFINITION - C) / Scale + LatOffset '90 / RouteurModel.SCALE - C / DEFINITION / RouteurModel.SCALE + RouteurModel.LAT_OFFSET
+        Debug.Assert(Scale <> 0)
+        Dim Ret As Double = (ActualHeight / 2 - C) / Scale + LatOffset '90 / RouteurModel.SCALE - C / DEFINITION / RouteurModel.SCALE + RouteurModel.LAT_OFFSET
         Ret = Ret / 180 * PI
-        Return Math.Atan(Math.Sinh(Ret)) / PI * 180
+        Return (Math.Atan(Math.Sinh(Ret)) / PI * 180)
     End Function
 
     Public Function CanvasToLon(ByVal V As Double) As Double
-        Return (V - 180 * DEFINITION) / Scale + LonOffset '(V - 180 * DEFINITION) / DEFINITION / RouteurModel.SCALE
+        Debug.Assert(Scale <> 0)
+        Dim Ret As Double = ((V - ActualWidth / 2) / Scale + LonOffset) '(V - 180 * DEFINITION) / DEFINITION / RouteurModel.SCALE
+        'If Ret > 180 Then
+        '    While Ret > 180
+        '        Ret -= 180
+        '    End While
+        'ElseIf Ret < -180 Then
+        '    While Ret < -180
+        '        Ret += 180
+        '    End While
+        'End If
+        Return Ret
     End Function
 
 
@@ -94,7 +105,7 @@ Partial Public Class _2D_Viewer
         V = V / 180 * PI
         V = Log(Tan(V) + 1 / Cos(V))
         V = V / PI * 180
-        Return 90 * DEFINITION - (V - LatOffset) * Scale
+        Return ActualHeight / 2 - (V - LatOffset) * Scale
 
     End Function
 
@@ -102,9 +113,9 @@ Partial Public Class _2D_Viewer
 
         V = V Mod 360
         If CenterMapOnAnteMeridien AndAlso V < 0 Then
-            Return 180 * DEFINITION + (V - LonOffset + 360) * Scale
+            Return ActualWidth / 2 + (V - LonOffset + 360) * Scale
         Else
-            Return 180 * DEFINITION + (V - LonOffset) * Scale
+            Return ActualWidth / 2 + (V - LonOffset) * Scale
         End If
 
     End Function
@@ -127,7 +138,7 @@ Partial Public Class _2D_Viewer
         Dim P1 As Point
         Dim Pen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Black), 0.3)
         Dim WPPen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Red), 2)
-        Dim LocalBmp As New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+        Dim LocalBmp As New RenderTargetBitmap(actualwidth, actualheight, DPI_RES, DPI_RES, PixelFormats.Default)
         Dim RaceZone As New List(Of Polygon)
         Dim polyindex As Integer = -1
         Dim MinLon As Double = 180
@@ -149,7 +160,7 @@ Partial Public Class _2D_Viewer
         'Dim Prevbmp As RenderTargetBitmap = Nothing
         Dim LineCount As Integer
         Dim PrevI As Integer = -1
-        Static R As New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION)
+        Static R As New Rect(0, 0, actualwidth, actualheight)
 
         If GSHHS_Reader.AllPolygons.Count = 0 Then
             Return False
@@ -228,7 +239,7 @@ Render1:
                         'Prevbmp = LocalBmp
                         DC.DrawImage(_BackDropBmp, R)
                         'LocalBmp.Clear()
-                        LocalBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+                        LocalBmp = New RenderTargetBitmap(actualwidth, actualheight, DPI_RES, DPI_RES, PixelFormats.Default)
                         'LocalBmp.Clear()
                         If LineCount Mod 2000 = 0 Then
                             GC.Collect()
@@ -244,7 +255,7 @@ Render1:
                 '    DC = D.RenderOpen
                 '    'Prevbmp = LocalBmp
                 '    DC.DrawImage(_BackDropBmp, R)
-                '    LocalBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+                '    LocalBmp = New RenderTargetBitmap(actualwidth, actualheight, DPI_RES, DPI_RES, PixelFormats.Default)
                 '    'LocalBmp.Clear()
                 '    GC.Collect()
                 'End If
@@ -283,8 +294,8 @@ Render1:
 
 
         'Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
-        Dim Width As Double = 360 / Scale ' ._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
-        Dim Z As Integer = CInt(Math.Floor(Math.Log(360 / Width) / Math.Log(2))) + 1
+        Dim Width As Double = CanvasToLon(ActualWidth) - CanvasToLon(0)
+        Dim Z As Integer = CInt(Math.Floor(Math.Log(ActualWidth / Width) / Math.Log(2))) + 1
 
         'Limit zoom to 20 (at least for use with VLM cached tiles)
         If Z > 20 Then
@@ -309,10 +320,10 @@ Render1:
         TI = New TileInfo(Z, N, S, E, W)
         tx1 = TI.TX
         ty1 = TI.TY
-        W = CanvasToLon(XBMP_RES * DEFINITION - TileServer.TILE_SIZE)
-        N = CanvasToLat(YBMP_RES * DEFINITION - TileServer.TILE_SIZE)
-        E = CanvasToLon(XBMP_RES * DEFINITION + TileServer.TILE_SIZE)
-        S = CanvasToLat(YBMP_RES * DEFINITION)
+        W = CanvasToLon(ActualWidth - TileServer.TILE_SIZE)
+        N = CanvasToLat(ActualHeight - TileServer.TILE_SIZE)
+        E = CanvasToLon(ActualWidth + TileServer.TILE_SIZE)
+        S = CanvasToLat(ActualHeight)
         TI = New TileInfo(Z, N, S, E, W)
         tx2 = TI.TX
         ty2 = TI.TY
@@ -323,6 +334,10 @@ Render1:
 
                 System.Threading.Interlocked.Increment(_PendingTileRequestCount)
                 _TileServer.RequestTile(TI)
+                If _AbortBGDrawing Then
+                    _AbortBGDrawing = False
+                    Return
+                End If
             Next
         Next
         _MapPg.Start(_PendingTileRequestCount)
@@ -342,7 +357,7 @@ Render1:
         Next
         _TileServer.Render 
 #End If
-
+        _ThBgDraw = Nothing
     End Sub
 
 #End If
@@ -472,7 +487,6 @@ Render1:
             Dim ShownPoints As Integer
             Static LimitDate As New DateTime(3000, 1, 1)
             Dim OpponentMap As Boolean = False
-            Static BgStarted As Boolean = False
             Dim PrevP As New Coords
             Dim ForceIsoRedraw As Boolean = False
 
@@ -480,20 +494,24 @@ Render1:
 
             'Dim Pixels As Array
             'If Monitor.TryEnter(Me) Then
-            _RBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+            _RBmp = New RenderTargetBitmap(CInt(ActualWidth), CInt(ActualHeight), DPI_RES, DPI_RES, PixelFormats.Default)
 
             If _ClearBgMap Then
-                BgStarted = False
+                _BgStarted = False
                 _ClearBgMap = False
                 _BackDropBmp = Nothing
-
+                OnMapSizeChanged(Nothing, Nothing)
             End If
 
-            If Not BgStarted AndAlso _BackDropBmp Is Nothing Then
-                BgStarted = True 'BgBackDropDrawing(0)
+            'If Not _BgStarted AndAlso _BackDropBmp Is Nothing Then
+            If _ReadyTilesQueue.Count = 0 AndAlso _ThBgDraw Is Nothing AndAlso _BackDropBmp Is Nothing AndAlso Now.Subtract(_ThreadLastStart).TotalMilliseconds > 200 Then
+                _BgStarted = True 'BgBackDropDrawing(0)
                 ForceIsoRedraw = True
                 _Frm.DataContext = _MapPg
-                System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, WPs)
+                _ThBgDraw = New Thread(AddressOf BgBackDropDrawing)
+                _ThreadLastStart = Now
+                _ThBgDraw.Start(WPs)
+                'System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, WPs)
 
 #If NO_TILES = 0 Then
             ElseIf _ReadyTilesQueue.Count <> 0 Then
@@ -512,15 +530,15 @@ Render1:
             Console.WriteLine("Update path Tiles Done " & Now.Subtract(Start).ToString)
 #End If
 
-#If NO_TILES = 1 Then
-            If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
+            '#If NO_TILES = 1 Then
+            '            If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
 
 
-                DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
-            End If
-#Else
-            DC.DrawImage(_BackDropBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
-#End If
+            '                DC.DrawImage(_BackDropBmp, New Rect(0, 0, actualwidth, actualheight))
+            '            End If
+            '#Else
+            '            DC.DrawImage(_BackDropBmp, New Rect(0, 0, ActualWidth, ActualHeight))
+            '#End If
 
 #If DBG_UPDATE_PATH = 1 Then
             Console.WriteLine("Update path Tiles Rendered " & Now.Subtract(Start).ToString)
@@ -576,6 +594,27 @@ Render1:
             '    DC = D.RenderOpen
             'End If
 
+#If DBG_SEGMENTS = 1 Then
+            Dim db As New DBWrapper
+            db.MapLevel = 3
+            Dim C1 As New Coords(CanvasToLat(0), CanvasToLon(0))
+            Dim C2 As New Coords(CanvasToLat(ActualHeight), CanvasToLon(ActualWidth))
+            Dim PenSegs As New Pen(New SolidColorBrush(Color.FromRgb(255, 128, 0)), 1)
+            Dim Segs = db.SegmentList(C1.Lon_Deg, C1.Lat_Deg, C2.Lon_Deg, C2.Lat_Deg)
+            Dim SegCount As Integer = 0
+            For Each seg In Segs
+                Dim lP1 As New Coords(seg.Lat1, seg.Lon1)
+                Dim lP2 As New Coords(seg.Lat2, seg.Lon2)
+                Dim pp1 As New Point(LonToCanvas(seg.Lon1), LatToCanvas(seg.Lat1))
+                Dim pp2 As New Point(LonToCanvas(seg.Lon2), LatToCanvas(seg.Lat2))
+
+                SafeDrawLine(DC, lP1, lP2, PenSegs, pp1, pp2)
+                SegCount += 1
+                If SegCount > 150 Then
+                    Exit For
+                End If
+            Next
+#End If
 
 
             '
@@ -596,7 +635,7 @@ Render1:
                 End If
 
                 If ClearGrid OrElse _ISOBmp Is Nothing Then
-                    _ISOBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+                    _ISOBmp = New RenderTargetBitmap(CInt(ActualWidth), CInt(ActualHeight), DPI_RES, DPI_RES, PixelFormats.Default)
 
                 End If
 
@@ -656,7 +695,7 @@ Render1:
                 DC = D.RenderOpen
                 'End Try
             ElseIf _EraseIsoChrones Then
-                _ISOBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+                _ISOBmp = New RenderTargetBitmap(CInt(ActualWidth), CInt(ActualHeight), DPI_RES, DPI_RES, PixelFormats.Default)
                 _EraseIsoChrones = False
                 If IsoChrones IsNot Nothing Then
                     For Each iso In IsoChrones
@@ -707,15 +746,15 @@ Render1:
             Console.WriteLine("Update path Opponents Done " & Now.Subtract(Start).ToString)
 #End If
 
-            DC.DrawImage(_RoutesBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
+            DC.DrawImage(_RoutesBmp, New Rect(0, 0, ActualWidth, ActualHeight))
             DC.Close()
             _RBmp.Render(D)
             DC = D.RenderOpen
-            DC.DrawImage(_OpponentsBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
+            DC.DrawImage(_OpponentsBmp, New Rect(0, 0, ActualWidth, ActualHeight))
             DC.Close()
             _RBmp.Render(D)
             DC = D.RenderOpen
-            DC.DrawImage(_ISOBmp, New Rect(0, 0, XBMP_RES * DEFINITION, YBMP_RES * DEFINITION))
+            DC.DrawImage(_ISOBmp, New Rect(0, 0, ActualWidth, ActualHeight))
             DC.Close()
             _RBmp.Render(D)
             DC = D.RenderOpen
@@ -866,6 +905,7 @@ Render1:
         Finally
             Console.WriteLine("Update path drawn in " & Now.Subtract(Start).ToString)
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Drawn"))
+            Stats.SetStatValue(Stats.StatID.DRAW_FPS) = 1 / Now.Subtract(Start).TotalSeconds
         End Try
 
 
@@ -991,6 +1031,7 @@ Render1:
             Return _LatOffset
         End Get
         Set(ByVal value As Double)
+            Debug.Assert(Not Double.IsNaN(value))
             _LatOffset = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LatOffset"))
         End Set
@@ -1001,6 +1042,7 @@ Render1:
             Return _LonOffset
         End Get
         Set(ByVal value As Double)
+            Debug.Assert(Not Double.IsNaN(value))
             _LonOffset = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LonOffset"))
         End Set
@@ -1030,6 +1072,7 @@ Render1:
             Return _Scale
         End Get
         Set(ByVal value As Double)
+            Debug.Assert(value <> 0)
             _Scale = value
         End Set
     End Property
@@ -1063,7 +1106,7 @@ Render1:
             '                          1024)
 
             If _BackDropBmp Is Nothing Then
-                _BackDropBmp = New RenderTargetBitmap(XBMP_RES * DEFINITION, YBMP_RES * DEFINITION, DPI_RES, DPI_RES, PixelFormats.Default)
+                _BackDropBmp = New RenderTargetBitmap(CInt(ActualWidth), CInt(ActualHeight), DPI_RES, DPI_RES, PixelFormats.Default)
 
             End If
             DC.DrawImage(Img, R)
@@ -1079,6 +1122,7 @@ Render1:
         _MapPg.Progress(_TileCount)
         If _PendingTileRequestCount = 0 Then
             _MapPg_RequestVisibility(Windows.Visibility.Hidden)
+            BackDropBuffer.Source = _BackDropBmp
         End If
         'Debug.WriteLine("draw " & ti.TilePath & " pending " & _PendingTileRequestCount)
 
@@ -1113,5 +1157,27 @@ Render1:
                 End If
             End If
         End If
+    End Sub
+
+
+    Private Sub OnMapSizeChanged(sender As System.Object, e As System.Windows.SizeChangedEventArgs)
+        _OpponentsBmp = New RenderTargetBitmap(CInt(ActualWidth), CInt(ActualHeight), DPI_RES, DPI_RES, PixelFormats.Default)
+        _RoutesBmp = New RenderTargetBitmap(CInt(ActualWidth), CInt(ActualHeight), DPI_RES, DPI_RES, PixelFormats.Default)
+        '_RBmp = Nothing
+        _BackDropBmp = Nothing
+        _ISOBmp = Nothing
+
+        _AbortBGDrawing = True
+        If _ThBgDraw IsNot Nothing Then
+            If Not _ThBgDraw.Join(2000) Then
+                _ThBgDraw.Abort()
+                _ThBgDraw = Nothing
+            End If
+        End If
+        _ThBgDraw = Nothing
+        _AbortBGDrawing = False
+        _TileServer.Clear()
+        _BgStarted = False
+
     End Sub
 End Class

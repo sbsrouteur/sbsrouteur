@@ -186,10 +186,14 @@ Public Class RouteurModel
 
     Public Sub UpdateRaceScale(ByVal C1 As Coords, ByVal C2 As Coords)
         'ReDim RouteurModel._RaceRect(3)
-        If The2DViewer IsNot Nothing AndAlso The2DViewer.CenterMapOnAnteMeridien AndAlso (C1.Lon * C2.Lon) < 0 Then
+        If The2DViewer Is Nothing Then
+            Return
+        End If
+        If The2DViewer IsNot Nothing AndAlso (C1.Lon * C2.Lon) < 0 AndAlso The2DViewer.CenterMapOnAnteMeridien Then
+
             _LonOffset = 180 + (C2.Lon_Deg + C1.Lon_Deg) / 2
             If C1.Lon <> -C2.Lon Then
-                Scale = 360 / Math.Abs(C1.Lon_Deg + C2.Lon_Deg)
+                Scale = The2DViewer.ActualWidth / Math.Abs(C1.Lon_Deg + C2.Lon_Deg)
             Else
                 Scale = 1
             End If
@@ -200,28 +204,24 @@ Public Class RouteurModel
 
             End If
             _LonOffset = (C1.Lon_Deg + C2.Lon_Deg) / 2
-            Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
-
+            If C1.Lon = C2.Lon Then
+                Scale = 1
+            Else
+                Scale = The2DViewer.ActualWidth / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
+            End If
         End If
         _LatOffset = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
+       
+        Debug.Assert(Scale <> 0)
 
-        Dim Scale2 As Double = 180 / 1.1 / Math.Abs(C1.Mercator_Y_Deg - C2.Mercator_Y_Deg)
-        If Scale2 < Scale Then
-            Scale = Scale2
-        End If
-        Scale *= _2D_Viewer.DEFINITION
+        VorHandler.CoordsExtent(C1, C2, _2DViewer.ActualWidth, _2DViewer.ActualHeight)
+        CoordsExtent(C1, C2, _2DViewer.ActualWidth, _2DViewer.ActualHeight)
+        
+        _2DViewer.Scale = Scale
+        _2DViewer.LonOffset = _LonOffset
+        _2DViewer.LatOffset = _LatOffset
+        _2DViewer.ClearBgMap()
 
-        '#If NO_TILES = 0 Then
-        '        Dim Width As Double = 360 / Scale ' ._RaceRect(1).Lon_Deg - RouteurModel._RaceRect(0).Lon_Deg
-        '        Dim Z As Integer = CInt(Math.Log(360 * _2D_Viewer.DEFINITION / Width) / Math.Log(2))
-        '        Scale = 2 ^ Z / _2D_Viewer.DEFINITION
-        '#End If
-        If Not _2DViewer Is Nothing Then
-            _2DViewer.Scale = Scale
-            _2DViewer.LonOffset = _LonOffset
-            _2DViewer.LatOffset = _LatOffset
-            _2DViewer.ClearBgMap()
-        End If
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPsPath"))
         If Not RouteManager Is Nothing Then
             RouteManager.Rescale()
@@ -710,8 +710,7 @@ Public Class RouteurModel
         _SEPoint = C2
         _Width = Width
         _Height = Height
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPsPath"))
-
+       
     End Sub
 
     Private Property Cron As Cron
