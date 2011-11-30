@@ -225,7 +225,7 @@ Public Class DBWrapper
     Public Function IntersectMapSegment(coords As Coords, coords1 As Coords, bspRect As BspRect) As Boolean
 
 
-        Dim SegList As IList = bspRect.GetSegments(coords, 1, Me)
+        Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me)
 
         If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
             Return False
