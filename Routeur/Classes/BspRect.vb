@@ -67,20 +67,74 @@ Public Class BspRect
 
     End Sub
 
-    Public ReadOnly Property GetSegments(C As Coords, GridGrain As Double, db As DBWrapper) As List(Of MapSegment)
+    Public ReadOnly Property GetSegments(db As DBWrapper) As List(Of MapSegment)
         Get
             If _Segments Is Nothing AndAlso Abs((P2.Lat - P1.Lat)) > MIN_POLYGON_SPLIT Then
 
                 If _SubRects(0) Is Nothing Then
-                    If Not Split(GridGrain) Then
+                    If Not Split(MIN_POLYGON_SPLIT) Then
                         Return Nothing
                     End If
                 End If
-                Dim Rect As BspRect = GetChildFromCoords(C, GridGrain)
-                If Rect Is Nothing Then
+
+                SyncLock _lockObj
+                    _Segments = New List(Of MapSegment)
+                    For Each Rect In _SubRects
+                        If Rect IsNot Nothing Then
+                            _Segments.AddRange(Rect.GetSegments(db))
+                        End If
+                    Next
+                End SyncLock
+                Return _Segments
+
+            ElseIf _Segments Is Nothing Then
+                SyncLock _lockObj
+                    If _Segments Is Nothing Then
+
+                        Dim Seg As MapSegment
+                        Dim PolygonIndex As Integer = 0
+                        Dim Corner As New Coords
+                        'Build the polygons list using the proper "trimmed " polygons
+                        _Segments = New List(Of MapSegment)
+
+
+                        For Each Seg In db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg)
+
+                            _Segments.Add(Seg)
+
+
+                        Next
+
+                    End If
+                    Return _Segments
+                End SyncLock
+            Else
+                Return _Segments
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property GetSegments(C1 As Coords, C2 As Coords, db As DBWrapper) As List(Of MapSegment)
+        Get
+           
+            If _Segments Is Nothing AndAlso Abs((P2.Lat - P1.Lat)) > MIN_POLYGON_SPLIT Then
+
+                If _SubRects(0) Is Nothing Then
+                    If Not Split(MIN_POLYGON_SPLIT) Then
+                        Return Nothing
+                    End If
+                End If
+                Dim Rect1 As BspRect = GetChildFromCoords(C1, MIN_POLYGON_SPLIT)
+                Dim Rect2 As BspRect = GetChildFromCoords(C2, MIN_POLYGON_SPLIT)
+                If Rect1 Is Nothing OrElse Rect2 Is Nothing Then
                     Return Nothing
+                ElseIf Rect1 Is Rect2 Then
+                    Return Rect1.GetSegments(C1, C2, db)
                 Else
-                    Return Rect.GetSegments(C, GridGrain, db)
+                    SyncLock _lockObj
+                        _Segments = GetSegments(db)
+                        Return _Segments
+                    End SyncLock
                 End If
             ElseIf _Segments Is Nothing Then
                 SyncLock _lockObj
@@ -275,7 +329,7 @@ Public Class BspRect
                 'x = 0
                 retvalue = _SubRects(y)
             End If
-            
+
             Return retvalue
 
         End Get
