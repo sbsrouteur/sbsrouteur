@@ -20,6 +20,7 @@ Partial Public Class RouteurMain
     Private WithEvents _WallTimer As New System.Windows.Threading.DispatcherTimer With {.Interval = New TimeSpan(0, 0, 0, 0, 50)}
 
     Private _DragCanvas As Boolean = False
+    Private _ZoomCanvas As Boolean = False
     Private _DragStartPoint As Point
 
     Private WithEvents _RouteForm As frmRouteViewer
@@ -149,23 +150,38 @@ Partial Public Class RouteurMain
 
     Private Sub MouseStartDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
 
-        DragCanvas = True
+        If My.Computer.Keyboard.CtrlKeyDown Then
+            _ZoomCanvas = True
+        Else
+            DragCanvas = True
+        End If
+
         _DragStartPoint = e.GetPosition(Me.VOR2DViewer)
 
     End Sub
 
     Private Sub MouseEndDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
-        DragCanvas = False
 
         Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+        Dim C1 As Coords = Nothing
+        Dim C2 As Coords = Nothing
         Dim EndDragPoint As Point = e.GetPosition(Me.VOR2DViewer)
-        Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
-        Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
+
+        If DragCanvas Then
+            DragCanvas = False
+
+            Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
+            Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
 
 
-        Dim C1 As New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
-        Dim C2 As New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
+            C1 = New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
+            C2 = New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
+        ElseIf _ZoomCanvas Then
+            _ZoomCanvas = False
+            C1 = New Coords(VOR2DViewer.CanvasToLat(_DragStartPoint.Y), VOR2DViewer.CanvasToLon(_DragStartPoint.X))
+            C2 = New Coords(VOR2DViewer.CanvasToLat(EndDragPoint.Y), VOR2DViewer.CanvasToLon(EndDragPoint.X))
 
+        End If
         M.UpdateRaceScale(C1, C2)
         RedrawClick(Nothing, Nothing)
     End Sub
