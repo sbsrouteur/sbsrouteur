@@ -240,18 +240,21 @@ Module WS_Wrapper
 
 
         Dim wr As WebResponse
-        wr = Http.GetResponse()
-        Dim rs = New System.IO.StreamReader(wr.GetResponseStream)
-        Dim Response As String = rs.ReadToEnd
-        rs.Close()
+        Try
+            wr = Http.GetResponse()
+            Dim rs = New System.IO.StreamReader(wr.GetResponseStream)
+            Dim Response As String = rs.ReadToEnd
+            rs.Close()
 
-        If Response.Contains("""success"":true") Then
-            Return True
-        Else
+            If Response.Contains("""success"":true") Then
+                Return True
+            Else
 
+                Return False
+            End If
+        Catch ex As Exception
             Return False
-        End If
-        
+        End Try
 
     End Function
 
