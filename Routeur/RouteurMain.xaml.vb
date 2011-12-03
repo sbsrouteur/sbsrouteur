@@ -9,6 +9,7 @@ Imports System.Windows.Media.Animation
 Imports System.Windows.Navigation
 Imports System.ComponentModel
 Imports System.Threading
+Imports System.Math
 
 Partial Public Class RouteurMain
 
@@ -172,7 +173,7 @@ Partial Public Class RouteurMain
 
             Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
             Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
-            If Dx < 5 Or Dy < 5 Then
+            If abs(Dx) < 5 Or abs(Dy) < 5 Then
                 Return
             End If
 
@@ -186,8 +187,8 @@ Partial Public Class RouteurMain
             Dim MinY As Double = Math.Min(_DragStartPoint.Y, EndDragPoint.Y)
             Dim MaxY As Double = Math.Max(_DragStartPoint.Y, EndDragPoint.Y)
 
-            C1 = New Coords(MinX, MaxY)
-            C2 = New Coords(MaxX, MinY)
+            C1 = New Coords(VOR2DViewer.CanvasToLat(MaxY), VOR2DViewer.CanvasToLon(MinX))
+            C2 = New Coords(VOR2DViewer.CanvasToLat(MinY), VOR2DViewer.CanvasToLon(MaxX))
 
         End If
         M.UpdateRaceScale(C1, C2)
