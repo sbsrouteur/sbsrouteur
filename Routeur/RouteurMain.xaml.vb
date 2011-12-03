@@ -172,18 +172,27 @@ Partial Public Class RouteurMain
 
             Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
             Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
-
+            If Dx < 5 Or Dy < 5 Then
+                Return
+            End If
 
             C1 = New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
             C2 = New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
         ElseIf _ZoomCanvas Then
             _ZoomCanvas = False
-            C1 = New Coords(VOR2DViewer.CanvasToLat(_DragStartPoint.Y), VOR2DViewer.CanvasToLon(_DragStartPoint.X))
-            C2 = New Coords(VOR2DViewer.CanvasToLat(EndDragPoint.Y), VOR2DViewer.CanvasToLon(EndDragPoint.X))
+            'FixMe handle antemeridien
+            Dim MinX As Double = Math.Min(_DragStartPoint.X, EndDragPoint.X)
+            Dim MaxX As Double = Math.Max(_DragStartPoint.X, EndDragPoint.X)
+            Dim MinY As Double = Math.Min(_DragStartPoint.Y, EndDragPoint.Y)
+            Dim MaxY As Double = Math.Max(_DragStartPoint.Y, EndDragPoint.Y)
+
+            C1 = New Coords(MinX, MaxY)
+            C2 = New Coords(MaxX, MinY)
 
         End If
         M.UpdateRaceScale(C1, C2)
         RedrawClick(Nothing, Nothing)
+
     End Sub
 
     Private Sub MouseMoveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
