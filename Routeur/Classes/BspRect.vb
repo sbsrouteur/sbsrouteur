@@ -121,7 +121,8 @@ Public Class BspRect
                 'If _Segments Is Nothing Then
                 Dim CellList As List(Of Coords) = BuildBspCellLine(C1, C2)
                 For Each Center As Coords In CellList
-                    TmpSeg.AddRange(GetSegments(Center, db))
+                    Dim l = GetSegments(Center, db)
+                    TmpSeg.AddRange(l)
                 Next
 
                 'End If
@@ -234,24 +235,29 @@ Public Class BspRect
 
         Dim DxOffset As Double = (360) / (2 ^ MAX_TREE_Z)
         Dim DyOffset As Double = (180) / (2 ^ MAX_TREE_Z)
-        Dim MinLon As Double = Min(C1.Lon_Deg, C2.Lon_Deg)
-        Dim MaxLon As Double = Max(C1.Lon_Deg, C2.Lon_Deg)
-        Dim MinLat As Double = Min(C1.Lat_Deg, C2.Lat_Deg)
-        Dim MaxLat As Double = Max(C1.Lat_Deg, C2.Lat_Deg)
+
+        If C2.Lon < C1.Lon Then
+            DxOffset = -DxOffset
+        End If
+
+        If C2.Lat < C1.Lat Then
+            DyOffset = -DyOffset
+        End If
+
         'FIXME handle antemeridien
-        If Abs(MaxLon - MinLon) > Abs(MaxLat - MinLat) Then
-            Dim Dy As Double = (C2.Lat_Deg - C1.Lat_Deg) / (MaxLon - MinLon)
+        If Abs(C2.N_Lon_Deg - C1.N_Lon_Deg) > Abs(C2.Lat_Deg - C1.Lat_Deg) Then
+            Dim Dy As Double = (C2.Lat_Deg - C1.Lat_Deg) / (C2.Lon_Deg - C1.Lon_Deg) * DxOffset
             Dim CurY As Double = C1.Lat_Deg - Dy
-            For x = MinLon - DxOffset To MaxLon + DxOffset Step DxOffset
+            For x = C1.N_Lon_Deg - DxOffset To C2.N_Lon_Deg + DxOffset Step DxOffset
                 RetList.Add(New Coords(CurY, x))
                 RetList.Add(New Coords(CurY - DyOffset, x))
                 RetList.Add(New Coords(CurY + DyOffset, x))
                 CurY += Dy
             Next
         Else
-            Dim Dx As Double = (C2.Lon_Deg - C1.Lon_Deg) / (MaxLat - MinLat)
+            Dim Dx As Double = (C2.Lon_Deg - C1.Lon_Deg) / (C2.Lat_Deg - C1.Lat_Deg) * DyOffset
             Dim CurX As Double = C1.Lon_Deg - Dx
-            For y = MinLat - DyOffset To MaxLat + DyOffset Step DyOffset
+            For y = C1.Lat_Deg - DyOffset To C2.Lat_Deg + DyOffset Step DyOffset
                 RetList.Add(New Coords(y, CurX))
                 RetList.Add(New Coords(y, CurX - DxOffset))
                 RetList.Add(New Coords(y, CurX + DxOffset))
