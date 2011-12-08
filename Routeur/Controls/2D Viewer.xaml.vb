@@ -598,8 +598,8 @@ Render1:
             Dim db As New DBWrapper
             db.MapLevel = 3
             Dim C1 As Coords = New Coords(33, 43, 52, Routeur.Coords.NORTH_SOUTH.S,
-                                            18, 26, 1, Routeur.Coords.EAST_WEST.E)
-            Dim C2 As Coords = New Coords(33, 49, 57, Routeur.Coords.NORTH_SOUTH.S,
+                                            18, 26, 31, Routeur.Coords.EAST_WEST.E)
+            Dim C2 As Coords = New Coords(34, 49, 57, Routeur.Coords.NORTH_SOUTH.S,
                                             18, 28, 58, Routeur.Coords.EAST_WEST.E)
             
             'Dim C1 As New Coords(CanvasToLat(0), CanvasToLon(0))

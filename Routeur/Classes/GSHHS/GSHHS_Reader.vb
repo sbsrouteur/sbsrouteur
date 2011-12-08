@@ -59,9 +59,6 @@ Public Class GSHHS_Reader
         End If
         If Not DB.DataMapInited(MapLevel) Then
             Try
-                'Dim A As Polygon
-                'Dim landpoly As Boolean
-
 
                 If Not File.Exists(SI.StartPath) Then
                     Return
@@ -162,27 +159,28 @@ Public Class GSHHS_Reader
             Lat = CDbl(Readinteger(S)) / GSHHS_FACTOR
 
 
-            If H.level = 1 OrElse (RouteurModel.LAKE_RACE AndAlso (H.level = 2 OrElse H.level = 3)) Then
-                If lon > 180 Then
-                    lon -= 360
-                End If
+            'If H.level = 1 OrElse (RouteurModel.LAKE_RACE AndAlso (H.level = 2 OrElse H.level = 3)) Then
+            If lon > 180 Then
+                lon -= 360
+            End If
 
-                PrevCoords = CurCoords
-                CurCoords = New Coords(Lat, lon)
+            PrevCoords = CurCoords
+            CurCoords = New Coords(Lat, lon)
 
-                
-                If i = 0 Then
 
-                    StartCoords = CurCoords
-                Else
+            If i = 0 Then
 
-                    db.AddSegment(Level, CurCoords, PrevCoords)
-                    
-                End If
+                StartCoords = CurCoords
+            Else
+
+                db.AddSegment(Level, CurCoords, PrevCoords)
 
             End If
+
+            'End If
             SI.ProgressWindows.Progress(S.Position)
         Next
+        'Console.WriteLine("Poly " & H.id & " " & H.n & "segs")
 
         If CurCoords IsNot Nothing AndAlso StartCoords IsNot Nothing Then
             db.AddSegment(Level, CurCoords, StartCoords)
