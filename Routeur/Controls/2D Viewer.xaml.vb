@@ -597,12 +597,19 @@ Render1:
 #If DBG_SEGMENTS = 1 Then
             Dim db As New DBWrapper
             db.MapLevel = 3
-            Dim C1 As New Coords(CanvasToLat(0), CanvasToLon(0))
-            Dim C2 As New Coords(CanvasToLat(ActualHeight), CanvasToLon(ActualWidth))
+            Dim C1 As Coords = New Coords(33, 43, 52, Routeur.Coords.NORTH_SOUTH.S,
+                                            18, 26, 1, Routeur.Coords.EAST_WEST.E)
+            Dim C2 As Coords = New Coords(33, 49, 57, Routeur.Coords.NORTH_SOUTH.S,
+                                            18, 28, 58, Routeur.Coords.EAST_WEST.E)
+            
+            'Dim C1 As New Coords(CanvasToLat(0), CanvasToLon(0))
+            'Dim C2 As New Coords(CanvasToLat(ActualHeight), CanvasToLon(ActualWidth))
             Dim PenSegs As New Pen(New SolidColorBrush(Color.FromRgb(255, 128, 0)), 1)
-            Dim Segs = db.SegmentList(C1.Lon_Deg, C1.Lat_Deg, C2.Lon_Deg, C2.Lat_Deg)
+            'Dim Segs = db.SegmentList(C1.Lon_Deg, C1.Lat_Deg, C2.Lon_Deg, C2.Lat_Deg)
+            Dim segs = GSHHS_Reader._Tree.GetSegments(C1, C2, db)
             Dim SegCount As Integer = 0
-            For Each seg In Segs
+            segs.Add(New MapSegment() With {.Lon1 = C1.Lon_Deg, .Lat1 = C1.Lat_Deg, .Lon2 = C2.Lon_Deg, .Lat2 = C2.Lat_Deg})
+            For Each seg In segs
                 Dim lP1 As New Coords(seg.Lat1, seg.Lon1)
                 Dim lP2 As New Coords(seg.Lat2, seg.Lon2)
                 Dim pp1 As New Point(LonToCanvas(seg.Lon1), LatToCanvas(seg.Lat1))

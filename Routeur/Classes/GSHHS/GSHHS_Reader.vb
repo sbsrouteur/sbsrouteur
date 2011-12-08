@@ -59,10 +59,10 @@ Public Class GSHHS_Reader
         End If
         If Not DB.DataMapInited(MapLevel) Then
             Try
-                Dim A As Polygon
-                Dim landpoly As Boolean
+                'Dim A As Polygon
+                'Dim landpoly As Boolean
 
-                Dim PolyCount As Long = 0
+
                 If Not File.Exists(SI.StartPath) Then
                     Return
                 End If
@@ -73,40 +73,15 @@ Public Class GSHHS_Reader
 
                 SI.ProgressWindows.Start(S.Length)
                 Do
-                    A = ReadPoly(S, SI, landpoly)
-                    If Not A Is Nothing Then
-                        'If landpoly Then
-                        '    _PolyGons.AddLast(A)
-                        'Else
-                        '    _LakePolyGons.AddLast(A)
-                        'End If
-                        DB.AddPoly(MapLevel, A)
-                        PolyCount += A.Count
-                    End If
+                    ReadPoly(S, SI, MapLevel, DB)
+                
                     SI.ProgressWindows.Progress(S.Position)
                 Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
 
                 S.Close()
-                DB.AddPoly(MapLevel, Nothing, True)
-
-                ExclusionCount = 0
-                If Not SI.NoExclusionZone Then
-                    For Each excl In RouteurModel.Exclusions
-                        'ReDim A(CInt(excl.Count / 2) - 1)
-                        A = New Polygon
-                        For i = 0 To excl.Count - 1 Step 2
-                            Dim c As New Coords(excl(i + 1), excl(i))
-                            A.Add(c)
-                        Next
-                        _PolyGons.AddFirst(A)
-                        ExclusionCount += 1
-                        '_UseFullPolygon.Add(A)
-                        '_usefullboxes.Add(UpdateBox(A))
-
-                    Next
-                End If
+                
 #End If
-
+                DB.AddSegment(MapLevel, Nothing, Nothing, True)
             Catch ex As Exception
 
                 MessageBox.Show(ex.Message, "Error loading Map data")
@@ -161,29 +136,27 @@ Public Class GSHHS_Reader
         Return BitConverter.ToInt32(V, 0)
     End Function
 
-    Private Shared Function ReadPoly(ByVal S As FileStream, ByVal SI As GSHHS_StartInfo, ByRef LandPolygon As Boolean) As Polygon
+    Private Shared Function ReadPoly(ByVal S As FileStream, ByVal SI As GSHHS_StartInfo, ByRef Level As Integer, db As DBWrapper) As Polygon
 
         Dim H As GSHHS_Header = ReadHeader(S)
-        Dim RetPoints As New Polygon
+
         Dim Lat As Double
         Dim lon As Double
         Dim i As Integer
-        Dim ActivePoints As Integer
-        'Dim TC As New TravelCalculator
-        Dim InZone As Boolean
-        Dim HasPointsInZone As Boolean = False
-        Dim Fr_map As System.IO.StreamWriter = Nothing
-        Dim lookupzone As LinkedList(Of Polygon) = SI.PolyGons
+        
+        Dim CurCoords As Coords = Nothing
+        Dim PrevCoords As Coords = Nothing
+        Dim StartCoords As Coords = Nothing
+        
+
 
         Static maxeast As Integer = 270
         If H Is Nothing Then
             Return Nothing
         End If
 
-        'ReDim RetPoints(CInt(H.n - 1))
-        Dim IgnoredPoints As Long = 0
-        ActivePoints = -1
-        LandPolygon = H.level = 1 OrElse H.level = 3
+        
+        Dim LandPolygon = H.level = 1 OrElse H.level = 3
         For i = 0 To CInt(H.n) - 1
             lon = CDbl(Readinteger(S)) / GSHHS_FACTOR
             Lat = CDbl(Readinteger(S)) / GSHHS_FACTOR
@@ -194,97 +167,34 @@ Public Class GSHHS_Reader
                     lon -= 360
                 End If
 
+                PrevCoords = CurCoords
+                CurCoords = New Coords(Lat, lon)
 
-                RetPoints(ActivePoints + 1) = New Coords(Lat, lon)
-
-                'InZone = HitTest(RetPoints(ActivePoints + 1), 0, lookupzone, False, True)
-                InZone = True
-                'RetPoints(ActivePoints + 1).Lon = -RetPoints(ActivePoints + 1).Lon
+                
                 If i = 0 Then
-                    ActivePoints += 1
-                    HasPointsInZone = InZone
-                ElseIf ActivePoints >= 0 Then
-                    'TC.StartPoint = RetPoints(ActivePoints)
-                    'TC.EndPoint = RetPoints(ActivePoints + 1)
 
-                    HasPointsInZone = InZone Or HasPointsInZone
+                    StartCoords = CurCoords
+                Else
 
-                    'If (InZone And TC.SurfaceDistance > 3) OrElse TC.SurfaceDistance > 25 Then
-                    'If ((HasPointsInZone AndAlso TC.SurfaceDistance > RouteurModel.GridGrain / 2)) OrElse IgnoredPoints > 2000 Then
-                    If InZone OrElse IgnoredPoints > 2000 Then 'HasPointsInZone  Then
-
-                        ActivePoints += 1
-                        'If InZone Then
-                        '_Tree.InSert(RetPoints(ActivePoints), BspRect.inlandstate.InLand, RouteurModel.GridGrain)
-                        'End If
-                        IgnoredPoints = 0
-                    Else
-                        IgnoredPoints += 1
-                    End If
+                    db.AddSegment(Level, CurCoords, PrevCoords)
+                    
                 End If
 
             End If
             SI.ProgressWindows.Progress(S.Position)
         Next
 
+        If CurCoords IsNot Nothing AndAlso StartCoords IsNot Nothing Then
+            db.AddSegment(Level, CurCoords, StartCoords)
+
+        End If
+
         If maxeast = 270 Then
             maxeast = 180
         End If
 
-        If ActivePoints = 0 Then
-            Return Nothing
-        End If
 
-
-        If HasPointsInZone Then
-            Dim IsExcluded As Boolean = False
-
-            'For Each index In _ExcludedID
-            '    If index = H.id Then
-            '        IsExcluded = True
-            '        Exit For
-            '    End If
-            'Next
-            If Not IsExcluded AndAlso LandPolygon Then
-                Dim box(1) As Coords
-                Dim Mlon As Double = H.east / GSHHS_FACTOR
-                Dim MLat As Double = H.north / GSHHS_FACTOR
-
-                If Mlon > 180 Then
-                    Mlon -= 360
-                    'Else
-                    '    Mlon = -Mlon
-                    If H.id = 0 Then
-                        Mlon = 180
-                    End If
-                End If
-                'box = UpdateBox(RetPoints)
-                box(0) = New Coords(MLat, Mlon)
-                Mlon = H.west / GSHHS_FACTOR
-                If Mlon > 180 Then
-                    Mlon -= 360
-                End If
-                If H.id = 0 Then
-                    Mlon = -180
-                End If
-                'Mlon = -Mlon
-                MLat = H.south / GSHHS_FACTOR
-                box(1) = New Coords(MLat, Mlon)
-
-                'Console.WriteLine("AddPoly to list" & H.id)
-                '_UseFullPolygon.Add(RetPoints)
-                If RetPoints(0) Is Nothing Then
-                    i = 0
-                ElseIf _PolyGons.Count = 212 Then
-                    i = CInt(Math.Sqrt(_PolyGons.Count))
-                End If
-                '_PolyGons.Add(RetPoints)
-                '_usefullboxes.Add(box)
-            End If
-        End If
-
-        Return RetPoints
-
+        Return Nothing
 
     End Function
 

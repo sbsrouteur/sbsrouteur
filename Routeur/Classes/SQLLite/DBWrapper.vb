@@ -27,6 +27,8 @@ Public Class DBWrapper
         Conn.Open()
         Dim cmd As New SQLiteCommand(My.Resources.CreateDBScript, Conn)
         cmd.ExecuteNonQuery()
+        cmd.CommandText = My.Resources.CreateRangeIndex
+        cmd.ExecuteNonQuery()
         Conn.Close()
 
     End Sub
@@ -52,7 +54,66 @@ Public Class DBWrapper
 
     End Function
 
-    Public Sub AddPoly(MapLevel As Integer, A As Polygon, Optional Flush As Boolean = False)
+    'Public Sub AddPoly(MapLevel As Integer, A As Polygon, Optional Flush As Boolean = False)
+
+    '    Static Conn As SQLiteConnection
+    '    Static PolyCount As Long = 0
+    '    Static Trans As SQLiteTransaction = Nothing
+
+    '    If Flush Then
+    '        Trans.Commit()
+    '        Conn.Close()
+    '    End If
+
+    '    If A Is Nothing OrElse A.Length = 0 Then
+    '        Return
+    '    End If
+
+    '    If Conn Is Nothing Then
+    '        Conn = New SQLiteConnection(_DBPath)
+    '        Conn.Open()
+    '        Trans = Conn.BeginTransaction()
+    '    End If
+
+
+    '    Dim Cmd As New SQLiteCommand(Conn)
+    '    Dim StartCoords As Coords = A(0)
+    '    Try
+    '        For i As Integer = 0 To A.Length - 1
+
+    '            Dim CmdText As String = "insert into mapssegments (maplevel,lon1,lat1,lon2,lat2) values (" & MapLevel & "," &
+    '                                                                A(i).Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+    '                                                                A(i).Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+    '                                                                A(i + 1).Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+    '                                                                A(i + 1).Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ")"
+    '            Cmd.CommandText = CmdText
+    '            Cmd.ExecuteNonQuery()
+
+    '            PolyCount += 1
+    '            If PolyCount Mod 3000 = 0 Then
+    '                Trans.Commit()
+    '                Trans = Conn.BeginTransaction
+    '            End If
+
+    '        Next
+    '        Dim LastCmdText As String = "insert into mapssegments (maplevel,lon1,lat1,lon2,lat2) values (" & MapLevel & "," &
+    '                                                                A(A.Length - 1).Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+    '                                                                A(A.Length - 1).Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+    '                                                                StartCoords.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+    '                                                                StartCoords.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ")"
+    '        Cmd.CommandText = LastCmdText
+    '        Cmd.ExecuteNonQuery()
+
+    '    Finally
+    '        'If Trans IsNot Nothing Then
+    '        '    Trans.Commit()
+    '        'End If
+    '        'Conn.Close()
+    '    End Try
+
+    'End Sub
+
+    Public Sub AddSegment(MapLevel As Integer, P1 As Coords, p2 As Coords, Optional flush As Boolean = False)
 
         Static Conn As SQLiteConnection
         Static PolyCount As Long = 0
@@ -61,9 +122,6 @@ Public Class DBWrapper
         If Flush Then
             Trans.Commit()
             Conn.Close()
-        End If
-
-        If A Is Nothing OrElse A.Length = 0 Then
             Return
         End If
 
@@ -75,32 +133,37 @@ Public Class DBWrapper
 
 
         Dim Cmd As New SQLiteCommand(Conn)
-        Dim StartCoords As Coords = A(0)
         Try
-            For i As Integer = 0 To A.Length - 1
 
-                Dim CmdText As String = "insert into mapssegments (maplevel,lon1,lat1,lon2,lat2) values (" & MapLevel & "," &
-                                                                    A(i).Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-                                                                    A(i).Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-                                                                    A(i + 1).Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-                                                                    A(i + 1).Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ")"
-                Cmd.CommandText = CmdText
-                Cmd.ExecuteNonQuery()
-
-                PolyCount += 1
-                If PolyCount Mod 3000 = 0 Then
-                    Trans.Commit()
-                    Trans = Conn.BeginTransaction
-                End If
-
-            Next
-            Dim LastCmdText As String = "insert into mapssegments (maplevel,lon1,lat1,lon2,lat2) values (" & MapLevel & "," &
-                                                                    A(A.Length - 1).Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-                                                                    A(A.Length - 1).Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-                                                                    StartCoords.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-                                                                    StartCoords.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ")"
-            Cmd.CommandText = LastCmdText
+            Dim CmdText As String = "insert into mapssegments (maplevel,lon1,lat1,lon2,lat2) values (" & MapLevel & "," &
+                                                                P1.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+                                                                P1.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+                                                                p2.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+                                                                p2.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ")"
+            Cmd.CommandText = CmdText
             Cmd.ExecuteNonQuery()
+
+            Cmd.CommandText = " select last_insert_rowid()"
+            Dim NewID As Long = CLng(Cmd.ExecuteScalar())
+            Dim MinX As Double = Math.Min(P1.Lon_Deg, p2.Lon_Deg)
+            Dim MaxX As Double = Math.Max(P1.Lon_Deg, p2.Lon_Deg)
+            Dim MinY As Double = Math.Min(P1.Lat_Deg, p2.Lat_Deg)
+            Dim MaxY As Double = Math.Max(P1.Lat_Deg, p2.Lat_Deg)
+
+            Cmd.CommandText = "insert into MapLevel_Idx" & MapLevel & " ( ID, MinX, MaxX, MinY, MaxY) values (" & NewID & "," &
+                                                                MinX.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+                                                                MaxX.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+                                                                MinY.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+                                                                MaxY.ToString(System.Globalization.CultureInfo.InvariantCulture) & ")"
+
+            Cmd.ExecuteNonQuery()
+            PolyCount += 1
+            If PolyCount Mod 3000 = 0 Then
+                Trans.Commit()
+                Trans = Conn.BeginTransaction
+            End If
+
+
 
         Finally
             'If Trans IsNot Nothing Then
@@ -110,6 +173,7 @@ Public Class DBWrapper
         End Try
 
     End Sub
+
 
     Shared Function GetMapLevel(StartPath As String) As Integer
 
@@ -155,8 +219,16 @@ Public Class DBWrapper
         Static ticks As Long = 0
         Dim Start As DateTime = Now
         Dim RetList As New List(Of MapSegment)
+        Static Dbg As New List(Of MapSegment)
 
         Try
+            Dim M As New MapSegment(lon1, lat1, lon2, lat2)
+            If Not Dbg.Contains(m) Then
+                Dbg.Add(M)
+            Else
+                Dim i As Integer = 0
+            End If
+            Console.WriteLine("Seg " & lon1 & "/" & lat1 & "/" & lon2 & "/" & lat2)
             Using Con As New SQLiteConnection(_DBPath)
                 Con.Open()
 
@@ -169,10 +241,14 @@ Public Class DBWrapper
                         Dim MinLat As String = Math.Min(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
                         Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
 
-                        Cmd.CommandText = "Select * from mapssegments where maplevel = " & MapLevel & " and (" &
-                                            " ((lon1 between " & MinLon & " and " & MaxLon & ") and ( lat1 between " & MinLat & " and " & MaxLat & ")) " &
-                                            " or ((lon2 between " & MinLon & " and " & MaxLon & ") and ( lat2 between " & MinLat & " and " & MaxLat & ")) " &
-                                            ")"
+                        'Cmd.CommandText = "Select * from mapssegments where maplevel = " & MapLevel & " and (" &
+                        '                    " ((lon1 between " & MinLon & " and " & MaxLon & ") and ( lat1 between " & MinLat & " and " & MaxLat & ")) " &
+                        '                    " or ((lon2 between " & MinLon & " and " & MaxLon & ") and ( lat2 between " & MinLat & " and " & MaxLat & ")) " &
+                        '                    ")"
+                        Cmd.CommandText = "Select * from mapssegments inner join ( " &
+                                            " select id from MapLevel_Idx" & MapLevel & " where " &
+                                            " (MinX  >= " & MinLon & " and MaxX <=" & MaxLon & ") and ( MinY >=" & MinLat & " and MaxY <=" & MaxLat & ") " &
+                                            ") As T on IdSegment = id"
 
                         If sorted Then
                             Cmd.CommandText = Cmd.CommandText & " order by IdSegment asc"

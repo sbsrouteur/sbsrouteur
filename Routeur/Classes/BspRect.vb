@@ -4,7 +4,7 @@ Imports System.Threading
 Public Class BspRect
     Public Const GRID_GRAIN_OVERSAMPLE As Integer = 1
     Private Const MAX_IGNORED_COUNT As Integer = 2000
-    Private Const MAX_TREE_Z As Integer = 12
+    Private Const MAX_TREE_Z As Integer = 10
 
     Public Enum inlandstate As Byte
         Unknown = 0
@@ -223,26 +223,30 @@ Public Class BspRect
     Private Function BuildBspCellLine(C1 As Coords, C2 As Coords) As List(Of Coords)
         Dim RetList As New List(Of Coords)
 
-        Dim Dx As Double = (360) / (2 ^ MAX_TREE_Z)
-        Dim Dy As Double = (180) / (2 ^ MAX_TREE_Z)
+        Dim DxOffset As Double = (360) / (2 ^ MAX_TREE_Z)
+        Dim DyOffset As Double = (180) / (2 ^ MAX_TREE_Z)
         Dim MinLon As Double = Min(C1.Lon_Deg, C2.Lon_Deg)
         Dim MaxLon As Double = Max(C1.Lon_Deg, C2.Lon_Deg)
         Dim MinLat As Double = Min(C1.Lat_Deg, C2.Lat_Deg)
         Dim MaxLat As Double = Max(C1.Lat_Deg, C2.Lat_Deg)
         'FIXME handle antemeridien
         If Abs(MaxLon - MinLon) > Abs(MaxLat - MinLat) Then
-            Dim CurY As Double = C1.Lat_Deg
-            Dy = (C2.Lat_Deg - C1.Lat_Deg) * Dx / (MaxLon - MinLon)
-            For x = MinLon To MaxLon Step Dx
+            Dim Dy As Double = (C2.Lat_Deg - C1.Lat_Deg) * DxOffset / (MaxLon - MinLon)
+            Dim CurY As Double = C1.Lat_Deg - Dy
+            For x = MinLon - DxOffset To MaxLon + DxOffset Step DxOffset
                 RetList.Add(New Coords(CurY, x))
+                RetList.Add(New Coords(CurY - DyOffset, x))
+                RetList.Add(New Coords(CurY + DyOffset, x))
                 CurY += Dy
             Next
         Else
-            Dim CurX As Double = C1.Lon_Deg
-            Dx /= (C2.Lon_Deg - C1.Lon_Deg) * Dy / (MaxLat - MinLat)
-            For y = MinLat To MaxLat Step Dy
+            Dim Dx As Double = (C2.Lon_Deg - C1.Lon_Deg) * DyOffset / (MaxLat - MinLat)
+            Dim CurX As Double = C1.Lon_Deg - Dx
+            For y = MinLat - DyOffset To MaxLat + DyOffset Step DyOffset
                 RetList.Add(New Coords(y, CurX))
-                CurX += Dy
+                RetList.Add(New Coords(y, CurX - DxOffset))
+                RetList.Add(New Coords(y, CurX + DxOffset))
+                CurX += Dx
             Next
         End If
         Return RetList
@@ -524,7 +528,7 @@ Public Class BspRect
         End If
         Do
             _SpinLock.Enter(GotLock)
-            System.Threading.Thread.Sleep(1)
+            'System.Threading.Thread.Sleep(1)
         Loop Until GotLock
         _SpinCount += 1
         'Console.WriteLine("enter" & Thread.CurrentThread.ManagedThreadId & "/" & _SpinCount)

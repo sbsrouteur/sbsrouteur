@@ -3426,24 +3426,26 @@ Public Class VLM_Router
 
 
     Public Sub DebugTest()
-        Return
-        'Dim S1_P1 As Coords = New Coords(38.185, -0.593)
-        'Dim S1_P2 As Coords = New Coords(38.25, -0.6)
+        'Return
+        'Dim S1_P1 As Coords = New Coords(33, 49, 19, Routeur.Coords.NORTH_SOUTH.S,
+        '                                18, 28, 41, Routeur.Coords.EAST_WEST.E)
+        'Dim S1_P2 As Coords = New Coords(33, 49, 45, Routeur.Coords.NORTH_SOUTH.S,
+        '                                18, 27, 24, Routeur.Coords.EAST_WEST.E)
         'Dim _P1 As New Coords(90, 179.999999)
         'Dim _P2 As New Coords(-90, -179.99999)
         'Dim db As New DBWrapper()
         'Dim rect = New BspRect(_P1, _P2, 1)
-        'db.MapLevel = 5
+        'db.MapLevel = 3
         'Dim tc As New TravelCalculator With {.StartPoint = S1_P1}
 
-        'For i = 225 To 444
+        ''For i = 225 To 444
 
-        '    tc.EndPoint = tc.ReachDistance(3, i Mod 360)
-        '    If Not db.IntersectMapSegment(S1_P1, tc.EndPoint, rect) Then
-        '        MessageBox.Show("Oops la côte!!!")
-        '    End If
+        ''tc.EndPoint = tc.ReachDistance(3, i Mod 360)
+        'If Not db.IntersectMapSegment(S1_P1, S1_P2, rect) Then
+        '    MessageBox.Show("Oops la côte!!!")
+        'End If
 
-        'Next
+        ''Next
 
         Return
 

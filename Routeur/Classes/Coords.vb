@@ -19,8 +19,8 @@ Public Class Coords
     End Enum
 
     Public Enum EAST_WEST As Integer
-        E = -1
-        W = 1
+        E = 1
+        W = -1
     End Enum
 
     Private _Lat As Double
