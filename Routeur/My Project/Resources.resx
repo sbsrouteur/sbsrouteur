@@ -140,4 +140,31 @@ CREATE INDEX [IdxSegments] ON [MapsSegments](
 
 insert into DBVersion(VersionNumber) values(1);</value>
   </data>
+  <data name="CreateRangeIndex" xml:space="preserve">
+    <value>CREATE VIRTUAL TABLE MapLevel_Idx1 USING rtree(
+   id,              -- Integer primary key
+   minX, maxX,      -- Minimum and maximum X coordinate
+   minY, maxY       -- Minimum and maximum Y coordinate
+);
+CREATE VIRTUAL TABLE MapLevel_Idx2 USING rtree(
+   id,              -- Integer primary key
+   minX, maxX,      -- Minimum and maximum X coordinate
+   minY, maxY       -- Minimum and maximum Y coordinate
+);
+CREATE VIRTUAL TABLE MapLevel_Idx3 USING rtree(
+   id,              -- Integer primary key
+   minX, maxX,      -- Minimum and maximum X coordinate
+   minY, maxY       -- Minimum and maximum Y coordinate
+);
+CREATE VIRTUAL TABLE MapLevel_Idx4 USING rtree(
+   id,              -- Integer primary key
+   minX, maxX,      -- Minimum and maximum X coordinate
+   minY, maxY       -- Minimum and maximum Y coordinate
+);
+CREATE VIRTUAL TABLE MapLevel_Idx5 USING rtree(
+   id,              -- Integer primary key
+   minX, maxX,      -- Minimum and maximum X coordinate
+   minY, maxY       -- Minimum and maximum Y coordinate
+);</value>
+  </data>
 </root>
