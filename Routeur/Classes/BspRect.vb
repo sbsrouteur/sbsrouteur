@@ -76,7 +76,12 @@ Public Class BspRect
             If _Segments Is Nothing AndAlso _Z < MAX_TREE_Z Then
 
                 If _SubRects(0) Is Nothing Then
-                    Split()
+                    SpinLock()
+                    If _SubRects(0) Is Nothing Then
+                        Split()
+                    End If
+
+                    SpinLockExit()
                 End If
 
                 Return GetChildFromCoords(Center).GetSegments(Center, db)
@@ -105,19 +110,22 @@ Public Class BspRect
 
     Public ReadOnly Property GetSegments(C1 As Coords, C2 As Coords, db As DBWrapper) As List(Of MapSegment)
         Get
+#If BSP_NO_CACHE = 1 Then
+            Return db.SegmentList(C1.N_Lon_Deg, C1.Lat_Deg, C2.N_Lon_Deg, C2.Lat_Deg)
+#Else
 
             If _Segments Is Nothing AndAlso Z < MAX_TREE_Z Then
 
-                SpinLock()
+                'SpinLock()
                 Dim TmpSeg As New List(Of MapSegment)
-                If _Segments Is Nothing Then
-                    Dim CellList As List(Of Coords) = BuildBspCellLine(C1, C2)
-                    For Each Center As Coords In CellList
-                        TmpSeg.AddRange(GetSegments(Center, db))
-                    Next
+                'If _Segments Is Nothing Then
+                Dim CellList As List(Of Coords) = BuildBspCellLine(C1, C2)
+                For Each Center As Coords In CellList
+                    TmpSeg.AddRange(GetSegments(Center, db))
+                Next
 
-                End If
-                SpinLockExit()
+                'End If
+                'SpinLockExit()
                 Return TmpSeg
 
             ElseIf _Segments Is Nothing Then
@@ -138,6 +146,7 @@ Public Class BspRect
             Else
                 Return _Segments
             End If
+#End If
 
         End Get
     End Property
@@ -231,7 +240,7 @@ Public Class BspRect
         Dim MaxLat As Double = Max(C1.Lat_Deg, C2.Lat_Deg)
         'FIXME handle antemeridien
         If Abs(MaxLon - MinLon) > Abs(MaxLat - MinLat) Then
-            Dim Dy As Double = (C2.Lat_Deg - C1.Lat_Deg) * DxOffset / (MaxLon - MinLon)
+            Dim Dy As Double = (C2.Lat_Deg - C1.Lat_Deg) / (MaxLon - MinLon)
             Dim CurY As Double = C1.Lat_Deg - Dy
             For x = MinLon - DxOffset To MaxLon + DxOffset Step DxOffset
                 RetList.Add(New Coords(CurY, x))
@@ -240,7 +249,7 @@ Public Class BspRect
                 CurY += Dy
             Next
         Else
-            Dim Dx As Double = (C2.Lon_Deg - C1.Lon_Deg) * DyOffset / (MaxLat - MinLat)
+            Dim Dx As Double = (C2.Lon_Deg - C1.Lon_Deg) / (MaxLat - MinLat)
             Dim CurX As Double = C1.Lon_Deg - Dx
             For y = MinLat - DyOffset To MaxLat + DyOffset Step DyOffset
                 RetList.Add(New Coords(y, CurX))

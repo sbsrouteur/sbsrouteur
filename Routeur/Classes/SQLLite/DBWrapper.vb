@@ -219,15 +219,14 @@ Public Class DBWrapper
         Static ticks As Long = 0
         Dim Start As DateTime = Now
         Dim RetList As New List(Of MapSegment)
-        Static Dbg As New List(Of MapSegment)
-
+        
         Try
             Dim M As New MapSegment(lon1, lat1, lon2, lat2)
-            If Not Dbg.Contains(m) Then
-                Dbg.Add(M)
-            Else
-                Dim i As Integer = 0
-            End If
+            'If Not Dbg.Contains(m) Then
+            'Dbg.Add(M)
+            'Else
+            'Dim i As Integer = 0
+            'End If
             Console.WriteLine("Seg " & lon1 & "/" & lat1 & "/" & lon2 & "/" & lat2)
             Using Con As New SQLiteConnection(_DBPath)
                 Con.Open()
@@ -247,7 +246,7 @@ Public Class DBWrapper
                         '                    ")"
                         Cmd.CommandText = "Select * from mapssegments inner join ( " &
                                             " select id from MapLevel_Idx" & MapLevel & " where " &
-                                            " (MinX  >= " & MinLon & " and MaxX <=" & MaxLon & ") and ( MinY >=" & MinLat & " and MaxY <=" & MaxLat & ") " &
+                                            " (MaxX  >= " & MinLon & " and MinX <=" & MaxLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") " &
                                             ") As T on IdSegment = id"
 
                         If sorted Then
