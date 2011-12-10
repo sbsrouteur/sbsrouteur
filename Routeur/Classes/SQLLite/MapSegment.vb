@@ -23,4 +23,16 @@
         Return (Lon1 = other.Lon1 And Lat1 = other.Lat1 And Lon2 = other.Lon2 And Lat2 = other.Lat2) OrElse
                 (Lon2 = other.Lon1 And Lat2 = other.Lat1 And Lon1 = other.Lon2 And Lat1 = other.Lat2)
     End Function
+
+    Public ReadOnly Property P1 As Coords
+        Get
+            Return New Coords(Lat1, Lon1)
+        End Get
+    End Property
+
+    Public ReadOnly Property P2 As Coords
+        Get
+            Return New Coords(Lat2, Lon2)
+        End Get
+    End Property
 End Class
