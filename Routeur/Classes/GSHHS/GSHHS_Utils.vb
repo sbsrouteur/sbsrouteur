@@ -4,6 +4,11 @@ Module GSHHS_Utils
 
     Public GRID_HIT_TOLERANCE As Double = RouteurModel.GridGrain / 5
 
+    Public Structure LineParam
+        Public a As Double
+        Public b As Double
+    End Structure
+
     '    Public Function CheckSegmentValid(ByVal TC As TravelCalculator) As Boolean
 
     '        Static Px As Double = RouteurModel.GridGrain / 180 / BspRect.GRID_GRAIN_OVERSAMPLE * Math.PI * 2
@@ -70,15 +75,15 @@ Module GSHHS_Utils
 
     '    End Function
 
-    Private Function GetLineCoefs(P1 As Coords, P2 As Coords) As Coords
-        Dim RetCoords As New Coords
+    Private Function GetLineCoefs(P1 As Coords, P2 As Coords) As LineParam
+        Dim RetCoords As LineParam
         If P1.N_Lon <> P2.N_Lon Then
-            RetCoords.Lat = (P2.Lat - P1.Lat) / (P2.Lon - P1.Lon)
-            RetCoords.Lon = P1.Lat - (RetCoords.Lat * P1.Lon)
-            
+            RetCoords.a = (P2.Lat - P1.Lat) / (P2.Lon - P1.Lon)
+            RetCoords.b = P1.Lat - (RetCoords.a * P1.Lon)
+
         Else
-            RetCoords.Lat = Double.NaN
-            RetCoords.Lon = P1.N_Lon
+            RetCoords.a = Double.NaN
+            RetCoords.b = P1.N_Lon
 
         End If
         Return RetCoords
@@ -94,46 +99,46 @@ Module GSHHS_Utils
         End If
 
 
-        Dim CoefS1 As Coords = GetLineCoefs(S1_P1, S1_P2)
-        Dim CoefS2 As Coords = GetLineCoefs(S2_P1, S2_P2)
+        Dim CoefS1 As LineParam = GetLineCoefs(S1_P1, S1_P2)
+        Dim CoefS2 As LineParam = GetLineCoefs(S2_P1, S2_P2)
 
-        If CoefS1.Lat = CoefS2.Lat Then
+        If CoefS1.a = CoefS2.a Then
             Return False
-        ElseIf Not Double.IsNaN(CoefS1.Lat) And Not Double.IsNaN(CoefS2.Lat) Then
-            Dim x As Double = (CoefS2.Lon - CoefS1.Lon) / (CoefS1.Lat - CoefS2.Lat)
+        ElseIf Not Double.IsNaN(CoefS1.a) And Not Double.IsNaN(CoefS2.a) Then
+            Dim x As Double = (CoefS2.b - CoefS1.b) / (CoefS1.a - CoefS2.a)
             Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) AndAlso x <= (Max(S1_P1.Lon, S1_P2.Lon)) AndAlso x >= (Min(S2_P1.Lon, S2_P2.Lon)) AndAlso x <= (Max(S2_P1.Lon, S2_P2.Lon))
             If SegmentIntersect = True Then
                 Dim bp As Integer = 0
             End If
             Return SegmentIntersect
-        ElseIf Double.IsNaN(CoefS1.Lat) AndAlso CoefS2.Lat = 0 Then
-            Dim x As Double = (CoefS2.Lon)
+        ElseIf Double.IsNaN(CoefS1.a) AndAlso CoefS2.a = 0 Then
+            Dim x As Double = (CoefS2.b)
             Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lat, S1_P2.Lat)) AndAlso x <= (Max(S1_P1.Lat, S1_P2.Lat))
-            'Dim SegmentIntersect As Boolean = CoefS1.Lon >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.Lon <= (Max(S2_P1.Lon, S2_P2.Lon))
+            'Dim SegmentIntersect As Boolean = CoefS1.b >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.b <= (Max(S2_P1.Lon, S2_P2.Lon))
             If SegmentIntersect = True Then
                 Dim bp As Integer = 0
             End If
             Return SegmentIntersect
-        ElseIf Double.IsNaN(CoefS1.Lat) Then
-            Dim x As Double = (CoefS2.Lon - CoefS1.Lon) / (CoefS2.Lat)
+        ElseIf Double.IsNaN(CoefS1.a) Then
+            Dim x As Double = (CoefS2.b - CoefS1.b) / (CoefS2.a)
             Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) AndAlso x <= (Max(S1_P1.Lon, S1_P2.Lon)) AndAlso x >= (Min(S2_P1.Lon, S2_P2.Lon)) AndAlso x <= (Max(S2_P1.Lon, S2_P2.Lon))
-            'Dim SegmentIntersect As Boolean = CoefS1.Lon >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.Lon <= (Max(S2_P1.Lon, S2_P2.Lon))
+            'Dim SegmentIntersect As Boolean = CoefS1.b >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.b <= (Max(S2_P1.Lon, S2_P2.Lon))
             If SegmentIntersect = True Then
                 Dim bp As Integer = 0
             End If
             Return SegmentIntersect
-        ElseIf Double.IsNaN(CoefS2.Lat) And CoefS1.Lat = 0 Then
-            Dim x As Double = CoefS1.Lon
+        ElseIf Double.IsNaN(CoefS2.a) And CoefS1.a = 0 Then
+            Dim x As Double = CoefS1.b
             Dim SegmentIntersect As Boolean = x >= (Min(S2_P1.Lat, S2_P2.Lat)) AndAlso x <= (Max(S2_P1.Lat, S2_P2.Lat))
-            'Dim SegmentIntersect As Boolean = CoefS2.Lon >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.Lon <= (Max(S1_P1.Lon, S1_P2.Lon))
+            'Dim SegmentIntersect As Boolean = CoefS2.b >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.b <= (Max(S1_P1.Lon, S1_P2.Lon))
             If SegmentIntersect = True Then
                 Dim bp As Integer = 0
             End If
             Return SegmentIntersect
-        ElseIf Double.IsNaN(CoefS2.Lat) Then
-            Dim x As Double = (CoefS2.Lon - CoefS1.Lon) / (CoefS1.Lat)
-            Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) AndAlso x <= (Max(S1_P1.Lon, S1_P2.Lon)) AndAlso x >= (Min(S2_P1.Lon, S2_P2.Lon)) AndAlso x <= (Max(S2_P1.Lon, S2_P2.Lon))
-            'Dim SegmentIntersect As Boolean = CoefS2.Lon >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.Lon <= (Max(S1_P1.Lon, S1_P2.Lon))
+        ElseIf Double.IsNaN(CoefS2.a) Then
+            Dim y As Double = CoefS1.b + CoefS2.b * CoefS1.a
+            Dim SegmentIntersect As Boolean = y >= (Min(S1_P1.Lat, S1_P2.Lat)) AndAlso y <= (Max(S1_P1.Lat, S1_P2.Lat)) AndAlso y >= (Min(S2_P1.Lat, S2_P2.Lat)) AndAlso y <= (Max(S2_P1.Lat, S2_P2.Lat))
+            'Dim SegmentIntersect As Boolean = CoefS2.b >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.b <= (Max(S1_P1.Lon, S1_P2.Lon))
             If SegmentIntersect = True Then
                 Dim bp As Integer = 0
             End If
