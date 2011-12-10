@@ -227,7 +227,7 @@ Public Class DBWrapper
             'Else
             'Dim i As Integer = 0
             'End If
-            Console.WriteLine("Seg " & lon1 & "/" & lat1 & "/" & lon2 & "/" & lat2)
+            'Console.WriteLine("Seg " & lon1 & "/" & lat1 & "/" & lon2 & "/" & lat2)
             Using Con As New SQLiteConnection(_DBPath)
                 Con.Open()
 
