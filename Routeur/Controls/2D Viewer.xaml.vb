@@ -597,10 +597,10 @@ Render1:
 #If DBG_SEGMENTS = 1 Then
             Dim db As New DBWrapper
             db.MapLevel = 3
-            Dim C1 As Coords = New Coords(34, 32, 58, Routeur.Coords.NORTH_SOUTH.S,
-                                            17, 54, 57, Routeur.Coords.EAST_WEST.E)
-            Dim C2 As Coords = New Coords(30, 40, 10, Routeur.Coords.NORTH_SOUTH.S,
-                                            18, 50, 50, Routeur.Coords.EAST_WEST.E)
+            Dim C1 As Coords = New Coords(33, 54, 38, Routeur.Coords.NORTH_SOUTH.S,
+                                            18, 22, 6, Routeur.Coords.EAST_WEST.E)
+            Dim C2 As Coords = New Coords(33, 55, 21, Routeur.Coords.NORTH_SOUTH.S,
+                                            18, 23, 4, Routeur.Coords.EAST_WEST.E)
             
             'Dim C1 As New Coords(CanvasToLat(0), CanvasToLon(0))
             'Dim C2 As New Coords(CanvasToLat(ActualHeight), CanvasToLon(ActualWidth))
