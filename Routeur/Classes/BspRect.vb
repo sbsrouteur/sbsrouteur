@@ -75,12 +75,11 @@ Public Class BspRect
         Get
             If _Segments Is Nothing AndAlso _Z < MAX_TREE_Z Then
 
-                If _SubRects(0) Is Nothing Then
+                If _SubRects(3) Is Nothing Then
                     SpinLock()
-                    If _SubRects(0) Is Nothing Then
+                    If _SubRects(3) Is Nothing Then
                         Split()
                     End If
-
                     SpinLockExit()
                 End If
 
@@ -468,10 +467,10 @@ Public Class BspRect
         Dim lP2Lat As Double = _p2.Lat
         Dim DeltaY As Double = lP1Lat - _MidLat '(lP1Lat - lP2Lat) / 2
 
-        If _SubRects(0) Is Nothing Then
+        If _SubRects(3) Is Nothing Then
             SpinLock()
 
-            If _SubRects(0) Is Nothing Then
+            If _SubRects(3) Is Nothing Then
                 For x As Integer = 0 To 1
                     For y As Integer = 0 To 1
 
