@@ -596,11 +596,11 @@ Render1:
 
 #If DBG_SEGMENTS = 1 Then
             Dim db As New DBWrapper
-            db.MapLevel = 3
-            Dim C1 As Coords = New Coords(33, 54, 38, Routeur.Coords.NORTH_SOUTH.S,
-                                            18, 22, 6, Routeur.Coords.EAST_WEST.E)
-            Dim C2 As Coords = New Coords(33, 55, 21, Routeur.Coords.NORTH_SOUTH.S,
-                                            18, 23, 4, Routeur.Coords.EAST_WEST.E)
+            db.MapLevel = 4
+            Dim C1 As Coords = New Coords(31, 2, 32, Routeur.Coords.NORTH_SOUTH.S,
+                                            17, 31, 56, Routeur.Coords.EAST_WEST.E)
+            Dim C2 As Coords = New Coords(30, 47, 3, Routeur.Coords.NORTH_SOUTH.S,
+                                            17, 48, 10, Routeur.Coords.EAST_WEST.E)
             
             'Dim C1 As New Coords(CanvasToLat(0), CanvasToLon(0))
             'Dim C2 As New Coords(CanvasToLat(ActualHeight), CanvasToLon(ActualWidth))

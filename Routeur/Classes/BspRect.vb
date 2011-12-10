@@ -244,7 +244,7 @@ Public Class BspRect
         End If
 
         'FIXME handle antemeridien
-        If Abs(C2.N_Lon_Deg - C1.N_Lon_Deg) > Abs(C2.Lat_Deg - C1.Lat_Deg) Then
+        If Abs(C2.N_Lon_Deg - C1.N_Lon_Deg) > 2 * Abs(C2.Lat_Deg - C1.Lat_Deg) Then
             Dim Dy As Double = (C2.Lat_Deg - C1.Lat_Deg) / (C2.Lon_Deg - C1.Lon_Deg) * DxOffset
             Dim CurY As Double = C1.Lat_Deg - Dy
             For x = C1.N_Lon_Deg - DxOffset To C2.N_Lon_Deg + DxOffset Step DxOffset

@@ -191,8 +191,10 @@ Partial Public Class RouteurMain
             C2 = New Coords(VOR2DViewer.CanvasToLat(MinY), VOR2DViewer.CanvasToLon(MaxX))
 
         End If
-        M.UpdateRaceScale(C1, C2)
-        RedrawClick(Nothing, Nothing)
+        If C1 IsNot Nothing AndAlso C2 IsNot Nothing Then
+            M.UpdateRaceScale(C1, C2)
+            RedrawClick(Nothing, Nothing)
+        End If
 
     End Sub
 
