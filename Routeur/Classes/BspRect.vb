@@ -232,6 +232,11 @@ Public Class BspRect
     Private Function BuildBspCellLine(C1 As Coords, C2 As Coords) As List(Of Coords)
         Dim RetList As New List(Of Coords)
 
+        If C1 = C2 Then
+            RetList.Add(C1)
+            Return RetList
+        End If
+
         Dim DxOffset As Double = (360) / (2 ^ MAX_TREE_Z)
         Dim DyOffset As Double = (180) / (2 ^ MAX_TREE_Z)
 
@@ -244,7 +249,8 @@ Public Class BspRect
         End If
 
         'FIXME handle antemeridien
-        If Abs(C2.N_Lon_Deg - C1.N_Lon_Deg) > 2 * Abs(C2.Lat_Deg - C1.Lat_Deg) Then
+        If ((C2.Lat_Deg - C1.Lat_Deg) = 0 OrElse Abs(C2.N_Lon_Deg - C1.N_Lon_Deg) > 2 * Abs(C2.Lat_Deg - C1.Lat_Deg)) _
+            AndAlso (C2.Lon_Deg - C1.Lon_Deg <> 0) Then
             Dim Dy As Double = (C2.Lat_Deg - C1.Lat_Deg) / (C2.Lon_Deg - C1.Lon_Deg) * DxOffset
             Dim CurY As Double = C1.Lat_Deg - Dy
             For x = C1.N_Lon_Deg - DxOffset To C2.N_Lon_Deg + DxOffset Step DxOffset
