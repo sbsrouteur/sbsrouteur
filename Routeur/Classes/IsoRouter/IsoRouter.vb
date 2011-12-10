@@ -240,17 +240,17 @@ Public Class IsoRouter
                                                                                   Dim IgnorePoint As Boolean = False
                                                                                   For i = _IsoChrones.Count - 1 To 0 Step -1
                                                                                       Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(alpha2))
-                                                                                      If PrevP Is Nothing OrElse P.Improve(PrevP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
-                                                                                          If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
-                                                                                              IgnorePoint = True
-                                                                                              Exit For
-                                                                                          End If
-                                                                                          If Not IgnorePoint Then
-                                                                                              RetIsoChrone.Data(Index) = P
-                                                                                          End If
+                                                                                      'If PrevP Is Nothing OrElse P.Improve(PrevP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
+                                                                                      If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
+                                                                                          IgnorePoint = True
+                                                                                          Exit For
                                                                                       End If
+                                                                                      'End If
 
                                                                                   Next
+                                                                                  If Not IgnorePoint Then
+                                                                                      RetIsoChrone.Data(Index) = P
+                                                                                  End If
 
                                                                               End If
 
@@ -341,6 +341,7 @@ Public Class IsoRouter
 #End If
             'CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
             'RouteComplete = CheckCompletion(CurIsoChrone)
+            P = _CurBest
             If Not CurIsoChrone Is Nothing Then
                 _IsoChrones.AddLast(CurIsoChrone)
                 For Each rp As clsrouteinfopoints In CurIsoChrone.Data
@@ -373,7 +374,7 @@ Public Class IsoRouter
 
                 End If
             End If
-            If Now.Subtract(LastUpdate).TotalSeconds > 6 Then
+            If Now.Subtract(LastUpdate).TotalSeconds > 2 Then
                 RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
                 LastUpdate = Now
             End If
