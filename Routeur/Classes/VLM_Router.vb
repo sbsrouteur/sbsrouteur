@@ -1121,7 +1121,7 @@ Public Class VLM_Router
                 End If
             End If
 
-            If Db.IntersectMapSegment(CurPos, NextPos, GSHHS_Reader._Tree) Then
+            If GSHHS_Reader._Tree IsNot Nothing AndAlso Db.IntersectMapSegment(CurPos, NextPos, GSHHS_Reader._Tree) Then
                 AddLog("Estimate collision with coast!!!")
                 Return RetRoute
             End If
