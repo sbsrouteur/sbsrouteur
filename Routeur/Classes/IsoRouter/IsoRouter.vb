@@ -78,18 +78,15 @@ Public Class IsoRouter
                     Index1 = RetIsoChrone.IndexFromAngle(alpha)
                     OldP1 = RetIsoChrone.Data(Index1)
                     If OldP1 Is Nothing OrElse P1.DTF < OldP1.DTF Then
-                        'If PrevIso Is Nothing OrElse (Not PrevIso.Data(Index) Is Nothing AndAlso P.DTF <= PrevIso.Data(Index).DTF) Then
+
                         RetIsoChrone.Data(Index1) = P1
-                        'End If
+
                     End If
                 End If
             Next
 
         Else
-            'Dim PIndex As Integer
-
-            'Dim IsoStart As DateTime = Now
-            'Console.WriteLine("Iso len : " & Iso.Data.Length)
+            
             Dim StartIndex As Integer = 0
             Dim AStep As Double
             Dim CurStep As TimeSpan
@@ -134,15 +131,7 @@ Public Class IsoRouter
                 End If
             Next
 
-            'Dim IsoPoly As New Polygon
-            'For Each Pt In Iso.Data
-            '    If Pt IsNot Nothing AndAlso Not Pt.P Is Nothing Then
-            '        IsoPoly.Add(Pt.P)
-            '    End If
-            'Next
-
-            'Dim LP As New LinkedList(Of Polygon)
-            'LP.AddFirst(IsoPoly)
+            
             Dim tc2 As New TravelCalculator
             tc2.StartPoint = _StartPoint.P
             tc2.EndPoint = GSHHS_Reader.PointToSegmentIntersect(_StartPoint.P, _DestPoint1, _DestPoint2)
@@ -191,38 +180,24 @@ Public Class IsoRouter
 
 
                                                               tcfn1.StartPoint = _StartPoint.P
-
+                                                              MinAngle = 0
+                                                              MaxAngle = 360
                                                               Dim StepCount As Integer = CInt(Math.Floor((MaxAngle - MinAngle) / 3 / _AngleStep) + 1)
-                                                              ' Console.WriteLine("SC" & StepCount)
-                                                              'Console.WriteLine("L" & Loxo & " min " & MinAngle & " max " & MaxAngle)
                                                               Parallel.For(0, StepCount,
                                                               Sub(AlphaIndex As Integer)
-                                                                  'For alpha = MinAngle To MaxAngle Step 3 * _AngleStep
+
                                                                   Dim alpha As Double = MinAngle + 3 * _AngleStep * AlphaIndex
                                                                   Dim P As clsrouteinfopoints
                                                                   Dim tc As New TravelCalculator
                                                                   Dim Index As Integer
                                                                   Dim OldP As clsrouteinfopoints
 
-                                                                  'If WindAngle(rp.From.Cap, alpha) > 120 Then
-                                                                  '    Return
-                                                                  'End If
+
                                                                   P = ReachPoint(rp, alpha, CurStep)
 
                                                                   If Not P Is Nothing Then
-                                                                      'tc.StartPoint = P.P
-                                                                      'tc.EndPoint = _StartPoint.P
-                                                                      'Dim EllipseDist As Double = tc.SurfaceDistance
-                                                                      'tc.EndPoint = CurDest
-                                                                      'EllipseDist += tc.SurfaceDistance
 
                                                                       Dim IntersectPrevIso As Boolean = False
-                                                                      'For Each Seg In _IsoSegs
-                                                                      '    If GSHHS_Utils.IntersectSegments(rp.P, P.P, Seg.P1, Seg.P2) Then
-                                                                      '        IntersectPrevIso = True
-                                                                      '        Exit For
-                                                                      '    End If
-                                                                      'Next
 
                                                                       If Not IntersectPrevIso AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) Then
 
@@ -240,12 +215,10 @@ Public Class IsoRouter
                                                                                   Dim IgnorePoint As Boolean = False
                                                                                   For i = _IsoChrones.Count - 1 To 0 Step -1
                                                                                       Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(alpha2))
-                                                                                      'If PrevP Is Nothing OrElse P.Improve(PrevP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
                                                                                       If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
                                                                                           IgnorePoint = True
                                                                                           Exit For
                                                                                       End If
-                                                                                      'End If
 
                                                                                   Next
                                                                                   If Not IgnorePoint Then
@@ -259,16 +232,14 @@ Public Class IsoRouter
                                                                       End If
 
                                                                   End If
-                                                                  'Ite += 1
                                                                   tc.StartPoint = Nothing
                                                                   tc.EndPoint = Nothing
                                                                   tc = Nothing
                                                               End Sub)
-                                                              'Console.WriteLine("Isochrone in " & Now.Subtract(Start).ToString & " per step " & Now.Subtract(Start).TotalMilliseconds / Ite)
 
 
                                                           End If
-                                                          'Next
+
                                                           tcfn1.EndPoint = Nothing
                                                           tcfn1.StartPoint = Nothing
                                                           tcfn1 = Nothing
