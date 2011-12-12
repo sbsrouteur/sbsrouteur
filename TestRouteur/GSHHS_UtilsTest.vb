@@ -156,4 +156,20 @@ Public Class GSHHS_UtilsTest
         Assert.AreEqual(expected, actual)
 
     End Sub
+    '''<summary>
+    '''Test pour IntersectSegments
+    '''</summary>
+    <TestMethod()> _
+    Public Sub IntersectSegmentsTest5()
+        Dim S1_P1 As Coords = New Coords(33, 2, 56, Coords.NORTH_SOUTH.S, 27, 52, 17, Coords.EAST_WEST.E)
+        Dim S1_P2 As Coords = New Coords(33, 2, 13, Coords.NORTH_SOUTH.S, 27, 52, 17, Coords.EAST_WEST.E)
+        Dim S2_P1 As Coords = New Coords(33, 3, 23, Coords.NORTH_SOUTH.S, 27, 53, 18, Coords.EAST_WEST.E)
+        Dim S2_P2 As Coords = New Coords(33, 2, 59, Coords.NORTH_SOUTH.S, 27, 52, 3, Coords.EAST_WEST.E)
+        Dim expected As Boolean = True
+        Dim actual As Boolean
+        actual = GSHHS_Utils.IntersectSegments(S1_P1, S1_P2, S2_P1, S2_P2)
+        Assert.AreEqual(expected, actual)
+
+    End Sub
+
 End Class
