@@ -1706,6 +1706,7 @@ Public Class VLM_Router
                                 .PrevDTFDate = .CurDTFDate
                                 .Dtf = BoatJson.dnm
                                 .CurDTFDate = Now
+                                .Drawn = False
                             End If
 
                         End With
@@ -1731,12 +1732,14 @@ Public Class VLM_Router
 
         If _Opponents.ContainsKey(_PlayerInfo.NumBoat.ToString) Then
             Dim MyBoat As BoatInfo = _Opponents(_PlayerInfo.NumBoat.ToString)
+            Dim MyFlag As String = MyBoat.FlagName
             If MyBoat.LastDTF <> 0 And MyBoat.CurDTFDate.Subtract(MyBoat.PrevDTFDate).TotalMinutes > 1 Then
                 Dim MyDelta As Double = MyBoat.LastDTF - MyBoat.Dtf
                 Dim MyTS As TimeSpan = MyBoat.CurDTFDate.Subtract(MyBoat.PrevDTFDate)
                 If MyTS.TotalHours > 0 Then
                     Dim NormedTime As Double = Math.Ceiling(MyTS.TotalMinutes / 5) * 5 / 60
                     For Each bi In _Opponents.Values
+                        bi.MyTeam = bi.FlagName = MyFlag
                         Dim BoatDelta As Double = (bi.LastDTF - bi.Dtf)
                         Dim BoatTs As TimeSpan = bi.CurDTFDate.Subtract(bi.PrevDTFDate)
                         If MyTS.TotalHours <> 0 AndAlso NormedTime <> 0 AndAlso (MyDelta - BoatDelta / BoatTs.TotalHours * MyTS.TotalHours) <> 0 Then

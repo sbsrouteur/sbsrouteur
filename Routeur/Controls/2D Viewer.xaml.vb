@@ -719,6 +719,11 @@ Render1:
             If ClearBoats OrElse _EraseBoatMap Then
                 _OpponentsBmp.Clear()
                 _EraseBoatMap = False
+                If Not Opponents Is Nothing Then
+                    For Each op In Opponents
+                        op.Value.Drawn = False
+                    Next
+                End If
             End If
 
             If Not Opponents Is Nothing Then
@@ -736,9 +741,9 @@ Render1:
                             Else
                                 DrawPen = opponentPenNeutral
                             End If
-                            DC.DrawEllipse(Nothing, DrawPen, P1, 1, 1)
+                            DC.DrawEllipse(Nothing, DrawPen, P1, If(op.Value.MyTeam, 4, 2), If(op.Value.MyTeam, 4, 2))
 
-                            'op.Value.Drawn = True
+                            op.Value.Drawn = True
                             'OpponentMap = True
                         End If
                     Next

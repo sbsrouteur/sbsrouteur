@@ -26,6 +26,7 @@ Public Class BoatInfo
     Private _TimeToPass As TimeSpan
     Private _PassUp As Boolean
     Private _PassDown As Boolean
+    Private _MyTeam As Boolean
 
     'Private Shared _ImgList As New SortedList(Of String, BitmapImage)
 
@@ -158,6 +159,19 @@ Public Class BoatInfo
 
         End Set
     End Property
+
+    Public Property MyTeam() As Boolean
+        Get
+            Return _MyTeam
+        End Get
+        Set(value As Boolean)
+            If _MyTeam <> value Then
+                _MyTeam = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MyTeam"))
+            End If
+        End Set
+    End Property
+
     Public Property Name() As String
         Get
             Return _Name
