@@ -710,7 +710,8 @@ Public Class RouteurModel
         _SEPoint = C2
         _Width = Width
         _Height = Height
-       
+        _ClearBoats = True
+
     End Sub
 
     Private Property Cron As Cron
