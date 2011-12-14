@@ -327,7 +327,7 @@
 						<!--<Grid x:Name="Weather_Map" >
 							<Path Data="{Binding VorHandler.MeteoArrow, IsAsync=false, Mode=Default}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 						</Grid>-->
-						<Canvas x:Name="WP_RoutingObjects" Width="10800" Height="1800" RenderTransformOrigin="{Binding RenderTransformOrigin, ElementName=VOR2DViewer, Mode=Default}" RenderTransform="{Binding RenderTransform, ElementName=VOR2DViewer, Mode=Default}"  >
+						<Canvas x:Name="WP_RoutingObjects"  >
 							
 							<ItemsControl ItemsSource="{Binding RouteManager.Routes, Mode=Default}">
 								<ItemsControl.ItemTemplate>
@@ -348,24 +348,7 @@
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
 							<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
 						</Grid>
-						<StackPanel Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}">
-							<GroupBox x:Name="grpRoutesUnderMouse" Margin="0" Header=""  Visibility="{Binding VorHandler.RoutesUnderMouse, Converter={StaticResource NumberVisibilityConverter}, Mode=Default}" Background="#70FFFFFF">
-								<Grid>
-									<ItemsControl ItemsSource="{Binding VorHandler.RoutesUnderMouse, Mode=Default}"/>
-								</Grid>
-							</GroupBox>
-							<GroupBox  x:Name="BoatInfoGroupBox"  Header="" Background="#6DFFFFFF"  Visibility="{Binding VorHandler.BoatInfoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" RenderTransformOrigin="0.5,0.5" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-								<GroupBox.BitmapEffect>
-									<DropShadowBitmapEffect/>
-								</GroupBox.BitmapEffect>
-								<Grid x:Name="grid1" >
-									<StackPanel Width="Auto" Height="Auto" >
-										<ItemsControl ItemsSource="{Binding VorHandler.BoatInfoList, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route" />
-									</StackPanel>
-								</Grid>
-							</GroupBox>
-						
-						</StackPanel>
+						<StackPanel Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}"/>
 					</Canvas>
 					
 					<Image Grid.Row="1" Source="Graphics\Rosa_dels_vents.png" Stretch="UniformToFill"/>
@@ -420,6 +403,21 @@
 									<TextBlock Text="{Binding The2DViewer.CurCoords, ConverterParameter=2, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Width="Auto" Height="Auto"/>
 									<TextBlock Text="{Binding VorHandler.CurWPDist, Mode=Default, StringFormat=Dist:\{0:F2\} nm}" TextWrapping="Wrap" Width="Auto" Height="Auto"/>
 									<ItemsControl ItemsSource="{Binding VorHandler.DiffEvolution, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Variation de classement" />
+									<GroupBox x:Name="grpRoutesUnderMouse" Margin="0" Header=""  Visibility="{Binding VorHandler.RoutesUnderMouse, Converter={StaticResource NumberVisibilityConverter}, Mode=Default}" Background="#70FFFFFF" HorizontalAlignment="Left">
+										<Grid>
+											<ItemsControl ItemsSource="{Binding VorHandler.RoutesUnderMouse, Mode=Default}"/>
+										</Grid>
+									</GroupBox>
+									<GroupBox  x:Name="BoatInfoGroupBox"  Header="" Background="#6DFFFFFF"  Visibility="{Binding VorHandler.BoatInfoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" RenderTransformOrigin="0.5,0.5" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalAlignment="Left" Margin="4,4,0,4">
+										<GroupBox.BitmapEffect>
+											<DropShadowBitmapEffect/>
+										</GroupBox.BitmapEffect>
+										<Grid x:Name="grid1" >
+											<StackPanel Width="Auto" Height="Auto" >
+												<ItemsControl ItemsSource="{Binding VorHandler.BoatInfoList, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route" />
+											</StackPanel>
+										</Grid>
+									</GroupBox>
 								</StackPanel>
 							</Grid>
 						</GroupBox>

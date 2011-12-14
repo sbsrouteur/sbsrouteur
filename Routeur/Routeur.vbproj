@@ -52,7 +52,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314,42353,42354,42355</NoWarn>
-    <DefineConstants>NO_TILE=0, TESTING=0,HIT_STATS=0,BSP_STATS=1,GEN_TCV=0,DRAW_STATS=1,DBG_SEGMENTS=1,BSP_NO_CACHE=0</DefineConstants>
+    <DefineConstants>NO_TILE=0, TESTING=0,HIT_STATS=0,BSP_STATS=1,GEN_TCV=0,DRAW_STATS=1,DBG_SEGMENTS=0,BSP_NO_CACHE=0</DefineConstants>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>

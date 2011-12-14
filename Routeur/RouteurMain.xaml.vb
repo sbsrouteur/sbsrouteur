@@ -377,8 +377,8 @@ Partial Public Class RouteurMain
     Private Sub _2D_Renderer_MouseMoveHandler(ByVal sender As Object, ByVal e As System.Windows.Input.MouseEventArgs)
         Dim P As New Point
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
-        P.X = e.GetPosition(Me._2D_Renderer_NOZoom).X + 1
-        P.Y = e.GetPosition(Me._2D_Renderer_NOZoom).Y + 1
+        P.X = e.GetPosition(Me._2D_Renderer).X + 1
+        P.Y = e.GetPosition(Me._2D_Renderer).Y + 1
 
         M.The2DViewer.MouseP = P
 
