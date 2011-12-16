@@ -75,6 +75,7 @@ Public Class IsoRouter
                 If Not P1 Is Nothing Then
                     TcInit.EndPoint = P1.P
                     P1.DistFromPos = TcInit.SurfaceDistance
+                    P1.Cap = alpha
                     Index1 = RetIsoChrone.IndexFromAngle(alpha)
                     OldP1 = RetIsoChrone.Data(Index1)
                     If OldP1 Is Nothing OrElse P1.DTF < OldP1.DTF Then
@@ -182,16 +183,19 @@ Public Class IsoRouter
                                                               tcfn1.StartPoint = _StartPoint.P
                                                               MinAngle = 0
                                                               MaxAngle = 360
-                                                              Dim StepCount As Integer = CInt(Math.Floor((MaxAngle - MinAngle) / 3 / _AngleStep) + 1)
+                                                              Dim StepCount As Integer = CInt(Math.Floor((MaxAngle - MinAngle) / _AngleStep) + 1)
                                                               Parallel.For(0, StepCount,
                                                               Sub(AlphaIndex As Integer)
 
-                                                                  Dim alpha As Double = MinAngle + 3 * _AngleStep * AlphaIndex
+                                                                  Dim alpha As Double = MinAngle + _AngleStep * AlphaIndex
                                                                   Dim P As clsrouteinfopoints
                                                                   Dim tc As New TravelCalculator
                                                                   Dim Index As Integer
                                                                   Dim OldP As clsrouteinfopoints
 
+                                                                  'If WindAngle(alpha, rp.Cap) > 140 Then
+                                                                  '    Return
+                                                                  'End If
 
                                                                   P = ReachPoint(rp, alpha, CurStep)
 
@@ -204,7 +208,8 @@ Public Class IsoRouter
                                                                           tc.StartPoint = _StartPoint.P
                                                                           tc.EndPoint = P.P
                                                                           P.DistFromPos = tc.SurfaceDistance
-                                                                          'P.CapFromPos = tc.LoxoCourse_Deg
+                                                                          P.CapFromPos = tc.LoxoCourse_Deg
+                                                                          P.Cap = alpha
                                                                           alpha2 = tc.LoxoCourse_Deg
 
                                                                           Index = RetIsoChrone.IndexFromAngle(alpha2)
@@ -213,14 +218,16 @@ Public Class IsoRouter
                                                                               OldP = RetIsoChrone.Data(Index)
                                                                               If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
                                                                                   Dim IgnorePoint As Boolean = False
-                                                                                  For i = _IsoChrones.Count - 1 To 0 Step -1
-                                                                                      Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(alpha2))
-                                                                                      If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
-                                                                                          IgnorePoint = True
-                                                                                          Exit For
-                                                                                      End If
+                                                                                  If _IsoChrones.Count > 3 Then
+                                                                                      For i = _IsoChrones.Count - 3 To 0 Step -1
+                                                                                          Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(alpha2))
+                                                                                          If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
+                                                                                              IgnorePoint = True
+                                                                                              Exit For
+                                                                                          End If
 
-                                                                                  Next
+                                                                                      Next
+                                                                                  End If
                                                                                   If Not IgnorePoint Then
                                                                                       RetIsoChrone.Data(Index) = P
                                                                                   End If
@@ -232,6 +239,7 @@ Public Class IsoRouter
                                                                       End If
 
                                                                   End If
+
                                                                   tc.StartPoint = Nothing
                                                                   tc.EndPoint = Nothing
                                                                   tc = Nothing
