@@ -741,7 +741,8 @@ Render1:
                             Else
                                 DrawPen = opponentPenNeutral
                             End If
-                            DC.DrawEllipse(Nothing, DrawPen, P1, If(op.Value.MyTeam, 4, 2), If(op.Value.MyTeam, 4, 2))
+                            Dim OpSize As Integer = If(op.Value.MyTeam, 3, 2)
+                            DC.DrawEllipse(Nothing, DrawPen, P1, OpSize, OpSize)
 
                             op.Value.Drawn = True
                             'OpponentMap = True
