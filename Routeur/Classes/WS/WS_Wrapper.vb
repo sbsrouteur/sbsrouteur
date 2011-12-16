@@ -134,9 +134,51 @@ Module WS_Wrapper
         Return Nothing
     End Function
 
-    Function GetReals(IdRace As String) As Dictionary(Of String, Object)
+    Private Sub GetRealProfileInfo(BI As BoatInfo, IdRace As String)
         Dim RetJSon As New Dictionary(Of String, Object)
-        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo/ranking.php?idr=" & IdRace
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/realinfo/profile.php?idr=" & IdRace & "&idreals=" & BI.Id
+        Dim BoatList As List(Of BoatInfo) = Nothing
+
+        Dim Retstring As String = ""
+        Try
+            Retstring = RequestPage(URL)
+            RetJSon = JSonParser.Parse(Retstring)
+            Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
+            If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
+                CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("profile") Then
+                Dim Profile As Dictionary(Of String, Object) = CType(GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "profile"), Dictionary(Of String, Object))
+                With BI
+                    .Name = CStr(GetJSonObjectValue(Profile, "boatname"))
+                End With
+
+
+            Else
+                Return
+            End If
+            Return
+        Catch wex As WebException
+            If wex.Response Is Nothing Then
+                'Connection lost
+                Return
+            ElseIf CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+                'Login error
+                Return
+            ElseIf CType(wex.Response, HttpWebResponse).StatusCode = 404 Then
+                'Page not found (not yet implemented in VLM, testing only)
+                Return
+            Else
+                MessageBox.Show(wex.Response.ToString)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
+        End Try
+        Return
+    End Sub
+
+    Function GetReals(IdRace As String) As List(Of BoatInfo)
+        Dim RetJSon As New Dictionary(Of String, Object)
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo/reals.php?idr=" & IdRace
+        Dim BoatList As List(Of BoatInfo) = Nothing
 
         Dim Retstring As String = ""
         Try
@@ -146,11 +188,21 @@ Module WS_Wrapper
             If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
                 CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("reals") Then
 
-                Return CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "reals"), Dictionary(Of String, Object))
+                Dim RealList As List(Of Object) = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "reals"), List(Of Object))
+                For Each Real In RealList
+                    Dim Id As Long = CLng(JSonHelper.GetJSonObjectValue(Real, "idreals"))
+                    Dim BI As New BoatInfo
+                    With BI
+                        .Id = Id
+                        .Drawn = False
+                        .Real = True
+                    End With
+                    GetRealProfileInfo(BI, IdRace)
+                Next
             Else
                 Return Nothing
             End If
-            Return RetJSon
+            Return BoatList
         Catch wex As WebException
             If wex.Response Is Nothing Then
                 'Connection lost
@@ -354,6 +406,8 @@ Module WS_Wrapper
 
         Return WS_Wrapper.PostBoatSetup(Boat.IDU, verb, GetStringFromJsonObject(Request))
     End Function
+
+    
 
 
 

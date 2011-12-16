@@ -8,6 +8,7 @@ Public Class BoatInfo
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
+    Private _Id As Long
     Private _CurPos As New Coords
     Private _Name As String
     Public Drawn As Boolean = False
@@ -27,6 +28,7 @@ Public Class BoatInfo
     Private _PassUp As Boolean
     Private _PassDown As Boolean
     Private _MyTeam As Boolean
+    Private _Real As Boolean
 
     'Private Shared _ImgList As New SortedList(Of String, BitmapImage)
 
@@ -95,6 +97,16 @@ Public Class BoatInfo
     '        Return _ImgList
     '    End Get
     'End Property
+
+    Public Property Id As Long
+        Get
+            Return _Id
+        End Get
+        Set(value As Long)
+            _Id = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Id"))
+        End Set
+    End Property
 
     Public Shared Property ImgList(ByVal Index As String) As BitmapImage
         Get
@@ -227,6 +239,17 @@ Public Class BoatInfo
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PrevDTFDate"))
         End Set
     End Property
+
+    Public Property Real As Boolean
+        Get
+            Return _Real
+        End Get
+        Set(value As Boolean)
+            _Real = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Real"))
+        End Set
+    End Property
+
 
     Public Property TimeToPass() As TimeSpan
         Get
