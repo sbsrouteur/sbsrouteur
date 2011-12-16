@@ -255,7 +255,7 @@ Partial Public Class RouteurMain
     Private Sub MouseZoom(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseWheelEventArgs)
 
         If e.Delta > 0 Then
-            Zoom(1.2, e.GetPosition(Me.VOR2DViewer))
+            Zoom(1.5, e.GetPosition(Me.VOR2DViewer))
         Else
             Zoom(1 / 1.2, e.GetPosition(Me.VOR2DViewer))
         End If
