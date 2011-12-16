@@ -1687,6 +1687,7 @@ Public Class VLM_Router
                         End If
 
                         With BI
+                            .Id = BoatJson.idusers
                             .Classement = BoatJson.rank + NbArrived  '- RankingOffset
                             .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
 
@@ -1725,9 +1726,12 @@ Public Class VLM_Router
 
         End If
 
-        If RaceHasReals Then
-            Dim RealPos As Dictionary(Of String, Object) = WS_Wrapper.GetReals(_PlayerInfo.RaceInfo.idraces)
-        End If
+        'If RaceHasReals Then
+        '    Dim RealPos As List(Of BoatInfo) = WS_Wrapper.GetReals(_PlayerInfo.RaceInfo.idraces)
+        '    For Each boat In RealPos
+        '        Opponents.Add(boat.Id.ToString, boat)
+        '    Next
+        'End If
 
 
         If _Opponents.ContainsKey(_PlayerInfo.NumBoat.ToString) Then
