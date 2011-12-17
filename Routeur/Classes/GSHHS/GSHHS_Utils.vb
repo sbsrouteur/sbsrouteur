@@ -75,6 +75,17 @@ Module GSHHS_Utils
 
     '    End Function
 
+    Private Sub DenormalizeSegmentForAnte(S1_P1 As Coords, S1_P2 As Coords)
+        If S1_P1.Lon * S1_P2.Lon < 0 And Abs(S1_P1.Lon * S1_P2.Lon) > Math.PI Then
+            If S1_P1.Lon < 0 Then
+                S1_P1.Lon += 2 * PI
+            Else
+                S1_P2.Lon += 2 * PI
+            End If
+        End If
+
+    End Sub
+
     Private Function GetLineCoefs(P1 As Coords, P2 As Coords) As LineParam
         Dim RetCoords As LineParam
         If P1.N_Lon <> P2.N_Lon Then
@@ -97,6 +108,10 @@ Module GSHHS_Utils
            S2_P2.Equals1(S1_P2) Then
             Return True
         End If
+
+        'Denormalize coords around ante-meridien
+        DenormalizeSegmentForAnte(S1_P1, S1_P2)
+        DenormalizeSegmentForAnte(S2_P1, S2_P2)
 
 
         Dim CoefS1 As LineParam = GetLineCoefs(S1_P1, S1_P2)
@@ -189,5 +204,7 @@ Module GSHHS_Utils
         'Return P1 * P2 < 0
 
     End Function
+
+
 
 End Module
