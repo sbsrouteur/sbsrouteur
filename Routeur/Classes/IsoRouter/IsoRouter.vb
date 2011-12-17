@@ -160,34 +160,36 @@ Public Class IsoRouter
                                                               tcfn1.EndPoint = _StartPoint.P
 
                                                               Dim TcAngleTrim As New TravelCalculator()
-                                                              Dim MinSearch As Double = 9999
-                                                              Dim MaxSearch As Double = 9999
-                                                              'Dim PrevIndex As Integer = (Pindex + Iso.Data.Length - 1) Mod Iso.Data.Length
-                                                              'Dim NextIndex As Integer = (Pindex + 1) Mod Iso.Data.Length
-                                                              'If Iso.Data(PrevIndex) IsNot Nothing Then
-                                                              '    TcAngleTrim.StartPoint = Iso.Data(PrevIndex).P
-                                                              '    TcAngleTrim.EndPoint = rp.P
-                                                              '    MinSearch = WindAngle(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                                                              'End If
-                                                              'If Iso.Data(NextIndex) IsNot Nothing Then
-                                                              '    TcAngleTrim.EndPoint = rp.P
-                                                              '    TcAngleTrim.StartPoint = Iso.Data(NextIndex).P
-                                                              '    MaxSearch = WindAngle(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                                                              'End If
-                                                              Dim MinAngle As Double = Ortho - Math.Min(_SearchAngle, MinSearch)
+                                                              Dim MinSearch As Double = 180
+                                                              Dim MaxSearch As Double = 180
+                                                              Dim PrevIndex As Integer = (Pindex + Iso.Data.Length - 1) Mod Iso.Data.Length
+                                                              Dim NextIndex As Integer = (Pindex + 1) Mod Iso.Data.Length
+                                                              If Iso.Data(PrevIndex) IsNot Nothing Then
+                                                                  TcAngleTrim.EndPoint = Iso.Data(PrevIndex).P
+                                                                  TcAngleTrim.StartPoint = rp.P
+                                                                  MinSearch = WindAngle(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                                                              End If
+                                                              If Iso.Data(NextIndex) IsNot Nothing Then
+                                                                  TcAngleTrim.StartPoint = rp.P
+                                                                  TcAngleTrim.EndPoint = Iso.Data(NextIndex).P
+                                                                  MaxSearch = WindAngle(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                                                              End If
 
+                                                              Dim MinAngle As Double = Ortho - MinSearch
+                                                              Dim maxAngle As Double = Ortho + MaxSearch
 
-                                                              Dim MaxAngle As Double = Ortho + Math.Min(_SearchAngle, MaxSearch)
-
+                                                              If MinAngle > maxAngle Then
+                                                                  maxAngle += 360
+                                                              End If
 
                                                               tcfn1.StartPoint = _StartPoint.P
-                                                              MinAngle = 0
-                                                              MaxAngle = 360
-                                                              Dim StepCount As Integer = CInt(Math.Floor((MaxAngle - MinAngle) / _AngleStep) + 1)
+                                                              'MinAngle = 0
+                                                              'MaxAngle = 360
+                                                              Dim StepCount As Integer = CInt(Math.Floor((maxAngle - MinAngle) / _AngleStep) + 1)
                                                               Parallel.For(0, StepCount,
                                                               Sub(AlphaIndex As Integer)
 
-                                                                  Dim alpha As Double = MinAngle + _AngleStep * AlphaIndex
+                                                                  Dim alpha As Double = (MinAngle + _AngleStep * AlphaIndex) Mod 360
                                                                   Dim P As clsrouteinfopoints
                                                                   Dim tc As New TravelCalculator
                                                                   Dim Index As Integer
