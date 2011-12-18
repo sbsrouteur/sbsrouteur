@@ -285,7 +285,7 @@ Public Class clsSailManager
                 Dim S As Double = GetSpeed("", EnumSail.OneSail, alpha / 10, WindStrength / 10)
 
                 If S > _PolarCorner(WindStrength, CORNER_SPEED) Then
-                    _PolarCorner(WindStrength, 0) = S
+                    _PolarCorner(WindStrength, CORNER_SPEED) = S
                 End If
 
                 If alpha < 900 AndAlso S * Cos(alpha / 1800 * PI) > BestUpWind Then
@@ -299,7 +299,7 @@ Public Class clsSailManager
             Next
 
             For angle As Integer = CInt(_PolarCorner(WindStrength, CORNER_UPWIND) * 10) To 0 Step -1
-                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, WindStrength / 100)
+                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, WindStrength / 10)
 
                 If S < 0.85 * BestUpWind Then
                     _PolarCorner(WindStrength, CORNER_UPWIND) = angle / 10
@@ -309,7 +309,7 @@ Public Class clsSailManager
 
 
             For angle As Integer = CInt(_PolarCorner(WindStrength, CORNER_DOWNWIND) * 10) To 1800 Step 1
-                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, WindStrength / 100)
+                Dim S As Double = GetSpeed("", EnumSail.OneSail, angle / 10, WindStrength / 10)
 
                 If S < 0.85 * BestDownWind Then
                     _PolarCorner(WindStrength, CORNER_DOWNWIND) = angle / 10
