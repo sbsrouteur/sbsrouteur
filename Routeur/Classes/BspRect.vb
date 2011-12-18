@@ -40,14 +40,20 @@ Public Class BspRect
     Private _SpinLock As New SpinLock
     Private _SpinCount As Integer = 0
 
-    Shared Optimizer As New bspOptimizer
+    Private _SegmentsArray(,) As List(Of MapSegment)
+
+    'Shared Optimizer As New bspOptimizer
 
     Public Sub New()
+
+        ReDim _SegmentsArray(CInt(2 ^ MAX_TREE_Z), CInt(2 ^ MAX_TREE_Z))
 
     End Sub
 
 
     Public Sub New(ByVal P1 As Coords, ByVal P2 As Coords, ByVal Z As Integer)
+
+        ReDim _SegmentsArray(CInt(2 ^ MAX_TREE_Z), CInt(2 ^ MAX_TREE_Z))
 
         If P1.Lat < -Math.PI OrElse P1.Lat > Math.PI _
             OrElse P2.Lat < -Math.PI OrElse P2.Lat > Math.PI Then
@@ -73,132 +79,94 @@ Public Class BspRect
 
     Public ReadOnly Property GetSegments(Center As Coords, db As DBWrapper) As List(Of MapSegment)
         Get
-            If _Segments Is Nothing AndAlso _Z < MAX_TREE_Z Then
+            Dim X As Integer = CInt(Math.Floor((Center.N_Lon_Deg + 180) / (360 / 2 ^ MAX_TREE_Z)))
+            Dim Y As Integer = CInt(Math.Floor((Center.N_Lat / PI * 180 + 90) / (180 / 2 ^ MAX_TREE_Z)))
 
-                If _SubRects(3) Is Nothing Then
-                    SpinLock()
-                    If _SubRects(3) Is Nothing Then
-                        Split()
-                    End If
-                    SpinLockExit()
-                End If
-
-                Return GetChildFromCoords(Center).GetSegments(Center, db)
-
-            ElseIf _Segments Is Nothing Then
+            If _SegmentsArray(X, Y) IsNot Nothing Then
+                Return _SegmentsArray(X, Y)
+            Else
                 SpinLock()
-                If _Segments Is Nothing Then
-
-                    Dim PolygonIndex As Integer = 0
-                    Dim Corner As New Coords
-                    'Build the polygons list using the proper "trimmed " polygons
+                If _SegmentsArray(X, Y) IsNot Nothing Then
+                    SpinLockExit()
+                    Return _SegmentsArray(X, Y)
+                Else
                     Dim TmpSegments = New List(Of MapSegment)
-
+                    Dim P1 As New Coords(Y * 180 / (2 ^ MAX_TREE_Z) - 90, X * 360 / (2 ^ MAX_TREE_Z) - 180)
+                    Dim P2 As New Coords((Y + 1) * 180 / (2 ^ MAX_TREE_Z) - 90, (X + 1) * 360 / (2 ^ MAX_TREE_Z) - 180)
 
                     TmpSegments.AddRange(db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg))
-                    _Segments = TmpSegments
+                    _SegmentsArray(X, Y) = TmpSegments
                 End If
                 SpinLockExit()
-                Return _Segments
-
-            Else
-                Return _Segments
             End If
+            Return _SegmentsArray(X, Y)
         End Get
     End Property
 
     Public ReadOnly Property GetSegments(C1 As Coords, C2 As Coords, db As DBWrapper) As List(Of MapSegment)
         Get
-#If BSP_NO_CACHE = 1 Then
-            Return db.SegmentList(C1.N_Lon_Deg, C1.Lat_Deg, C2.N_Lon_Deg, C2.Lat_Deg)
-#Else
 
-            If _Segments Is Nothing AndAlso Z < MAX_TREE_Z Then
+            Dim TmpSeg As New List(Of MapSegment)
 
-                'SpinLock()
-                Dim TmpSeg As New List(Of MapSegment)
-                'If _Segments Is Nothing Then
-                Dim CellList As List(Of Coords) = BuildBspCellLine(C1, C2)
-                For Each Center As Coords In CellList
-                    Dim l = GetSegments(Center, db)
-                    TmpSeg.AddRange(l)
-                Next
+            Dim CellList As List(Of Coords) = BuildBspCellLine(C1, C2)
+            For Each Center As Coords In CellList
+                Dim l = GetSegments(Center, db)
+                TmpSeg.AddRange(l)
+            Next
 
-                'End If
-                'SpinLockExit()
-                Return TmpSeg
-
-            ElseIf _Segments Is Nothing Then
-                SpinLock()
-                If _Segments Is Nothing Then
-
-                    Dim PolygonIndex As Integer = 0
-                    Dim Corner As New Coords
-                    'Build the polygons list using the proper "trimmed " polygons
-                    Dim TmpSegments = New List(Of MapSegment)
-
-                    TmpSegments.AddRange(db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg))
-                    _Segments = TmpSegments
-                End If
-                SpinLockExit()
-                Return _Segments
-
-            Else
-                Return _Segments
-            End If
-#End If
+            Return TmpSeg
 
         End Get
     End Property
 
-    Public ReadOnly Property GetPolygons(ByVal C As Coords, ByVal Polygons As LinkedList(Of Polygon), ByVal gridgrain As Double) As LinkedList(Of Polygon)
-        Get
-            If _PolyGons Is Nothing AndAlso Abs((P2.Lat - P1.Lat)) > MIN_POLYGON_SPLIT Then
+    'Public ReadOnly Property GetPolygons(ByVal C As Coords, ByVal Polygons As LinkedList(Of Polygon), ByVal gridgrain As Double) As LinkedList(Of Polygon)
+    '    Get
+    '        If _PolyGons Is Nothing AndAlso Abs((P2.Lat - P1.Lat)) > MIN_POLYGON_SPLIT Then
 
-                If _SubRects(0) Is Nothing Then
-                    If Not Split(gridgrain) Then
-                        Return Nothing
-                    End If
-                End If
-                Return GetChildFromCoords(C).GetPolygons(C, Polygons, gridgrain)
+    '            If _SubRects(0) Is Nothing Then
+    '                If Not Split(gridgrain) Then
+    '                    Return Nothing
+    '                End If
+    '            End If
+    '            Return GetChildFromCoords(C).GetPolygons(C, Polygons, gridgrain)
 
-            Else
-                If _PolyGons Is Nothing Then
+    '        Else
+    '            If _PolyGons Is Nothing Then
 
-                    Dim P As Polygon
-                    Dim PolygonIndex As Integer = 0
-                    Dim Corner As New Coords
-                    'Build the polygons list using the proper "trimmed " polygons
-                    _PolyGons = New LinkedList(Of Polygon)
-
-
-                    For Each P In GSHHS_Reader.AllPolygons
-
-                        If PolygonIndex < GSHHS_Reader.ExclusionCount Then
-                            'Always add exclusions without clipping
-                            _PolyGons.AddLast(P)
-                            PolygonIndex += 1
-                        Else
-                            If P(0) IsNot Nothing Then
-
-                                Dim PRet As Polygon = PolyClipper.ClipPolygon(P1, P2, P)
-                                If Not PRet Is Nothing AndAlso PRet.Count > 2 Then
-                                    _PolyGons.AddLast(PRet)
-                                End If
-
-                            End If
-
-                        End If
+    '                Dim P As Polygon
+    '                Dim PolygonIndex As Integer = 0
+    '                Dim Corner As New Coords
+    '                'Build the polygons list using the proper "trimmed " polygons
+    '                _PolyGons = New LinkedList(Of Polygon)
 
 
+    '                For Each P In GSHHS_Reader.AllPolygons
 
-                    Next
+    '                    If PolygonIndex < GSHHS_Reader.ExclusionCount Then
+    '                        'Always add exclusions without clipping
+    '                        _PolyGons.AddLast(P)
+    '                        PolygonIndex += 1
+    '                    Else
+    '                        If P(0) IsNot Nothing Then
 
-                End If
-                Return _PolyGons
-            End If
-        End Get
-    End Property
+    '                            Dim PRet As Polygon = PolyClipper.ClipPolygon(P1, P2, P)
+    '                            If Not PRet Is Nothing AndAlso PRet.Count > 2 Then
+    '                                _PolyGons.AddLast(PRet)
+    '                            End If
+
+    '                        End If
+
+    '                    End If
+
+
+
+    '                Next
+
+    '            End If
+    '            Return _PolyGons
+    '        End If
+    '    End Get
+    'End Property
 
 
 
@@ -428,23 +396,23 @@ Public Class BspRect
 
     'End Sub
 
-    Public Property P1() As Coords
-        Get
-            Return _p1
-        End Get
-        Set(ByVal value As Coords)
-            _p1 = value
-        End Set
-    End Property
+    'Public Property P1() As Coords
+    '    Get
+    '        Return _p1
+    '    End Get
+    '    Set(ByVal value As Coords)
+    '        _p1 = value
+    '    End Set
+    'End Property
 
-    Public Property P2() As Coords
-        Get
-            Return _p2
-        End Get
-        Set(ByVal value As Coords)
-            _p2 = value
-        End Set
-    End Property
+    'Public Property P2() As Coords
+    '    Get
+    '        Return _p2
+    '    End Get
+    '    Set(ByVal value As Coords)
+    '        _p2 = value
+    '    End Set
+    'End Property
 
 
     Public ReadOnly Property PolygonCount() As Integer

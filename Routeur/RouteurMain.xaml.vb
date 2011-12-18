@@ -485,8 +485,7 @@ Partial Public Class RouteurMain
 
     Private Sub RouteurMain_Closing(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles Me.Closing
 
-        bspOptimizer.Terminate()
-
+        
     End Sub
 
     Private Sub OnRenderPosChanged(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)

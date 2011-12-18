@@ -42,12 +42,6 @@ Public Class GSHHS_Reader
         End Get
     End Property
 
-    Public Shared ReadOnly Property Polygons(ByVal C As Coords) As LinkedList(Of Polygon)
-        Get
-            Return Nothing
-            Return _Tree.GetPolygons(C, _PolyGons, RouteurModel.GridGrain)
-        End Get
-    End Property
 
     Public Shared Sub Read(ByVal State As Object)
 
@@ -428,10 +422,6 @@ Public Class GSHHS_Reader
         Dim P As Coords = New Coords() With {.Lat = PTest.Lat, .Lon = PTest.Lon}
         Dim RetDistance As Double = Double.MaxValue
         Dim NbLoops As Integer
-
-        If Polygons(PTest) Is Nothing OrElse Polygons(PTest).Count = 0 Then
-            Return RetDistance
-        End If
 
         'P.Lon = -P.Lon
         For Each Poly In LookupZone
