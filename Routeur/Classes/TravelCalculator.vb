@@ -560,31 +560,6 @@ Public Class TravelCalculator
 
     'End Sub
 
-    ''' <summary>
-    ''' Return the shortest distance to the WP segment
-    ''' </summary>
-    ''' <param name="WP"></param>
-    ''' <returns></returns>
-    ''' <remarks></remarks>
-    Public Function WPDistance(ByVal WP As List(Of Coords())) As Double
-
-        Dim D As Double = GSHHS_Reader.HitDistance(_StartPoint, WP, True)
-
-        If D = Double.MaxValue Then
-
-            Dim D1 As Double
-            Dim D2 As Double
-            EndPoint = WP(0)(0)
-            D1 = SurfaceDistance
-            EndPoint = WP(0)(1)
-            D2 = SurfaceDistance
-            D = Min(D1, D2)
-
-        End If
-
-        Return D
-
-    End Function
 
     Function ReachDistanceOrtho(f As Double) As Coords
         'A = Sin((1 - f) * d) / Sin(d)
