@@ -36,6 +36,10 @@ Module WS_Wrapper
 
     End Function
 
+    Private Function GetEpochFromDate(p1 As Date) As Long
+        Return CLng(p1.Subtract(New DateTime(1970, 1, 1)).TotalSeconds)
+    End Function
+
     Public Function GetRaceInfo(ByVal RAN As String) As String
 
         Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/raceinfo.php?forcefmt=json&idrace=" & RAN
@@ -101,6 +105,10 @@ Module WS_Wrapper
         Dim Retstring As String = ""
         Try
             Retstring = RequestPage(URL)
+            If Retstring = "" Then
+                Return Nothing
+            End If
+
             RetJSon = JSonParser.Parse(Retstring)
             Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
             If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
@@ -175,6 +183,52 @@ Module WS_Wrapper
         Return
     End Sub
 
+
+    Private Sub GetRealTrack(BI As BoatInfo, IdRace As String)
+        Dim RetJSon As New Dictionary(Of String, Object)
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/realinfo/tracks.php?idr=" & IdRace & "&idreals=" & BI.Id & "&starttime=" & GetEpochFromDate(Now.AddHours(-12))
+        Dim BoatList As List(Of BoatInfo) = Nothing
+
+        Dim Retstring As String = ""
+        Try
+            Retstring = RequestPage(URL)
+            RetJSon = JSonParser.Parse(Retstring)
+            Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
+            If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
+                CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
+                Dim Tracks As List(Of Object) = CType(GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks"), List(Of Object))
+                With BI
+                    Dim T As List(Of Object) = CType(Tracks(Tracks.Count - 1), Global.System.Collections.Generic.List(Of Object))
+                    If T IsNot Nothing AndAlso T.Count = 3 Then
+                        .CurPos = New Coords(CLng(T(2)) / 1000, CLng(T(1)) / 1000)
+                    End If
+                End With
+
+
+            Else
+                Return
+            End If
+            Return
+        Catch wex As WebException
+            If wex.Response Is Nothing Then
+                'Connection lost
+                Return
+            ElseIf CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+                'Login error
+                Return
+            ElseIf CType(wex.Response, HttpWebResponse).StatusCode = 404 Then
+                'Page not found (not yet implemented in VLM, testing only)
+                Return
+            Else
+                MessageBox.Show(wex.Response.ToString)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
+        End Try
+        Return
+    End Sub
+
+
     Function GetReals(IdRace As String) As List(Of BoatInfo)
         Dim RetJSon As New Dictionary(Of String, Object)
         Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo/reals.php?idr=" & IdRace
@@ -198,7 +252,13 @@ Module WS_Wrapper
                         .Real = True
                     End With
                     GetRealProfileInfo(BI, IdRace)
+                    GetRealTrack(BI, IdRace)
+                    If BoatList Is Nothing Then
+                        BoatList = New List(Of BoatInfo)
+                    End If
+                    BoatList.Add(BI)
                 Next
+
             Else
                 Return Nothing
             End If
@@ -304,6 +364,12 @@ Module WS_Wrapper
 
                 Return False
             End If
+        Catch ioex As IOException
+            Using fs As New StreamWriter("IOExceptionLog.log", True)
+                fs.WriteLine(Now.ToString & ";" & ioex.Message & ";" & URL)
+                fs.Close()
+                Return False
+            End Using
         Catch ex As Exception
             Return False
         End Try
@@ -313,20 +379,30 @@ Module WS_Wrapper
 
     Private Function RequestPage(ByVal URL As String) As String
 
-        Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)
-        Http.Credentials = New NetworkCredential(_LastUser, _LastPassword)
-        Dim wr As WebResponse
-        'Dim Encoder As New System.Text.ASCIIEncoding
-        Dim rs As System.IO.StreamReader
-        Dim Response As String
-        Http.UserAgent = GetRouteurUserAgent()
-        Http.CookieContainer = _Cookies
-        Http.Accept = "application/json"
-        wr = Http.GetResponse()
-        rs = New System.IO.StreamReader(wr.GetResponseStream())
-        Response = rs.ReadToEnd
+        Try
+            Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)
+            Http.Credentials = New NetworkCredential(_LastUser, _LastPassword)
+            Dim wr As WebResponse
+            'Dim Encoder As New System.Text.ASCIIEncoding
+            Dim rs As System.IO.StreamReader
+            Dim Response As String
+            Http.UserAgent = GetRouteurUserAgent()
+            Http.CookieContainer = _Cookies
+            Http.Accept = "application/json"
+            wr = Http.GetResponse()
+            rs = New System.IO.StreamReader(wr.GetResponseStream())
+            Response = rs.ReadToEnd
 
-        Return Response
+            Return Response
+        Catch ex As IOException
+
+            Using fs As New StreamWriter("IOExceptionLog.log", True)
+                fs.WriteLine(Now.ToString & ";" & ex.Message & ";" & URL)
+                fs.Close()
+            End Using
+
+
+        End Try
 
     End Function
 
@@ -406,6 +482,8 @@ Module WS_Wrapper
 
         Return WS_Wrapper.PostBoatSetup(Boat.IDU, verb, GetStringFromJsonObject(Request))
     End Function
+
+
 
     
 
