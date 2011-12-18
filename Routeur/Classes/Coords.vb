@@ -24,6 +24,7 @@ Public Class Coords
     End Enum
 
     Private _Lat As Double
+    Private _n_lat As Double
     Private _Lon As Double
     'Private _Name As String
     Private _HashCode As Long = 0
@@ -35,6 +36,7 @@ Public Class Coords
         End Get
         Set(ByVal value As Double)
             _Lat = value
+            _n_lat = _Lat Mod (PI / 2)
             'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat"))
             'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat_Deg"))
         End Set
@@ -137,7 +139,7 @@ Public Class Coords
     <XmlIgnore()> _
     Public ReadOnly Property N_Lat As Double Implements ICoords.N_Lat
         Get
-            Return Lat Mod (PI / 2)
+            Return _n_lat
         End Get
     End Property
 
