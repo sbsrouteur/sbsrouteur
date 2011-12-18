@@ -110,6 +110,11 @@ Public Class BoatInfo
 
     Public Shared Property ImgList(ByVal Index As String) As BitmapImage
         Get
+            'Real have no flag!!
+            If Index Is Nothing Then
+                Return Nothing
+            End If
+
             'If Not _ImgList.ContainsKey(Index) OrElse _ImgList(Index) Is Nothing OrElse _ImgList(Index).Width < 10 Then
             Dim FlagsPath As String = Path.Combine(RouteurModel.BaseFileDir, "Flags")
             If Not Directory.Exists(FlagsPath) Then
