@@ -444,9 +444,10 @@ Render1:
             Dim PrevPoint As Point
             Static Pen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Black), RouteurModel.PenWidth)
             Static PathPen As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Brown), RouteurModel.PenWidth)
-            Static opponentPenPassUp As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Green), RouteurModel.PenWidth)
-            Static opponentPenPassDown As New Pen(New SolidColorBrush(System.Windows.Media.Colors.DarkRed), RouteurModel.PenWidth)
-            Static opponentPenNeutral As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Blue), RouteurModel.PenWidth)
+            Static opponentPenPassUp As New SolidColorBrush(System.Windows.Media.Colors.Green)
+            Static opponentPenPassDown As New SolidColorBrush(System.Windows.Media.Colors.DarkRed)
+            Static opponentPenNeutral As New SolidColorBrush(System.Windows.Media.Colors.Blue)
+            Static opponentPenReal As New SolidColorBrush(System.Windows.Media.Colors.Orange)
             Static BlackBrush As New Pen(New SolidColorBrush(System.Windows.Media.Colors.Black), RouteurModel.PenWidth / 2)
             'Static GridBrushes() As Pen
             Static WindBrushes() As Pen
@@ -469,6 +470,7 @@ Render1:
                 opponentPenNeutral.Freeze()
                 opponentPenPassDown.Freeze()
                 opponentPenPassUp.Freeze()
+                opponentPenNeutral.Freeze()
                 BlackBrush.Freeze()
                 LocalDash.Freeze()
                 For Each rp In routePen
@@ -733,16 +735,22 @@ Render1:
                             P1.X = LonToCanvas(op.Value.CurPos.Lon_Deg)
                             P1.Y = LatToCanvas(op.Value.CurPos.Lat_Deg)
 
-                            Dim DrawPen As Pen
+                            Dim DrawPen As Brush
                             If op.Value.PassUp Then
                                 DrawPen = opponentPenPassUp
                             ElseIf op.Value.PassDown Then
                                 DrawPen = opponentPenPassDown
+                            ElseIf op.Value.Real Then
+                                DrawPen = opponentPenReal
                             Else
+
                                 DrawPen = opponentPenNeutral
                             End If
                             Dim OpSize As Integer = If(op.Value.MyTeam, 3, 2)
-                            DC.DrawEllipse(Nothing, DrawPen, P1, OpSize, OpSize)
+                            If op.Value.Real Then
+                                OpSize = 3
+                            End If
+                            DC.DrawEllipse(DrawPen, Nothing, P1, OpSize, OpSize)
 
                             op.Value.Drawn = True
                             'OpponentMap = True

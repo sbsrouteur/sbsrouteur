@@ -1726,12 +1726,23 @@ Public Class VLM_Router
 
         End If
 
-        'If RaceHasReals Then
-        '    Dim RealPos As List(Of BoatInfo) = WS_Wrapper.GetReals(_PlayerInfo.RaceInfo.idraces)
-        '    For Each boat In RealPos
-        '        Opponents.Add(boat.Id.ToString, boat)
-        '    Next
-        'End If
+        If RaceHasReals Then
+            Dim RealPos As List(Of BoatInfo) = WS_Wrapper.GetReals(_PlayerInfo.RaceInfo.idraces)
+            If RealPos Is Nothing Then
+                RaceHasReals = False
+            Else
+                For Each boat In RealPos
+                    If boat.Id > 0 Then
+                        boat.Id = -boat.Id
+                    End If
+                    If Opponents.ContainsKey(boat.Id.ToString) Then
+                        Opponents.Remove(boat.Id.ToString)
+                    End If
+                    Opponents.Add(boat.Id.ToString, boat)
+                Next
+            End If
+
+        End If
 
 
         If _Opponents.ContainsKey(_PlayerInfo.NumBoat.ToString) Then
