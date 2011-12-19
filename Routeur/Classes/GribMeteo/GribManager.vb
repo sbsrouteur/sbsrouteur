@@ -895,7 +895,12 @@ Public Class GribManager
         Dim WaitStart As DateTime
         Dim start As DateTime = Now
         Dim GribURL As String = GetGribURL(MeteoIndex, WLon, ELon, NLat, SLat, True)
+        Static LastFailedIndex As Integer = -1
+        Static LastFailDate As DateTime = New DateTime(0)
 
+        If LastFailedIndex = MeteoIndex AndAlso Now.Subtract(LastFailDate).TotalMinutes < 1 Then
+            Return False
+        End If
         While Not FileOK
 
             Dim Http As HttpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), HttpWebRequest)
@@ -903,12 +908,18 @@ Public Class GribManager
                 Http.Timeout = 10000
                 wr = Http.GetResponse()
                 FileOK = True
+                LastFailedIndex = -1
+
             Catch ex2 As WebException
                 If retries > 1 Then
                     'Meteo is not available for that date (two late??)
+                    LastFailedIndex = MeteoIndex
+                    LastFailDate = Now
                     Return False
                 ElseIf ex2.Message.Contains("404") Then
                     'retries += 1
+                    LastFailedIndex = MeteoIndex
+                    LastFailDate = Now
                     Return False
                 Else
                     Return False
