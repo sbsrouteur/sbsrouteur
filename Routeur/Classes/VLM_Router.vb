@@ -2848,6 +2848,7 @@ Public Class VLM_Router
 
         Dim ErrorCount As Integer = 0
         Dim ResponseString As String = ""
+        Static requerydelay As Double = 0
 
 
         If _PlayerInfo Is Nothing Then
@@ -2856,7 +2857,7 @@ Public Class VLM_Router
 
 
 
-        If Not force AndAlso Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.date).TotalMinutes < RouteurModel.VacationMinutes Then
+        If Not force AndAlso Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.date).TotalMinutes < RouteurModel.VacationMinutes + requerydelay Then
             Return
         End If
 
@@ -2869,115 +2870,123 @@ Public Class VLM_Router
             'ResponseString = WS_Wrapper.GetBoatInfo(_PlayerInfo)
             'ResponseString = _WebClient.DownloadString(STR_GetUserInfo)
             Dim prevwp As Integer = RouteurModel.CurWP
+            Dim CurDate As Date = If(UserInfo Is Nothing, Now, _UserInfo.date)
             UserInfo(meteo) = ParseVLMBoatInfoString()
-
-            Dim Dest As Coords
-
-            If UserInfo.position.WP_latitude = 0 AndAlso UserInfo.position.WP_latitude = UserInfo.position.WP_longitude Then
-                Dim Pos As New Coords(UserInfo.position.latitude, UserInfo.position.longitude)
-                Dest = GSHHS_Reader.PointToSegmentIntersect(Pos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0) _
-                                                                                     , _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
-            Else
-                Dest = New Coords(UserInfo.position.WP_latitude, UserInfo.position.WP_longitude)
+            If CurDate = _UserInfo.date Then
+                If requerydelay = 0 Then
+                    requerydelay = 2 / 60
+                Else
+                    requerydelay *= 2
+                End If
+                Return
             End If
-            CurrentDest = Dest
+                Dim Dest As Coords
 
-            If RouteurModel.CurWP <> prevwp Then
-                'If CurUserWP = 0 Then
-                'Force userwaypoint to other then 0 to refresh the list
-                CurUserWP = RouteurModel.CurWP() - 1
-                CurUserWP = 0
-                'End If
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
-            End If
+                If UserInfo.position.WP_latitude = 0 AndAlso UserInfo.position.WP_latitude = UserInfo.position.WP_longitude Then
+                    Dim Pos As New Coords(UserInfo.position.latitude, UserInfo.position.longitude)
+                    Dest = GSHHS_Reader.PointToSegmentIntersect(Pos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0) _
+                                                                                         , _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
+                Else
+                    Dest = New Coords(UserInfo.position.WP_latitude, UserInfo.position.WP_longitude)
+                End If
+                CurrentDest = Dest
 
-
-
-            Dim VLMInfoMessage As String = "Meteo read D:" & UserInfo.position.wind_angle.ToString("f2")
-            Dim i As Integer = 0
-            Dim STart As DateTime = Now.AddSeconds(-UserInfo.DateOffset)
-            If Math.Abs(Now.Subtract(STart).TotalHours) > 24 Then
-                STart = Now
-            End If
-            Dim mi As MeteoInfo = meteo.GetMeteoToDate(New Coords(UserInfo.position.latitude, UserInfo.position.longitude), STart, False)
-
-            If Not mi Is Nothing Then
-                Dim V As Double = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(_UserInfo.position.cap, _UserInfo.position.wind_angle), _UserInfo.position.wind_speed)
-                If Math.Abs(UserInfo.position.wind_angle - mi.Dir) > 0.1 Then
-                    VLMInfoMessage &= " (exp.:" & mi.Dir.ToString("f2") & ")"
+                If RouteurModel.CurWP <> prevwp Then
+                    'If CurUserWP = 0 Then
+                    'Force userwaypoint to other then 0 to refresh the list
+                    CurUserWP = RouteurModel.CurWP() - 1
+                    CurUserWP = 0
+                    'End If
+                    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
                 End If
 
-                VLMInfoMessage &= " S:" & UserInfo.position.wind_speed.ToString("f2")
-                If Math.Abs(UserInfo.position.wind_speed - mi.Strength) > 0.05 Then
-                    VLMInfoMessage &= " (exp: " & mi.Strength.ToString("f2") & ")"
+
+
+                Dim VLMInfoMessage As String = "Meteo read D:" & UserInfo.position.wind_angle.ToString("f2")
+                Dim i As Integer = 0
+                Dim STart As DateTime = Now.AddSeconds(-UserInfo.DateOffset)
+                If Math.Abs(Now.Subtract(STart).TotalHours) > 24 Then
+                    STart = Now
+                End If
+                Dim mi As MeteoInfo = meteo.GetMeteoToDate(New Coords(UserInfo.position.latitude, UserInfo.position.longitude), STart, False)
+
+                If Not mi Is Nothing Then
+                    Dim V As Double = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(_UserInfo.position.cap, _UserInfo.position.wind_angle), _UserInfo.position.wind_speed)
+                    If Math.Abs(UserInfo.position.wind_angle - mi.Dir) > 0.1 Then
+                        VLMInfoMessage &= " (exp.:" & mi.Dir.ToString("f2") & ")"
+                    End If
+
+                    VLMInfoMessage &= " S:" & UserInfo.position.wind_speed.ToString("f2")
+                    If Math.Abs(UserInfo.position.wind_speed - mi.Strength) > 0.05 Then
+                        VLMInfoMessage &= " (exp: " & mi.Strength.ToString("f2") & ")"
+                    End If
+
+                    VLMInfoMessage &= " Speed:" & UserInfo.position.vitesse.ToString("f2")
+                    If Math.Abs(UserInfo.position.vitesse - V) > 0.05 Then
+                        VLMInfoMessage &= " (exp: " & V.ToString("f2") & ")"
+                    End If
+                    AddLog(VLMInfoMessage)
+                    'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
+                    UpdateMeteoArrows()
+                    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateStart"))
+                    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateEnd"))
+                    If _MeteoArrowDate < _UserInfo.date Then
+                        MeteoArrowDate = _UserInfo.date
+                    End If
+                Else
+                    AddLog("No Meteo data !!")
+                End If
+                _LastCommunication = Now
+
+                If Now.Subtract(_lastflush).TotalMinutes > 15 Then
+
+                    Dim BaseDir As String = RouteurModel.BaseFileDir
+                    If Not System.IO.Directory.Exists(BaseDir) Then
+                        System.IO.Directory.CreateDirectory(BaseDir)
+                    End If
+
+                    Dim S1 As New System.IO.StreamWriter(BaseDir & "\TempRoute" & Now.Minute Mod 7 & ".csv")
+
+                    For Each Pt In TempRoute
+                        S1.WriteLine(Pt.ToString)
+                    Next
+
+                    S1.Close()
+
+                    Dim S2 As New System.IO.StreamWriter(BaseDir & "\BestRoute" & Now.Minute Mod 7 & ".csv")
+
+                    For Each Pt In BruteRoute
+                        S2.WriteLine(Pt.ToString)
+                    Next
+
+                    S2.Close()
+
+                    _lastflush = Now
                 End If
 
-                VLMInfoMessage &= " Speed:" & UserInfo.position.vitesse.ToString("f2")
-                If Math.Abs(UserInfo.position.vitesse - V) > 0.05 Then
-                    VLMInfoMessage &= " (exp: " & V.ToString("f2") & ")"
-                End If
-                AddLog(VLMInfoMessage)
-                'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
-                UpdateMeteoArrows()
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateStart"))
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateEnd"))
-                If _MeteoArrowDate < _UserInfo.date Then
-                    MeteoArrowDate = _UserInfo.date
-                End If
-            Else
-                AddLog("No Meteo data !!")
-            End If
-            _LastCommunication = Now
+                StorePath(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude), UserInfo.position.cap)
 
-            If Now.Subtract(_lastflush).TotalMinutes > 15 Then
-
-                Dim BaseDir As String = RouteurModel.BaseFileDir
-                If Not System.IO.Directory.Exists(BaseDir) Then
-                    System.IO.Directory.CreateDirectory(BaseDir)
+                If _RoutingRestartPending Then
+                    _RoutingRestart.Interval = 100
+                    _RoutingRestart.Start()
                 End If
 
-                Dim S1 As New System.IO.StreamWriter(BaseDir & "\TempRoute" & Now.Minute Mod 7 & ".csv")
+                If DrawOpponnents Then
+                    RaiseEvent BoatClear()
+                    DrawBoatMap()
+                End If
 
-                For Each Pt In TempRoute
-                    S1.WriteLine(Pt.ToString)
-                Next
+                If _CurUserWP = 0 Then
+                    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurUserWP "))
+                End If
 
-                S1.Close()
+                Dim PilototoThread As New System.Threading.Thread(AddressOf ComputePilototo)
+                PilototoThread.Start()
+                ComputeAllure()
 
-                Dim S2 As New System.IO.StreamWriter(BaseDir & "\BestRoute" & Now.Minute Mod 7 & ".csv")
-
-                For Each Pt In BruteRoute
-                    S2.WriteLine(Pt.ToString)
-                Next
-
-                S2.Close()
-
-                _lastflush = Now
-            End If
-
-            StorePath(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude), UserInfo.position.cap)
-
-            If _RoutingRestartPending Then
-                _RoutingRestart.Interval = 100
-                _RoutingRestart.Start()
-            End If
-
-            If DrawOpponnents Then
-                RaiseEvent BoatClear()
-                DrawBoatMap()
-            End If
-
-            If _CurUserWP = 0 Then
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurUserWP "))
-            End If
-
-            Dim PilototoThread As New System.Threading.Thread(AddressOf ComputePilototo)
-            PilototoThread.Start()
-            ComputeAllure()
-
-            If _XTRAssessmentON Then
-                AssessXTR()
-            End If
+                If _XTRAssessmentON Then
+                    AssessXTR()
+                End If
 
         Catch ex As Exception
             AddLog("GetboartInfo : " & ex.Message)
