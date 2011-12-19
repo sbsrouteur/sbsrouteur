@@ -49,6 +49,7 @@ Public Class Coords
         End Get
         Set(ByVal value As Double)
             _Lat = value / 180 * Math.PI
+            _n_lat = _Lat Mod (PI / 2)
             'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat"))
             'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat_Deg"))
         End Set
@@ -255,7 +256,7 @@ Public Class Coords
 
     Public Sub New(ByVal x As Double, ByVal y As Double, ByVal z As Double)
 
-        _Lat = Atan2(z, Sqrt(x ^ 2 + y ^ 2))
+        Lat = Atan2(z, Sqrt(x ^ 2 + y ^ 2))
         _Lon = -Atan2(-y, x)
 
     End Sub
@@ -283,7 +284,7 @@ Public Class Coords
         Dim _y As Double = Y / M
         Dim _z As Double = Z / M
 
-        _Lat = Atan2(Z, Sqrt(_x ^ 2 + _y ^ 2))
+        Lat = Atan2(Z, Sqrt(_x ^ 2 + _y ^ 2))
         _Lon = -Atan2(-_y, _x)
 
     End Sub
