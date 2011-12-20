@@ -2872,13 +2872,15 @@ Public Class VLM_Router
             Dim prevwp As Integer = RouteurModel.CurWP
             Dim CurDate As Date = If(UserInfo Is Nothing, Now, _UserInfo.date)
             UserInfo(meteo) = ParseVLMBoatInfoString()
-            If CurDate = _UserInfo.date Then
+            If Not force AndAlso CurDate = _UserInfo.date Then
                 If requerydelay = 0 Then
                     requerydelay = 2 / 60
                 Else
-                    requerydelay *= 2
+                    requerydelay += 1 / 60
                 End If
                 Return
+            Else
+                requerydelay = 0
             End If
                 Dim Dest As Coords
 
