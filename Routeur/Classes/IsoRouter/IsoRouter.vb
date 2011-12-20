@@ -221,7 +221,7 @@ Public Class IsoRouter
                                                                               If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
                                                                                   Dim IgnorePoint As Boolean = False
                                                                                   If _IsoChrones.Count > 3 Then
-                                                                                      For i = _IsoChrones.Count - 3 To 0 Step -1
+                                                                                      For i = _IsoChrones.Count - 3 To Math.Max(0, _IsoChrones.Count - 20) Step -1
                                                                                           Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(alpha2))
                                                                                           If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
                                                                                               IgnorePoint = True
