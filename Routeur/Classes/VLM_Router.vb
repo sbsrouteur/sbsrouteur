@@ -1152,38 +1152,41 @@ Public Class VLM_Router
                 Dim RP As RoutePointView
 
                 For i As Integer = 0 To 4
-                    Dim Fields() As String = _Pilototo(i).Split(","c)
-                    If Fields.Count >= 5 AndAlso _Pilototo(i).ToLowerInvariant.Contains("pending") Then
-                        RP = New RoutePointView
-                        With RP
-                            If Not GetOrderDate(Fields(FLD_DATEVALUE), .ActionDate) Then
-                            End If
+                    If _Pilototo(i) IsNot Nothing Then
+                        Dim Fields() As String = _Pilototo(i).Split(","c)
+                        If Fields.Count >= 5 AndAlso _Pilototo(i).ToLowerInvariant.Contains("pending") Then
+                            RP = New RoutePointView
+                            With RP
+                                If Not GetOrderDate(Fields(FLD_DATEVALUE), .ActionDate) Then
+                                End If
 
-                            If Not GetOrderType(Fields(FLD_ORDERTYPE), .RouteMode) Then
-                                Continue For
-                            End If
+                                If Not GetOrderType(Fields(FLD_ORDERTYPE), .RouteMode) Then
+                                    Continue For
+                                End If
 
-                            Select Case .RouteMode
-                                Case EnumRouteMode.Angle, EnumRouteMode.Bearing
-                                    Dim PtDoubleValue As New RoutePointDoubleValue
-                                    If Not GetBearingAngleValue(Fields(FLD_ORDERVALUE), PtDoubleValue.Value) Then
-                                        Continue For
-                                    End If
-                                    RP.RouteValue = PtDoubleValue
-                                Case Else
-                                    Dim PtWPValue As New RoutePointWPValue
+                                Select Case .RouteMode
+                                    Case EnumRouteMode.Angle, EnumRouteMode.Bearing
+                                        Dim PtDoubleValue As New RoutePointDoubleValue
+                                        If Not GetBearingAngleValue(Fields(FLD_ORDERVALUE), PtDoubleValue.Value) Then
+                                            Continue For
+                                        End If
+                                        RP.RouteValue = PtDoubleValue
+                                    Case Else
+                                        Dim PtWPValue As New RoutePointWPValue
 
-                                    If Not GetWPInfo(Fields(FLD_LATVALUE), Fields(FLD_LONVALUE), PtWPValue.WPLon,
-                                                     PtWPValue.WPLat, PtWPValue.SetBearingAtWP, PtWPValue.BearingAtWP) Then
-                                        Continue For
-                                    End If
+                                        If Not GetWPInfo(Fields(FLD_LATVALUE), Fields(FLD_LONVALUE), PtWPValue.WPLon,
+                                                         PtWPValue.WPLat, PtWPValue.SetBearingAtWP, PtWPValue.BearingAtWP) Then
+                                            Continue For
+                                        End If
 
-                                    PtWPValue.UseRaceWP = PtWPValue.WPLon = 0 AndAlso PtWPValue.WPLon = PtWPValue.WPLat
-                                    RP.RouteValue = PtWPValue
-                            End Select
+                                        PtWPValue.UseRaceWP = PtWPValue.WPLon = 0 AndAlso PtWPValue.WPLon = PtWPValue.WPLat
+                                        RP.RouteValue = PtWPValue
+                                End Select
 
-                        End With
-                        Route(i) = RP
+                            End With
+                            Route(i) = RP
+                        End If
+
                     End If
                 Next
 
