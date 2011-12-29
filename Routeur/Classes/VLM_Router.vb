@@ -1042,7 +1042,7 @@ Public Class VLM_Router
             End If
 
             'Get Meteo at date
-            mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
+            mi = _Meteo.GetMeteoToDate(CurPos, CurDate.AddTicks(CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)), True)
 
             If mi Is Nothing Then
                 Return RetRoute
