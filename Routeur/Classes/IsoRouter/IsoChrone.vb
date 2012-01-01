@@ -1,8 +1,9 @@
 ﻿Imports Routeur.VLM_Router
+Imports System.Threading
 
 Public Class IsoChrone
 
-    Private _Locks() As Object
+    Private _Locks() As SpinLock
     Private _Data() As clsrouteinfopoints
     Private _Drawn As Boolean = False
     Private _IsoChroneLock As New Object
@@ -14,6 +15,10 @@ Public Class IsoChrone
         _AngleStep = AngleStep
         ReDim _Data(MaxIndex)
         ReDim _Locks(MaxIndex)
+        Dim I As Integer
+        For i = 0 To MaxIndex
+            _Locks(i) = New SpinLock
+        Next
     End Sub
 
     Public Property Data() As clsrouteinfopoints()
@@ -64,15 +69,8 @@ Public Class IsoChrone
         End Get
     End Property
 
-    Public ReadOnly Property Locks(index As Integer) As Object
+    Public ReadOnly Property Locks(index As Integer) As SpinLock
         Get
-            If _Locks(index) Is Nothing Then
-                SyncLock _IsoChroneLock
-                    If _Locks(index) Is Nothing Then
-                        _Locks(index) = New Object
-                    End If
-                End SyncLock
-            End If
             Return _Locks(index)
         End Get
     End Property

@@ -28,7 +28,7 @@ Public Class GribManager
     Private Const MAX_INDEX_05 As Integer = CInt(MAX_GRIB_05 / GRIB_GRAIN_05)
     Private Const MAX_INDEX_1 As Integer = CInt((MAX_GRIB_1 - MAX_GRIB_05 - GRIB_GRAIN_1) / GRIB_GRAIN_1) + MAX_INDEX_05
     Private Const MAX_INDEX As Integer = MAX_INDEX_1
-    Private Const NB_MAX_GRIBS As Integer = 12
+    Private Const NB_MAX_GRIBS As Integer = CInt(MAX_GRIB_05 / GRIB_GRAIN_05 + (MAX_GRIB_1 - MAX_GRIB_05) / GRIB_GRAIN_1)
 
     Public Shared ZULU_OFFSET As Integer = -CInt(TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
 
@@ -70,7 +70,7 @@ Public Class GribManager
 
         If bLoad Then
             'RaiseEvent log("Synclock grib monitor th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
-            While Not System.Threading.Monitor.TryEnter(_GribMonitor(MeteoIndex Mod NB_MAX_GRIBS))
+            While Not System.Threading.Monitor.TryEnter(_GribMonitor(MeteoIndex))
 
                 If NoLock Then
                     Return Nothing
@@ -963,9 +963,9 @@ Public Class GribManager
                 .CreateNoWindow = True
             End With
 
-            If _Process(MeteoIndex Mod NB_MAX_GRIBS) Is Nothing Then
-                _Process(MeteoIndex Mod NB_MAX_GRIBS) = New Process
-                AddHandler _Process(MeteoIndex Mod NB_MAX_GRIBS).Exited, AddressOf _Process_Exited
+            If _Process(MeteoIndex) Is Nothing Then
+                _Process(MeteoIndex) = New Process
+                AddHandler _Process(MeteoIndex).Exited, AddressOf _Process_Exited
 
             End If
             With _Process(MeteoIndex Mod NB_MAX_GRIBS)
@@ -977,7 +977,7 @@ Public Class GribManager
             End With
 
             'Wait max 1h for grib to process and complete
-            If Not _Evt(MeteoIndex Mod NB_MAX_GRIBS).WaitOne(3600000, Nothing) Then
+            If Not _Evt(MeteoIndex).WaitOne(3600000, Nothing) Then
                 Return False
             End If
 

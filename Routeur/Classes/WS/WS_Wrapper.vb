@@ -400,9 +400,9 @@ Module WS_Wrapper
                 fs.WriteLine(Now.ToString & ";" & ex.Message & ";" & URL)
                 fs.Close()
             End Using
-
-
         End Try
+
+        Return ""
 
     End Function
 
