@@ -8,10 +8,6 @@ Imports System.Xml.Serialization
 
 Public Class Coords
     Implements ICoords
-    'Implements INotifyPropertyChanged
-
-
-    'Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
     Public Enum NORTH_SOUTH As Integer
         N = 1
@@ -25,9 +21,13 @@ Public Class Coords
 
     Private _Lat As Double
     Private _n_lat As Double
+    Private _n_lat_deg As Double
+    Private _Lat_Deg As Double
     Private _Lon As Double
-    'Private _Name As String
-    Private _HashCode As Long = 0
+    Private _n_lon As Double
+    Private _n_lon_deg As Double
+    Private _Lon_Deg As Double
+    'Private _HashCode As Long = 0
 
 
     Public Property Lat() As Double Implements ICoords.Lat
@@ -37,21 +37,18 @@ Public Class Coords
         Set(ByVal value As Double)
             _Lat = value
             _n_lat = _Lat Mod (PI / 2)
-            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat"))
-            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat_Deg"))
+            _Lat_Deg = value / PI * 180
+            _n_lat_deg = _Lat_Deg Mod (90)
         End Set
     End Property
 
     <XmlIgnore()> _
     Public Property Lat_Deg() As Double
         Get
-            Return _Lat * 180 / Math.PI
+            Return _Lat_Deg
         End Get
         Set(ByVal value As Double)
-            _Lat = value / 180 * Math.PI
-            _n_lat = _Lat Mod (PI / 2)
-            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat"))
-            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lat_Deg"))
+            Lat = value / 180 * Math.PI
         End Set
     End Property
 
@@ -61,46 +58,26 @@ Public Class Coords
         End Get
         Set(ByVal value As Double)
 
-            'While value > Math.PI
-            '    value -= 2 * Math.PI
-            'End While
-
-            'While value < -Math.PI
-            '    value += 2 * Math.PI
-
-            'End While
             If Double.IsNaN(value) Then
                 Dim bp As Integer = 0
             End If
             _Lon = value
-            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon"))
-            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon_Deg"))
+            _n_lon = _Lon Mod PI
+            _Lon_Deg = value / PI * 180
+            _n_lon_deg = _Lon_Deg Mod 180
         End Set
     End Property
 
     <XmlIgnore()> _
     Public Property Lon_Deg() As Double
         Get
-            Return _Lon * 180 / Math.PI
+            Return _Lon_Deg
         End Get
         Set(ByVal value As Double)
-
-
             Lon = value / 180 * Math.PI
-            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon"))
-            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Lon_Deg"))
         End Set
     End Property
 
-    'Public Property Name() As String
-    '    Get
-    '        Return _Name
-    '    End Get
-    '    Set(ByVal value As String)
-    '        _Name = value
-    '        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Name"))
-    '    End Set
-    'End Property
 
     Public Shared Operator =(ByVal v1 As Coords, ByVal v2 As Coords) As Boolean
 
@@ -121,19 +98,15 @@ Public Class Coords
     <XmlIgnore()> _
     Public ReadOnly Property N_Lon_Deg As Double
         Get
-            Return N_Lon / PI * 180
+            Return _n_lon_deg
         End Get
     End Property
 
     <XmlIgnore()> _
     Public ReadOnly Property N_Lon As Double Implements ICoords.N_Lon
         Get
-            If Lon < -PI Or Lon > PI Then
-                Return ((Lon + 3 * PI) Mod (2 * PI)) - PI
-            Else
-                Return Lon
-            End If
-
+            Return _n_lon
+            
         End Get
     End Property
 
@@ -226,23 +199,10 @@ Public Class Coords
         Me.New(CType(Lat_Deg, Decimal), CType(LonDeg, Decimal))
     End Sub
 
-    Public Sub New(ByVal Lat_Deg As Decimal, ByVal LonDeg As Decimal)
+    Public Sub New(ByVal Lat_Deg As Decimal, ByVal Lon_Deg As Decimal)
 
-        'If Lat_Deg > 90 Then
-        '    Me.Lat_Deg = Lat_Deg - 180
-        'ElseIf Lat_Deg < -90 Then
-        '    Me.Lat_Deg = Lat_Deg + 180
-        'Else
         Me.Lat_Deg = Lat_Deg
-        'End If
-
-        'If LonDeg > 180 Then
-        '    Me.Lon_Deg = LonDeg - 360
-        'ElseIf LonDeg < -180 Then
-        '    Me.Lon_Deg = LonDeg + 360
-        'Else
-        Me.Lon_Deg = LonDeg
-        'End If
+        Me.Lon_Deg = Lon_Deg
 
 
     End Sub
@@ -260,22 +220,6 @@ Public Class Coords
         _Lon = -Atan2(-y, x)
 
     End Sub
-
-    'Public Sub New(ByVal P As XmlElement)
-
-    '    For Each A As XmlAttribute In P.Attributes
-
-    '        Select Case A.Name
-    '            Case "Lat"
-    '                Lat = Val(A.Value)
-    '            Case "Lon"
-    '                Lon = Val(A.Value)
-
-    '            Case "Name"
-    '                Name = CStr(A.Value)
-    '        End Select
-    '    Next
-    'End Sub
 
     Public Sub Normalize()
 
@@ -320,50 +264,10 @@ Public Class Coords
     End Function
 
     Public Function GetHashCode1() As Long Implements ICoords.GetHashCode
-        If _HashCode = 0 Then
-            _HashCode = CoordsComparer.GetHashCode1(Me)
-        End If
-        Return _HashCode
+        Return CoordsComparer.GetHashCode1(Me)
+        
     End Function
 End Class
 
-'Public Class WayPoints
-
-'    Public Points As New ObservableCollection(Of Coords)
-
-'    Private Sub LoadPointList(ByVal Points As XmlElement)
-
-'        For Each P In Points.ChildNodes
-
-'            If TypeOf P Is XmlElement AndAlso CType(P, XmlElement).Name = "Point" Then
-'                Dim NewP As New Coords(CType(P, XmlElement))
-'                Me.Points.Add(NewP)
-'            End If
-
-'        Next
-
-'    End Sub
-
-
-'    Public Sub New(ByVal Doc As XmlDataProvider)
-
-'        Doc.Refresh()
-'        Points.Clear()
-
-'        For Each node In Doc.Document.ChildNodes
-
-
-'            If TypeOf node Is XmlElement Then
-'                If CType(node, XmlElement).Name = "Points" Then
-'                    LoadPointList(CType(node, XmlElement))
-'                End If
-'            End If
-
-
-'        Next
-
-'    End Sub
-
-'End Class
 
 

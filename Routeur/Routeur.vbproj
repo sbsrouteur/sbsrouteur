@@ -358,7 +358,6 @@
     <Compile Include="Classes\IsoRouter\IsoRouter.vb" />
     <Compile Include="Classes\JSon\JSonHelper.vb" />
     <Compile Include="Classes\JSon\JSonParser.vb" />
-    <Compile Include="Classes\ListMgr\BSPList.vb" />
     <Compile Include="Classes\ListMgr\CoordsComparer.vb" />
     <Compile Include="Classes\ListMgr\ICoords.vb" />
     <Compile Include="Classes\MenuCommands\CommandManager.vb" />

@@ -215,83 +215,61 @@ Public Class DBWrapper
 
     Public Function SegmentList(ByVal lon1 As Double, ByVal lat1 As Double, ByVal lon2 As Double, ByVal lat2 As Double, Optional sorted As Boolean = False) As List(Of MapSegment)
 
-        Static count As Long = 0
-        Static ticks As Long = 0
-        Dim Start As DateTime = Now
         Dim RetList As New List(Of MapSegment)
         
-        Try
-            Dim M As New MapSegment(lon1, lat1, lon2, lat2)
-            'If Not Dbg.Contains(m) Then
-            'Dbg.Add(M)
-            'Else
-            'Dim i As Integer = 0
-            'End If
-            'Console.WriteLine("Seg " & lon1 & "/" & lat1 & "/" & lon2 & "/" & lat2)
-            Using Con As New SQLiteConnection(_DBPath)
-                Con.Open()
+        Dim M As New MapSegment(lon1, lat1, lon2, lat2)
+        Using Con As New SQLiteConnection(_DBPath)
+            Con.Open()
 
-                Using Cmd As New SQLiteCommand(Con)
-                    Dim Reader As SQLiteDataReader = Nothing
+            Using Cmd As New SQLiteCommand(Con)
+                Dim Reader As SQLiteDataReader = Nothing
 
-                    Try
-                        Dim MinLon As String = Math.Min(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                        Dim MaxLon As String = Math.Max(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                        Dim MinLat As String = Math.Min(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                        Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                Try
+                    Dim MinLon As String = Math.Min(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    Dim MaxLon As String = Math.Max(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    Dim MinLat As String = Math.Min(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
 
-                        'Cmd.CommandText = "Select * from mapssegments where maplevel = " & MapLevel & " and (" &
-                        '                    " ((lon1 between " & MinLon & " and " & MaxLon & ") and ( lat1 between " & MinLat & " and " & MaxLat & ")) " &
-                        '                    " or ((lon2 between " & MinLon & " and " & MaxLon & ") and ( lat2 between " & MinLat & " and " & MaxLat & ")) " &
-                        '                    ")"
-                        Cmd.CommandText = "Select * from mapssegments inner join ( " &
-                                            " select id from MapLevel_Idx" & MapLevel & " where " &
-                                            " (MaxX  >= " & MinLon & " and MinX <=" & MaxLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") " &
-                                            ") As T on IdSegment = id"
+                    Cmd.CommandText = "Select * from mapssegments inner join ( " &
+                                        " select id from MapLevel_Idx" & MapLevel & " where " &
+                                        " (MaxX  >= " & MinLon & " and MinX <=" & MaxLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") " &
+                                        ") As T on IdSegment = id"
 
-                        If sorted Then
-                            Cmd.CommandText = Cmd.CommandText & " order by IdSegment asc"
-                        End If
-                        Reader = Cmd.ExecuteReader
-                        If Reader.HasRows Then
+                    If sorted Then
+                        Cmd.CommandText = Cmd.CommandText & " order by IdSegment asc"
+                    End If
+                    Reader = Cmd.ExecuteReader
+                    If Reader.HasRows Then
 
-                            While Reader.Read
-                                Dim seg_lon1 As Double = CDbl(Reader("lon1"))
-                                Dim seg_lon2 As Double = CDbl(Reader("lon2"))
-                                Dim seg_lat1 As Double = CDbl(Reader("lat1"))
-                                Dim seg_lat2 As Double = CDbl(Reader("lat2"))
+                        While Reader.Read
+                            Dim seg_lon1 As Double = CDbl(Reader("lon1"))
+                            Dim seg_lon2 As Double = CDbl(Reader("lon2"))
+                            Dim seg_lat1 As Double = CDbl(Reader("lat1"))
+                            Dim seg_lat2 As Double = CDbl(Reader("lat2"))
 
-                                RetList.Add(New MapSegment With {.Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
-                            End While
+                            RetList.Add(New MapSegment With {.Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+                        End While
 
-                        End If
+                    End If
 
-                        Return RetList
-                    Finally
+                    Return RetList
+                Finally
 
-                        If Reader IsNot Nothing Then
-                            Reader.Close()
-                        End If
-                        If Cmd IsNot Nothing Then
-                            Cmd.Dispose()
+                    If Reader IsNot Nothing Then
+                        Reader.Close()
+                    End If
+                    If Cmd IsNot Nothing Then
+                        Cmd.Dispose()
 
-                        End If
-                        Con.Close()
-                    End Try
-                End Using
-
-                Return Nothing
-
+                    End If
+                    Con.Close()
+                End Try
             End Using
-        Finally
-            ticks += Now.Subtract(Start).Ticks
-            count += 1
 
-            'If count Mod 1000 = 0 Then
-            Console.WriteLine("Map intersect : " & New TimeSpan(CLng(ticks / count)).ToString)
-            'End If
+            Return Nothing
 
-        End Try
+        End Using
+
 
     End Function
 
