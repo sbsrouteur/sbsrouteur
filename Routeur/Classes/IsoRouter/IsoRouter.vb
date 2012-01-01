@@ -611,12 +611,20 @@ Public Class IsoRouter
     Private Sub SpinLockEnter(Iso As IsoChrone, Index As Integer)
 
         Dim GotLock As Boolean = False
-        
+        'Static SpinCount As Long = 0
+        'Static SpinDuration As Double = 0
+        'Dim Start As DateTime = Now
         Do
             Iso.Locks(Index).Enter(GotLock)
-            If Not GotLock Then System.Threading.Thread.Sleep(1)
+            If Not GotLock Then
+                System.Threading.Thread.Sleep(1)
+                'SpinCount += 1
+            End If
+
         Loop Until GotLock
-        'Console.WriteLine("enter" & Thread.CurrentThread.ManagedThreadId & "/" & _SpinCount)
+        'SpinCount += 1
+        'SpinDuration += Now.Subtract(Start).TotalMilliseconds
+        'Console.WriteLine("enter" & Thread.CurrentThread.ManagedThreadId & "/" & SpinDuration / SpinCount)
 
     End Sub
 

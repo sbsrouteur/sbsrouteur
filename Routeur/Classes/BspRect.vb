@@ -4,7 +4,7 @@ Imports System.Threading
 Public Class BspRect
     Public Const GRID_GRAIN_OVERSAMPLE As Integer = 1
     Private Const MAX_IGNORED_COUNT As Integer = 2000
-    Private Const MAX_TREE_Z As Integer = 10
+    Private Const MAX_TREE_Z As Integer = 13
 
     Public Enum inlandstate As Byte
         Unknown = 0
@@ -86,10 +86,8 @@ Public Class BspRect
                 Return _SegmentsArray(X, Y)
             Else
                 SpinLock()
-                If _SegmentsArray(X, Y) IsNot Nothing Then
-                    SpinLockExit()
-                    Return _SegmentsArray(X, Y)
-                Else
+                If _SegmentsArray(X, Y) Is Nothing Then
+                    
                     Dim TmpSegments = New List(Of MapSegment)
                     Dim P1 As New Coords(Y * 180 / (2 ^ MAX_TREE_Z) - 90, X * 360 / (2 ^ MAX_TREE_Z) - 180)
                     Dim P2 As New Coords((Y + 1) * 180 / (2 ^ MAX_TREE_Z) - 90, (X + 1) * 360 / (2 ^ MAX_TREE_Z) - 180)
@@ -509,6 +507,10 @@ Public Class BspRect
 
     Private Sub SpinLock()
         Dim GotLock As Boolean = False
+        Static SpinCount As Long = 0
+        'Static SpinDuration As Double = 0
+        'Dim Start As DateTime = Now
+
         If _SpinLock.IsHeldByCurrentThread Then
             _SpinCount += 1
             Console.WriteLine("enter" & Thread.CurrentThread.ManagedThreadId & "/" & _SpinCount)
@@ -519,7 +521,10 @@ Public Class BspRect
             'System.Threading.Thread.Sleep(1)
         Loop Until GotLock
         _SpinCount += 1
-        'Console.WriteLine("enter" & Thread.CurrentThread.ManagedThreadId & "/" & _SpinCount)
+        ''Console.WriteLine("enter" & Thread.CurrentThread.ManagedThreadId & "/" & _SpinCount)
+        'SpinCount += 1
+        'SpinDuration += Now.Subtract(Start).TotalMilliseconds
+        'Console.WriteLine("enter" & Thread.CurrentThread.ManagedThreadId & "/" & SpinDuration / SpinCount)
 
     End Sub
 
