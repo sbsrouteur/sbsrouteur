@@ -138,124 +138,125 @@ Public Class IsoRouter
             tc2.EndPoint = GSHHS_Reader.PointToSegmentIntersect(_StartPoint.P, _DestPoint1, _DestPoint2)
             MaxEllipseDist = tc2.SurfaceDistance * _EllipseExt
 
-            Parallel.For(StartIndex, Iso.Data.Length, Sub(Pindex As Integer)
+            Parallel.For(StartIndex, Iso.Data.Length,
+                         Sub(Pindex As Integer)
 
-                                                          Dim tcfn1 As New TravelCalculator
-                                                          Dim CurDest As Coords
-                                                          Dim alpha2 As Double
-                                                          Dim rp As clsrouteinfopoints
+                             Dim tcfn1 As New TravelCalculator
+                             Dim CurDest As Coords
+                             Dim alpha2 As Double
+                             Dim rp As clsrouteinfopoints
 
-                                                          If Not Iso.Data(Pindex) Is Nothing Then
-                                                              rp = Iso.Data(Pindex)
+                             If Not Iso.Data(Pindex) Is Nothing Then
+                                 rp = Iso.Data(Pindex)
 
-                                                              Dim Ortho As Double
-                                                              tcfn1.StartPoint = rp.P
-                                                              If _DestPoint2 IsNot Nothing Then
-                                                                  tcfn1.EndPoint = GSHHS_Reader.PointToSegmentIntersect(rp.P, _DestPoint1, _DestPoint2)
-                                                              Else
-                                                                  tcfn1.EndPoint = _DestPoint1
-                                                              End If
-                                                              CurDest = tcfn1.EndPoint
-                                                              Ortho = tcfn1.OrthoCourse_Deg
-                                                              tcfn1.EndPoint = _StartPoint.P
+                                 Dim Ortho As Double
+                                 tcfn1.StartPoint = rp.P
+                                 If _DestPoint2 IsNot Nothing Then
+                                     tcfn1.EndPoint = GSHHS_Reader.PointToSegmentIntersect(rp.P, _DestPoint1, _DestPoint2)
+                                 Else
+                                     tcfn1.EndPoint = _DestPoint1
+                                 End If
+                                 CurDest = tcfn1.EndPoint
+                                 Ortho = tcfn1.OrthoCourse_Deg
+                                 tcfn1.EndPoint = _StartPoint.P
 
-                                                              Dim TcAngleTrim As New TravelCalculator()
-                                                              Dim MinSearch As Double = 180
-                                                              Dim MaxSearch As Double = 180
-                                                              Dim PrevIndex As Integer = (Pindex + Iso.Data.Length - 1) Mod Iso.Data.Length
-                                                              Dim NextIndex As Integer = (Pindex + 1) Mod Iso.Data.Length
-                                                              If Iso.Data(PrevIndex) IsNot Nothing Then
-                                                                  TcAngleTrim.EndPoint = Iso.Data(PrevIndex).P
-                                                                  TcAngleTrim.StartPoint = rp.P
-                                                                  MinSearch = WindAngle(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                                                              End If
-                                                              If Iso.Data(NextIndex) IsNot Nothing Then
-                                                                  TcAngleTrim.StartPoint = rp.P
-                                                                  TcAngleTrim.EndPoint = Iso.Data(NextIndex).P
-                                                                  MaxSearch = WindAngle(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                                                              End If
+                                 Dim TcAngleTrim As New TravelCalculator()
+                                 Dim MinSearch As Double = 180
+                                 Dim MaxSearch As Double = 180
+                                 Dim PrevIndex As Integer = (Pindex + Iso.Data.Length - 1) Mod Iso.Data.Length
+                                 Dim NextIndex As Integer = (Pindex + 1) Mod Iso.Data.Length
+                                 If Iso.Data(PrevIndex) IsNot Nothing Then
+                                     TcAngleTrim.EndPoint = Iso.Data(PrevIndex).P
+                                     TcAngleTrim.StartPoint = rp.P
+                                     MinSearch = WindAngle(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                                 End If
+                                 If Iso.Data(NextIndex) IsNot Nothing Then
+                                     TcAngleTrim.StartPoint = rp.P
+                                     TcAngleTrim.EndPoint = Iso.Data(NextIndex).P
+                                     MaxSearch = WindAngle(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                                 End If
 
-                                                              Dim MinAngle As Double = Ortho - MinSearch
-                                                              Dim maxAngle As Double = Ortho + MaxSearch
+                                 Dim MinAngle As Double = Ortho - MinSearch
+                                 Dim maxAngle As Double = Ortho + MaxSearch
 
-                                                              If MinAngle > maxAngle Then
-                                                                  maxAngle += 360
-                                                              End If
+                                 If MinAngle > maxAngle Then
+                                     maxAngle += 360
+                                 End If
 
-                                                              tcfn1.StartPoint = _StartPoint.P
-                                                              'MinAngle = 0
-                                                              'MaxAngle = 360
-                                                              Dim StepCount As Integer = CInt(Math.Floor((maxAngle - MinAngle) / _AngleStep) + 1)
+                                 tcfn1.StartPoint = _StartPoint.P
+                                 'MinAngle = 0
+                                 'MaxAngle = 360
+                                 Dim StepCount As Integer = CInt(Math.Floor((maxAngle - MinAngle) / _AngleStep) + 1)
 
-                                                              Parallel.For(0, StepCount,
-                                                              Sub(AlphaIndex As Integer)
+                                 Parallel.For(0, StepCount,
+                                 Sub(AlphaIndex As Integer)
 
-                                                                  Dim alpha As Double = (MinAngle + _AngleStep * AlphaIndex) Mod 360
-                                                                  Dim P As clsrouteinfopoints
-                                                                  Dim tc As New TravelCalculator
-                                                                  Dim Index As Integer
-                                                                  Dim OldP As clsrouteinfopoints
+                                     Dim alpha As Double = (MinAngle + _AngleStep * AlphaIndex) Mod 360
+                                     Dim P As clsrouteinfopoints
+                                     Dim tc As New TravelCalculator
+                                     Dim Index As Integer
+                                     Dim OldP As clsrouteinfopoints
 
-                                                                  'If WindAngle(alpha, rp.Cap) > 140 Then
-                                                                  '    Return
-                                                                  'End If
+                                     'If WindAngle(alpha, rp.Cap) > 140 Then
+                                     '    Return
+                                     'End If
 
-                                                                  P = ReachPoint(rp, alpha, CurStep)
+                                     P = ReachPoint(rp, alpha, CurStep)
 
-                                                                  If Not P Is Nothing Then
+                                     If Not P Is Nothing Then
 
-                                                                      Dim IntersectPrevIso As Boolean = False
+                                         Dim IntersectPrevIso As Boolean = False
 
-                                                                      If Not IntersectPrevIso AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) Then
+                                         If Not IntersectPrevIso AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) Then
 
-                                                                          tc.StartPoint = _StartPoint.P
-                                                                          tc.EndPoint = P.P
-                                                                          P.DistFromPos = tc.SurfaceDistance
-                                                                          P.CapFromPos = tc.LoxoCourse_Deg
-                                                                          P.Cap = alpha
-                                                                          alpha2 = tc.LoxoCourse_Deg
+                                             tc.StartPoint = _StartPoint.P
+                                             tc.EndPoint = P.P
+                                             P.DistFromPos = tc.SurfaceDistance
+                                             P.CapFromPos = tc.LoxoCourse_Deg
+                                             P.Cap = alpha
+                                             alpha2 = tc.LoxoCourse_Deg
 
-                                                                          Index = RetIsoChrone.IndexFromAngle(alpha2)
+                                             Index = RetIsoChrone.IndexFromAngle(alpha2)
 
-                                                                          SpinLockEnter(RetIsoChrone, Index)
-                                                                          'SyncLock RetIsoChrone.Locks(Index)
-                                                                          OldP = RetIsoChrone.Data(Index)
-                                                                          If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
-                                                                              Dim IgnorePoint As Boolean = False
-                                                                              If _IsoChrones.Count > 3 Then
-                                                                                  For i = _IsoChrones.Count - 3 To Math.Max(0, _IsoChrones.Count - 20) Step -1
-                                                                                      Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(alpha2))
-                                                                                      If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
-                                                                                          IgnorePoint = True
-                                                                                          Exit For
-                                                                                      End If
+                                             SpinLockEnter(RetIsoChrone, Index)
+                                             'SyncLock RetIsoChrone.Locks(Index)
+                                             OldP = RetIsoChrone.Data(Index)
+                                             If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
+                                                 Dim IgnorePoint As Boolean = False
+                                                 If _IsoChrones.Count > 3 Then
+                                                     For i = _IsoChrones.Count - 3 To Math.Max(0, _IsoChrones.Count - 20) Step -1
+                                                         Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(alpha2))
+                                                         If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
+                                                             IgnorePoint = True
+                                                             Exit For
+                                                         End If
 
-                                                                                  Next
-                                                                              End If
-                                                                              If Not IgnorePoint Then
-                                                                                  RetIsoChrone.Data(Index) = P
-                                                                              End If
+                                                     Next
+                                                 End If
+                                                 If Not IgnorePoint Then
+                                                     RetIsoChrone.Data(Index) = P
+                                                 End If
 
-                                                                          End If
+                                             End If
 
-                                                                          'End SyncLock
-                                                                          SpinLockExit(RetIsoChrone, Index)
-                                                                      End If
+                                             'End SyncLock
+                                             SpinLockExit(RetIsoChrone, Index)
+                                         End If
 
-                                                                  End If
+                                     End If
 
-                                                                  tc.StartPoint = Nothing
-                                                                  tc.EndPoint = Nothing
-                                                                  tc = Nothing
-                                                              End Sub)
+                                     tc.StartPoint = Nothing
+                                     tc.EndPoint = Nothing
+                                     tc = Nothing
+                                 End Sub)
 
 
-                                                          End If
+                             End If
 
-                                                          tcfn1.EndPoint = Nothing
-                                                          tcfn1.StartPoint = Nothing
-                                                          tcfn1 = Nothing
-                                                      End Sub)
+                             tcfn1.EndPoint = Nothing
+                             tcfn1.StartPoint = Nothing
+                             tcfn1 = Nothing
+                         End Sub)
 
             'Console.WriteLine("Iso complete " & Now.Subtract(IsoStart).ToString)
 
