@@ -118,7 +118,7 @@ Module GSHHS_Utils
         Dim CoefS2 As LineParam = GetLineCoefs(S2_P1, S2_P2)
 
         If CoefS1.a = CoefS2.a Then
-            Return False
+            Return CoefS1.b = CoefS2.b
         ElseIf Not Double.IsNaN(CoefS1.a) And Not Double.IsNaN(CoefS2.a) Then
             Dim x As Double = (CoefS2.b - CoefS1.b) / (CoefS1.a - CoefS2.a)
             Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) AndAlso x <= (Max(S1_P1.Lon, S1_P2.Lon)) AndAlso x >= (Min(S2_P1.Lon, S2_P2.Lon)) AndAlso x <= (Max(S2_P1.Lon, S2_P2.Lon))
