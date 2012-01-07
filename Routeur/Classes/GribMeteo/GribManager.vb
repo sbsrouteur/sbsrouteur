@@ -6,6 +6,7 @@ Imports System.IO
 
 Public Class GribManager
     Implements INotifyPropertyChanged
+
     Public Const METEO_SLEEP_DELAY As Integer = 25
 
     Private Enum DirInterpolation As Integer
@@ -33,7 +34,8 @@ Public Class GribManager
     Public Shared ZULU_OFFSET As Integer = -CInt(TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
 
     Private Shared _GMT_Offset As Double = TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours
-    Private Shared _GribMonitor(NB_MAX_GRIBS - 1) As Object
+    'Private Shared _GribMonitor(NB_MAX_GRIBS - 1) As Object
+    Private Shared _GribLock(NB_MAX_GRIBS - 1) As SpinLock
 
     Private _MeteoArrays(MAX_INDEX) As MeteoArray
     Private _LastGribDate As DateTime
@@ -70,18 +72,16 @@ Public Class GribManager
 
         If bLoad Then
             'RaiseEvent log("Synclock grib monitor th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
-            While Not System.Threading.Monitor.TryEnter(_GribMonitor(MeteoIndex))
-
+            If Not SpinLockEnter(MeteoIndex, NoLock) Then
                 If NoLock Then
                     Return Nothing
                 End If
 
-                NbRetries += 1
                 If NoLoad Then
                     Return False
                 End If
-                System.Threading.Thread.Sleep(METEO_SLEEP_DELAY)
-            End While
+
+            End If
             'SyncLock _GribMonitor
             Try
                 bLoad = _MeteoArrays(MeteoIndex) Is Nothing
@@ -99,7 +99,7 @@ Public Class GribManager
                 RaiseEvent log("Exception during checkgribdata " & ex.Message)
                 retval = False
             Finally
-                System.Threading.Monitor.Exit(_GribMonitor(MeteoIndex Mod NB_MAX_GRIBS))
+                SpinLockExit(MeteoIndex)
 
             End Try
             'NextTick = Now.AddMinutes(30).Ticks
@@ -1106,7 +1106,7 @@ Public Class GribManager
 
     Shared Sub New()
         For i = 0 To NB_MAX_GRIBS - 1
-            _GribMonitor(i) = New Object
+            _GribLock(i) = New SpinLock
             _Evt(i) = New AutoResetEvent(False)
         Next
     End Sub
@@ -1170,4 +1170,27 @@ Public Class GribManager
     Private Sub _Process_OutputDataReceived(ByVal sender As Object, ByVal e As System.Diagnostics.DataReceivedEventArgs)
         Dim i As Integer = 0
     End Sub
+
+    Private Function SpinLockEnter(MeteoIndex As Integer, NoLock As Boolean) As Boolean
+
+        Dim GotLock As Boolean
+
+        Do
+
+        _GribLock(MeteoIndex).Enter(GotLock)
+            If Not GotLock AndAlso NoLock Then
+                Return False
+            ElseIf Not GotLock Then
+                System.Threading.Thread.Sleep(METEO_SLEEP_DELAY)
+            End If
+
+        Loop Until GotLock
+
+        Return True
+    End Function
+
+    Private Sub SpinLockExit(MeteoIndex As Integer)
+        _GribLock(MeteoIndex).Exit()
+    End Sub
+
 End Class

@@ -286,7 +286,7 @@
 				<Grid x:Name="_2DGrid" Background="#FFE0E0F0" >
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="121.39"/>
-						<ColumnDefinition Width="121.39"/>
+						<ColumnDefinition Width="171.61"/>
 						<ColumnDefinition/>
 						<ColumnDefinition Width="Auto" MinWidth="136.239"/>
 					</Grid.ColumnDefinitions>
@@ -311,7 +311,7 @@
 						
 					<GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
-					<Canvas Height="Auto" x:Name="BgWeatherObjects" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7">
+					<Canvas Height="Auto" x:Name="BgWeatherObjects" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" Margin="0,0,50.22,0">
 						<Canvas x:Name="canvas" Height="1800"  Grid.ColumnSpan="1"  Width="10800"  RenderTransformOrigin="{Binding RenderTransformOrigin, ElementName=VOR2DViewer, Mode=Default}" RenderTransform="{Binding RenderTransform, ElementName=VOR2DViewer, Mode=Default}" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"  >
 							<ItemsControl x:Name="WindMap" ItemsSource="{Binding MapLayer}" ItemTemplate="{DynamicResource MeteoInfoColorBox}">
 								<ItemsControl.ItemsPanel>
@@ -322,8 +322,8 @@
 							</ItemsControl>
 						</Canvas>
 					</Canvas>
-					<Grid Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="6" Grid.RowSpan="15" MouseMove="_2D_Renderer_MouseMoveHandler" Width="Auto"/>
-					<Canvas Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Visibility="{Binding HideNonMapCanvas, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window, Mode=Default}" Grid.Row="1" Grid.RowSpan="7" Grid.Column="1">
+					<Grid Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="4" Grid.RowSpan="8" MouseMove="_2D_Renderer_MouseMoveHandler" Width="Auto"/>
+					<Canvas Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Visibility="{Binding HideNonMapCanvas, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window, Mode=Default}" Grid.Row="1" Grid.RowSpan="7" Grid.Column="1" Margin="0,0,50.22,0">
 						<!--<Grid x:Name="Weather_Map" >
 							<Path Data="{Binding VorHandler.MeteoArrow, IsAsync=false, Mode=Default}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 						</Grid>-->
@@ -393,7 +393,7 @@
 					    <Slider Grid.Row="3" x:Name="SldLat" Minimum="-10080000" Visibility="Hidden" Maximum="10080000" ValueChanged="OnRenderPosChanged"/>
 				        <Slider Grid.Row="4" x:Name="SldLon" Maximum="10008000" Minimum="-10008000" Visibility="Hidden" ValueChanged="OnRenderPosChanged"/>
                     -->
-					<StackPanel Grid.Row="3" Width="Auto" Height="Auto" Grid.ColumnSpan="2" Grid.RowSpan="4">
+					<StackPanel Grid.Row="6" Width="Auto" Height="Auto" Grid.ColumnSpan="2">
 						<GroupBox  Grid.RowSpan="1"  Header="" Background="#6DFFFFFF">
 							<GroupBox.BitmapEffect>
 								<DropShadowBitmapEffect/>

@@ -10,8 +10,8 @@ Imports System.Xml.Serialization
 Public Class clsMeteoOrganizer
 
     Private Const NB_DATES As Integer = 5
-    Private KeyComparer As New PrevDateInfo
-    Private _MeteoArray(NB_DATES) As System.Collections.Generic.Dictionary(Of PrevDateInfo, MeteoInfo)
+    'Private KeyComparer As New PrevDateInfo
+    'Private _MeteoArray(NB_DATES) As System.Collections.Generic.Dictionary(Of PrevDateInfo, MeteoInfo)
     Private _WebClient As New WebClient()
     Private WithEvents _GribMeteo As New GribManager
     Private _FallBAckToGrib As Boolean = False
@@ -46,16 +46,16 @@ Public Class clsMeteoOrganizer
 
     End Function
 
-    Public Sub FlushMeteoTable()
+    'Public Sub FlushMeteoTable()
 
-        For i = 0 To NB_DATES
+    '    For i = 0 To NB_DATES
 
-            _MeteoArray(i).Clear()
-        Next
+    '        _MeteoArray(i).Clear()
+    '    Next
 
-        _MeteoStartDate = New DateTime(3000, 1, 1, 1, 1, 1, 1)
+    '    _MeteoStartDate = New DateTime(3000, 1, 1, 1, 1, 1, 1)
 
-    End Sub
+    'End Sub
 
 
 
@@ -84,11 +84,11 @@ Public Class clsMeteoOrganizer
 
     Public Sub New()
 
-        Dim i As Integer
+        'Dim i As Integer
 
-        For i = 0 To 5
-            _MeteoArray(i) = New Dictionary(Of PrevDateInfo, MeteoInfo)(KeyComparer)
-        Next
+        'For i = 0 To 5
+        '    _MeteoArray(i) = New Dictionary(Of PrevDateInfo, MeteoInfo)(KeyComparer)
+        'Next
     End Sub
 
     Public Property BestDate() As DateTime
