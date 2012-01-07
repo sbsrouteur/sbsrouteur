@@ -292,7 +292,7 @@ Public Class RouteurModel
         OnWPListUpdate()
 
         Dim C1 As New Coords(90, 180)
-        Dim C2 As New Coords(-90, -180)
+        Dim C2 As New Coords(-90, -179.999)
         Dim Offset As Double = 0.5 / 180 * Math.PI
 
         If _P_Info.Count = 0 OrElse P_Info(0).Route Is Nothing Then

@@ -114,20 +114,25 @@ Public Class IsoRouter
             For StartIndex = 0 To Iso.Data.Length - 1
                 If Not Iso.Data(StartIndex) Is Nothing Then
                     Dim Ticks As Long = Iso.Data(StartIndex).T.Subtract(_StartPoint.T).Ticks
+
+                    Dim VacCount As Long = CLng(Ticks / (RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute))
+                    AStep = 360 / (36 + VacCount)
+
+                    If RetIsoChrone Is Nothing Then
+                        RetIsoChrone = New IsoChrone(AStep)
+                    End If
+
                     If Ticks > TimeSpan.TicksPerHour * 48 Then
                         CurStep = _IsoStep_48
-                        AStep = _AngleStep / 4
+                        'AStep = _AngleStep '/ 4
                     ElseIf Ticks > TimeSpan.TicksPerHour * 24 Then
                         CurStep = _IsoStep_24
-                        AStep = _AngleStep / 2
+                        'AStep = _AngleStep '/ 2
                     Else
-                        AStep = _AngleStep
+                        'AStep = _AngleStep
                         CurStep = _IsoStep
                     End If
 
-                    If RetIsoChrone Is Nothing Then
-                        RetIsoChrone = New IsoChrone(_AngleStep)
-                    End If
                     Exit For
                 End If
             Next
@@ -321,7 +326,8 @@ Public Class IsoRouter
 
             Dim isostart As DateTime = Now
             CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
-            Console.WriteLine("Isochrone computed in " & Now.Subtract(isostart).TotalMilliseconds)
+            Dim IsoDuratoin As Double = Now.Subtract(isostart).TotalMilliseconds
+            Console.WriteLine("Isochrone computed in " & IsoDuratoin & " rate : " & IsoDuratoin / CurIsoChrone.Data.Length)
 #If DBG_ISO = 1 Then
             Console.WriteLine("IsoDone" & Now.Subtract(LoopStart).TotalMilliseconds)
 #End If
