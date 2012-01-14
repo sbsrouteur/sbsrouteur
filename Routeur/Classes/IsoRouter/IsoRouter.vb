@@ -89,7 +89,6 @@ Public Class IsoRouter
         Else
             
             Dim StartIndex As Integer = 0
-            Dim AStep As Double
             Dim CurStep As TimeSpan
             Dim FirstIndex As Integer = -1
             Dim _IsoSegs As New List(Of MapSegment)
@@ -115,10 +114,11 @@ Public Class IsoRouter
                 If Not Iso.Data(StartIndex) Is Nothing Then
                     Dim Ticks As Long = Iso.Data(StartIndex).T.Subtract(_StartPoint.T).Ticks
 
-                    Dim VacCount As Long = CLng(Ticks / (RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute))
-                    AStep = 360 / (36 + VacCount)
-
+                   
                     If RetIsoChrone Is Nothing Then
+                        Dim VacCount As Long = CLng(Ticks / (RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute))
+                        Dim DFP As Double = Iso.Data(StartIndex).DistFromPos + 1
+                        Dim AStep As Double = Math.Max(0.3, 5 - 2 * Math.Log10(DFP)) 'Math.min((36 + 1.05 * VacCount),
                         RetIsoChrone = New IsoChrone(AStep)
                     End If
 
@@ -229,7 +229,7 @@ Public Class IsoRouter
                                              If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
                                                  Dim IgnorePoint As Boolean = False
                                                  If _IsoChrones.Count > 3 Then
-                                                     For i = _IsoChrones.Count - 3 To Math.Max(0, _IsoChrones.Count - 20) Step -1
+                                                     For i = _IsoChrones.Count - 3 To Math.Max(0, _IsoChrones.Count - 100) Step -1
                                                          Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(alpha2))
                                                          If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
                                                              IgnorePoint = True
