@@ -272,7 +272,7 @@ Public Class RecordedRoute
                 Ret.Data = PG
 
             Catch ex As Exception
-                'Swallow the exception. ry looging if anyone around
+                'Swallow the exception. try looging if anyone around
                 RaiseEvent Log("Exception in Shape " & ex.Message & " : " & ex.StackTrace)
             End Try
 
