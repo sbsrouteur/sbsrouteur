@@ -873,10 +873,19 @@ Public Class VLM_Router
 
     Public ReadOnly Property RaceStartDate As DateTime
         Get
+            If PlayerInfo Is Nothing OrElse _PlayerInfo.RaceInfo Is Nothing Then
+                Return Nothing
+            End If
             Return _PlayerInfo.RaceInfo.deptime
         End Get
-
     End Property
+
+    Public ReadOnly Property RaceNotStarted As Boolean
+        Get
+            Return _PlayerInfo.RaceInfo.deptime < Now
+        End Get
+    End Property
+
 
     Public ReadOnly Property RoutesUnderMouse() As ObservableCollection(Of RoutePointInfo)
         Get
