@@ -101,6 +101,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Classes\Configuration\AppPrefs.vb" />
+    <Compile Include="Classes\Converters\DateDeltaConverter.vb" />
     <Compile Include="Classes\Converters\EpochToDateConverter.vb" />
     <Compile Include="Classes\Converters\InvertedBooleanToVisibilityConverter.vb" />
     <Compile Include="Classes\Converters\RaceTypeToString.vb" />

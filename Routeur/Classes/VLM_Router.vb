@@ -3064,6 +3064,7 @@ Public Class VLM_Router
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Log"))
 
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PositionDataAge"))
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceStartDate"))
 
 
     End Sub
