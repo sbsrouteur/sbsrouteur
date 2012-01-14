@@ -75,12 +75,12 @@ Public Class TileInfo
     End Sub
 
     Public Function FileName() As String
-        Return Path.Combine(BaseTilesPath, TilePath)
+        Return Path.Combine(_BaseTilesPath, TilePath)
     End Function
 
     Public ReadOnly Property BaseTilesPath() As String
         Get
-            Return _BaseTilesPath
+            Return Path.Combine(_BaseTilesPath, Z.ToString("000") & "\" & TX)
         End Get
     End Property
     'Public ReadOnly Property Center() As Coords
@@ -110,7 +110,7 @@ Public Class TileInfo
     Public ReadOnly Property TilePath() As String
 
         Get
-            Return Z.ToString("000") & "_" & TX & "_" & TY & ".png"
+            Return Z.ToString("000") & "\" & TX & "\" & TY & ".png"
         End Get
 
     End Property

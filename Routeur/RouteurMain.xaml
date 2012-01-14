@@ -11,6 +11,8 @@
 
 	<Window.Resources>
         		
+		<Routeur:DateDeltaConverter x:Key="DateDeltaConverter"/>
+        		
 		<Routeur:CountToVisibilityConverter x:Key="NumberVisibilityConverter"/>
         		
 		<Routeur:TextToNumberConverter x:Key="TextToNumberConverter"/>
@@ -41,8 +43,8 @@
 				<TextBlock HorizontalAlignment="Stretch"  Text="{Binding RouteName, Mode=Default}" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}"/>
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
 					<TextBlock HorizontalAlignment="Stretch"  Text="{Binding P.T, Mode=Default}" Margin="{DynamicResource DefMargin}" />
-					<TextBlock HorizontalAlignment="Stretch"  Text="{Binding P.WindDir,StringFormat={}Dir {0:F2}, Mode=Default}" Margin="{DynamicResource DefMargin}" />
-					<TextBlock HorizontalAlignment="Stretch"  Text="{Binding P.WindStrength,StringFormat={}Str {0:F2}, Mode=Default}" Margin="{DynamicResource DefMargin}" />
+					<TextBlock HorizontalAlignment="Stretch"  Text="{Binding P.WindDir, Mode=Default, StringFormat=Dir \{0:F2\}}" Margin="{DynamicResource DefMargin}" />
+					<TextBlock HorizontalAlignment="Stretch"  Text="{Binding P.WindStrength, Mode=Default, StringFormat=Str \{0:F2\}}" Margin="{DynamicResource DefMargin}" />
 				</StackPanel>
 			</Grid>
 		</DataTemplate>
@@ -64,9 +66,9 @@
 					<Image RenderTransformOrigin="0.5,0.5" Margin="-1" Grid.Column="1" Grid.Row="1" Source="{Binding WindImage_3}" Stretch="Fill"  />
 					<StackPanel Grid.ColumnSpan="2">
 					<StackPanel Grid.RowSpan="1" Grid.ColumnSpan="2"  Visibility="{Binding Visibility}" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
-						<TextBlock Text="{Binding WindDir, StringFormat={}{0:F0}}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8"/>
+						<TextBlock Text="{Binding WindDir, StringFormat=\{0:F0\}}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8"/>
 						<TextBlock Text="/" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8"/>
-						<TextBlock Text="{Binding WindStr, StringFormat={}{0:F1}}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8"/>
+						<TextBlock Text="{Binding WindStr, StringFormat=\{0:F1\}}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8"/>
 					</StackPanel>
 					<!--<TextBox Text="{Binding ToStringDebug, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="8" Margin="24.003,0" d:LayoutOverrides="Width"/>-->
 					</StackPanel>
@@ -102,9 +104,9 @@
                         <TextBlock Text="{Binding Last1H, Mode=OneWay, StringFormat=1H :\{0:F1\} kts}"   Style="{DynamicResource MargedText}" FontSize="9.333" />
                         <TextBlock Text="{Binding Last3H, Mode=OneWay, StringFormat=3H :\{0:F1\} kts}" Style="{DynamicResource MargedText}" FontSize="9.333" />
 						<StackPanel Orientation="Horizontal" Visibility="{Binding PassVisibility, Converter={StaticResource BooleanToVisibilityConverter}}">
-							<Path Data="M0,15L7.5,0 15,15" Fill="#FF42FF00"  Visibility="{Binding PassUp, Converter={StaticResource BooleanToVisibilityConverter}}"></Path>
-							<Path Data="M0,0L7.5,15 15,0" Fill="Red" Visibility="{Binding PassDown, Converter={StaticResource BooleanToVisibilityConverter}}"></Path>
-							<TextBlock Text="{Binding TimeToPass, StringFormat= {}  {0:dd} {0:hh}:{0:mm}, Mode=OneWay}" Style="{DynamicResource MargedText}" FontSize="9.333" />
+							<Path Data="M0,15L7.5,0 15,15" Fill="#FF42FF00"  Visibility="{Binding PassUp, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+							<Path Data="M0,0L7.5,15 15,0" Fill="Red" Visibility="{Binding PassDown, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+							<TextBlock Text="{Binding TimeToPass, Mode=OneWay, StringFormat='  \{0:dd\} \{0:hh\}:\{0:mm\}'}" Style="{DynamicResource MargedText}" FontSize="9.333" />
 						</StackPanel>
                     </StackPanel>    
 					</StackPanel>
@@ -294,7 +296,7 @@
 						<ColumnDefinition Width="121.39"/>
 						<ColumnDefinition Width="171.61"/>
 						<ColumnDefinition/>
-						<ColumnDefinition Width="Auto" MinWidth="136.239"/>
+						<ColumnDefinition Width="2*" MinWidth="136.239"/>
 					</Grid.ColumnDefinitions>
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto" MinHeight="24.572"/>
@@ -429,7 +431,7 @@
 						</GroupBox>
 						
 					</StackPanel>
-					<GroupBox Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="3" Header="Journal" x:Name="GrpLog" Background="#6DFFFFFF">
+					<GroupBox Grid.Column="3" Grid.Row="7" Header="Journal" x:Name="GrpLog" Background="#6DFFFFFF" Margin="3,3,5,5">
 						<Grid Width="Auto" Height="Auto">
 							<ListBox ItemsSource="{Binding VorHandler.Log, Mode=Default}"/>
 						</Grid>
@@ -442,8 +444,12 @@
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
 					</GroupBox>
 					<StackPanel Grid.Column="1" Grid.ColumnSpan="2">
-						<TextBlock Text="{Binding VorHandler.RaceStartDate, StringFormat={}Race Starts at {0} UTC}" Foreground="#FFFF0404" FontSize="24" />
-					</StackPanel>
+						<TextBlock Text="{Binding VorHandler.RaceStartDate, StringFormat={}Chrono: {0:d\\ hh\\:mm\\:s}, Converter={StaticResource DateDeltaConverter}, Mode=OneWay}" Foreground="#FFDE0F0F" FontSize="24" Margin="8,4,0,4" HorizontalAlignment="Left" >
+							<TextBlock.Effect>
+								<DropShadowEffect ShadowDepth="1"/>
+							</TextBlock.Effect>
+						</TextBlock>
+					</StackPanel>	
 				</Grid>
 			</TabItem>
  			 <TabItem Header="Speed / Position" >
