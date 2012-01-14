@@ -407,10 +407,17 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
 
         Dim V As VLM_Router = M.VorHandler
+        Dim MinLon As Double = M.The2DViewer.CanvasToLon(0)
+        Dim MaxLon As Double = M.The2DViewer.CanvasToLon(M.The2DViewer.ActualWidth)
+        Dim MaxLat As Double = M.The2DViewer.CanvasToLat(0)
+        Dim MinLat As Double = M.The2DViewer.CanvasToLat(M.The2DViewer.ActualHeight)
+        Dim DLon As Double = (MaxLon - MinLon) / 2
+        Dim DLat As Double = (MaxLat - MinLat) / 2
+        Dim p1 As New Coords(M.VorHandler.UserInfo.position.latitude + DLat, M.VorHandler.UserInfo.position.longitude - DLon)
+        Dim p2 As New Coords(M.VorHandler.UserInfo.position.latitude - DLat, M.VorHandler.UserInfo.position.longitude + DLon)
 
-        Dim Center As New Point(M.BoatCanvasX, M.BoatCanvasY)
-        Zoom(1, Center)
-
+        M.UpdateRaceScale(p1, p2)
+        RedrawClick(Nothing, Nothing)
 
     End Sub
 
@@ -512,4 +519,54 @@ Partial Public Class RouteurMain
 
     End Sub
 
+    Private Sub ZoomToNextWP(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+
+        Dim V As VLM_Router = M.VorHandler
+        Dim MinLon As Double = M.VorHandler.UserInfo.position.longitude
+        Dim MaxLon As Double = MinLon
+        Dim MaxLat As Double = M.VorHandler.UserInfo.position.latitude
+        Dim MinLat As Double = maxlat
+        
+        Dim WP As Integer = M.VorHandler.CurUserWP
+        For index As Integer = 0 To 1
+            If M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index) IsNot Nothing Then
+                MinLon = Min(MinLon, M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index).Lon_Deg)
+                MaxLon = Max(MaxLon, M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index).Lon_Deg)
+                MinLat = Min(MinLat, M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index).Lat_Deg)
+                MaxLat = Max(MaxLat, M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index).Lat_Deg)
+            End If
+        Next
+        Dim p1 As New Coords(MaxLat, MinLon)
+        Dim p2 As New Coords(MinLat, MaxLon)
+
+        M.UpdateRaceScale(p1, p2)
+        RedrawClick(Nothing, Nothing)
+    End Sub
+
+    Private Sub ZoomToRace(sender As System.Object, e As System.Windows.RoutedEventArgs)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+
+        Dim V As VLM_Router = M.VorHandler
+        Dim MinLon As Double = M.VorHandler.UserInfo.position.longitude
+        Dim MaxLon As Double = MinLon
+        Dim MaxLat As Double = M.VorHandler.UserInfo.position.latitude
+        Dim MinLat As Double = MaxLat
+
+        For WP As Integer = 0 To M.CurPlayer.RaceInfo.races_waypoints.Count - 1
+            For index As Integer = 0 To 1
+                If M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index) IsNot Nothing Then
+                    MinLon = Min(MinLon, M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index).Lon_Deg)
+                    MaxLon = Max(MaxLon, M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index).Lon_Deg)
+                    MinLat = Min(MinLat, M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index).Lat_Deg)
+                    MaxLat = Max(MaxLat, M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index).Lat_Deg)
+                End If
+            Next
+        Next
+        Dim p1 As New Coords(MaxLat, MinLon)
+        Dim p2 As New Coords(MinLat, MaxLon)
+
+        M.UpdateRaceScale(p1, p2)
+        RedrawClick(Nothing, Nothing)
+    End Sub
 End Class

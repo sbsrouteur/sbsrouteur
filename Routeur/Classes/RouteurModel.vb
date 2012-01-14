@@ -193,7 +193,8 @@ Public Class RouteurModel
 
             _LonOffset = 180 + (C2.Lon_Deg + C1.Lon_Deg) / 2
             If C1.Lon <> -C2.Lon Then
-                Scale = The2DViewer.ActualWidth / Math.Abs(C1.Lon_Deg + C2.Lon_Deg)
+                Scale = Math.Min(The2DViewer.ActualWidth / Math.Abs(C1.Lon_Deg + C2.Lon_Deg),
+                                 The2DViewer.ActualHeight / Math.Abs(C1.Lat_Deg - C2.Lat_Deg))
             Else
                 Scale = 1
             End If
@@ -207,7 +208,8 @@ Public Class RouteurModel
             If C1.Lon = C2.Lon Then
                 Scale = 1
             Else
-                Scale = The2DViewer.ActualWidth / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
+                Scale = Math.Min(The2DViewer.ActualWidth / Math.Abs(C1.Lon_Deg - C2.Lon_Deg),
+                                 The2DViewer.ActualHeight / Math.Abs(C1.Lat_Deg - C2.Lat_Deg))
             End If
         End If
         _LatOffset = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
