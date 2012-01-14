@@ -254,11 +254,17 @@
 				<CheckBox Content="Show EasyNav Boat" IsChecked="{Binding ShowEasyNav, Mode=Default}" VerticalAlignment="Center" />
 				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="{Binding VORHandler.EnableManualRefresh, Mode=Default}"/>
 				<Separator/>
-				<MenuItem Header="Center on Boat!" Click="CenterOnBoat"></MenuItem>
+				<MenuItem Header="Zoom">
+					<MenuItem Header="Center on Boat!" Click="CenterOnBoat"></MenuItem>
+					<MenuItem Header="Zoom to Next WP" Click="ZoomToNextWP"></MenuItem>
+					<MenuItem Header="Zoom entire race" Click="ZoomToRace"></MenuItem>
+				</MenuItem>
 				<Separator/>
 				<CheckBox Content="Center Map on 180°E/W" IsEnabled="{Binding MapMenuEnabled}"  IsChecked="{Binding The2DViewer.CenterMapOnAnteMeridien, Mode=Default}" />
+				<!--
 				<MenuItem Header="Rescale Map" Click="ReScaleMap" IsEnabled="{Binding MapMenuEnabled}" />
                 <MenuItem Header="Restore Race Zone Map Scale" Click="RestoreMapScale" IsEnabled="{Binding MapMenuEnabled}" />
+				-->
                 <Separator/>
 				<CheckBox Content="Hide Isochrones lines" IsChecked="{Binding The2DViewer.HideIsochronesLines, Mode=Default}"/>
 				<CheckBox Content="Hide Isochrones dots" IsChecked="{Binding The2DViewer.HideIsochronesDots, Mode=Default}"/>
@@ -323,7 +329,7 @@
 						</Canvas>
 					</Canvas>
 					<Grid Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="4" Grid.RowSpan="8" MouseMove="_2D_Renderer_MouseMoveHandler" Width="Auto"/>
-					<Canvas Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="1" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Visibility="{Binding HideNonMapCanvas, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window, Mode=Default}" Grid.Row="1" Grid.RowSpan="7" Grid.Column="1" Margin="0,0,50.22,0">
+					<Canvas Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="4" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Visibility="{Binding HideNonMapCanvas, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window, Mode=Default}" Grid.RowSpan="8" Margin="0,0,50.22,0">
 						<!--<Grid x:Name="Weather_Map" >
 							<Path Data="{Binding VorHandler.MeteoArrow, IsAsync=false, Mode=Default}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 						</Grid>-->
@@ -421,23 +427,7 @@
 								</StackPanel>
 							</Grid>
 						</GroupBox>
-						<!--<GroupBox  Header="Route to Mouse" Background="#6DFFFFFF">
-                            <GroupBox.BitmapEffect>
-                                <DropShadowBitmapEffect/>
-                            </GroupBox.BitmapEffect>
-                            <Grid>
-                                <ItemsControl ItemsSource="{Binding VorHandler.BestRouteAtPoint, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route"  />
-                                
-                            </Grid>
-                        </GroupBox>--> 
-						<!--<GroupBox  Header="Best Route" Background="#6DFFFFFF">
-                            <GroupBox.BitmapEffect>
-                                <DropShadowBitmapEffect/>
-                            </GroupBox.BitmapEffect>
-                            <Grid MaxHeight="Infinity">
-                                <ItemsControl ItemsSource="{Binding VorHandler.BruteRoute, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Route" />
-                            </Grid>
-                        </GroupBox>-->
+						
 					</StackPanel>
 					<GroupBox Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="3" Header="Journal" x:Name="GrpLog" Background="#6DFFFFFF">
 						<Grid Width="Auto" Height="Auto">
@@ -451,6 +441,9 @@
 					<GroupBox x:Name="GrpStats" Margin="0,0,0,8" Header="Stats" Grid.Column="3" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
 					</GroupBox>
+					<StackPanel Grid.Column="1" Grid.ColumnSpan="2">
+						<TextBlock Text="{Binding VorHandler.RaceStartDate, StringFormat={}Race Starts at {0} UTC}" Foreground="#FFFF0404" FontSize="24" />
+					</StackPanel>
 				</Grid>
 			</TabItem>
  			 <TabItem Header="Speed / Position" >
