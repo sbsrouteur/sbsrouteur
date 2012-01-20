@@ -156,16 +156,16 @@ Public Class clsSailManager
         NbCall += 1
 #End If
         If SailMode = EnumSail.OneSail Then
-            SyncLock _Polar
-                If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
+            'SyncLock _Polar
+            If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
 
 #If POLAR_STAT = 1 Then
                 NbCallCached += 1
                 Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
 #End If
-                    Return _Polar(D, F) / 1000
-                End If
-            End SyncLock
+                Return _Polar(D, F) / 1000
+            End If
+            'End SyncLock
         End If
 
         Dim SailIndex = GetSailIndex(SailMode)
@@ -184,7 +184,7 @@ Public Class clsSailManager
                 Return -1
             End If
             _SailLoaded = True
-
+            InitPolar()
 #If GEN_TCV = 1 Then
             SyncLock Me
                 Dim fName As String = Path.Combine(RouteurModel.BaseFileDir, BoatType & ".dat")
@@ -248,9 +248,9 @@ Public Class clsSailManager
             RetVal = V1
         End If
 
-        SyncLock _Polar
-            _Polar(D, F) = CUShort(RetVal * 1000)
-        End SyncLock
+        'SyncLock _Polar
+        _Polar(D, F) = CUShort(RetVal * 1000)
+        'End SyncLock
         If RetVal = 15.714 Then
             Dim Bp As Integer = 0
         End If
@@ -264,8 +264,9 @@ Public Class clsSailManager
 
     Public Sub InitPolar()
 
-        Dim th As New System.Threading.Thread(AddressOf InitPolarThread)
-        th.Start()
+        'Dim th As New System.Threading.Thread(AddressOf InitPolarThread)
+        'th.Start()
+        InitPolarThread(Nothing)
     End Sub
 
     Private Sub InitPolarThread(ByVal StartInfo As Object)
