@@ -91,24 +91,22 @@ Public Class IsoRouter
             Dim StartIndex As Integer = 0
             Dim CurStep As TimeSpan
             Dim FirstIndex As Integer = -1
-            Dim _IsoSegs As New List(Of MapSegment)
+            'Dim _IsoSegs As New List(Of MapSegment)
             Dim PrevPoint As Coords = Nothing
             Dim CurPoint As Coords = Nothing
+            Dim MaxDist As Double = 0
+            Dim SumSpeed As Double = 0
+            Dim NbSpeed As Double = 0
 
             For i = 0 To Iso.Data.Length - 1
-
-                If CurPoint IsNot Nothing Then
-                    PrevPoint = CurPoint
-                End If
                 If Iso.Data(i) IsNot Nothing Then
-                    CurPoint = Iso.Data(i).P
-                    If PrevPoint IsNot Nothing Then
-
-                        _IsoSegs.Add(New MapSegment(CurPoint.Lon_Deg, CurPoint.Lat_Deg, PrevPoint.Lon_Deg, PrevPoint.Lat_Deg))
-                    End If
+                    MaxDist = Math.Max(MaxDist, Iso.Data(i).DistFromPos)
+                    SumSpeed += Iso.Data(i).Speed
+                    NbSpeed += 1
                 End If
-
             Next
+
+            Dim AvgSpeed As Double = SumSpeed / NbSpeed
 
             For StartIndex = 0 To Iso.Data.Length - 1
                 If Not Iso.Data(StartIndex) Is Nothing Then
@@ -132,6 +130,10 @@ Public Class IsoRouter
                         'AStep = _AngleStep
                         CurStep = _IsoStep
                     End If
+
+                    Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / AvgSpeed * TimeSpan.TicksPerHour)).TotalMinutes
+                    NbMinutes = Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes) * RouteurModel.VacationMinutes
+                    CurStep = New TimeSpan(0, CInt(NbMinutes), 0)
 
                     Exit For
                 End If
@@ -220,6 +222,8 @@ Public Class IsoRouter
                                              P.CapFromPos = tc.LoxoCourse_Deg
                                              P.Cap = alpha
                                              alpha2 = tc.LoxoCourse_Deg
+                                             tc.StartPoint = rp.P
+                                             P.Speed = tc.SurfaceDistance / CurStep.TotalHours
 
                                              Index = RetIsoChrone.IndexFromAngle(alpha2)
 
