@@ -421,10 +421,10 @@ Public Class IsoRouter
                 MI = Nothing
 
                 While MI Is Nothing And Not _CancelRequested
-                    MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, True)
-                    If MI Is Nothing Then
-                        System.Threading.Thread.Sleep(GribManager.METEO_SLEEP_DELAY)
-                    End If
+                    MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, False)
+                    'If MI Is Nothing Then
+                    'System.Threading.Thread.Sleep(GribManager.METEO_SLEEP_DELAY)
+                    'End If
                 End While
                 If _CancelRequested Then
                     Return Nothing
