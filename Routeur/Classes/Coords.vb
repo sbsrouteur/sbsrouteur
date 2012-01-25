@@ -195,8 +195,10 @@ Public Class Coords
 
     End Sub
 
-    Public Sub New(ByVal Lat_Deg As Double, ByVal LonDeg As Double)
-        Me.New(CType(Lat_Deg, Decimal), CType(LonDeg, Decimal))
+    Public Sub New(ByVal LatDeg As Double, ByVal LonDeg As Double)
+        Me.Lat_Deg = LatDeg
+        Me.Lon_Deg = LonDeg
+
     End Sub
 
     Public Sub New(ByVal Lat_Deg As Decimal, ByVal Lon_Deg As Decimal)
