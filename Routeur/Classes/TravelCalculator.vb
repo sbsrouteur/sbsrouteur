@@ -3,19 +3,12 @@ Imports System.ComponentModel
 
 Public Class TravelCalculator
 
-    'Inherits FrameworkElement
-
-    'Implements INotifyPropertyChanged
 
     Public Const Earth_Radius As Double = 3443.84
     Public Const EPSILON As Double = 0.0000000001
 
     Private _Cap As Double
     Private _DistanceAngle As Double
-
-
-
-    'Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
     Dim ownertype As Control
 
@@ -24,8 +17,6 @@ Public Class TravelCalculator
 
     Private Const PRECISION As Integer = 100000
 
-    'Private _CapCached As Boolean = False
-    'Private _DistanceCached As Boolean = False
 
     Public ReadOnly Property LoxoCourse_Deg As Double
         Get
@@ -41,15 +32,6 @@ Public Class TravelCalculator
             Dim Lon2 As Double = -EndPoint.Lon
             Dim Lat1 As Double = StartPoint.N_Lat
             Dim Lat2 As Double = EndPoint.N_Lat
-
-            'If Abs(Lon2 - Lon1) > PI Then
-            '    If Lon2 < Lon1 Then
-            '        Lon2 += 2 * PI
-            '    Else
-            '        Lon2 -= 2 * PI
-            '    End If
-
-            'End If
 
             Dim tc As Double = Atan2(Lon1 - Lon2, Log(Tan(Lat2 / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))) Mod (2 * PI)
 
@@ -113,9 +95,7 @@ Public Class TravelCalculator
 
     Private ReadOnly Property LoxoCourse_Deg_VLM() As Double
         Get
-            'If _CapCached AndAlso Not Double.IsNaN(_Cap) Then
-            '    Return _Cap
-            'End If
+
             If StartPoint Is Nothing Or EndPoint Is Nothing Then
                 _Cap = 0
             Else
@@ -132,7 +112,7 @@ Public Class TravelCalculator
                 Else
                     _Cap = (2 * Math.PI - A) / Math.PI * 180
                 End If
-                
+
             End If
             Return _Cap
 
@@ -141,28 +121,16 @@ Public Class TravelCalculator
     End Property
 
 
-    'd=2*asin(sqrt((sin((lat1-lat2)/2))^2 + 
-    '            cos(lat1)*cos(lat2)*(sin((lon1-lon2)/2))^2))
-
     Public ReadOnly Property DistanceAngle() As Double
         Get
-            'If _DistanceCached AndAlso Not Double.IsNaN(_DistanceAngle) Then
-            '    Return _DistanceAngle
-            'End If
+            
             If StartPoint Is Nothing Or EndPoint Is Nothing Then
                 _DistanceAngle = 0
             ElseIf StartPoint.Lon = EndPoint.Lon AndAlso StartPoint.Lat = EndPoint.Lon Then
                 _DistanceAngle = 0
             Else
 
-                'If StartPoint.Lat - EndPoint.Lat < EPSILON And StartPoint.Lon - EndPoint.Lon < EPSILON Then
-                '    Return 0
-                'End If
-                'Dim v1 As Double = sin((StartPoint.Lat - EndPoint.Lat) / 2)
-                'Dim v2 As Double = (sin((StartPoint.Lon - EndPoint.Lon) / 2))
-
-
-                '_DistanceAngle = 2 * Asin(Sqrt((v1 * v1) + Cos(StartPoint.Lat) * Cos(EndPoint.Lat) * v2 * v2))
+            
 
                 Dim dValue As Double = Math.Sin(StartPoint.Lat) * Math.Sin(EndPoint.Lat) + _
                   Math.Cos(StartPoint.Lat) * Math.Cos(EndPoint.Lat) * _
@@ -174,7 +142,7 @@ Public Class TravelCalculator
 
                 End If
                 _DistanceAngle = Math.Acos(dValue)
-                '_DistanceCached = True
+
             End If
 
             Return _DistanceAngle
@@ -228,25 +196,7 @@ Public Class TravelCalculator
     Private Function ReachDistanceVLM(ByVal Dist As Double, ByVal tc_deg As Double) As Coords
         Dim RetCoords As New Coords
 
-        '        /* vac_duration in seconds */
-        '48	void move_boat_loxo(boat *aboat) {
-        '49	  double speed;
-        '50	  double latitude, t_lat;
-        '51	  double vac_l, d;
-        '52	  double longitude;
-        '53	  int vac_duration;
-        '54	  wind_info *wind;
-        '55:
-        '56	  vac_duration = aboat->in_race->vac_duration;
-        '57	  /* compute the heading based on the function used */
-        '58	  aboat->set_heading_func(aboat);
-        '59	  wind = &aboat->wind;
-        '60:
-        '61	  speed = find_speed(aboat, wind->speed, wind->angle - aboat->heading);
-        '62:
-        '63	  vac_l = speed*(vac_duration/3600.0);
-        '64:
-        '65	  d = degToRad(vac_l/60.0);
+        
         Dim d As Double = Dist / Earth_Radius
         Dim tc_rad As Double = tc_deg / 180 * PI
 
@@ -261,116 +211,6 @@ Public Class TravelCalculator
         Return RetCoords
     End Function
 
-    'Public Function ReachDistanceGC(ByVal Dist As Double) As Coords
-
-    '    Dim A As Double
-    '    Dim B As Double
-    '    Dim f As Double
-    '    Dim x As Double
-    '    Dim y As Double
-    '    Dim z As Double
-    '    Dim RetVal As New Coords
-
-
-    '    Dist /= Earth_Radius
-    '    f = Dist / DistanceAngle
-
-
-    '    A = Sin((1 - f) * DistanceAngle) / Sin(DistanceAngle)
-    '    B = Sin(f * DistanceAngle) / Sin(DistanceAngle)
-    '    x = A * Cos(StartPoint.Lat) * Cos(StartPoint.Lon) + B * Cos(EndPoint.Lat) * Cos(EndPoint.Lon)
-    '    y = A * Cos(StartPoint.Lat) * Sin(StartPoint.Lon) + B * Cos(EndPoint.Lat) * Sin(EndPoint.Lon)
-    '    z = A * Sin(StartPoint.Lat) + B * Sin(EndPoint.Lat)
-    '    RetVal.Lat = Atan2(z, Sqrt(x ^ 2 + y ^ 2))
-    '    RetVal.Lon = Atan2(y, x)
-
-    '    Return RetVal
-
-    'End Function
-
-    'Public Function ReachLat(ByVal Lat As Double, ByVal Course As Double) As Boolean
-
-    '    Dim d As Double
-    '    Dim CourseCorrection As Double = Course
-
-    '    SyncLock Me
-    '        If EndPoint Is Nothing Then
-    '            EndPoint = New Coords
-    '        End If
-
-    '        If Abs(Cos(Course)) < EPSILON Then
-    '            EndPoint.Lat = Lat
-    '            EndPoint.Lon = StartPoint.Lon + Math.PI
-    '            Return True
-    '        End If
-
-
-    '        EndPoint.Lat = StartPoint.Lat
-    '        EndPoint.Lon = StartPoint.Lon
-
-    '        Do
-    '            'CourseCorrection = Course
-    '            d = Abs(EndPoint.Lat - Lat)
-    '            If Double.IsNaN(d) Then
-    '                Return False
-    '            End If
-    '            EndPoint.Lat += d * Cos(CourseCorrection)
-    '            EndPoint.Lon -= d * Sin(CourseCorrection)
-
-    '            'Correct coefficient for course error
-    '            CourseCorrection += (TrueCourse() - Course)
-    '            'Debug.WriteLine("Course " & CourseCorrection / PI * 180 & " D : " & d & " endpoint " & EndPoint.Lat_Deg & " " & EndPoint.Lon_Deg)
-
-    '        Loop Until Abs(EndPoint.Lat - Lat) < EPSILON 'Or Double.IsNaN(CourseCorrection)
-    '        Return True
-    '    End SyncLock
-    'End Function
-
-    '    Public Function ReachLon(ByVal Lon As Double, ByVal Course As Double) As Boolean
-
-    '        Dim d As Double
-    '        Dim factor As Integer = 1
-    'start:
-    '        Dim CourseCorrection As Double = Course
-    '        SyncLock Me
-    '            If EndPoint Is Nothing Then
-    '                EndPoint = New Coords
-    '            End If
-
-    '            If Abs(Sin(Course)) <= EPSILON Then
-    '                EndPoint.Lat = StartPoint.Lat + Math.PI
-    '                EndPoint.Lon = Lon
-    '                Return True
-    '            End If
-
-
-    '            EndPoint.Lat = StartPoint.Lat
-    '            EndPoint.Lon = StartPoint.Lon
-
-    '            Do
-    '                'CourseCorrection = Course
-    '                d = Abs(EndPoint.Lon - Lon)
-    '                If Double.IsNaN(d) Then
-    '                    Dim i As Integer = 0
-    '                    Return False
-    '                End If
-    '                If Abs(EndPoint.Lat + factor * d * Cos(CourseCorrection)) > PI / 2 Then
-    '                    factor = -factor
-
-    '                End If
-    '                EndPoint.Lat += factor * d * Cos(CourseCorrection)
-    '                EndPoint.Lon -= d * Sin(CourseCorrection)
-
-
-    '                'Correct coefficient for course error
-    '                CourseCorrection -= (TrueCourse() - Course)
-    '                'Debug.WriteLine("Course " & CourseCorrection / PI * 180 & " D : " & d & " endpoint " & EndPoint.Lat_Deg & " " & EndPoint.Lon_Deg)
-
-    '            Loop Until Abs(EndPoint.Lon - Lon) < EPSILON OrElse Double.IsNaN(d) 'Or Double.IsNaN(CourseCorrection)
-    '            Return True
-    '        End SyncLock
-    '    End Function
-
 
     Public Property EndPoint() As Coords
         Get
@@ -379,72 +219,8 @@ Public Class TravelCalculator
 
         Set(ByVal value As Coords)
             _EndPoint = value
-            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("EndPoint"))
-            'RefreshCalculatorProps(Me, Nothing)
-            '_CapCached = False
-            '_DistanceCached = False
         End Set
     End Property
-
-    'Public Sub FindNextWindChangePoint(ByVal Cap As Double, ByVal Speed As Double)
-
-    '    Dim DistLat As Double
-    '    Dim DistLon As Double
-    '    Dim NegLon As Boolean = StartPoint.Lon_Deg < 0
-    '    Static C As New Coords
-    '    Static CachedLatPoint As New Coords
-    '    Dim CapRad As Double
-
-    '    CapRad = Math.PI * Cap / 180
-
-    '    Dim P1 As PrevDateInfo
-    '    P1 = PrevDateInfo.GetKey(StartPoint)
-    '    C.Lat_Deg = P1.Lat
-    '    C.Lon_Deg = P1.lon
-
-
-    '    Dim GridStepOffset As Double = 0.001
-    '    Dim MeteoGridStep As Double = 1 / RouteurModel.METEO_GRID_STEP / 2 + GridStepOffset
-    '    If Math.Cos(CapRad) >= 0 Then
-    '        C.Lat_Deg += MeteoGridStep
-    '    Else
-    '        C.Lat_Deg -= MeteoGridStep
-    '    End If
-
-    '    If Math.Sin(CapRad) * -C.Lon_Deg >= 0 Then
-    '        C.Lon_Deg += MeteoGridStep
-    '    Else
-    '        C.Lon_Deg -= MeteoGridStep
-    '    End If
-
-    '    If NegLon Then
-    '        C.Lon_Deg = -C.Lon_Deg
-    '    End If
-
-    '    'Point 1 same lat
-    '    If ReachLat(C.Lat, CapRad) Then
-    '        CachedLatPoint.Lat = EndPoint.Lat
-    '        CachedLatPoint.Lon = EndPoint.Lon
-    '        DistLat = SurfaceDistance
-    '    Else
-    '        DistLat = 10000000
-    '    End If
-
-    '    'Point 1 same lon
-    '    If ReachLon(C.Lon, CapRad) Then
-    '        DistLon = SurfaceDistance
-    '    Else
-    '        DistLon = 1000000
-    '    End If
-
-    '    If DistLat < DistLon Then
-    '        EndPoint.Lat = CachedLatPoint.Lat
-    '        EndPoint.Lon = CachedLatPoint.Lon
-    '    End If
-
-    '    Return
-
-    'End Sub
 
 
     Public Property StartPoint() As Coords
@@ -454,22 +230,9 @@ Public Class TravelCalculator
 
         Set(ByVal value As Coords)
             _StartPoint = value
-            'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("StartPoint"))
-            'RefreshCalculatorProps(Nothing, Nothing)
-            '_CapCached = False
-            '_DistanceCached = False
         End Set
     End Property
 
-
-    'Private Sub RefreshCalculatorProps(ByVal sender As Object, ByVal E As PropertyChangedEventArgs)
-
-    '    Static DAProp As New PropertyChangedEventArgs("DistanceAngle")
-    '    Static SDProp As New PropertyChangedEventArgs("SurfaceDistance")
-    '    RaiseEvent PropertyChanged(Me, DAProp)
-    '    RaiseEvent PropertyChanged(Me, SDProp)
-
-    'End Sub
 
     Public ReadOnly Property SurfaceDistance() As Double
         Get
@@ -499,38 +262,16 @@ Public Class TravelCalculator
         If StartPoint Is Nothing Or EndPoint Is Nothing Then
             Return 0
         End If
-        'Dim RetVal As Double = Math.Atan2(-StartPoint.Lon + EndPoint.Lon, Math.Log(Tan(EndPoint.Lat / 2 + Math.PI / 4) / Math.Tan(StartPoint.Lat / 2 + Math.PI / 4))) Mod 2 * PI
-
-        'tc1=mod(atan2(sin(lon1-lon2)*cos(lat2),
-        '   cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2)), 2*pi)
         Dim retval As Double = Atan2(Sin(-StartPoint.Lon + EndPoint.Lon) * Cos(EndPoint.Lat), _
                      Cos(StartPoint.Lat) * Sin(EndPoint.Lat) - Sin(StartPoint.Lat) * Cos(EndPoint.Lat) * Cos(-StartPoint.Lon + EndPoint.Lon))
 
-        'If Abs(EndPoint.Lon - StartPoint.Lon) > PI Then
-        '    retval += PI
-        'End If
         retval = retval Mod (2 * PI)
         Return retval
 
     End Function
 
 
-    'Private Sub _EndPoint_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _EndPoint.PropertyChanged, _StartPoint.PropertyChanged
-
-    '    _CapCached = False
-    '    _DistanceCached = False
-
-    'End Sub
-
-
     Function ReachDistanceOrtho(f As Double) As Coords
-        'A = Sin((1 - f) * d) / Sin(d)
-        'B = Sin(f * d) / Sin(d)
-        'x = A * Cos(lat1) * Cos(lon1) + B * Cos(lat2) * Cos(lon2)
-        'y = A * Cos(lat1) * Sin(lon1) + B * Cos(lat2) * Sin(lon2)
-        'z = A * Sin(lat1) + B * Sin(lat2)
-        'lat = Atan2(z, Sqrt(x ^ 2 + y ^ 2))
-        'lon = Atan2(y, x)
 
         Dim RetP As New Coords
         Dim A As Double
