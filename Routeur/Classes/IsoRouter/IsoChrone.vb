@@ -59,7 +59,7 @@ Public Class IsoChrone
 
     Public ReadOnly Property IndexFromAngle(ByVal Angle As Double) As Integer
         Get
-            Dim RetValue As Integer = CInt(Math.Floor(((Angle + 360) Mod 360) / _AngleStep))
+            Dim RetValue As Integer = CInt(Math.Floor((Angle + 360) / _AngleStep))
             Return RetValue Mod _Data.Length
         End Get
     End Property
