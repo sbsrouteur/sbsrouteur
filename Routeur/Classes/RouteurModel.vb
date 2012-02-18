@@ -623,6 +623,23 @@ Public Class RouteurModel
 #End If
         Dim RaceInfo As String
 
+        If System.IO.File.Exists(RaceFileName) Then
+            'Get the race list to check fro any update since last file desc load
+            Dim RaceUpdateDate = (From R In WS_Wrapper.GetRaceList() Where R.idraces = RaceNum Select R.updated)
+
+            If RaceUpdateDate.Any Then
+                Try
+                    Dim RaceLastUpdate As DateTime
+                    Dim RaceLastDownload As DateTime = New System.IO.FileInfo(RaceFileName).CreationTime
+                    If Not Date.TryParse(RaceUpdateDate(0), RaceLastUpdate) OrElse RaceLastUpdate > RaceLastDownload Then
+                        'File is outdate or else Something's wrong delete the file
+                        System.IO.File.Delete(RaceFileName)
+                    End If
+                Catch ex As Exception
+                    'just swallow that and proceed
+                End Try
+            End If
+        End If
         If Not System.IO.File.Exists(RaceFileName) Then
 
             'First race access download info from the WS
