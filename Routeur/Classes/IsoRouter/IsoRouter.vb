@@ -150,7 +150,6 @@ Public Class IsoRouter
 
                              Dim tcfn1 As New TravelCalculator
                              Dim CurDest As Coords
-                             Dim alpha2 As Double
                              Dim rp As clsrouteinfopoints
 
                              If Not Iso.Data(Pindex) Is Nothing Then
@@ -221,12 +220,13 @@ Public Class IsoRouter
                                              P.DistFromPos = tc.SurfaceDistance
                                              P.CapFromPos = tc.LoxoCourse_Deg
                                              P.Cap = alpha
-                                             alpha2 = tc.LoxoCourse_Deg
+                                             'alpha2 = P.CapFromPos 'tc.LoxoCourse_Deg
                                              tc.StartPoint = rp.P
                                              P.Speed = tc.SurfaceDistance / CurStep.TotalHours
 
-                                             Index = RetIsoChrone.IndexFromAngle(alpha2)
-
+                                             Index = RetIsoChrone.IndexFromAngle(P.CapFromPos)
+                                             'Dim ANew As Double = RetIsoChrone.AngleFromIndex(Index)
+                                             'Debug.Assert(Math.Abs(ANew - alpha2) < RetIsoChrone.Data.Length / 630)
                                              SpinLockEnter(RetIsoChrone, Index)
                                              'SyncLock RetIsoChrone.Locks(Index)
                                              OldP = RetIsoChrone.Data(Index)
@@ -234,7 +234,7 @@ Public Class IsoRouter
                                                  Dim IgnorePoint As Boolean = False
                                                  If _IsoChrones.Count > 3 Then
                                                      For i = _IsoChrones.Count - 3 To Math.Max(0, _IsoChrones.Count - 100) Step -1
-                                                         Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(alpha2))
+                                                         Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(P.CapFromPos))
                                                          If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
                                                              IgnorePoint = True
                                                              Exit For
@@ -629,7 +629,7 @@ Public Class IsoRouter
         Do
             Iso.Locks(Index).Enter(GotLock)
             If Not GotLock Then
-                System.Threading.Thread.Sleep(1)
+                'System.Threading.Thread.Sleep(1)
                 'SpinCount += 1
             End If
 
