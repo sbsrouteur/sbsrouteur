@@ -891,6 +891,11 @@ Public Class GSHHS_Reader
         ' nearest endpoint.
         '
         ' Returns 9999 on 0 denominator conditions.
+        If p1 Is Nothing Then
+            Return New Coords(p2)
+        ElseIf p2 Is Nothing Then
+            Return New Coords(p1)
+        End If
 
         Dim tcSeg As New TravelCalculator With {.StartPoint = p1, .EndPoint = p2}
         Dim tcPoint As New TravelCalculator With {.StartPoint = p1, .EndPoint = P}
