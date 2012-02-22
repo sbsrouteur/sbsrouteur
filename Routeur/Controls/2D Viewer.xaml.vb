@@ -111,12 +111,12 @@ Partial Public Class _2D_Viewer
 
     Public Function LonToCanvas(ByVal V As Double) As Double
 
-        V = V Mod 360
-        If CenterMapOnAnteMeridien AndAlso V < 0 Then
-            Return ActualWidth / 2 + (V - LonOffset + 360) * Scale
-        Else
-            Return ActualWidth / 2 + (V - LonOffset) * Scale
-        End If
+        'V = V Mod 360
+        'If CenterMapOnAnteMeridien AndAlso V < 0 Then
+        'Return ActualWidth / 2 + (V - LonOffset + 360) * Scale
+        'Else
+        Return ActualWidth / 2 + (V - LonOffset) * Scale
+        'End If
 
     End Function
 
