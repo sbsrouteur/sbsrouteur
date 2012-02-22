@@ -317,10 +317,10 @@ Render1:
 
         _MapPg.Start(CLng(ActualHeight * ActualWidth / TileServer.TILE_SIZE / TileServer.TILE_SIZE))
         For x As Integer = 0 To CInt(ActualWidth) Step TileServer.TILE_SIZE
+            Dim W As Double = CanvasToLon(x)
+            Dim E As Double = CanvasToLon(x + TileServer.TILE_SIZE)
             For y As Integer = 0 To CInt(ActualHeight) Step TileServer.TILE_SIZE
-                Dim W As Double = CanvasToLon(x)
                 Dim N As Double = CanvasToLat(y)
-                Dim E As Double = CanvasToLon(x + TileServer.TILE_SIZE)
                 Dim S As Double = CanvasToLat(y + TileServer.TILE_SIZE)
                 TI = New TileInfo(Z, N, S, E, W)
 

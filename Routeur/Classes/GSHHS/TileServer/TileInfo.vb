@@ -35,11 +35,19 @@ Public Class TileInfo
 
         _Z = Z
 
-        Dim N_Lon As Double = ((W + E) / 2) Mod 180
+        Dim N_Lon As Double = ((W + E) / 2) Mod 360
         Dim N_Lat As Double = ((N + S) / 2) Mod 90
         Dim Lon As Double = ((W + E) / 2)
         Dim Lat As Double = ((N + S) / 2)
-        Dim LonOffset As Double = Math.Floor(Lon / 180)
+        Dim LonOffset As Double = Math.Floor(Abs(Lon) / 180)
+        If Lon < 0 Then
+            LonOffset = -LonOffset
+        End If
+        If N_Lon > 180 Then
+            N_Lon -= 360
+        ElseIf N_Lon < -180 Then
+            N_Lon += 360
+        End If
         _TX = CInt(Math.Floor((N_Lon + 180) / 360 * 2 ^ Z))
         _TY = CInt(Math.Floor((1 - Math.Log(Math.Tan(N_Lat * Math.PI / 180) + 1 / Math.Cos(N_Lat * Math.PI / 180)) / Math.PI) / 2 * 2 ^ Z))
 
@@ -51,8 +59,8 @@ Public Class TileInfo
         Dim S1 As Double = PI - 2 * (_TY + 1) * PI / (2 ^ Z)
         _North = Math.Atan(Math.Sinh(N1)) / PI * 180
         _South = Math.Atan(Math.Sinh(S1)) / PI * 180
-        _East = (_TX + 1) * 360 / (2 ^ Z) - 180 + 180 * LonOffset
-        _West = _TX * 360 / (2 ^ Z) - 180 + 180 * LonOffset
+        _East = (_TX + 1) * 360 / (2 ^ Z) - 180 + 360 * LonOffset
+        _West = _TX * 360 / (2 ^ Z) - 180 + 360 * LonOffset
         '_Center = New Coords(N, W)
 
     End Sub
