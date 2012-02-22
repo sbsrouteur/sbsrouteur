@@ -310,27 +310,19 @@ Render1:
         Dim ty1 As Integer
         Dim tx2 As Integer
         Dim ty2 As Integer
-        Dim W As Double = CanvasToLon(0)
-        Dim N As Double = CanvasToLat(0)
-        Dim E As Double = CanvasToLon(0 + TileServer.TILE_SIZE)
-        Dim S As Double = CanvasToLat(0 + TileServer.TILE_SIZE)
-
+        
 #Const DEBUG_TILE_LEVEL = 0
 #If DEBUG_TILE_LEVEL = 0 Then
-        TI = New TileInfo(Z, N, S, E, W)
-        tx1 = TI.TX
-        ty1 = TI.TY
-        W = CanvasToLon(ActualWidth - TileServer.TILE_SIZE)
-        N = CanvasToLat(ActualHeight - TileServer.TILE_SIZE)
-        E = CanvasToLon(ActualWidth + TileServer.TILE_SIZE)
-        S = CanvasToLat(ActualHeight)
-        TI = New TileInfo(Z, N, S, E, W)
-        tx2 = TI.TX
-        ty2 = TI.TY
-        _MapPg.Start((tx2 - tx1) * (ty2 - ty1))
-        For i As Integer = tx1 To tx2
-            For j As Integer = ty1 To ty2
-                TI = New TileInfo(Z, i, j)
+
+
+        _MapPg.Start(CLng(ActualHeight * ActualWidth / TileServer.TILE_SIZE / TileServer.TILE_SIZE))
+        For x As Integer = 0 To CInt(ActualWidth) Step TileServer.TILE_SIZE
+            For y As Integer = 0 To CInt(ActualHeight) Step TileServer.TILE_SIZE
+                Dim W As Double = CanvasToLon(x)
+                Dim N As Double = CanvasToLat(y)
+                Dim E As Double = CanvasToLon(x + TileServer.TILE_SIZE)
+                Dim S As Double = CanvasToLat(y + TileServer.TILE_SIZE)
+                TI = New TileInfo(Z, N, S, E, W)
 
                 System.Threading.Interlocked.Increment(_PendingTileRequestCount)
                 _TileServer.RequestTile(TI)
