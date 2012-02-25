@@ -111,6 +111,7 @@ Public Class VLM_Router
     Private _MeteoHeight As Double
     Private _MeteoPath As String
 
+
     Private _PixelSize As Double
 
     Private _CurMousePos As Coords
@@ -174,6 +175,7 @@ Public Class VLM_Router
         Public Shared SpeedProps As New PropertyChangedEventArgs("Speed")
         Public Shared CurTCProps As New PropertyChangedEventArgs("CurTC")
         Public Shared CurDTFProps As New PropertyChangedEventArgs("DTF")
+
 
 
         'Public ReadOnly Property AvgSpeed() As Double
@@ -3065,6 +3067,7 @@ Public Class VLM_Router
 
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PositionDataAge"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceStartDate"))
+
 
 
     End Sub

@@ -308,6 +308,7 @@
 						<RowDefinition Height="0.86*"/>
 						<RowDefinition Height="0.14*" MinHeight="34.572"/>
 					</Grid.RowDefinitions>
+					<Image x:Name="ImgMeteo" Grid.RowSpan="8" Grid.ColumnSpan="4" Margin="0" Source="{Binding MeteoMapper.Image}" Stretch="None" OpacityMask="#FFEF2020" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 					<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" ContextMenuOpening="OnMapContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}" Grid.ColumnSpan="4" Grid.RowSpan="8">
 						<!--<Routeur:_2D_Viewer.RenderTransform>
 								<TransformGroup>
@@ -396,7 +397,7 @@
 							</TransformGroup>
 						</Label.LayoutTransform>
 					</Label>
-					<!--
+<!--
                         <Slider Grid.Row="2" x:Name="SldZoom" Value="1" Minimum="0.00001" Maximum="20" Margin="0,0,0,2.142" ValueChanged="OnRenderPosChanged"/>
 					    <Slider Grid.Row="3" x:Name="SldLat" Minimum="-10080000" Visibility="Hidden" Maximum="10080000" ValueChanged="OnRenderPosChanged"/>
 				        <Slider Grid.Row="4" x:Name="SldLon" Maximum="10008000" Minimum="-10008000" Visibility="Hidden" ValueChanged="OnRenderPosChanged"/>
@@ -444,7 +445,7 @@
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
 					</GroupBox>
 					<StackPanel Grid.Column="1" Grid.ColumnSpan="2">
-						<TextBlock Text="{Binding VorHandler.RaceStartDate, StringFormat={}Chrono: {0:d\\ hh\\:mm\\:s}, Converter={StaticResource DateDeltaConverter}, Mode=OneWay}" Foreground="#FFDE0F0F" FontSize="24" Margin="8,4,0,4" HorizontalAlignment="Left" >
+						<TextBlock Text="{Binding VorHandler.RaceStartDate, Converter={StaticResource DateDeltaConverter}, Mode=OneWay, StringFormat=Chrono: \{0:d\\ hh\\:mm\\:s\}}" Foreground="#FFDE0F0F" FontSize="24" Margin="8,4,0,4" HorizontalAlignment="Left" >
 							<TextBlock.Effect>
 								<DropShadowEffect ShadowDepth="1"/>
 							</TextBlock.Effect>

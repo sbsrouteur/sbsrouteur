@@ -109,6 +109,7 @@
     <Compile Include="Classes\Cron\CronTask.vb" />
     <Compile Include="Classes\GridRouter\GridProgressContext.vb" />
     <Compile Include="Classes\GSHHS\GSHHS_Utils.vb" />
+    <Compile Include="Classes\Meteo\MeteoBitmapper.vb" />
     <Compile Include="Classes\NavHelper\AngleNavHelper.vb" />
     <Compile Include="Classes\NavHelper\OrthoNavHelper.vb" />
     <Compile Include="Classes\NavHelper\VBVMGNavHelper.vb" />
@@ -365,7 +366,6 @@
     <Compile Include="Classes\MenuCommands\CommandManager.vb" />
     <Compile Include="Classes\Meteo\MeteoDrawer.vb" />
     <Compile Include="Classes\Path\PathUtils.vb" />
-    <Compile Include="Classes\PolyClipper\PolyClipper.vb" />
     <Compile Include="Classes\Polygon\Polygon.vb" />
     <Compile Include="Classes\Polygon\PolygonEnumerator.vb" />
     <Compile Include="Classes\ProgressContext.vb" />

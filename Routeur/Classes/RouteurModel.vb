@@ -137,6 +137,7 @@ Public Class RouteurModel
 
     Private _2DViewerLock As New Object
 
+    Private _MeteoMapper As MeteoBitmapper
 
     Public Function CanvasToCoords(ByVal X As Double, ByVal Y As Double) As Coords
 
@@ -240,7 +241,17 @@ Public Class RouteurModel
 
         If VorHandler.MeteoVisible Then
             _MapLayer.RefreshInfo(C1, C2, VorHandler.MeteoArrowDate)
+            If MeteoMapper IsNot Nothing Then
+
+                If Now.Subtract(MeteoMapper.Date).TotalMinutes > VacationMinutes Then
+                    MeteoMapper.Date = Now
+                Else
+                    MeteoMapper.StartImgRender()
+                End If
+
+            End If
         End If
+
     End Sub
 
     Private Property Dispatcher As Windows.Threading.Dispatcher
@@ -535,6 +546,10 @@ Public Class RouteurModel
             The2DViewer.RedrawCanvas()
         End If
 
+        If Not _MeteoMapper Is Nothing AndAlso _MeteoMapper.ImageReady Then
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoMapper"))
+        End If
+
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoValidSpan"))
 
     End Sub
@@ -669,10 +684,15 @@ Public Class RouteurModel
 
     End Sub
 
+    Public ReadOnly Property MeteoMapper As MeteoBitmapper
+        Get
+            If _MeteoMapper Is Nothing AndAlso VorHandler IsNot Nothing AndAlso VorHandler.Meteo IsNot Nothing AndAlso _2DViewer IsNot Nothing Then
+                _MeteoMapper = New MeteoBitmapper(VorHandler.Meteo, _2DViewer)
+            End If
+            Return _MeteoMapper
+        End Get
+    End Property
 
-    Public Shared Function MeteoHeight() As Double
-
-    End Function
 
     Public ReadOnly Property MeteoValidSpan() As TimeSpan
         Get
