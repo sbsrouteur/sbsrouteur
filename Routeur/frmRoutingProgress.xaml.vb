@@ -41,7 +41,7 @@ Partial Public Class frmRoutingProgress
 
     Private Sub _RefreshTimer_Elapsed(ByVal sender As Object, ByVal e As System.Timers.ElapsedEventArgs) Handles _RefreshTimer.Elapsed
 
-        ' Dispatcher.BeginInvoke(New Action(AddressOf DeferredGUIRefresh))
+        Dispatcher.BeginInvoke(New Action(AddressOf DeferredGUIRefresh))
 
     End Sub
 

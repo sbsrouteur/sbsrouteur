@@ -277,7 +277,7 @@
 				<Slider Maximum="1" Minimum="0" Value="{Binding Opacity, ElementName=canvas, Mode=TwoWay}" SmallChange=".01" LargeChange=".1" TickFrequency="0.1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" ToolTip="Bg Transparency" />
 				<!--<Slider Maximum="100" Minimum="5" Value="{Binding VorHandler.MeteoArrowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" TickFrequency="25" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" />
 				-->
-				<Slider x:Name="slider" Maximum="{Binding VorHandler.MeteoArrowDateEnd, Mode=Default}" Minimum="{Binding VorHandler.MeteoArrowDateStart, Mode=Default}" Width="129" Value="{Binding VorHandler.MeteoArrowDateTicks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding VorHandler.TickFreq, Mode=Default}" TickPlacement="BottomRight" />
+				<Slider x:Name="slider" Maximum="{Binding VorHandler.MeteoArrowDateEnd, Mode=Default}" Minimum="{Binding VorHandler.MeteoArrowDateStart, Mode=Default}" Width="129" Value="{Binding MeteoMapper.DateTicks, Mode=OneWay}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding VorHandler.TickFreq, Mode=Default}" TickPlacement="BottomRight" />
 				<TextBlock Text="{Binding VorHandler.MeteoArrowDate, Mode=Default}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
 			</MenuItem>
 			<MenuItem Header="Routes" VerticalAlignment="Center" >
