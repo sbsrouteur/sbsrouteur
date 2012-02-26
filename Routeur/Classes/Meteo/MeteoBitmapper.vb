@@ -1,6 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports System.Threading
 Imports System.Windows.Threading
+Imports System.Math
 
 Public Class MeteoBitmapper
 
@@ -14,6 +15,17 @@ Public Class MeteoBitmapper
     Private _StopRender As Boolean = False
     Private _RenderThread As Thread
     Private _ImgData() As Integer
+
+    Private _Arrow() As Integer = New Integer() {0, 4,
+                                                 0, 3,
+                                                 -1, 2, 0, 2, 1, 2,
+                                                 -1, 1, 0, 1, 1, 1,
+                                                 -1, 0, 0, 0, 1, 0,
+                                                 -1, -1, 0, -1, 1, -1,
+                                                 -2, -2, -1, -2, 0, -2, 1, -2, 2, -2,
+                                                 -2, -3, -1, -3, 1, -3, 2, -3,
+                                                 -2, -4, 2, -4
+                                                 }
 
     Public Sub New(Meteo As clsMeteoOrganizer, Viewer As _2D_Viewer)
         _meteo = Meteo
@@ -61,6 +73,7 @@ Public Class MeteoBitmapper
         Dim R As New Int32Rect(0, 0, CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight))
         Dim Dx As Integer = CInt(_Viewer.ActualWidth / 10)
         Dim Dy As Integer = CInt(_Viewer.ActualHeight / 10)
+        Dim Dir(99) As Double
         For x As Integer = 0 To CInt(_Viewer.ActualWidth - 1) Step Dx
 
             For y As Integer = 0 To CInt(_Viewer.ActualHeight - 1) Step Dy
@@ -72,6 +85,10 @@ Public Class MeteoBitmapper
                         Dim mi As MeteoInfo = _meteo.GetMeteoToDate(New Coords(_Viewer.CanvasToLat(y + j * Dy), _Viewer.CanvasToLon(x + i * Dx)), Me.Date, True)
                         If mi IsNot Nothing Then
                             V(i + 2 * j) = mi.Strength
+                            Dim Index As Integer = CInt(10 * (y / Dy + j) + (x / Dx + i))
+                            If Index < Dir.Count Then
+                                Dir(Index) = (mi.Dir + 180) / 180 * PI
+                            End If
                         Else
                             MiFail = True
                             Exit For
@@ -111,6 +128,22 @@ Public Class MeteoBitmapper
                     Next
                 Next
 
+                For i = 0 To 99
+                    Dim Row As Integer = Dy * CInt(i / 10)
+                    Dim Col As Integer = Dx * (i Mod 10)
+                    For p = 0 To _Arrow.Count - 1 Step 2
+                        Dim d As Double = Sqrt(_Arrow(p) * _Arrow(p) + _Arrow(p + 1) * _Arrow(p + 1))
+                        Dim a As Double = Atan2(_Arrow(p + 1), _Arrow(p))
+                        Dim Px As Integer = CInt(d * Cos(a + Dir(i)))
+                        Dim Py As Integer = CInt(d * Sin(a + Dir(i)))
+                        Dim index As Integer = CInt((Row - Py) * _Viewer.ActualWidth + Col + Px)
+                        If index > 0 And index < _ImgData.Count Then
+                            _ImgData(index) = 0
+                        End If
+                    Next
+                    
+                Next
+
 
             Next
         Next
@@ -127,6 +160,16 @@ Public Class MeteoBitmapper
             StartImgRender()
         End Set
     End Property
+
+    Public Property DateTicks As Long
+        Get
+            Return Me.Date.Ticks
+        End Get
+        Set(value As Long)
+            Me.Date = New DateTime(value)
+        End Set
+    End Property
+
 
     Private Sub onpropertychanged(Prop As String)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(Prop))
