@@ -80,6 +80,8 @@ Public Class GSHHS_Reader
                 SI.CompleteCallBack()
             End Try
         Else
+            SI.ProgressWindows.Start(1)
+            SI.ProgressWindows.Progress(1)
             SI.CompleteCallBack()
         End If
 

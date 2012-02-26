@@ -39,6 +39,7 @@ Partial Public Class _2D_Viewer
     Private _CurCoords As New Coords
     Private _P As Point
     Private _Progress As MapProgressContext
+    Private _DBInit As MapProgressContext
     Private _ClearBgMap As Boolean = False
 
     'Private Shared _RaceRect As Coords() = New Coords() {New Coords(48, 12), New Coords(48, -13), New Coords(55, -13), New Coords(55, -2), _
@@ -50,6 +51,7 @@ Partial Public Class _2D_Viewer
     Private Shared _RacePolygons As New LinkedList(Of Polygon)()
     Private Shared _RacePolygonsInited As Boolean = False
     Private WithEvents _Frm As frmRoutingProgress
+    Private WithEvents _Frm2 As frmRoutingProgress
     Private WithEvents _MapPg As New MapProgressContext("Drawing Map...")
     Private _TileCount As Integer = 0
 
@@ -359,12 +361,15 @@ Render1:
             End If
 
             _Progress = New MapProgressContext("Loading Maps Data...")
+            _DbInit = New MapProgressContext("Loading Database coast line. Do NOT stop application...")
+            _Frm2 = New frmRoutingProgress(100, _DbInit)
             _Frm = New frmRoutingProgress(100, _Progress)
             Dim TH As New System.Threading.Thread(AddressOf GSHHS_Reader.Read)
             Dim SI As New GSHHS_StartInfo With {.PolyGons = _RacePolygons, .StartPath = "..\gshhs\gshhs_" & RouteurModel.MapLevel & ".b", _
-                                                .ProgressWindows = _Progress, .CompleteCallBack = AddressOf LoadPolygonComplete, _
+                                                .ProgressWindows = _DbInit, .CompleteCallBack = AddressOf LoadPolygonComplete, _
                                                 .NoExclusionZone = RouteurModel.NoExclusionZone}
             _Frm.Show(owner, _Progress)
+            _Frm2.Show(owner, _DBInit)
             TH.Start(SI)
             'GSHHS_Reader.Read(", RacePolygons, "Map")
 
