@@ -550,6 +550,10 @@ Public Class RouteurModel
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoMapper"))
         End If
 
+        If Not MeteoMapper Is Nothing AndAlso Now.Subtract(MeteoMapper.Date).TotalMinutes > VacationMinutes Then
+            MeteoMapper.Date = Now
+        End If
+
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoValidSpan"))
 
     End Sub
