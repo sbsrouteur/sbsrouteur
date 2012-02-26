@@ -306,10 +306,6 @@ Render1:
         Dim West As Double = CanvasToLon(0)
         _TileCount = 0
         Dim TI As TileInfo
-        Dim tx1 As Integer
-        Dim ty1 As Integer
-        Dim tx2 As Integer
-        Dim ty2 As Integer
         
 #Const DEBUG_TILE_LEVEL = 0
 #If DEBUG_TILE_LEVEL = 0 Then
