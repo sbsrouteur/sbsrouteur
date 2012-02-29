@@ -54,7 +54,7 @@
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314,42353,42354,42355</NoWarn>
     <DefineConstants>NO_TILE=0, TESTING=0,HIT_STATS=0,BSP_STATS=1,GEN_TCV=0,DRAW_STATS=1,DBG_SEGMENTS=0,BSP_NO_CACHE=0</DefineConstants>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -133,8 +133,9 @@
     <Reference Include="System.Data.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.SQLite, Version=1.0.74.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=AMD64">
-      <HintPath>..\..\..\..\Program Files\System.Data.SQLite\GAC\System.Data.SQLite.dll</HintPath>
+    <Reference Include="System.Data.SQLite, Version=1.0.79.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\System.Data.SQLite\2010\bin\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />

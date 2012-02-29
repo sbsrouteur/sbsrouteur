@@ -27,6 +27,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2BC0AEE62AFD45CBB053275C77670C56"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_37544CBEEFEC46CBA2D7FF45EF3817ED"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -69,6 +75,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_B0F24B25D4FE46A989D55EE872229B9E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C07C38F8E5C74C09BC0E79EA63D9203B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C71581E49C67129916C0C86E0CF2DACA"
         "OwnerKey" = "8:_7B9432B39390F7EA3986257A22991973"
         "MsmSig" = "8:_UNDEFINED"
@@ -76,6 +94,12 @@
         "Entry"
         {
         "MsmKey" = "8:_C71581E49C67129916C0C86E0CF2DACA"
+        "OwnerKey" = "8:_AAFD4F7710CE4170974E9E184F5DBF5B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CA854A1091A16249851FC467CAAD4591"
         "OwnerKey" = "8:_AAFD4F7710CE4170974E9E184F5DBF5B"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -115,6 +139,12 @@
         "OwnerKey" = "8:_C71581E49C67129916C0C86E0CF2DACA"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_CA854A1091A16249851FC467CAAD4591"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -142,15 +172,15 @@
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5"
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0"
                     {
-                    "Name" = "8:.NET Framework 3.5"
-                    "ProductCode" = "8:Microsoft.Net.Framework.3.5"
+                    "Name" = "8:Microsoft .NET Framework 4 (x86 et x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.0"
                     }
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.4.5"
                     {
-                    "Name" = "8:Windows Installer 3.1"
-                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    "Name" = "8:Windows Installer 4.5"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.4.5"
                     }
                 }
             }
@@ -202,7 +232,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:3.5.30729 "
+                "FrameworkVersion" = "8:3.5.30729   "
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=76617"
                 }
@@ -239,6 +269,26 @@
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:FALSE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2BC0AEE62AFD45CBB053275C77670C56"
+            {
+            "SourcePath" = "8:C:\\Windows\\System32\\msvcr100.dll"
+            "TargetName" = "8:msvcr100.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_2C5B3200C7E444BD97FAAD2C534C1696"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
             "ReadOnly" = "11:FALSE"
             "Hidden" = "11:FALSE"
             "System" = "11:FALSE"
@@ -381,6 +431,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B0F24B25D4FE46A989D55EE872229B9E"
+            {
+            "SourcePath" = "8:C:\\Windows\\System32\\msvcr100_clr0400.dll"
+            "TargetName" = "8:msvcr100_clr0400.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_2C5B3200C7E444BD97FAAD2C534C1696"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_C71581E49C67129916C0C86E0CF2DACA"
             {
             "AssemblyRegister" = "3:1"
@@ -395,6 +465,37 @@
                     }
                 }
             "SourcePath" = "8:WPFToolkit.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_AE3B60F23EAA4A4D98127D1BD90E3D0A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_CA854A1091A16249851FC467CAAD4591"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:System.Data.SQLite, Version=1.0.79.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86"
+                "ScatterAssemblies"
+                {
+                    "_CA854A1091A16249851FC467CAAD4591"
+                    {
+                    "Name" = "8:System.Data.SQLite.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Data.SQLite.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_AE3B60F23EAA4A4D98127D1BD90E3D0A"
@@ -485,6 +586,17 @@
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Property" = "8:AppDataFolder"
+                "Folders"
+                {
+                }
+            }
+            "{1525181F-901A-416C-8A58-119130FE478E}:_2C5B3200C7E444BD97FAAD2C534C1696"
+            {
+            "Name" = "8:#1914"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:SystemFolder"
                 "Folders"
                 {
                 }
@@ -583,15 +695,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Routeur"
-        "ProductCode" = "8:{86F67186-2C1B-4E76-A14B-3C4971D52A1E}"
-        "PackageCode" = "8:{AF274949-9AB9-4D8E-B2D5-E08F6F6E68AC}"
+        "ProductCode" = "8:{1ECD3ACB-F72B-4359-8AC8-EBAE7690C678}"
+        "PackageCode" = "8:{7DA43440-482B-4416-80E6-37F442CE08DA}"
         "UpgradeCode" = "8:{AB55297F-8D40-4FA0-8773-32E1C48C358D}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.25.0"
+        "ProductVersion" = "8:1.26.0"
         "Manufacturer" = "8:sbs"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -1114,12 +1226,26 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C07C38F8E5C74C09BC0E79EA63D9203B"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:c:\\program files (x86)\\common files\\merge modules\\microsoft_vc100_crt_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_AAFD4F7710CE4170974E9E184F5DBF5B"
             {
-            "SourcePath" = "8:..\\Routeur\\obj\\Release\\Routeur.exe"
+            "SourcePath" = "8:..\\Routeur\\obj\\Debug\\Routeur.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_AE3B60F23EAA4A4D98127D1BD90E3D0A"
