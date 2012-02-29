@@ -20,16 +20,19 @@ Public Class DBWrapper
     End Sub
 
     Private Sub CreateDB(DBFileName As String)
+        Try
+            SQLiteConnection.CreateFile(DBFileName)
 
-        SQLiteConnection.CreateFile(DBFileName)
-
-        Dim Conn As New SQLiteConnection(_DBPath)
-        Conn.Open()
-        Dim cmd As New SQLiteCommand(My.Resources.CreateDBScript, Conn)
-        cmd.ExecuteNonQuery()
-        cmd.CommandText = My.Resources.CreateRangeIndex
-        cmd.ExecuteNonQuery()
-        Conn.Close()
+            Dim Conn As New SQLiteConnection(_DBPath)
+            Conn.Open()
+            Dim cmd As New SQLiteCommand(My.Resources.CreateDBScript, Conn)
+            cmd.ExecuteNonQuery()
+            cmd.CommandText = My.Resources.CreateRangeIndex
+            cmd.ExecuteNonQuery()
+            Conn.Close()
+        Catch ex As Exception
+            MessageBox.Show("Exception during database creation : " & ex.Message)
+        End Try
 
     End Sub
 
@@ -278,26 +281,28 @@ Public Class DBWrapper
     Public Function IntersectMapSegment(coords As Coords, coords1 As Coords, bspRect As BspRect) As Boolean
 
 
-        Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me)
+            Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me)
 
-        If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
+            If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
+                Return False
+            End If
+
+            'Debug.WriteLine(coords.ToString & ";" & coords1.ToString)
+            If SegList IsNot Nothing Then
+                For Each Seg As MapSegment In SegList
+                    If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
+                        Return True
+                    End If
+
+                    'Debug.WriteLine(";;" & Seg.Lat1 & ";" & Seg.Lon1 & ";" & Seg.Lat2 & ";" & Seg.Lon2)
+
+                Next
+            End If
+
+
             Return False
-        End If
-
-        'Debug.WriteLine(coords.ToString & ";" & coords1.ToString)
-        If SegList IsNot Nothing Then
-            For Each Seg As MapSegment In SegList
-                If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
-                    Return True
-                End If
-
-                'Debug.WriteLine(";;" & Seg.Lat1 & ";" & Seg.Lon1 & ";" & Seg.Lat2 & ";" & Seg.Lon2)
-
-            Next
-        End If
 
 
-        Return False
     End Function
 
 
