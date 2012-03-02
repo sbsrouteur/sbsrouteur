@@ -116,7 +116,8 @@ Public Class IsoRouter
                     If RetIsoChrone Is Nothing Then
                         Dim VacCount As Long = CLng(Ticks / (RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute))
                         Dim DFP As Double = Iso.Data(StartIndex).DistFromPos + 1
-                        Dim AStep As Double = Math.Max(0.3, 5 - 1.5 * Math.Log10(DFP)) 'Math.min((36 + 1.05 * VacCount),
+                        'TODO Add param for min angle
+                        Dim AStep As Double = Math.Max(1, 5 - 1 * Math.Log10(DFP)) 'Math.min((36 + 1.05 * VacCount),
                         RetIsoChrone = New IsoChrone(AStep)
                     End If
 
