@@ -191,12 +191,16 @@ Public Class MeteoBitmapper
             _RenderThread = Nothing
         End If
         Dim R As New Int32Rect(0, 0, CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight))
-        _Img = New WriteableBitmap(CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight), 96, 96, PixelFormats.Bgr32, Nothing)
-        ReDim _ImgData(CInt(_Viewer.ActualWidth) * CInt(_Viewer.ActualHeight))
-        '_Img.CopyPixels(R, _ImgData, 4 * CInt(_Viewer.ActualWidth), 0)
-        _RenderThread = New Thread(AddressOf ImGRenderThread)
-        _StopRender = False
-        _RenderThread.Start()
+        Try
+            _Img = New WriteableBitmap(CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight), 96, 96, PixelFormats.Bgr32, Nothing)
+            ReDim _ImgData(CInt(_Viewer.ActualWidth) * CInt(_Viewer.ActualHeight))
+            '_Img.CopyPixels(R, _ImgData, 4 * CInt(_Viewer.ActualWidth), 0)
+            _RenderThread = New Thread(AddressOf ImGRenderThread)
+            _StopRender = False
+            _RenderThread.Start()
+        Catch
+        End Try
+
     End Sub
 
     Private Sub ImGRenderThread()
