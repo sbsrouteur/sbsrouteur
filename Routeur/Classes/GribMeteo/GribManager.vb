@@ -882,8 +882,8 @@ Public Class GribManager
     End Function
     Private Function LoadGribData(ByVal MeteoIndex As Integer, ByVal lon As Double, ByVal lat As Double) As Boolean
 
-        Const SquareWidth As Integer = 10
-        Const SquareHeight As Integer = 10
+        Const SquareWidth As Integer = 20
+        Const SquareHeight As Integer = 20
         Dim WLon As Integer = CInt(lon - SquareWidth / 2) 'revert grib lon for request!!!
         Dim ELon As Integer = WLon + SquareWidth
         Dim NLat As Integer = CInt(lat + SquareHeight / 2)
