@@ -29,6 +29,10 @@
     End Function
 
     Public Shared Function Equals1(ByVal x As ICoords, ByVal y As ICoords) As Boolean 'Implements System.Collections.Generic.IEqualityComparer(Of Coords).Equals
+        If x Is Nothing OrElse y Is Nothing Then
+            Return False
+        End If
+
         If Double.IsNaN(x.Lat) Or Double.IsNaN(x.Lon) Or Double.IsNaN(y.Lat) Or Double.IsNaN(y.Lon) Then
             Return False
         End If
