@@ -681,9 +681,7 @@ Render1:
                                 If Not HideIsochronesDots Then
                                     If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
                                         CurP = iso.Data(index).P
-                                        P1.X = LonToCanvas(CurP.Lon_Deg)
-                                        P1.Y = LatToCanvas(CurP.Lat_Deg)
-                                        DC.DrawEllipse(Nothing, WindBrushes(CInt(iso.Data(index).WindStrength)), P1, 1, 1)
+                                        SafeDrawEllipse(DC, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), 1, 1)
                                     End If
                                 End If
                             Next
@@ -1201,4 +1199,15 @@ Render1:
         _BgStarted = False
 
     End Sub
+
+    Private Sub SafeDrawEllipse(DC As DrawingContext, CurP As Coords, brush As Pen, p4 As Integer, p5 As Integer)
+        Dim P1 As Point
+        For mapspan As Integer = -1 To 1
+            P1.X = LonToCanvas(CurP.Lon_Deg + 360 * mapspan)
+            P1.Y = LatToCanvas(CurP.Lat_Deg)
+            DC.DrawEllipse(Nothing, brush, P1, 1, 1)
+        Next
+
+    End Sub
+
 End Class
