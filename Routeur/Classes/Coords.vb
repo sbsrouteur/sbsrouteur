@@ -203,6 +203,9 @@ Public Class Coords
     End Sub
 
     Public Sub New(ByVal LatDeg As Double, ByVal LonDeg As Double)
+
+        Debug.Assert(Not Double.IsNaN(LonDeg))
+        Debug.Assert(Not Double.IsNaN(LatDeg))
         Me.Lat_Deg = LatDeg
         Me.Lon_Deg = LonDeg
 
@@ -210,6 +213,8 @@ Public Class Coords
 
     Public Sub New(ByVal Lat_Deg As Decimal, ByVal Lon_Deg As Decimal)
 
+        Debug.Assert(Not Double.IsNaN(Lon_Deg))
+        Debug.Assert(Not Double.IsNaN(Lat_Deg))
         Me.Lat_Deg = Lat_Deg
         Me.Lon_Deg = Lon_Deg
 
