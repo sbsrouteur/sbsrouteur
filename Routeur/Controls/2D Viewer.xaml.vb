@@ -383,36 +383,43 @@ Render1:
 
 
     Private Sub SafeDrawLine(ByVal dc As DrawingContext, ByVal PrevP As Coords, ByVal P As Coords, ByVal pe As Pen, ByVal Prevpoint As Point, ByVal NewP As Point)
-        If (PrevP.Lon * P.Lon < 0 AndAlso Math.Abs(P.Lon - PrevP.Lon) >= Math.PI) Then
-            Dim Pint As Point
-            Dim DLon As Double
-            Dim LonSpan As Double
-            If PrevP.Lon < 0 Then
-                Pint.X = LonToCanvas(-179.99)
-                DLon = 180 + PrevP.Lon_Deg
-                LonSpan = PrevP.Lon_Deg + 360 - P.Lon_Deg
+        Dim MapSpan As Integer
+        For MapSpan = -1 To 1
+            Dim PrevPoint2 As New Point(LonToCanvas(PrevP.N_Lon_Deg + 360 * MapSpan), LatToCanvas(PrevP.Lat_Deg))
+            Dim NewP2 As New Point(LonToCanvas(P.N_Lon_Deg + 360 * MapSpan), LatToCanvas(P.Lat_Deg))
+
+            If (PrevP.Lon * P.Lon < 0 AndAlso Math.Abs(P.Lon - PrevP.Lon) >= Math.PI) Then
+                Dim Pint As Point
+                Dim DLon As Double
+                Dim LonSpan As Double
+                If PrevP.Lon < 0 Then
+                    Pint.X = LonToCanvas(-179.99 + 360 * MapSpan)
+                    DLon = 180 + PrevP.N_Lon_Deg
+                    LonSpan = PrevP.N_Lon_Deg + 360 - P.Lon_Deg
+                Else
+                    Pint.X = LonToCanvas(179.99 + 360 * MapSpan)
+                    DLon = 180 - PrevP.N_Lon_Deg
+                    LonSpan = Abs(-180 - P.N_Lon_Deg) + 180 - PrevP.Lon_Deg
+                End If
+
+                'Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
+                Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * DLon / LonSpan)
+                dc.DrawLine(pe, PrevPoint2, Pint)
+
+                If P.Lon < 0 Then
+                    Pint.X = LonToCanvas(-179.99 + 360 * MapSpan)
+                Else
+                    Pint.X = LonToCanvas(179.99 + 360 * MapSpan)
+                End If
+
+                dc.DrawLine(pe, Pint, NewP2)
             Else
-                Pint.X = LonToCanvas(179.99)
-                DLon = 180 - PrevP.Lon_Deg
-                LonSpan = Abs(-180 - P.Lon_Deg) + 180 - PrevP.Lon_Deg
+
+
+                dc.DrawLine(pe, PrevPoint2, NewP2)
+
             End If
-
-            'Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
-            Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * DLon / LonSpan)
-            dc.DrawLine(pe, Prevpoint, Pint)
-
-            If P.Lon < 0 Then
-                Pint.X = LonToCanvas(-179.99)
-            Else
-                Pint.X = LonToCanvas(179.99)
-            End If
-
-            dc.DrawLine(pe, Pint, NewP)
-        Else
-
-            dc.DrawLine(pe, Prevpoint, NewP)
-
-        End If
+        Next
     End Sub
     Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As IList(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)), EstimateRouteIndex As Integer, ByVal Opponents As Dictionary(Of String, BoatInfo), _
                           ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
