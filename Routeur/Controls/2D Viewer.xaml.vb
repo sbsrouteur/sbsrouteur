@@ -388,11 +388,11 @@ Render1:
             Dim PrevPoint2 As New Point(LonToCanvas(PrevP.N_Lon_Deg + 360 * MapSpan), LatToCanvas(PrevP.Lat_Deg))
             Dim NewP2 As New Point(LonToCanvas(P.N_Lon_Deg + 360 * MapSpan), LatToCanvas(P.Lat_Deg))
 
-            If (PrevP.Lon * P.Lon < 0 AndAlso Math.Abs(P.Lon - PrevP.Lon) >= Math.PI) Then
+            If (PrevP.N_Lon * P.N_Lon < 0 AndAlso Math.Abs(P.N_Lon - PrevP.N_Lon) >= Math.PI) Then
                 Dim Pint As Point
                 Dim DLon As Double
                 Dim LonSpan As Double
-                If PrevP.Lon < 0 Then
+                If PrevP.N_Lon < 0 Then
                     Pint.X = LonToCanvas(-179.99 + 360 * MapSpan)
                     DLon = 180 + PrevP.N_Lon_Deg
                     LonSpan = PrevP.N_Lon_Deg + 360 - P.Lon_Deg
@@ -406,7 +406,7 @@ Render1:
                 Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * DLon / LonSpan)
                 dc.DrawLine(pe, PrevPoint2, Pint)
 
-                If P.Lon < 0 Then
+                If P.N_Lon < 0 Then
                     Pint.X = LonToCanvas(-179.99 + 360 * MapSpan)
                 Else
                     Pint.X = LonToCanvas(179.99 + 360 * MapSpan)
