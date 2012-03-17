@@ -20,7 +20,11 @@ Public Class TravelCalculator
 
     Public ReadOnly Property LoxoCourse_Deg As Double
         Get
-            Return LoxoCourse_Deg_VLM
+            If StartPoint.N_Lon * EndPoint.N_Lon < 0 AndAlso Abs(StartPoint.N_Lon * EndPoint.N_Lon) > PI Then
+                Return LoxoCourse_Deg_Aviat_withante
+            Else
+                Return LoxoCourse_Deg_Aviat
+            End If
         End Get
     End Property
 
@@ -28,8 +32,8 @@ Public Class TravelCalculator
     Private ReadOnly Property LoxoCourse_Deg_Aviat As Double
         Get
 
-            Dim Lon1 As Double = -StartPoint.Lon
-            Dim Lon2 As Double = -EndPoint.Lon
+            Dim Lon1 As Double = -StartPoint.N_Lon
+            Dim Lon2 As Double = -EndPoint.N_Lon
             Dim Lat1 As Double = StartPoint.N_Lat
             Dim Lat2 As Double = EndPoint.N_Lat
 
@@ -43,11 +47,16 @@ Public Class TravelCalculator
     Private ReadOnly Property LoxoCourse_Deg_Aviat_withante As Double
         Get
 
-            Dim Lon1 As Double = -StartPoint.Lon
-            Dim Lon2 As Double = -EndPoint.Lon
+            Dim Lon1 As Double = -StartPoint.N_Lon
+            Dim Lon2 As Double = -EndPoint.N_Lon
             Dim Lat1 As Double = StartPoint.Lat
             Dim Lat2 As Double = EndPoint.Lat
-            Const TOL As Double = 0.00001
+
+            If Lon1 > 0 Then
+                Lon2 += 2 * PI
+            Else
+                Lon2 -= 2 * PI
+            End If
 
             'dlon_W=mod(lon2-lon1,2*pi)
             'dlon_E=mod(lon1-lon2,2*pi)
@@ -70,25 +79,30 @@ Public Class TravelCalculator
             Dim dlon_w As Double = (Lon2 - Lon1) Mod (2 * PI)
             Dim dlon_e As Double = (Lon1 - Lon2) Mod (2 * PI)
             Dim dphi As Double = Log(Tan(Lat2 / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))
-            Dim q As Double
-            Dim d As Double
+            'Dim q As Double
+            'Dim d As Double
             Dim tc As Double
 
-            If (Abs(Lat2 - Lat1) < TOL) Then
-                q = Cos(Lat1)
-            Else
-                q = (Lat2 - Lat1) / dphi
-            End If
+            'If (Abs(Lat2 - Lat1) < TOL) Then
+            '    q = Cos(Lat1)
+            'Else
+            '    q = (Lat2 - Lat1) / dphi
+            'End If
 
             If (dlon_w < dlon_e) Then '{// Westerly rhumb line is the shortest
-                tc = Atan2(-dlon_w, dphi) Mod (2 * PI)
-                d = Sqrt(q ^ 2 * dlon_w ^ 2 + (Lat2 - Lat1) ^ 2)
+                tc = Atan2(dlon_w, dphi) Mod (2 * PI)
+                'd = Sqrt(q ^ 2 * dlon_w ^ 2 + (Lat2 - Lat1) ^ 2)
             Else
-                tc = Atan2(dlon_e, dphi) Mod (2 * PI)
-                d = Sqrt(q ^ 2 * dlon_e ^ 2 + (Lat2 - Lat1) ^ 2)
+                tc = Atan2(-dlon_e, dphi) Mod (2 * PI)
+                'd = Sqrt(q ^ 2 * dlon_e ^ 2 + (Lat2 - Lat1) ^ 2)
+
             End If
 
-            Return ((tc / PI * 180) + 360) Mod 360
+            'Dim c As Double = Cos(tc)
+            'Dim s As Double = Sin(tc)
+            'tc = Atan2(s, -c)
+            Return (720 - (tc / PI * 180)) Mod 360
+
 
         End Get
     End Property
@@ -100,7 +114,7 @@ Public Class TravelCalculator
                 _Cap = 0
             Else
                 Dim DA As Double = DistanceAngle
-                Dim A As Double = ((Sin(EndPoint.Lat) - Sin(StartPoint.Lat) * Cos(DA)) / (Sin(DA) * Cos(StartPoint.Lat)))
+                Dim A As Double = ((Sin(EndPoint.N_Lat) - Sin(StartPoint.N_Lat) * Cos(DA)) / (Sin(DA) * Cos(StartPoint.N_Lat)))
                 If A > 1 Then
                     A = 1
                 ElseIf A < -1 Then
@@ -126,7 +140,7 @@ Public Class TravelCalculator
             
             If StartPoint Is Nothing Or EndPoint Is Nothing Then
                 _DistanceAngle = 0
-            ElseIf StartPoint.Lon = EndPoint.Lon AndAlso StartPoint.Lat = EndPoint.Lon Then
+            ElseIf StartPoint.Lon = EndPoint.N_Lon AndAlso StartPoint.Lat = EndPoint.N_Lon Then
                 _DistanceAngle = 0
             Else
 
@@ -134,7 +148,7 @@ Public Class TravelCalculator
 
                 Dim dValue As Double = Math.Sin(StartPoint.Lat) * Math.Sin(EndPoint.Lat) + _
                   Math.Cos(StartPoint.Lat) * Math.Cos(EndPoint.Lat) * _
-                  Math.Cos(-EndPoint.Lon + StartPoint.Lon)
+                  Math.Cos(-EndPoint.N_Lon + StartPoint.N_Lon)
                 If dValue > 1 Then
                     dValue = 1
                 ElseIf dValue < -1 Then
