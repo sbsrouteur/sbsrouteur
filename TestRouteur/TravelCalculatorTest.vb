@@ -53,8 +53,118 @@ Public Class TravelCalculatorTest
     '
 #End Region
 
+    <TestMethod()> _
+    Public Sub OrthoAngle_Test1()
+        Dim target As TravelCalculator = New TravelCalculator ' TODO : initialisez à une valeur appropriée
+        target.StartPoint = New Coords(0, 0)
+        target.EndPoint = New Coords(0, 10)
 
 
+        Dim expected As Double = 90 ' TODO : initialisez à une valeur appropriée
+        Dim actual As Double
+        actual = target.OrthoCourse_Deg
+        Assert.AreEqual(expected, actual)
+
+    End Sub
+
+    <TestMethod()> _
+    Public Sub OrthoAngle_Test2()
+        Dim target As TravelCalculator = New TravelCalculator ' TODO : initialisez à une valeur appropriée
+        target.StartPoint = New Coords(-35, 175)
+        target.EndPoint = New Coords(-50, -155)
+
+
+        Dim expected As Double = 133.80076801438372 ' TODO : initialisez à une valeur appropriée
+        Dim actual As Double
+        actual = target.OrthoCourse_Deg
+        Assert.AreEqual(expected, actual)
+
+    End Sub
+
+    <TestMethod()> _
+    Public Sub OrthoAngle_Test3()
+        Dim target As TravelCalculator = New TravelCalculator ' TODO : initialisez à une valeur appropriée
+        target.StartPoint = New Coords(-35, -175)
+        target.EndPoint = New Coords(-50, -155)
+
+
+        Dim expected As Double = 141.96670437996249 ' TODO : initialisez à une valeur appropriée
+        Dim actual As Double
+        actual = target.OrthoCourse_Deg
+        Assert.IsTrue(Math.Abs(expected - actual) < 0.000000001)
+
+    End Sub
+
+
+    <TestMethod()> _
+    Public Sub LoxoAngle_Test1()
+        Dim target As TravelCalculator = New TravelCalculator ' TODO : initialisez à une valeur appropriée
+        target.StartPoint = New Coords(-35, 175)
+        target.EndPoint = New Coords(-35, -175)
+
+
+        Dim expected As Double = 90 ' TODO : initialisez à une valeur appropriée
+        Dim actual As Double
+        actual = target.LoxoCourse_Deg
+        Assert.AreEqual(expected, actual)
+
+    End Sub
+
+    <TestMethod()> _
+    Public Sub LoxoAngle_Test2()
+        Dim target As TravelCalculator = New TravelCalculator ' TODO : initialisez à une valeur appropriée
+        target.StartPoint = New Coords(-35, -175)
+        target.EndPoint = New Coords(-35, 175)
+
+
+        Dim expected As Double = 270 ' TODO : initialisez à une valeur appropriée
+        Dim actual As Double
+        actual = target.LoxoCourse_Deg
+        Assert.AreEqual(expected, actual)
+
+    End Sub
+
+    <TestMethod()> _
+    Public Sub LoxoAngle_Test3()
+        Dim target As TravelCalculator = New TravelCalculator ' TODO : initialisez à une valeur appropriée
+        target.StartPoint = New Coords(-35, 105)
+        target.EndPoint = New Coords(-35, 175)
+
+
+        Dim expected As Double = 90 ' TODO : initialisez à une valeur appropriée
+        Dim actual As Double
+        actual = target.LoxoCourse_Deg
+        Assert.AreEqual(expected, actual)
+
+    End Sub
+
+    <TestMethod()> _
+    Public Sub LoxoAngle_Test4()
+        Dim target As TravelCalculator = New TravelCalculator ' TODO : initialisez à une valeur appropriée
+        target.StartPoint = New Coords(-35, 155)
+        target.EndPoint = New Coords(-35, 105)
+
+
+        Dim expected As Double = 270 ' TODO : initialisez à une valeur appropriée
+        Dim actual As Double
+        actual = target.LoxoCourse_Deg
+        Assert.AreEqual(expected, actual)
+
+    End Sub
+
+    <TestMethod()> _
+    Public Sub LoxoAngle_Test5()
+        Dim target As TravelCalculator = New TravelCalculator ' TODO : initialisez à une valeur appropriée
+        target.StartPoint = New Coords(-35, 175)
+        target.EndPoint = New Coords(-50, -155)
+
+
+        Dim expected As Double = 124.35013371889738 ' TODO : initialisez à une valeur appropriée
+        Dim actual As Double
+        actual = target.LoxoCourse_Deg
+        Assert.AreEqual(expected, actual)
+
+    End Sub
 
 
 
