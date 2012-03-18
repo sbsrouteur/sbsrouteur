@@ -52,17 +52,18 @@ Public Class TileInfo
         _TY = CInt(Math.Floor((1 - Math.Log(Math.Tan(N_Lat * Math.PI / 180) + 1 / Math.Cos(N_Lat * Math.PI / 180)) / Math.PI) / 2 * 2 ^ Z))
 
         Debug.Assert(_TX >= 0 And _TX <= 2 ^ Z)
-        Debug.Assert(_TY >= 0 And _TY <= 2 ^ Z)
+        Debug.Assert(_TY <= 2 ^ Z)
 
-        'Recompute tile coords
-        Dim N1 As Double = PI - 2 * (_TY) * PI / (2 ^ Z)
-        Dim S1 As Double = PI - 2 * (_TY + 1) * PI / (2 ^ Z)
-        _North = Math.Atan(Math.Sinh(N1)) / PI * 180
-        _South = Math.Atan(Math.Sinh(S1)) / PI * 180
-        _East = (_TX + 1) * 360 / (2 ^ Z) - 180 + 360 * LonOffset
-        _West = _TX * 360 / (2 ^ Z) - 180 + 360 * LonOffset
-        '_Center = New Coords(N, W)
-
+        If _TY >= 0 Then
+            'Recompute tile coords
+            Dim N1 As Double = PI - 2 * (_TY) * PI / (2 ^ Z)
+            Dim S1 As Double = PI - 2 * (_TY + 1) * PI / (2 ^ Z)
+            _North = Math.Atan(Math.Sinh(N1)) / PI * 180
+            _South = Math.Atan(Math.Sinh(S1)) / PI * 180
+            _East = (_TX + 1) * 360 / (2 ^ Z) - 180 + 360 * LonOffset
+            _West = _TX * 360 / (2 ^ Z) - 180 + 360 * LonOffset
+            '_Center = New Coords(N, W)
+        End If
     End Sub
     Public Sub New(ByVal Z As Integer, ByVal Tx As Integer, ByVal TY As Integer)
 
