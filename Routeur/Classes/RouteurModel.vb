@@ -190,29 +190,16 @@ Public Class RouteurModel
         If The2DViewer Is Nothing Then
             Return
         End If
-        If The2DViewer IsNot Nothing AndAlso (C1.Lon * C2.Lon) < 0 AndAlso The2DViewer.CenterMapOnAnteMeridien Then
-
-            _LonOffset = 180 + (C2.Lon_Deg + C1.Lon_Deg) / 2
-            If C1.Lon <> -C2.Lon Then
-                Scale = Math.Min(The2DViewer.ActualWidth / Math.Abs(C1.Lon_Deg + C2.Lon_Deg),
-                                 The2DViewer.ActualHeight / Math.Abs(C1.Lat_Deg - C2.Lat_Deg))
-            Else
-                Scale = 1
-            End If
-
+        
+            
+        _LonOffset = (C1.Lon_Deg + C2.Lon_Deg) / 2
+        If C1.Lon = C2.Lon Then
+            Scale = 1
         Else
-            If The2DViewer IsNot Nothing AndAlso The2DViewer.CenterMapOnAnteMeridien = True Then
-                The2DViewer.CenterMapOnAnteMeridien = False
-
-            End If
-            _LonOffset = (C1.Lon_Deg + C2.Lon_Deg) / 2
-            If C1.Lon = C2.Lon Then
-                Scale = 1
-            Else
-                Scale = Math.Min(The2DViewer.ActualWidth / Math.Abs(C1.Lon_Deg - C2.Lon_Deg),
-                                 The2DViewer.ActualHeight / Math.Abs(C1.Lat_Deg - C2.Lat_Deg))
-            End If
+            Scale = Math.Min(The2DViewer.ActualWidth / Math.Abs(C1.Lon_Deg - C2.Lon_Deg),
+                                The2DViewer.ActualHeight / Math.Abs(C1.Lat_Deg - C2.Lat_Deg))
         End If
+
         _LatOffset = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
        
         Debug.Assert(Scale <> 0)

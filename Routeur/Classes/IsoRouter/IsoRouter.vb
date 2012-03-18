@@ -36,7 +36,7 @@ Public Class IsoRouter
     Private _DB As DBWrapper
     Private _MapLevel As Integer
     
-#Const DBG_ISO = 0
+#Const DBG_ISO = 1
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan, MapLevel As Integer, EllipseExcent As Double)
         _AngleStep = AngleStep
@@ -117,24 +117,27 @@ Public Class IsoRouter
                         Dim VacCount As Long = CLng(Ticks / (RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute))
                         Dim DFP As Double = Iso.Data(StartIndex).DistFromPos + 1
                         'TODO Add param for min angle
-                        Dim AStep As Double = Math.Max(1, 5 - 1.5 * Math.Log10(DFP)) 'Math.min((36 + 1.05 * VacCount),
+                        Dim AStep As Double = Math.Max(1, 5 - 1 * Math.Log10(DFP)) 'Math.min((36 + 1.05 * VacCount),
                         RetIsoChrone = New IsoChrone(AStep)
                     End If
 
-                    If Ticks > TimeSpan.TicksPerHour * 48 Then
-                        CurStep = _IsoStep_48
-                        'AStep = _AngleStep '/ 4
-                    ElseIf Ticks > TimeSpan.TicksPerHour * 24 Then
-                        CurStep = _IsoStep_24
-                        'AStep = _AngleStep '/ 2
-                    Else
-                        'AStep = _AngleStep
-                        CurStep = _IsoStep
-                    End If
+                    'If Ticks > TimeSpan.TicksPerHour * 48 Then
+                    '    CurStep = _IsoStep_48
+                    '    'AStep = _AngleStep '/ 4
+                    'ElseIf Ticks > TimeSpan.TicksPerHour * 24 Then
+                    '    CurStep = _IsoStep_24
+                    '    'AStep = _AngleStep '/ 2
+                    'Else
+                    '    'AStep = _AngleStep
+                    '    CurStep = _IsoStep
+                    'End If
 
                     Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / AvgSpeed * TimeSpan.TicksPerHour)).TotalMinutes
                     NbMinutes = Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes) * RouteurModel.VacationMinutes
                     CurStep = New TimeSpan(0, CInt(NbMinutes), 0)
+#If DBG_ISO = 1 Then
+                    Console.WriteLine("Iso Starting for " & RetIsoChrone.Data.Length - 1 & " point, duration:" & CurStep.ToString & " AngleStep : " & _AngleStep)
+#End If
 
                     Exit For
                 End If
@@ -194,7 +197,9 @@ Public Class IsoRouter
                                  'MinAngle = 0
                                  'MaxAngle = 360
                                  Dim StepCount As Integer = CInt(Math.Floor((maxAngle - MinAngle) / _AngleStep) + 1)
-
+#If DBG_ISO = 1 Then
+                                 'Console.WriteLine("StepCount " & StepCount & " @ " & Pindex)
+#End If
                                  Parallel.For(0, StepCount,
                                  Sub(AlphaIndex As Integer)
 
@@ -322,7 +327,7 @@ Public Class IsoRouter
 
         Dim Loxo As Double = TC.LoxoCourse_Deg
         Dim Dist As Double = TC.SurfaceDistance * 0.995
-        
+
         RaiseEvent Log("Isochrone router started at " & Start)
         While Not RouteComplete AndAlso Not _CancelRequested
 
@@ -379,7 +384,7 @@ Public Class IsoRouter
             'Console.WriteLine("TmpRouted" & Now.Subtract(LoopStart).TotalMilliseconds)
             'Console.WriteLine("FromStart" & Now.Subtract(Start).ToString)
 #If DBG_ISO = 1 Then
-            MessageBox.Show("Iso")
+            'MessageBox.Show("Iso")
 #End If
 
         End While
@@ -390,46 +395,83 @@ Public Class IsoRouter
 
     Private Function ReachPoint(ByVal Start As clsrouteinfopoints, ByVal Cap As Double, ByVal Duration As TimeSpan) As clsrouteinfopoints
 
-        If Start Is Nothing OrElse Start.P Is Nothing Then
-            Return Nothing
-        End If
+        Static CumDuration As Long = 0
+        Static CumWait As Long = 0
+        Static HitCount As Long = 1
+        Static LoopCount As Long = 0
+        Dim StartTick As DateTime = Now
 
-        Dim RetPoint As clsrouteinfopoints = Nothing
-        Dim TC As New TravelCalculator
-        Dim Speed As Double
-        Dim MI As MeteoInfo = Nothing
-        Dim i As Long
-        Dim CurDate As DateTime
-        Dim TotalDist As Double = 0
-        Static PrevDist As Double = 0
-        Dim MinWindAngle As Double = 0
-        Dim MaxWindAngle As Double = 0
-        Dim StartTicks As DateTime = Start.T
+        Try
+            If Start Is Nothing OrElse Start.P Is Nothing Then
+                Return Nothing
+            End If
 
-        TC.StartPoint = Start.P
+            Dim RetPoint As clsrouteinfopoints = Nothing
+            Dim TC As New TravelCalculator
+            Dim Speed As Double
+            Dim MI As MeteoInfo = Nothing
+            Dim i As Long
+            Dim CurDate As DateTime
+            Dim TotalDist As Double = 0
+            Static PrevDist As Double = 0
+            Dim MinWindAngle As Double = 0
+            Dim MaxWindAngle As Double = 0
+            Dim StartTicks As DateTime = Start.T
 
-        'normalize cap
-        Cap = Cap Mod 360
+            TC.StartPoint = Start.P
 
-        'Static ReachPointCounts As Long = 0
-        'Dim LoopCount As Integer
-        'Static LoopMs As Double = 0
-        'Dim LoopStart As DateTime = Now
-        If Not _RouterPrefs.FastRouteShortMeteo Then
-            MI = Nothing
-            For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
-                CurDate = StartTicks.AddTicks(i)
+            'normalize cap
+            Cap = Cap Mod 360
+
+            'Static ReachPointCounts As Long = 0
+            'Dim LoopCount As Integer
+            'Static LoopMs As Double = 0
+            'Dim LoopStart As DateTime = Now
+            If Not _RouterPrefs.FastRouteShortMeteo Then
                 MI = Nothing
+                For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
+                    CurDate = StartTicks.AddTicks(i)
+                    MI = Nothing
+                    Dim WaitStart As DateTime = Now
+                    While MI Is Nothing And Not _CancelRequested
+                        MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, False)
+                        'If MI Is Nothing Then
+                        'System.Threading.Thread.Sleep(GribManager.METEO_SLEEP_DELAY)
+                        'End If
+                    End While
+                    CumWait += Now.Subtract(WaitStart).Ticks
+                    LoopCount += 1
+                    If _CancelRequested Then
+                        Return Nothing
+                    End If
+                    If _RouterPrefs.FastRouteShortPolar Then
+                        _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
+                        Dim Alpha As Double = WindAngle(Cap, MI.Dir)
+                        If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
+                            Return Nothing
+                        End If
+                    End If
 
+                    Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
+                    TotalDist += Speed / 60 * RouteurModel.VacationMinutes
+                    TC.StartPoint = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Cap)
+                    '    LoopCount += 1
+                    'TC.StartPoint = TC.EndPoint
+
+                Next
+            Else
+                CurDate = Start.T
+                MI = Nothing
                 While MI Is Nothing And Not _CancelRequested
-                    MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, False)
-                    'If MI Is Nothing Then
-                    'System.Threading.Thread.Sleep(GribManager.METEO_SLEEP_DELAY)
-                    'End If
+                    MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, True)
+                    If MI Is Nothing Then
+                        System.Threading.Thread.Sleep(50)
+                    End If
                 End While
                 If _CancelRequested Then
                     Return Nothing
                 End If
+
                 If _RouterPrefs.FastRouteShortPolar Then
                     _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
                     Dim Alpha As Double = WindAngle(Cap, MI.Dir)
@@ -439,97 +481,77 @@ Public Class IsoRouter
                 End If
 
                 Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
-                TotalDist += Speed / 60 * RouteurModel.VacationMinutes
-                TC.StartPoint = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Cap)
-                '    LoopCount += 1
-                'TC.StartPoint = TC.EndPoint
-            Next
-        Else
-            CurDate = Start.T
-            MI = Nothing
-            While MI Is Nothing And Not _CancelRequested
-                MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, True)
-                If MI Is Nothing Then
-                    System.Threading.Thread.Sleep(50)
-                End If
-            End While
-            If _CancelRequested Then
-                Return Nothing
+                TotalDist = Speed * Duration.TotalHours
+                TC.StartPoint = TC.ReachDistance(TotalDist, Cap)
+                CurDate = CurDate.Add(Duration)
             End If
+            TC.EndPoint = TC.StartPoint
+            TC.StartPoint = Start.P
 
-            If _RouterPrefs.FastRouteShortPolar Then
-                _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
-                Dim Alpha As Double = WindAngle(Cap, MI.Dir)
-                If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
-                    Return Nothing
-                End If
-            End If
-
-            Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
-            TotalDist = Speed * Duration.TotalHours
-            TC.StartPoint = TC.ReachDistance(TotalDist, Cap)
-            CurDate = CurDate.Add(Duration)
-        End If
-        TC.EndPoint = TC.StartPoint
-        TC.StartPoint = Start.P
-
-        If Math.Abs(TC.EndPoint.Lon - TC.StartPoint.Lon) > Math.PI AndAlso TC.EndPoint.Lon * TC.StartPoint.Lon < 0 Then
-            If TC.StartPoint.Lon < 0 Then
-                TC.EndPoint.Lon += (Math.Ceiling(TC.StartPoint.Lon / 2 / Math.PI) - 1) * 2 * Math.PI
-            Else
-                TC.EndPoint.Lon += (1 + Math.Floor(TC.StartPoint.Lon / 2 / Math.PI)) * 2 * Math.PI
-            End If
-
-        End If
-
-
-        'ReachPointCounts += 1
-        'If PrevDist <> 0 AndAlso TotalDist / PrevDist > 20 Then
-        '    Dim br As Integer = 0
-        'ElseIf PrevDist <> 0 Then
-        '    PrevDist = TotalDist
-
-        'End If
-        'If TotalDist < 0.0001 Then
-        '    TotalDist = 0.0001
-        'End If
-        'TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
-        If RouteurModel.NoObstacle OrElse (TC.SurfaceDistance > 0 AndAlso Not _DB.IntersectMapSegment(TC.StartPoint, TC.EndPoint, GSHHS_Reader._Tree)) Then
-            'If CheckSegmentValid(TC) Then
-            RetPoint = New clsrouteinfopoints
-            With RetPoint
-                .P = New Coords(TC.EndPoint)
-                .T = CurDate
-                .Speed = Speed
-                .WindStrength = MI.Strength
-                .WindDir = MI.Dir
-                .Loch = TotalDist
-                .LochFromStart = .Loch + Start.LochFromStart
-                If _DestPoint2 Is Nothing Then
-                    TC.StartPoint = _DestPoint1
-                    .DTF = TC.SurfaceDistance
+            If Math.Abs(TC.EndPoint.Lon - TC.StartPoint.Lon) > Math.PI AndAlso TC.EndPoint.Lon * TC.StartPoint.Lon < 0 Then
+                If TC.StartPoint.Lon < 0 Then
+                    TC.EndPoint.Lon += (Math.Ceiling(TC.StartPoint.Lon / 2 / Math.PI) - 1) * 2 * Math.PI
                 Else
-                    TC.StartPoint = GSHHS_Reader.PointToSegmentIntersect(.P, _DestPoint1, _DestPoint2)
-                    .DTF = TC.SurfaceDistance
+                    TC.EndPoint.Lon += (1 + Math.Floor(TC.StartPoint.Lon / 2 / Math.PI)) * 2 * Math.PI
                 End If
-                .From = Start
-                .Cap = Cap
-            End With
 
-        Else
-            Dim bp As Integer = 0
+            End If
 
-        End If
 
-        TC.StartPoint = Nothing
-        TC.EndPoint = Nothing
-        TC = Nothing
-        'LoopMs += Now.Subtract(LoopStart).TotalMilliseconds
-        'If ReachPointCounts Mod 500 = 0 Then
-        'Console.WriteLine("ReachPointLoops " & LoopCount & " in " & LoopMs / 500 & " for " & Duration.ToString)
-        'LoopMs = 0
-        'End If
-        Return RetPoint
+            'ReachPointCounts += 1
+            'If PrevDist <> 0 AndAlso TotalDist / PrevDist > 20 Then
+            '    Dim br As Integer = 0
+            'ElseIf PrevDist <> 0 Then
+            '    PrevDist = TotalDist
+
+            'End If
+            'If TotalDist < 0.0001 Then
+            '    TotalDist = 0.0001
+            'End If
+            'TC.EndPoint = TC.ReachDistance(TotalDist, Cap)
+            If RouteurModel.NoObstacle OrElse (TC.SurfaceDistance > 0 AndAlso Not _DB.IntersectMapSegment(TC.StartPoint, TC.EndPoint, GSHHS_Reader._Tree)) Then
+                'If CheckSegmentValid(TC) Then
+                RetPoint = New clsrouteinfopoints
+                With RetPoint
+                    .P = New Coords(TC.EndPoint)
+                    .T = CurDate
+                    .Speed = Speed
+                    .WindStrength = MI.Strength
+                    .WindDir = MI.Dir
+                    .Loch = TotalDist
+                    .LochFromStart = .Loch + Start.LochFromStart
+                    If _DestPoint2 Is Nothing Then
+                        TC.StartPoint = _DestPoint1
+                        .DTF = TC.SurfaceDistance
+                    Else
+                        TC.StartPoint = GSHHS_Reader.PointToSegmentIntersect(.P, _DestPoint1, _DestPoint2)
+                        .DTF = TC.SurfaceDistance
+                    End If
+                    .From = Start
+                    .Cap = Cap
+                End With
+
+            Else
+                Dim bp As Integer = 0
+
+            End If
+
+            TC.StartPoint = Nothing
+            TC.EndPoint = Nothing
+            TC = Nothing
+            'LoopMs += Now.Subtract(LoopStart).TotalMilliseconds
+            'If ReachPointCounts Mod 500 = 0 Then
+            'Console.WriteLine("ReachPointLoops " & LoopCount & " in " & LoopMs / 500 & " for " & Duration.ToString)
+            'LoopMs = 0
+            'End If
+            Return RetPoint
+        Finally
+            CumDuration += Now.Subtract(StartTick).Ticks
+            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPointMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
+            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPointMeteoWaitMS) = CumWait / HitCount / TimeSpan.TicksPerMillisecond
+            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPointAvgLoopCount) = LoopCount / HitCount
+            HitCount += 1
+        End Try
 
     End Function
 
@@ -624,21 +646,15 @@ Public Class IsoRouter
     Private Sub SpinLockEnter(Iso As IsoChrone, Index As Integer)
 
         Dim GotLock As Boolean = False
-        'Static SpinCount As Long = 0
-        'Static SpinDuration As Double = 0
-        'Dim Start As DateTime = Now
+        
         Do
             Iso.Locks(Index).Enter(GotLock)
             If Not GotLock Then
-                'System.Threading.Thread.Sleep(1)
-                'SpinCount += 1
+                Thread.Sleep(1)
             End If
 
         Loop Until GotLock
-        'SpinCount += 1
-        'SpinDuration += Now.Subtract(Start).TotalMilliseconds
-        'Console.WriteLine("enter" & Thread.CurrentThread.ManagedThreadId & "/" & SpinDuration / SpinCount)
-
+        
     End Sub
 
     Private Sub SpinLockExit(Iso As IsoChrone, Index As Integer)

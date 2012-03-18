@@ -13,6 +13,8 @@ Public Class Stats
     Public Enum StatID As Integer
         BSPCellCount
         BSPCellAvgDepth
+        BSP_GetSegAvgMS
+        BSP_GetSegHitRatio
         HitTestBspAvgMS
         HitTestBSPAvgLoops
         HitTestNoBspAvgMS
@@ -28,6 +30,12 @@ Public Class Stats
         Grib_GetMeteoToDateAvgMS
         Polar_CacheRatio
         DRAW_FPS
+        RIndex_AvgQueryTimeMS
+        RIndex_AvgHitCount
+        RIndex_AvgHitCountNonZero
+        ISO_ReachPointMS
+        ISO_ReachPointMeteoWaitMS
+        ISO_ReachPointAvgLoopCount
     End Enum
 
     Public Shared ReadOnly Property Stats() As ObservableCollection(Of StatInfo)

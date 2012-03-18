@@ -1181,7 +1181,7 @@ Public Class GribManager
             If Not GotLock AndAlso NoLock Then
                 Return False
             ElseIf Not GotLock Then
-                System.Threading.Thread.Sleep(METEO_SLEEP_DELAY)
+                'System.Threading.Thread.Sleep(CInt(METEO_SLEEP_DELAY * Rnd()))
             End If
 
         Loop Until GotLock
