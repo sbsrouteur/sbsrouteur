@@ -995,21 +995,6 @@ Render1:
 
     End Sub
 
-    Public Property CenterMapOnAnteMeridien() As Boolean
-        Get
-            Return _CenterOnAnteMeridien
-        End Get
-        Set(ByVal value As Boolean)
-            _CenterOnAnteMeridien = value
-            If value Then
-                LonOffset -= 180
-            Else
-                LonOffset += 180
-            End If
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CenterMapOnAnteMeridien"))
-        End Set
-    End Property
-
     Public Property CurCoords() As Coords
         Get
             Return _CurCoords
