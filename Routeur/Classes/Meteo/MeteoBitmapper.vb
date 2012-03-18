@@ -35,34 +35,22 @@ Public Class MeteoBitmapper
     Public ReadOnly Property Image As WriteableBitmap
         Get
 
-            'If _Img Is Nothing OrElse _Img.Width <> CInt(_Viewer.ActualWidth) OrElse _Img.Height <> CInt(_Viewer.ActualHeight) Then '
-            '    If Thread.CurrentThread.ManagedThreadId = _Viewer.Dispatcher.Thread.ManagedThreadId Then
-            '        _Img = New WriteableBitmap(CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight), 96, 96, PixelFormats.Bgr32, Nothing)
-            '        StartImgRender()
-            '    End If
-            'Else
-            '    'If _ImgData IsNot Nothing Then
-            Dim ImgStride As Integer = CInt(_Viewer.ActualWidth * ((PixelFormats.Bgr32.BitsPerPixel) / 8))
-            Dim R As New Int32Rect(0, 0, CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight))
+            Try
+                Dim ImgStride As Integer = CInt(_Viewer.ActualWidth * ((PixelFormats.Bgr32.BitsPerPixel) / 8))
+                Dim R As New Int32Rect(0, 0, CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight))
 
-            '    '    'If _Img.IsFrozen Then
-            '    '    _Img = New WriteableBitmap(CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight), 96, 96, PixelFormats.Bgr32, Nothing)
-            '    '    'End If
-            '    '    _Img.WritePixels(R, _ImgData, ImgStride, 0)
-            '    '    _Img.Freeze()
-            '    'Else
-            '    '    StartImgRender()
-            '    '    'End If
-            'End If
-            Debug.Assert(Thread.CurrentThread.ManagedThreadId = _Viewer.Dispatcher.Thread.ManagedThreadId)
-            '_Img = New WriteableBitmap(CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight), 96, 96, PixelFormats.Bgr32, Nothing)
-            '_Img.Lock()
-            If _Img IsNot Nothing Then
-                _Img.WritePixels(R, _ImgData, ImgStride, 0)
-            End If
-            '_Img.Unlock()
+
+                Debug.Assert(Thread.CurrentThread.ManagedThreadId = _Viewer.Dispatcher.Thread.ManagedThreadId)
+
+                If _Img IsNot Nothing Then
+                    _Img.WritePixels(R, _ImgData, ImgStride, 0)
+                End If
+
+            Catch
+            End Try
 
             ImageReady = False
+
             Return _Img
         End Get
     End Property

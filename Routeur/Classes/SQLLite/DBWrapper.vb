@@ -122,7 +122,7 @@ Public Class DBWrapper
         Static PolyCount As Long = 0
         Static Trans As SQLiteTransaction = Nothing
 
-        If Flush Then
+        If flush Then
             Trans.Commit()
             Conn.Close()
             Return
@@ -219,59 +219,84 @@ Public Class DBWrapper
     Public Function SegmentList(ByVal lon1 As Double, ByVal lat1 As Double, ByVal lon2 As Double, ByVal lat2 As Double, Optional sorted As Boolean = False) As List(Of MapSegment)
 
         Dim RetList As New List(Of MapSegment)
-        
-        Dim M As New MapSegment(lon1, lat1, lon2, lat2)
-        Using Con As New SQLiteConnection(_DBPath)
-            Con.Open()
+        Dim Start As DateTime = Now
+        Static CumDuration As Long = 0
+        Static Count As Integer = 1
+        Static HitCount As Long = 0
+        Static HitCountNZ As Long = 0
+        Static TotalHitCount As Long = 0
+        Try
 
-            Using Cmd As New SQLiteCommand(Con)
-                Dim Reader As SQLiteDataReader = Nothing
 
-                Try
-                    Dim MinLon As String = Math.Min(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                    Dim MaxLon As String = Math.Max(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                    Dim MinLat As String = Math.Min(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                    Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            Dim M As New MapSegment(lon1, lat1, lon2, lat2)
+            Using Con As New SQLiteConnection(_DBPath)
+                Con.Open()
 
-                    Cmd.CommandText = "Select * from mapssegments inner join ( " &
-                                        " select id from MapLevel_Idx" & MapLevel & " where " &
-                                        " (MaxX  >= " & MinLon & " and MinX <=" & MaxLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") " &
-                                        ") As T on IdSegment = id"
+                Using Cmd As New SQLiteCommand(Con)
+                    Dim Reader As SQLiteDataReader = Nothing
 
-                    If sorted Then
-                        Cmd.CommandText = Cmd.CommandText & " order by IdSegment asc"
-                    End If
-                    Reader = Cmd.ExecuteReader
-                    If Reader.HasRows Then
+                    Try
+                        Dim MinLon As String = Math.Min(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                        Dim MaxLon As String = Math.Max(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                        Dim MinLat As String = Math.Min(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                        Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
 
-                        While Reader.Read
-                            Dim seg_lon1 As Double = CDbl(Reader("lon1"))
-                            Dim seg_lon2 As Double = CDbl(Reader("lon2"))
-                            Dim seg_lat1 As Double = CDbl(Reader("lat1"))
-                            Dim seg_lat2 As Double = CDbl(Reader("lat2"))
+                        Cmd.CommandText = "Select * from mapssegments inner join ( " &
+                                            " select id from MapLevel_Idx" & MapLevel & " where " &
+                                            " (MaxX  >= " & MinLon & " and MinX <=" & MaxLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") " &
+                                            ") As T on IdSegment = id"
 
-                            RetList.Add(New MapSegment With {.Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
-                        End While
+                        If sorted Then
+                            Cmd.CommandText = Cmd.CommandText & " order by IdSegment asc"
+                        End If
+                        Reader = Cmd.ExecuteReader
+                        If Reader.HasRows Then
 
-                    End If
+                            HitCountNZ += 1
+                            While Reader.Read
+                                Dim seg_lon1 As Double = CDbl(Reader("lon1"))
+                                Dim seg_lon2 As Double = CDbl(Reader("lon2"))
+                                Dim seg_lat1 As Double = CDbl(Reader("lat1"))
+                                Dim seg_lat2 As Double = CDbl(Reader("lat2"))
 
-                    Return RetList
-                Finally
+                                RetList.Add(New MapSegment With {.Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+                                TotalHitCount += 1
+                            End While
 
-                    If Reader IsNot Nothing Then
-                        Reader.Close()
-                    End If
-                    If Cmd IsNot Nothing Then
-                        Cmd.Dispose()
+                        End If
+                        HitCount += 1
+                        Return RetList
+                    Catch ex As Exception
+                    Finally
 
-                    End If
-                    Con.Close()
-                End Try
+                        If Reader IsNot Nothing Then
+                            Reader.Close()
+                        End If
+                        If Cmd IsNot Nothing Then
+                            Cmd.Dispose()
+
+                        End If
+                        Con.Close()
+                    End Try
+                End Using
+
+                Return Nothing
+
             End Using
+        Finally
+            Dim EndTick As DateTime = Now
 
-            Return Nothing
+            CumDuration += Now.Subtract(Start).Ticks
+            Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgQueryTimeMS) = CumDuration / Count / TimeSpan.TicksPerMillisecond
+            Count += 1
+            If HitCount <> 0 Then
+                Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgHitCount) = TotalHitCount / HitCount
+            End If
+            If HitCountNZ <> 0 Then
+                Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgHitCountNonZero) = TotalHitCount / HitCountNZ
+            End If
 
-        End Using
+        End Try
 
 
     End Function
@@ -281,26 +306,26 @@ Public Class DBWrapper
     Public Function IntersectMapSegment(coords As Coords, coords1 As Coords, bspRect As BspRect) As Boolean
 
 
-            Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me)
+        Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me)
 
-            If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
-                Return False
-            End If
-
-            'Debug.WriteLine(coords.ToString & ";" & coords1.ToString)
-            If SegList IsNot Nothing Then
-                For Each Seg As MapSegment In SegList
-                    If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
-                        Return True
-                    End If
-
-                    'Debug.WriteLine(";;" & Seg.Lat1 & ";" & Seg.Lon1 & ";" & Seg.Lat2 & ";" & Seg.Lon2)
-
-                Next
-            End If
-
-
+        If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
             Return False
+        End If
+
+        'Debug.WriteLine(coords.ToString & ";" & coords1.ToString)
+        If SegList IsNot Nothing Then
+            For Each Seg As MapSegment In SegList
+                If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
+                    Return True
+                End If
+
+                'Debug.WriteLine(";;" & Seg.Lat1 & ";" & Seg.Lon1 & ";" & Seg.Lat2 & ";" & Seg.Lon2)
+
+            Next
+        End If
+
+
+        Return False
 
 
     End Function

@@ -4,7 +4,7 @@ Imports System.Threading
 Public Class BspRect
     Public Const GRID_GRAIN_OVERSAMPLE As Integer = 1
     Private Const MAX_IGNORED_COUNT As Integer = 2000
-    Private Const MAX_TREE_Z As Integer = 13
+    Private Const MAX_TREE_Z As Integer = 10
 
     Public Enum inlandstate As Byte
         Unknown = 0
@@ -37,7 +37,9 @@ Public Class BspRect
     Private _Z As Integer
     Private _Segments As List(Of MapSegment)
     Private _lockObj As New Object
-    Private _SpinLock As New SpinLock
+
+    Private Const SPIN_COUNT = 100
+    Private _SpinLock(SPIN_COUNT - 1) As SpinLock
     Private _SpinCount As Integer = 0
 
     Private _SegmentsArray(,) As List(Of MapSegment)
@@ -47,7 +49,9 @@ Public Class BspRect
     Public Sub New()
 
         ReDim _SegmentsArray(CInt(2 ^ MAX_TREE_Z), CInt(2 ^ MAX_TREE_Z))
-
+        For i As Integer = 0 To SPIN_COUNT - 1
+            _SpinLock(i) = New SpinLock
+        Next
     End Sub
 
 
@@ -79,25 +83,46 @@ Public Class BspRect
 
     Public ReadOnly Property GetSegments(Center As Coords, db As DBWrapper) As List(Of MapSegment)
         Get
-            Dim X As Integer = CInt(Math.Floor((Center.N_Lon_Deg + 180) / (360 / 2 ^ MAX_TREE_Z)))
-            Dim Y As Integer = CInt(Math.Floor((Center.N_Lat / PI * 180 + 90) / (180 / 2 ^ MAX_TREE_Z)))
+            Static HitCount As Long = 1
+            Static CacheHitCount As Long = 0
+            Static CumDuration As Long = 0
+            Dim start As DateTime = Now
+            Try
+                Dim X As Integer = CInt(Math.Floor((Center.N_Lon_Deg + 180) / (360 / 2 ^ MAX_TREE_Z)))
+                Dim Y As Integer = CInt(Math.Floor((Center.N_Lat / PI * 180 + 90) / (180 / 2 ^ MAX_TREE_Z)))
 
-            If _SegmentsArray(X, Y) IsNot Nothing Then
-                Return _SegmentsArray(X, Y)
-            Else
-                SpinLock()
-                If _SegmentsArray(X, Y) Is Nothing Then
-                    
-                    Dim TmpSegments = New List(Of MapSegment)
-                    Dim P1 As New Coords(Y * 180 / (2 ^ MAX_TREE_Z) - 90, X * 360 / (2 ^ MAX_TREE_Z) - 180)
-                    Dim P2 As New Coords((Y + 1) * 180 / (2 ^ MAX_TREE_Z) - 90, (X + 1) * 360 / (2 ^ MAX_TREE_Z) - 180)
+                If _SegmentsArray(X, Y) IsNot Nothing Then
+                    CacheHitCount += 1
+                    Return _SegmentsArray(X, Y)
+                Else
+                    SpinLock(X, Y)
+                    Try
+                        If _SegmentsArray(X, Y) Is Nothing Then
 
-                    TmpSegments.AddRange(db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg))
-                    _SegmentsArray(X, Y) = TmpSegments
+                            Dim TmpSegments = New List(Of MapSegment)
+                            Dim P1 As New Coords(Y * 180 / (2 ^ MAX_TREE_Z) - 90, X * 360 / (2 ^ MAX_TREE_Z) - 180)
+                            Dim P2 As New Coords((Y + 1) * 180 / (2 ^ MAX_TREE_Z) - 90, (X + 1) * 360 / (2 ^ MAX_TREE_Z) - 180)
+
+                            Dim Segs = db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg)
+                            If Segs IsNot Nothing Then
+                                TmpSegments.AddRange(Segs)
+                                _SegmentsArray(X, Y) = TmpSegments
+                            End If
+
+                        End If
+                    Finally
+                        SpinLockExit(X, Y)
+                    End Try
                 End If
-                SpinLockExit()
-            End If
-            Return _SegmentsArray(X, Y)
+                Return _SegmentsArray(X, Y)
+            Finally
+                CumDuration += Now.Subtract(start).Ticks
+
+                Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegAvgMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
+                Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegHitRatio) = CacheHitCount / HitCount * 100
+                HitCount += 1
+            End Try
+
         End Get
     End Property
 
@@ -109,7 +134,9 @@ Public Class BspRect
             Dim CellList As List(Of Coords) = BuildBspCellLine(C1, C2)
             For Each Center As Coords In CellList
                 Dim l = GetSegments(Center, db)
-                TmpSeg.AddRange(l)
+                If l IsNot Nothing Then
+                    TmpSeg.AddRange(l)
+                End If
             Next
 
             Return TmpSeg
@@ -429,95 +456,97 @@ Public Class BspRect
         End Get
     End Property
 
-    Public Sub Split()
+    '    Public Sub Split()
 
 
-        Dim lP1Lon As Double = _p1.Lon
-        Dim lP2Lon As Double = _p2.Lon
-        Dim DeltaX As Double = lP1Lon - _MidLon '(lP1Lon - lP2Lon) / 2
-        Dim lP1Lat As Double = _p1.Lat
-        Dim lP2Lat As Double = _p2.Lat
-        Dim DeltaY As Double = lP1Lat - _MidLat '(lP1Lat - lP2Lat) / 2
+    '        Dim lP1Lon As Double = _p1.Lon
+    '        Dim lP2Lon As Double = _p2.Lon
+    '        Dim DeltaX As Double = lP1Lon - _MidLon '(lP1Lon - lP2Lon) / 2
+    '        Dim lP1Lat As Double = _p1.Lat
+    '        Dim lP2Lat As Double = _p2.Lat
+    '        Dim DeltaY As Double = lP1Lat - _MidLat '(lP1Lat - lP2Lat) / 2
 
-        If _SubRects(3) Is Nothing Then
-            SpinLock()
+    '        If _SubRects(3) Is Nothing Then
+    '            SpinLock()
 
-            If _SubRects(3) Is Nothing Then
-                For x As Integer = 0 To 1
-                    For y As Integer = 0 To 1
+    '            If _SubRects(3) Is Nothing Then
+    '                For x As Integer = 0 To 1
+    '                    For y As Integer = 0 To 1
 
-                        Dim P1 As New Coords With {.Lat = lP1Lat - DeltaY * y, .Lon = lP1Lon - (1 - x) * DeltaX}
-                        Dim P2 As New Coords With {.Lat = lP2Lat + DeltaY * (1 - y), .Lon = lP2Lon + x * DeltaX}
+    '                        Dim P1 As New Coords With {.Lat = lP1Lat - DeltaY * y, .Lon = lP1Lon - (1 - x) * DeltaX}
+    '                        Dim P2 As New Coords With {.Lat = lP2Lat + DeltaY * (1 - y), .Lon = lP2Lon + x * DeltaX}
 
-                        _SubRects(2 * x + y) = New BspRect(P1, P2, Z + 1)
-                    Next
-                Next
-            End If
+    '                        _SubRects(2 * x + y) = New BspRect(P1, P2, Z + 1)
+    '                    Next
+    '                Next
+    '            End If
 
-            SpinLockExit()
-        End If
+    '            SpinLockExit()
+    '        End If
 
-#If BSP_STATS Then
-        BspCount += 4
-        Stats.SetStatValue(Stats.StatID.BSPCellCount) = CDbl(BspCount)
-#End If
+    '#If BSP_STATS Then
+    '        BspCount += 4
+    '        Stats.SetStatValue(Stats.StatID.BSPCellCount) = CDbl(BspCount)
+    '#End If
 
-    End Sub
+    '    End Sub
 
-    Public Function Split(ByVal GridGrain As Double) As Boolean
+    '    Public Function Split(ByVal GridGrain As Double) As Boolean
 
 
-        Dim lP1Lon As Double = _p1.Lon
-        Dim lP2Lon As Double = _p2.Lon
-        Dim DeltaX As Double = lP1Lon - _MidLon '(lP1Lon - lP2Lon) / 2
-        Dim lP1Lat As Double = _p1.Lat
-        Dim lP2Lat As Double = _p2.Lat
-        Dim DeltaY As Double = lP1Lat - _MidLat '(lP1Lat - lP2Lat) / 2
+    '        Dim lP1Lon As Double = _p1.Lon
+    '        Dim lP2Lon As Double = _p2.Lon
+    '        Dim DeltaX As Double = lP1Lon - _MidLon '(lP1Lon - lP2Lon) / 2
+    '        Dim lP1Lat As Double = _p1.Lat
+    '        Dim lP2Lat As Double = _p2.Lat
+    '        Dim DeltaY As Double = lP1Lat - _MidLat '(lP1Lat - lP2Lat) / 2
 
-        If Math.Abs(2 * DeltaX) < MIN_POLYGON_SPLIT / 180 * Math.PI Then
+    '        If Math.Abs(2 * DeltaX) < MIN_POLYGON_SPLIT / 180 * Math.PI Then
 
-            Return False
+    '            Return False
 
-        End If
-        If _SubRects(0) Is Nothing Then
-            SpinLock()
+    '        End If
+    '        If _SubRects(0) Is Nothing Then
+    '            SpinLock()
 
-            If _SubRects(0) Is Nothing Then
-                For x As Integer = 0 To 1
-                    For y As Integer = 0 To 1
+    '            If _SubRects(0) Is Nothing Then
+    '                For x As Integer = 0 To 1
+    '                    For y As Integer = 0 To 1
 
-                        Dim P1 As New Coords With {.Lat = lP1Lat - DeltaY * y, .Lon = lP1Lon - (1 - x) * DeltaX}
-                        Dim P2 As New Coords With {.Lat = lP2Lat + DeltaY * (1 - y), .Lon = lP2Lon + x * DeltaX}
+    '                        Dim P1 As New Coords With {.Lat = lP1Lat - DeltaY * y, .Lon = lP1Lon - (1 - x) * DeltaX}
+    '                        Dim P2 As New Coords With {.Lat = lP2Lat + DeltaY * (1 - y), .Lon = lP2Lon + x * DeltaX}
 
-                        _SubRects(2 * x + y) = New BspRect(P1, P2, Z + 1)
-                    Next
-                Next
-            End If
+    '                        _SubRects(2 * x + y) = New BspRect(P1, P2, Z + 1)
+    '                    Next
+    '                Next
+    '            End If
 
-            SpinLockExit()
-        End If
+    '            SpinLockExit()
+    '        End If
 
-#If BSP_STATS Then
-        BspCount += 4
-        Stats.SetStatValue(Stats.StatID.BSPCellCount) = CDbl(BspCount)
-#End If
+    '#If BSP_STATS Then
+    '        BspCount += 4
+    '        Stats.SetStatValue(Stats.StatID.BSPCellCount) = CDbl(BspCount)
+    '#End If
 
-        Return True
-    End Function
+    '        Return True
+    '    End Function
 
-    Private Sub SpinLock()
+    Private Sub SpinLock(X As Integer, Y As Integer)
+
         Dim GotLock As Boolean = False
-        Static SpinCount As Long = 0
+        Dim Index As Integer = (X + Y) Mod SPIN_COUNT
+        'Static SpinCount As Long = 0
         'Static SpinDuration As Double = 0
         'Dim Start As DateTime = Now
 
-        If _SpinLock.IsHeldByCurrentThread Then
+        If _SpinLock(Index).IsHeldByCurrentThread Then
             _SpinCount += 1
-            Console.WriteLine("enter" & Thread.CurrentThread.ManagedThreadId & "/" & _SpinCount)
+            'Console.WriteLine("enter" & Thread.CurrentThread.ManagedThreadId & "/" & _SpinCount)
             Return
         End If
         Do
-            _SpinLock.Enter(GotLock)
+            _SpinLock(Index).Enter(GotLock)
             'System.Threading.Thread.Sleep(1)
         Loop Until GotLock
         _SpinCount += 1
@@ -528,12 +557,15 @@ Public Class BspRect
 
     End Sub
 
-    Private Sub SpinLockExit()
+    Private Sub SpinLockExit(X As Integer, Y As Integer)
         'Console.WriteLine("exit" & Thread.CurrentThread.ManagedThreadId & "/" & _SpinCount)
+        Dim Index As Integer = (X + Y) Mod SPIN_COUNT
         _SpinCount -= 1
-        If _SpinCount = 0 Then
-            _SpinLock.Exit()
-        End If
+        'If _SpinCount = 0 Then
+        _SpinLock(Index).Exit()
+        'Else
+        'Dim i As Int16 = 0
+        'End If
     End Sub
 
     Public Property SubRects() As BspRect()
