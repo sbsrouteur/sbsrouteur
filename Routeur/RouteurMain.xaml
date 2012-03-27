@@ -250,6 +250,7 @@
 				<MenuItem Header="Freeze Pilototo Route and Assess computation Errors" />
 			</MenuItem>
 			<MenuItem Header="Display" VerticalAlignment="Center">
+				
 				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}" HorizontalAlignment="Left"/>
 				<CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center"/>
 				<CheckBox Content="Hide Boat &amp; Wind Arrow" IsChecked="{Binding VorHandler.HideWindArrow, Mode=Default}" VerticalAlignment="Center" />
@@ -261,13 +262,7 @@
 					<MenuItem Header="Zoom to Next WP" Click="ZoomToNextWP"></MenuItem>
 					<MenuItem Header="Zoom entire race" Click="ZoomToRace"></MenuItem>
 				</MenuItem>
-				<Separator/>
-				<CheckBox Content="Center Map on 180°E/W" IsEnabled="{Binding MapMenuEnabled}"  IsChecked="{Binding The2DViewer.CenterMapOnAnteMeridien, Mode=Default}" />
-				<!--
-				<MenuItem Header="Rescale Map" Click="ReScaleMap" IsEnabled="{Binding MapMenuEnabled}" />
-                <MenuItem Header="Restore Race Zone Map Scale" Click="RestoreMapScale" IsEnabled="{Binding MapMenuEnabled}" />
-				-->
-                <Separator/>
+				<Separator />
 				<CheckBox Content="Hide Isochrones lines" IsChecked="{Binding The2DViewer.HideIsochronesLines, Mode=Default}"/>
 				<CheckBox Content="Hide Isochrones dots" IsChecked="{Binding The2DViewer.HideIsochronesDots, Mode=Default}"/>
 				
@@ -297,6 +292,7 @@
 						<ColumnDefinition Width="171.61"/>
 						<ColumnDefinition/>
 						<ColumnDefinition Width="2*" MinWidth="136.239"/>
+						<ColumnDefinition Width="200"/>
 					</Grid.ColumnDefinitions>
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto" MinHeight="24.572"/>
@@ -432,7 +428,7 @@
 						</GroupBox>
 						
 					</StackPanel>
-					<GroupBox Grid.Column="3" Grid.Row="7" Header="Journal" x:Name="GrpLog" Background="#6DFFFFFF" Margin="3,3,5,5">
+					<GroupBox Grid.Column="3" Grid.Row="7" Header="Journal" x:Name="GrpLog" Background="#6DFFFFFF" Margin="3,3,5,5" Grid.ColumnSpan="3">
 						<Grid Width="Auto" Height="Auto">
 							<ListBox ItemsSource="{Binding VorHandler.Log, Mode=Default}"/>
 						</Grid>
@@ -441,7 +437,7 @@
 						<TextBlock Width="Auto" Text="{Binding VorHandler.PositionDataAge, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom"/>
 						<TextBlock Width="Auto" Text="{Binding VorHandler.UserInfo.position.classement, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom" FontSize="24"/>
 					</DockPanel>
-					<GroupBox x:Name="GrpStats" Margin="0,0,0,8" Header="Stats" Grid.Column="3" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
+					<GroupBox x:Name="GrpStats" Header="Stats" Grid.Column="4" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
 					</GroupBox>
 					<StackPanel Grid.Column="1" Grid.ColumnSpan="2">
