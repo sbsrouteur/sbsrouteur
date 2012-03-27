@@ -339,7 +339,9 @@ Public Class IsoRouter
             Dim IsoDuratoin As Double = Now.Subtract(isostart).TotalMilliseconds
 
 #If DBG_ISO = 1 Then
-            Console.WriteLine("Isochrone computed in " & IsoDuratoin & " rate : " & IsoDuratoin / CurIsoChrone.Data.Length)
+            If CurIsoChrone IsNot Nothing Then
+                Console.WriteLine("Isochrone computed in " & IsoDuratoin & " rate : " & IsoDuratoin / CurIsoChrone.Data.Length)
+            End If
             'Console.WriteLine("IsoDone" & Now.Subtract(LoopStart).TotalMilliseconds)
 #End If
             'CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
