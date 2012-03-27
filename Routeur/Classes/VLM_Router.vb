@@ -131,6 +131,10 @@ Public Class VLM_Router
     Private _MenuWPAngle As Double
     Private _WindAngleETA As DateTime
     Private _NAVWP As Coords
+    Private _VMGETA As DateTime
+    Private _OrthoETA As DateTime
+    Private _VBVMGETA As DateTime
+
 
     Private _XTRRoute As Collection(Of clsrouteinfopoints)
     Private _XTRAssessmentON As Boolean = False
@@ -1856,6 +1860,38 @@ Public Class VLM_Router
 
     End Sub
 
+    Private Sub ETAToPointOrtho(ByVal state As Object)
+
+        Dim TC As New TravelCalculator
+        TC.StartPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+        TC.EndPoint = New Coords(_CurMousePos)
+        Dim StartDate As DateTime = GetNextCrankingDate()
+        Dim LastDist As Double = 0
+        Dim mi As MeteoInfo
+        'Dim tc2 As New TravelCalculator
+        _OrthoETA = New DateTime(1)
+        'TC.EndPoint = TC.StartPoint
+        'tc2.StartPoint = TC.StartPoint
+        While TC.SurfaceDistance > LastDist
+            mi = Meteo.GetMeteoToDate(TC.EndPoint, StartDate, False)
+            If mi Is Nothing Then
+                Return
+            End If
+            Dim Bearing As Double = TC.OrthoCourse_Deg
+
+            Dim Speed As Double = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(Bearing, mi.Dir), mi.Strength)
+            LastDist = Speed / 60 * RouteurModel.VacationMinutes
+            TC.StartPoint = TC.ReachDistance(LastDist, Bearing)
+            'tc2.StartPoint = TC.EndPoint
+            StartDate = StartDate.AddMinutes(RouteurModel.VacationMinutes)
+        End While
+
+        _OrthoETA = StartDate
+
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointNAVORTHOMSG"))
+
+    End Sub
+
     Private Sub ETAToPointWindAngle(ByVal state As Object)
         Dim TC As New TravelCalculator
         Dim tc2 As New TravelCalculator
@@ -2184,7 +2220,15 @@ Public Class VLM_Router
 
     Public ReadOnly Property GoToPointNAVORTHOMSG() As String
         Get
-            Return "Go to " & _CurMousePos.ToString & " in ortho ETA..."
+            If _OrthoETA.Ticks = 0 Then
+                System.Threading.ThreadPool.QueueUserWorkItem(AddressOf ETAToPointOrtho, Nothing)
+                Return "Go to " & _CurMousePos.ToString & " in ortho ETA..."
+            ElseIf _OrthoETA.Ticks = 1 Then
+                Return "Ortho ETA did not compute. Retry later"
+            Else
+                Return "Go to " & _CurMousePos.ToString & " ETA " & _OrthoETA.ToString
+            End If
+
         End Get
     End Property
 
@@ -3032,6 +3076,10 @@ Public Class VLM_Router
 
         _BearingETA = New DateTime(0)
         _WindAngleETA = New DateTime(0)
+        _VMGETA = New DateTime(0)
+        _OrthoETA = New DateTime(0)
+        _VBVMGETA = New DateTime(0)
+
         _MenuWindAngleValid = False
         _MenuWPWindAngleValid = False
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointBearingMsg"))
