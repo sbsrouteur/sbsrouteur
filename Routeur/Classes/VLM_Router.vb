@@ -1892,6 +1892,50 @@ Public Class VLM_Router
 
     End Sub
 
+    Private Sub ETAToPointVBVMG(ByVal state As Object)
+
+        Dim tc As New TravelCalculator
+        Dim CurPoint As New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+
+        Dim CurETA As DateTime
+        Dim mi As MeteoInfo = Nothing
+        Dim Speed As Double
+        Dim Dist As Double = 1000
+
+        _WindAngleETA = Now
+        _VBVMGETA = New DateTime(1)
+        Try
+
+            Dim Found As Boolean = False
+            CurETA = GetNextCrankingDate()
+            tc.StartPoint = CurPoint
+            While Not Found
+                mi = Meteo.GetMeteoToDate(tc.StartPoint, CurETA, False)
+                If mi Is Nothing Then
+                    Return
+                End If
+                tc.EndPoint = _CurMousePos
+                Dist = tc.SurfaceDistance
+                tc.EndPoint = ComputeTrackVBVMG(mi, _Sails, BoatType, tc.StartPoint, _CurMousePos, Nothing, Speed, Found)
+                Found = Dist < tc.SurfaceDistance
+                Speed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(tc.LoxoCourse_Deg, mi.Dir), mi.Strength)
+
+                tc.EndPoint = tc.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, tc.LoxoCourse_Deg)
+                tc.StartPoint = tc.EndPoint
+                CurETA = CurETA.AddMinutes(RouteurModel.VacationMinutes)
+            End While
+
+            If Found Then
+                _VBVMGETA = CurETA
+            Else
+                _VBVMGETA = New DateTime(1)
+            End If
+        Finally
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GoToPointNAVVBVMGMSG"))
+        End Try
+    End Sub
+
+
     Private Sub ETAToPointWindAngle(ByVal state As Object)
         Dim TC As New TravelCalculator
         Dim tc2 As New TravelCalculator
@@ -2240,7 +2284,14 @@ Public Class VLM_Router
 
     Public ReadOnly Property GoToPointNAVVBVMGMSG() As String
         Get
-            Return "Go to " & _CurMousePos.ToString & " in VBVMG ETA..."
+            If _OrthoETA.Ticks = 0 Then
+                System.Threading.ThreadPool.QueueUserWorkItem(AddressOf ETAToPointVBVMG, Nothing)
+                Return "Go to " & _CurMousePos.ToString & " in VBVMG ETA..."
+            ElseIf _OrthoETA.Ticks = 1 Then
+                Return "VBVMG ETA did not compute. Retry later"
+            Else
+                Return "Go to " & _CurMousePos.ToString & "VBVMG ETA " & _VBVMGETA.ToString
+            End If
         End Get
     End Property
 
