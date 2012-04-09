@@ -60,13 +60,13 @@
 				<RowDefinition Height="Auto" MinHeight="25"/>
 				<RowDefinition Height="Auto" MinHeight="25"/>
 			</Grid.RowDefinitions>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.PIM, Mode=Default}" StringFormat="nav"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.PIM, Mode=Default}" StringFormat="nav"/>
 			<TextBlock TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" Grid.ColumnSpan="2" HorizontalAlignment="Center"><Run Text="Nav"/></TextBlock>
 			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" StrokeThickness="2" Effect="{DynamicResource DigitShadow}" Visibility="{Binding VorHandler.UserInfo.position.PIM_WP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 			<TextBlock Text="WP Lat" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
 			<TextBlock Text="WP Lon" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="2"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.WP_latitude, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="lat" Grid.Row="1"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.WP_longitude, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2" StringFormat="lon"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.WPLAT, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="lat" Grid.Row="1"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.WPLON, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2" StringFormat="lon"/>
 	
 		</Grid>
 		<Grid Grid.Row="1" Background="{DynamicResource LCDBackBrush}">
@@ -85,9 +85,9 @@
 			<TextBlock Text="Ortho" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center"/>
 			<TextBlock Text="Loxo" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Grid.Column="1"/>
 			<TextBlock Text="Dist to WP" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Grid.Column="2"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.Ortho, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.Loxo, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center" Grid.Column="1"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.DNM, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center" Grid.Column="2"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.ORT, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.LOX, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center" Grid.Column="1"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.DNM, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center" Grid.Column="2"/>
 
 		</Grid>
 		</Grid>

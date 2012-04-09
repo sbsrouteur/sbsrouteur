@@ -210,7 +210,7 @@ Module JSonHelper
 
             Dim T = P.PropertyType
             Dim Value As Object = Nothing
-            If T Is GetType(Integer) Then
+            If T Is GetType(Integer) OrElse GetType([Enum]).IsAssignableFrom(T) Then
                 Value = GetJSonIntValue(JSonData, P.Name)
             ElseIf T Is GetType(Double) Then
                 Value = GetJSonDoubleValue(JSonData, P.Name)

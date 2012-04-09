@@ -1,5 +1,10 @@
 ﻿Public Class VLMRaceInfo
 
+    Public Enum RACE_TYPE
+        Classic = 0
+        Record = 1
+    End Enum
+
     Private _idraces As String
     Private _RaceName As String
     Private _StartLon As Integer
@@ -79,6 +84,8 @@
             _RaceName = value
         End Set
     End Property
+
+    Public Property racetype As RACE_TYPE
 
     Public Property deptime() As DateTime
         Get

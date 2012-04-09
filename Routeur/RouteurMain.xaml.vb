@@ -243,8 +243,8 @@ Partial Public Class RouteurMain
         Dim StartTicks As DateTime
 
         With M.VorHandler
-            Curpos.Lon_Deg = .UserInfo.position.longitude
-            Curpos.Lat_Deg = .UserInfo.position.latitude
+            Curpos.Lon_Deg = .UserInfo.LON
+            Curpos.Lat_Deg = .UserInfo.LAT
 
             StartTicks = Now
             '.StartBestVMGRouter(Curpos, Now)
@@ -413,8 +413,8 @@ Partial Public Class RouteurMain
         Dim MinLat As Double = M.The2DViewer.CanvasToLat(M.The2DViewer.ActualHeight)
         Dim DLon As Double = (MaxLon - MinLon) / 2
         Dim DLat As Double = (MaxLat - MinLat) / 2
-        Dim p1 As New Coords(M.VorHandler.UserInfo.position.latitude + DLat, M.VorHandler.UserInfo.position.longitude - DLon)
-        Dim p2 As New Coords(M.VorHandler.UserInfo.position.latitude - DLat, M.VorHandler.UserInfo.position.longitude + DLon)
+        Dim p1 As New Coords(M.VorHandler.UserInfo.LAT + DLat, M.VorHandler.UserInfo.LON - DLon)
+        Dim p2 As New Coords(M.VorHandler.UserInfo.LAT - DLat, M.VorHandler.UserInfo.LON + DLon)
 
         M.UpdateRaceScale(p1, p2)
         RedrawClick(Nothing, Nothing)
@@ -480,7 +480,7 @@ Partial Public Class RouteurMain
         Dim frm As New frmRoutesManager
         Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
         M.RouteManager.FilterRaceID = M.P_Info(0).RaceInfo.idraces
-        M.RouteManager.Boat = M.VorHandler.UserInfo.type
+        M.RouteManager.Boat = M.VorHandler.UserInfo.POL
         frm.ShowForm(M.RouteManager, Me)
 
     End Sub
@@ -523,9 +523,9 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         Dim V As VLM_Router = M.VorHandler
-        Dim MinLon As Double = M.VorHandler.UserInfo.position.longitude
+        Dim MinLon As Double = M.VorHandler.UserInfo.LON
         Dim MaxLon As Double = MinLon
-        Dim MaxLat As Double = M.VorHandler.UserInfo.position.latitude
+        Dim MaxLat As Double = M.VorHandler.UserInfo.LAT
         Dim MinLat As Double = maxlat
         
         Dim WP As Integer = M.VorHandler.CurUserWP
@@ -548,9 +548,9 @@ Partial Public Class RouteurMain
         Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         Dim V As VLM_Router = M.VorHandler
-        Dim MinLon As Double = M.VorHandler.UserInfo.position.longitude
+        Dim MinLon As Double = M.VorHandler.UserInfo.LON
         Dim MaxLon As Double = MinLon
-        Dim MaxLat As Double = M.VorHandler.UserInfo.position.latitude
+        Dim MaxLat As Double = M.VorHandler.UserInfo.LAT
         Dim MinLat As Double = MaxLat
 
         For WP As Integer = 0 To M.CurPlayer.RaceInfo.races_waypoints.Count - 1

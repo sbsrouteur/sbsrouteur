@@ -60,8 +60,8 @@
 			<TextBlock Text="Boat Position" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" Grid.ColumnSpan="2" HorizontalAlignment="Center"/>
 			<TextBlock Text="Lat" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
 			<TextBlock Text="Lon" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="2"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.latitude, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="lat" Grid.Row="1"/>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.position.longitude, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2" StringFormat="lon"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.LAT, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="lat" Grid.Row="1"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.LON, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2" StringFormat="lon"/>
 	
 		</Grid>
 	</Grid>

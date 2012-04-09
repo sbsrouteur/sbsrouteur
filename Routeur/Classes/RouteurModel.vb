@@ -450,7 +450,7 @@ Public Class RouteurModel
             If VorHandler.UserInfo Is Nothing OrElse VorHandler.UserInfo.position Is Nothing Then
                 Return 0
             End If
-            Return _2DViewer.LonToCanvas(VorHandler.UserInfo.position.longitude)
+            Return _2DViewer.LonToCanvas(VorHandler.UserInfo.LON)
         End Get
     End Property
 
@@ -460,7 +460,7 @@ Public Class RouteurModel
                 Return 0
             End If
 
-            Return _2DViewer.LatToCanvas(VorHandler.UserInfo.position.latitude)
+            Return _2DViewer.LatToCanvas(VorHandler.UserInfo.LAT)
         End Get
     End Property
 
@@ -867,7 +867,7 @@ Public Class RouteurModel
                     _ClearGrid = True
                 ElseIf e.PropertyName = "UserInfo" Then
                     If Not RouteManager Is Nothing Then
-                        RouteManager.Curpos = New Coords(VorHandler.UserInfo.position.latitude, VorHandler.UserInfo.position.longitude)
+                        RouteManager.Curpos = New Coords(VorHandler.UserInfo.Position)
                     End If
 
                 End If
@@ -937,9 +937,9 @@ Public Class RouteurModel
                 'End If
                 'routes(7) = Moorea
 
-                Dim Traj As String
+                Dim Traj As String = ""
 
-                If VorHandler Is Nothing OrElse VorHandler.UserInfo Is Nothing OrElse VorHandler.UserInfo.trajectoire Is Nothing Then
+                If VorHandler Is Nothing OrElse VorHandler.UserInfo Is Nothing OrElse VorHandler.UserInfo.track Is Nothing Then
                     Traj = ""
                 Else
                     Traj = VorHandler.Track

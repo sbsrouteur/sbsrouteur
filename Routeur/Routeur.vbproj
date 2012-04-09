@@ -447,9 +447,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="TestFriends.vb" />
-    <Compile Include="xml\BoatInfoFile.vb">
-      <DependentUpon>BoatInfoFile.xsd</DependentUpon>
-    </Compile>
     <Compile Include="xml\Current.vb">
       <DependentUpon>Current.xsd</DependentUpon>
       <SubType>code</SubType>
@@ -477,7 +474,6 @@
     <None Include="bin\Debug\Data.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="xml\BoatInfoFile.xsd" />
     <None Include="xml\MeteoInfoFile.xsd" />
     <None Include="xml\SampleBoatInfoFile.xml" />
   </ItemGroup>
