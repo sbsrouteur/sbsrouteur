@@ -50,9 +50,11 @@ Public Class TileInfo
         End If
         _TX = CInt(Math.Floor((N_Lon + 180) / 360 * 2 ^ Z))
         _TY = CInt(Math.Floor((1 - Math.Log(Math.Tan(N_Lat * Math.PI / 180) + 1 / Math.Cos(N_Lat * Math.PI / 180)) / Math.PI) / 2 * 2 ^ Z))
-
+        If _TY > 2 ^ Z Then
+            _TY = CInt(2 ^ Z)
+        End If
         Debug.Assert(_TX >= 0 And _TX <= 2 ^ Z)
-        Debug.Assert(_TY <= 2 ^ Z)
+        'Debug.Assert(_TY <= 2 ^ Z)
 
         If _TY >= 0 Then
             'Recompute tile coords
