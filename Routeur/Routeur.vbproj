@@ -446,9 +446,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="TestFriends.vb" />
-    <Compile Include="xml\MeteoInfoFile.vb">
-      <DependentUpon>MeteoInfoFile.xsd</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
@@ -469,13 +466,6 @@
     <None Include="bin\Debug\Data.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="xml\MeteoInfoFile.xsd" />
-    <None Include="xml\SampleBoatInfoFile.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="xml\SampleMeteoFile.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Graphics\Boat_Top.png" />
   </ItemGroup>
   <ItemGroup>
@@ -483,14 +473,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Graphics\world.png" />
-    <None Include="xml\XMLFile1.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="bin\Debug\Routeur.ini" />
     <None Include="bin\Release\Routeur.ini" />
     <None Include="Routeur_TemporaryKey.pfx" />
     <None Include="xml\SailPolar.xsd" />
-    <None Include="xml\SamplePolar.xml" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
