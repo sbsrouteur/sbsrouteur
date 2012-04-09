@@ -344,7 +344,6 @@
     <Compile Include="Classes\Coords.vb" />
     <Compile Include="Classes\CoordsConverter.vb" />
     <Compile Include="Classes\CountToVisibilityConverter.vb" />
-    <Compile Include="Classes\CurrentMgr.vb" />
     <Compile Include="Classes\DateConverter.vb" />
     <Compile Include="Classes\eHashTable.vb" />
     <Compile Include="Classes\GribMeteo\GribManager.vb" />
@@ -447,10 +446,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="TestFriends.vb" />
-    <Compile Include="xml\Current.vb">
-      <DependentUpon>Current.xsd</DependentUpon>
-      <SubType>code</SubType>
-    </Compile>
     <Compile Include="xml\MeteoInfoFile.vb">
       <DependentUpon>MeteoInfoFile.xsd</DependentUpon>
     </Compile>
@@ -494,7 +489,6 @@
     <None Include="bin\Debug\Routeur.ini" />
     <None Include="bin\Release\Routeur.ini" />
     <None Include="Routeur_TemporaryKey.pfx" />
-    <None Include="xml\Current.xsd" />
     <None Include="xml\SailPolar.xsd" />
     <None Include="xml\SamplePolar.xml" />
   </ItemGroup>
