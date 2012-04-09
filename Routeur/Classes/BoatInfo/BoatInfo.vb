@@ -4,8 +4,6 @@ Imports System.Net
 
 Public Class BoatInfo
 
-    'HgPush
-
     Implements INotifyPropertyChanged
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
