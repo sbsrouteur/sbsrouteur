@@ -347,7 +347,7 @@
 								</ItemsControl.ItemsPanel>
 							</ItemsControl>
 							<Path x:Name="track24h" Stroke="Red" Data="{Binding Track24h, ElementName=NavControl}" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" />
-							<Routeur:EasyNavControl x:Name="NavControl" Width="Auto" Height="Auto" d:LayoutOverrides="GridBox" BoatType="{Binding VorHandler.UserInfo.type}" ClsSailManager="{Binding Mode=OneWay}" MeteoStrength="{Binding VorHandler.UserInfo.position.wind_speed}" MeteoDir="{Binding VorHandler.UserInfo.position.wind_angle}" BoatBearing="{Binding VorHandler.UserInfo.position.cap}" BoatLon="{Binding VorHandler.UserInfo.position.longitude}" Renderer="{Binding The2DViewer}" BoatLat="{Binding VorHandler.UserInfo.position.latitude}" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" BoatDest="{Binding VorHandler.CurrentDest}" />
+							<Routeur:EasyNavControl x:Name="NavControl" Width="Auto" Height="Auto" d:LayoutOverrides="GridBox" BoatType="{Binding VorHandler.UserInfo.type}" ClsSailManager="{Binding Mode=OneWay}" MeteoStrength="{Binding VorHandler.UserInfo.TWS}" MeteoDir="{Binding VorHandler.UserInfo.TWA}" BoatBearing="{Binding VorHandler.UserInfo.HDG}" BoatLon="{Binding VorHandler.UserInfo.LON}" Renderer="{Binding The2DViewer}" BoatLat="{Binding VorHandler.UserInfo.LON}" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" BoatDest="{Binding VorHandler.CurrentDest}" />
 						</Canvas>
 						
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
@@ -362,7 +362,7 @@
 							<TransformGroup>
 								<ScaleTransform ScaleX="1" ScaleY="1"/>
 								<SkewTransform AngleX="0" AngleY="0"/>
-								<RotateTransform Angle="{Binding VorHandler.UserInfo.position.cap, Mode=Default}"/>
+								<RotateTransform Angle="{Binding VorHandler.UserInfo.HDG, Mode=Default}"/>
 								<TranslateTransform X="0" Y="0"/>
 							</TransformGroup>
 						</Image.LayoutTransform>
@@ -375,12 +375,12 @@
 							</TransformGroup>
 						</Image.RenderTransform>
 					</Image>
-					<Label Content="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default, StringFormat=\{0:F2\}}" Style="{DynamicResource CapLabel}" Foreground="#FFCFBC22" RenderTransformOrigin="0.5,1" d:LayoutOverrides="Width, Height" Grid.Row="1">
+					<Label Content="{Binding VorHandler.UserInfo.BSP, Mode=Default, StringFormat=\{0:F2\}}" Style="{DynamicResource CapLabel}" Foreground="#FFCFBC22" RenderTransformOrigin="0.5,1" d:LayoutOverrides="Width, Height" Grid.Row="1">
 						<Label.RenderTransform>
 							<TransformGroup>
 								<ScaleTransform ScaleX="1" ScaleY="1"/>
 								<SkewTransform AngleX="0" AngleY="0"/>
-								<RotateTransform Angle="{Binding VorHandler.WindDir, Mode=Default}"/>
+								<RotateTransform Angle="{Binding VorHandler.UserInfo.TWD, Mode=Default}"/>
 								<TranslateTransform X="0" Y="-58"/>
 							</TransformGroup>
 						</Label.RenderTransform>
@@ -435,7 +435,7 @@
 					</GroupBox>
 					<DockPanel Grid.Row="7" LastChildFill="False">
 						<TextBlock Width="Auto" Text="{Binding VorHandler.PositionDataAge, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom"/>
-						<TextBlock Width="Auto" Text="{Binding VorHandler.UserInfo.position.classement, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom" FontSize="24"/>
+						<TextBlock Width="Auto" Text="{Binding VorHandler.UserInfo.POS, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom" FontSize="24"/>
 					</DockPanel>
 					<GroupBox x:Name="GrpStats" Header="Stats" Grid.Column="4" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
@@ -471,19 +471,19 @@
 					</Grid.ColumnDefinitions>
 					<TextBlock Text="Lat" TextWrapping="Wrap"/>
 					<TextBlock Grid.Row="1" Text="Lon" TextWrapping="Wrap"/>
-					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Text="{Binding VorHandler.UserInfo.position.latitude, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Grid.ColumnSpan="1"/>
-					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="1" Text="{Binding VorHandler.UserInfo.position.longitude, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Grid.ColumnSpan="1"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Text="{Binding VorHandler.UserInfo.LAT, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Grid.ColumnSpan="1"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Grid.Row="1" Text="{Binding VorHandler.UserInfo.LON, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Grid.ColumnSpan="1"/>
 					<TextBlock Text="Cap" TextWrapping="Wrap" Grid.Row="2"/>
 					<TextBlock Text="Vitesse" TextWrapping="Wrap" Grid.Row="3"/>
-					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.cap, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="1"/>
-					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.vitesse, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="1"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.HDG, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="1"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.BSP, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="1"/>
 					<TextBlock Text="Date" TextWrapping="Wrap" Grid.Column="2"/>
-					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.date, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Grid.Column="3"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.Position.date, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Grid.Column="3"/>
 					<TextBlock Text="Position" TextWrapping="Wrap" Grid.Column="2" Grid.Row="2" Grid.RowSpan="1"/>
-					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.classement, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="2"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.POS, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="2"/>
 					<TextBlock Text="Cap" TextWrapping="Wrap" Grid.Column="2" Grid.Row="3"/>
 					<TextBlock Text="Vitesse" TextWrapping="Wrap" Grid.Column="2" Grid.Row="4"/>
-					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.wind_angle, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="3" Margin="6,4,2,4"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.TWA, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="3" Margin="6,4,2,4"/>
 					<GridSplitter Width="4" Grid.Column="1" Grid.RowSpan="11"/>
 					<GridSplitter Width="4" Grid.RowSpan="11"/>
 					<GridSplitter Width="4" Grid.Column="2" Grid.RowSpan="11"/>
@@ -491,7 +491,7 @@
 					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.PositionDataAge, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="1"/>
 					<TextBlock Text="Last Data :" TextWrapping="Wrap" Grid.Column="2" Grid.Row="10"/>
 					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.date, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="10"/>
-					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.position.wind_speed, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="4"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.BSP, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="4"/>
 				</Grid>
 			</TabItem> 
 			<TabItem Header="Route Tables">

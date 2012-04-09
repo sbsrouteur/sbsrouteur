@@ -18,7 +18,7 @@ Public Class VLM_Router
     Public Event BoatClear()
     Public Event IsoComplete(ByVal NewBestPoint As VLM_Router.clsrouteinfopoints)
 
-    Private _UserInfo As user
+    Private _UserInfo As VLMBoatInfo
     Private _WebClient As New WebClient()
     Private _CookiesContainer As CookieContainer = Nothing
     Private _LastRefreshTime As DateTime
@@ -570,25 +570,25 @@ Public Class VLM_Router
             Const MAX_ERROR_WIND As Double = 0.075
             Const MAX_ERROR_SPEED As Double = 0.02
 
-            If Abs(.P.Lon_Deg - _UserInfo.position.longitude) > MAX_ERROR_POS OrElse Abs(.P.Lat_Deg - _UserInfo.position.latitude) > MAX_ERROR_POS Then
+            If Abs(.P.Lon_Deg - _UserInfo.Position.Lon_Deg) > MAX_ERROR_POS OrElse Abs(.P.Lat_Deg - _UserInfo.Position.Lat_Deg) > MAX_ERROR_POS Then
                 PosError = True
             End If
 
-            If Abs(mi.Strength - _UserInfo.position.wind_speed) > MAX_ERROR_WIND OrElse Abs(mi.Dir - _UserInfo.position.wind_angle) > MAX_ERROR_WIND Then
+            If Abs(mi.Strength - _UserInfo.TWS) > MAX_ERROR_WIND OrElse Abs(mi.Dir - _UserInfo.TWA) > MAX_ERROR_WIND Then
                 WindError = True
             End If
 
-            If Abs(_UserInfo.position.vitesse - .Speed) > MAX_ERROR_SPEED Then
+            If Abs(_UserInfo.BSP - .Speed) > MAX_ERROR_SPEED Then
                 BoatSpeedError = True
             End If
 
             If PosError Then
-                Dim tc As New TravelCalculator With {.StartPoint = _XTRRoute(0).P, .EndPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)}
+                Dim tc As New TravelCalculator With {.StartPoint = _XTRRoute(0).P, .EndPoint = New Coords(_UserInfo.Position)}
                 AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " position error " & tc.SurfaceDistance & " angle : " & tc.LoxoCourse_Deg & "°")
             End If
 
             If BoatSpeedError Then
-                AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " boat speed error " & _UserInfo.position.vitesse - .Speed & "kts")
+                AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " boat speed error " & _UserInfo.BSP - .Speed & "kts")
             End If
 
             If WindError Then
@@ -638,7 +638,7 @@ Public Class VLM_Router
                 Return ""
             End If
 
-            Dim P As New Coords(_UserInfo.position.longitude, _UserInfo.position.latitude)
+            Dim P As New Coords(_UserInfo.Position)
             Dim Tc As New TravelCalculator With {.StartPoint = _CurMousePos}
 
             Try
@@ -659,7 +659,7 @@ Public Class VLM_Router
                 Dim CapOrtho As Double = Tc.OrthoCourse_Deg
 
 
-                Return CurVMGEnveloppe(Mi, P, CapOrtho, UserInfo.type)
+                Return CurVMGEnveloppe(Mi, P, CapOrtho, UserInfo.POL)
             Finally
                 Tc.StartPoint = Nothing
                 Tc.EndPoint = Nothing
@@ -882,7 +882,12 @@ Public Class VLM_Router
             If PlayerInfo Is Nothing OrElse _PlayerInfo.RaceInfo Is Nothing Then
                 Return Nothing
             End If
-            Return _PlayerInfo.RaceInfo.deptime
+            If _PlayerInfo.RaceInfo.racetype = VLMRaceInfo.RACE_TYPE.Classic Then
+                Return _PlayerInfo.RaceInfo.deptime
+            Else
+                Return UserInfo.date
+            End If
+
         End Get
     End Property
 
@@ -1006,7 +1011,7 @@ Public Class VLM_Router
             If AllureDuration = 0 Then
                 Return
             End If
-            Dim C As New Coords With {.Lat_Deg = _UserInfo.position.latitude, .Lon_Deg = _UserInfo.position.longitude}
+            Dim C As New Coords(_UserInfo.Position)
             Dim Mi As MeteoInfo
             Dim Dte As DateTime = _UserInfo.date.AddMinutes(RouteurModel.VacationMinutes)
             Dim Speed As Double = 0
@@ -1017,7 +1022,7 @@ Public Class VLM_Router
                 If Mi Is Nothing Then
                     Exit For
                 End If
-                Speed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, Math.Abs(AllureAngle), Mi.Strength)
+                Speed = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, Math.Abs(AllureAngle), Mi.Strength)
                 TC.StartPoint = C
                 C = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + AllureAngle))
                 Dte = Dte.AddMinutes(RouteurModel.VacationMinutes)
@@ -1163,7 +1168,7 @@ Public Class VLM_Router
             Computing = True
             Try
                 Dim Route(5) As RoutePointView
-                Dim CurPos As New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+                Dim CurPos As New Coords(_UserInfo.Position)
                 Dim RP As RoutePointView
 
                 For i As Integer = 0 To 4
@@ -1210,25 +1215,25 @@ Public Class VLM_Router
                 With RP
                     .ActionDate = _UserInfo.date
 
-                    .RouteMode = CType(_UserInfo.position.PIM, EnumRouteMode)
+                    .RouteMode = CType(_UserInfo.PIM, EnumRouteMode)
 
 
                     Select Case .RouteMode
                         Case EnumRouteMode.Bearing
                             Dim PtDoubleValue As New RoutePointDoubleValue
-                            PtDoubleValue.Value = _UserInfo.position.cap
+                            PtDoubleValue.Value = _UserInfo.HDG
                             RP.RouteValue = PtDoubleValue
 
                         Case EnumRouteMode.Angle
                             Dim PtDoubleValue As New RoutePointDoubleValue
-                            PtDoubleValue.Value = _UserInfo.position.AngleAllure
+                            PtDoubleValue.Value = _UserInfo.TWA
                             RP.RouteValue = PtDoubleValue
 
                         Case Else
                             Dim PtWPValue As New RoutePointWPValue
 
-                            PtWPValue.WPLon = _UserInfo.position.WP_longitude
-                            PtWPValue.WPLat = UserInfo.position.WP_latitude
+                            PtWPValue.WPLon = _UserInfo.WPLON
+                            PtWPValue.WPLat = UserInfo.WPLAT
                             PtWPValue.SetBearingAtWP = False
                             PtWPValue.UseRaceWP = PtWPValue.WPLon = 0 AndAlso PtWPValue.WPLon = PtWPValue.WPLat
                             RP.RouteValue = PtWPValue
@@ -1267,14 +1272,14 @@ Public Class VLM_Router
                 Computing = True
 
                 Dim CurDate As DateTime = GetNextCrankingDate()
-                Dim CurPos As Coords = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+                Dim CurPos As Coords = New Coords(_UserInfo.Position)
                 Dim P As clsrouteinfopoints
                 Dim Mi As MeteoInfo = Nothing
                 Dim BoatSpeed As Double
                 Dim CurIndex As Integer = 0
                 Dim RouteComplete As Boolean = False
                 Dim CurWPDest As Coords = Nothing
-                Dim PrevMode As Integer = _UserInfo.position.ModePilote
+                Dim PrevMode As Integer = _UserInfo.PIM
                 Dim PrevWPDest As Coords = Nothing
                 Dim PrevWPNum As Integer = Nothing
                 Dim IsUserWP As Boolean
@@ -1326,11 +1331,11 @@ Public Class VLM_Router
 
                     Case 1
                         'Cap fixe
-                        PrevValue = _UserInfo.position.cap
+                        PrevValue = _UserInfo.HDG
 
                     Case 2
                         'Allure fixe
-                        PrevValue = _UserInfo.position.AngleAllure
+                        PrevValue = _UserInfo.TWA
 
                     Case 3, 4, 5
                         'Route to a WP
@@ -1436,7 +1441,7 @@ Public Class VLM_Router
                         Select Case PrevMode
                             Case 1
                                 'Cap fixe
-                                BoatSpeed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(PrevValue, Mi.Dir), Mi.Strength)
+                                BoatSpeed = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, WindAngle(PrevValue, Mi.Dir), Mi.Strength)
                                 CurPos = Tc.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, PrevValue)
                                 P = New clsrouteinfopoints With {.P = New Coords(CurPos), .WindDir = Mi.Dir, .WindStrength = Mi.Strength, .Speed = BoatSpeed}
                                 WPReached = False
@@ -1830,7 +1835,7 @@ Public Class VLM_Router
     Private Sub ETAToPointBearing(ByVal state As Object)
 
         Dim TC As New TravelCalculator
-        TC.StartPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+        TC.StartPoint = New Coords(_UserInfo.Position)
         TC.EndPoint = New Coords(_CurMousePos)
         Dim StartDate As DateTime = GetNextCrankingDate()
         Dim TargetDist As Double = TC.SurfaceDistance
@@ -1846,7 +1851,7 @@ Public Class VLM_Router
                 Return
             End If
 
-            Dim Speed As Double = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(Bearing, mi.Dir), mi.Strength)
+            Dim Speed As Double = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, WindAngle(Bearing, mi.Dir), mi.Strength)
 
             TC.EndPoint = tc2.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Bearing)
             tc2.StartPoint = TC.EndPoint
@@ -1863,7 +1868,7 @@ Public Class VLM_Router
     Private Sub ETAToPointOrtho(ByVal state As Object)
 
         Dim TC As New TravelCalculator
-        TC.StartPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+        TC.StartPoint = New Coords(_UserInfo.Position)
         TC.EndPoint = New Coords(_CurMousePos)
         Dim StartDate As DateTime = GetNextCrankingDate()
         Dim LastDist As Double = 0
@@ -1879,7 +1884,7 @@ Public Class VLM_Router
             End If
             Dim Bearing As Double = TC.OrthoCourse_Deg
 
-            Dim Speed As Double = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(Bearing, mi.Dir), mi.Strength)
+            Dim Speed As Double = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, WindAngle(Bearing, mi.Dir), mi.Strength)
             LastDist = Speed / 60 * RouteurModel.VacationMinutes
             TC.StartPoint = TC.ReachDistance(LastDist, Bearing)
             'tc2.StartPoint = TC.EndPoint
@@ -1895,7 +1900,7 @@ Public Class VLM_Router
     Private Sub ETAToPointVBVMG(ByVal state As Object)
 
         Dim tc As New TravelCalculator
-        Dim CurPoint As New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+        Dim CurPoint As New Coords(_UserInfo.Position)
 
         Dim CurETA As DateTime
         Dim mi As MeteoInfo = Nothing
@@ -1918,7 +1923,7 @@ Public Class VLM_Router
                 Dist = tc.SurfaceDistance
                 tc.EndPoint = ComputeTrackVBVMG(mi, _Sails, BoatType, tc.StartPoint, _CurMousePos, Nothing, Speed, Found)
                 Found = Dist < tc.SurfaceDistance
-                Speed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, WindAngle(tc.LoxoCourse_Deg, mi.Dir), mi.Strength)
+                Speed = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, WindAngle(tc.LoxoCourse_Deg, mi.Dir), mi.Strength)
 
                 tc.EndPoint = tc.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, tc.LoxoCourse_Deg)
                 tc.StartPoint = tc.EndPoint
@@ -1939,7 +1944,7 @@ Public Class VLM_Router
     Private Sub ETAToPointWindAngle(ByVal state As Object)
         Dim TC As New TravelCalculator
         Dim tc2 As New TravelCalculator
-        TC.StartPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+        TC.StartPoint = New Coords(_UserInfo.Position)
         TC.EndPoint = New Coords(_CurMousePos)
         Dim RefLoxo As Double = TC.LoxoCourse_Deg
         Dim RefDistance As Double = TC.SurfaceDistance
@@ -1978,7 +1983,7 @@ Public Class VLM_Router
                             RefAngle = -(180 - (RefAngle Mod 180))
                         End If
                     End If
-                    Speed = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
+                    Speed = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
 
                     TC.EndPoint = tc2.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, RefAngle + mi.Dir)
                     tc2.StartPoint = TC.EndPoint
@@ -2033,8 +2038,8 @@ Public Class VLM_Router
 
         Else
 
-            _ThreadSetterCurPos.Lon_Deg = _UserInfo.position.longitude
-            _ThreadSetterCurPos.Lat_Deg = _UserInfo.position.latitude
+            _ThreadSetterCurPos.Lon_Deg = _UserInfo.LON
+            _ThreadSetterCurPos.Lat_Deg = _UserInfo.LAT
             Pv.Clear()
             If Not Value Is Nothing Then
                 For Each V In Value
@@ -2052,7 +2057,7 @@ Public Class VLM_Router
     Public ReadOnly Property Track() As String
         Get
             If Not _Track Is Nothing AndAlso _Track.Length > 0 Then
-                Dim C As New Coords(UserInfo.position.latitude, UserInfo.position.longitude)
+                Dim C As New Coords(UserInfo.Position)
                 Dim CurPos As String = C.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "!" & C.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ";"
                 If Not _Track.EndsWith(CurPos) Then
                     _Track &= CurPos
@@ -2078,7 +2083,7 @@ Public Class VLM_Router
     Public Function ComputeTrackBearing(ByVal Bearing As Double) As List(Of Coords)
 
 
-        Dim C As New Coords(UserInfo.position.latitude, UserInfo.position.longitude)
+        Dim C As New Coords(UserInfo.Position)
         Dim StartDate As DateTime = Now
 
         If _PlayerInfo.RaceInfo.deptime > Now Then
@@ -2086,10 +2091,10 @@ Public Class VLM_Router
         End If
 
         Dim Cp(3) As Coords
-        Cp(0) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(3), Meteo, UserInfo.type, Sails, False)
-        Cp(1) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(6), Meteo, UserInfo.type, Sails, False)
-        Cp(2) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(12), Meteo, UserInfo.type, Sails, False)
-        Cp(3) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(24), Meteo, UserInfo.type, Sails, False)
+        Cp(0) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(3), Meteo, UserInfo.POL, Sails, False)
+        Cp(1) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(6), Meteo, UserInfo.POL, Sails, False)
+        Cp(2) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(12), Meteo, UserInfo.POL, Sails, False)
+        Cp(3) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(24), Meteo, UserInfo.POL, Sails, False)
         Dim L As New List(Of Coords)
 
         For Each v In Cp
@@ -2149,10 +2154,10 @@ Public Class VLM_Router
             Static LastLat As Double
             Static LastLon As Double
 
-            If _PlannedRoute.Count = 0 OrElse LastLat <> _UserInfo.position.latitude OrElse LastLon <> _UserInfo.position.longitude Then
+            If _PlannedRoute.Count = 0 OrElse LastLat <> _UserInfo.LAT OrElse LastLon <> _UserInfo.LON Then
                 Dim P As clsrouteinfopoints
-                LastLat = _UserInfo.position.latitude
-                LastLon = _UserInfo.position.longitude
+                LastLat = _UserInfo.LAT
+                LastLon = _UserInfo.LON
                 Dim CurPos As New Coords(LastLat, LastLon)
                 _PlannedRoute.Clear()
                 For Each C In (From Pt In _PlayerInfo.Route).Skip(RouteurModel.CurWP - 1)
@@ -2232,8 +2237,8 @@ Public Class VLM_Router
                 Return 0
             End If
 
-            C.Lat_Deg = _UserInfo.position.latitude
-            C.Lon_Deg = _UserInfo.position.longitude
+            C.Lat_Deg = _UserInfo.LAT
+            C.Lon_Deg = _UserInfo.LON
 
             MI = Meteo.GetMeteoToDate(C, Now, True, True)
             If MI IsNot Nothing Then
@@ -2249,7 +2254,7 @@ Public Class VLM_Router
     Public ReadOnly Property GoToPointBearingMsg() As String
         Get
             Dim TC As New TravelCalculator
-            TC.StartPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+            TC.StartPoint = New Coords(_UserInfo.Position)
             TC.EndPoint = New Coords(_CurMousePos)
             If _BearingETA.Ticks = 0 Then
                 _MenuBearing = TC.LoxoCourse_Deg
@@ -2563,52 +2568,49 @@ Public Class VLM_Router
     End Function
 
 
-    Private Function ParseVLMBoatInfoString() As user
+    Private Function ParseVLMBoatInfoString() As VLMBoatInfo
 
         Dim TmpDbl As Double
 
-        Dim RetUser As New user
+        Dim RetUser As New VLMBoatInfo
         Dim Lup As Double
         Dim Nup As Double
         Static NbSwitch As Integer = 0
 
-        RetUser.position = New userPosition
+
         PosValide = False
-        Dim BoatInfo As New VLMBoatInfo
         Dim Data As Dictionary(Of String, Object) = WS_Wrapper.GetBoatInfo(_PlayerInfo)
         If Data Is Nothing Then
             Return Nothing
         End If
         If Data.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
-            JSonHelper.LoadJSonDataToObject(BoatInfo, JSonHelper.GetJSonObjectValue(WS_Wrapper.GetBoatInfo(_PlayerInfo), JSONDATA_BASE_OBJECT_NAME))
+            JSonHelper.LoadJSonDataToObject(RetUser, JSonHelper.GetJSonObjectValue(WS_Wrapper.GetBoatInfo(_PlayerInfo), JSONDATA_BASE_OBJECT_NAME))
         End If
-        RetUser.position.vitesse = BoatInfo.BSP
 
-        RouteurModel.CurWP = BoatInfo.NWP
+        
+        RouteurModel.CurWP = RetUser.NWP
+        RetUser.LON /= 1000
+        RetUser.LAT /= 1000
 
-        RetUser.position.cap = BoatInfo.HDG
-        RetUser.position.latitude = BoatInfo.LAT / 1000
-        RetUser.Loch = BoatInfo.LOC
-        RetUser.position.longitude = BoatInfo.LON / 1000
-        Lup = BoatInfo.LUP
-        RetUser.position.ModePilote = BoatInfo.PIM
-        If BoatInfo.PIM = 2 Then
-            If Not Double.TryParse(BoatInfo.PIP, RetUser.position.AngleAllure) Then
-                If Not Double.TryParse(BoatInfo.PIP, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.AngleAllure) Then
-                    Throw New ArgumentException("Invalid PIP value : " & BoatInfo.PIP)
+        
+        Lup = RetUser.LUP
+
+        If RetUser.PIM = 2 Then
+            If Not Double.TryParse(RetUser.PIP, RetUser.TWA) Then
+                If Not Double.TryParse(RetUser.PIP, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.TWA) Then
+                    Throw New ArgumentException("Invalid PIP value : " & RetUser.PIP)
                 End If
             End If
             'RetUser.position.AngleAllure = CDbl(BoatInfo.PIP)
             'Double.TryParse(BoatInfo.PIP, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, RetUser.position.AngleAllure)
         Else
-            RetUser.position.AngleAllure = WindAngleWithSign(BoatInfo.HDG, BoatInfo.TWD)
+            RetUser.TWA = WindAngleWithSign(RetUser.HDG, RetUser.TWD)
         End If
 
-        RetUser.type = BoatInfo.POL
-        BoatType = BoatInfo.POL
+        BoatType = RetUser.POL
 
-        Nup = BoatInfo.NUP
-        If Nup < -10 AndAlso RetUser.Loch > 0 Then
+        Nup = RetUser.NUP
+        If Nup < -10 AndAlso RetUser.LOC > 0 Then
             AddLog(TmpDbl & "Wrong NUP Wrong switching server " & Nup)
             _CookiesContainer = Nothing
 
@@ -2624,50 +2626,42 @@ Public Class VLM_Router
             NbSwitch = 0
         End If
         'RetUser.date = Now.AddSeconds(+Nup - RouteurModel.VacationMinutes * 60)
-        RetUser.date = New DateTime(1970, 1, 1).AddHours(-GribManager.ZULU_OFFSET).AddSeconds(Lup)
-        RouteurModel.CurWP = BoatInfo.NWP
+        'RetUser.date = New DateTime(1970, 1, 1).AddHours(-GribManager.ZULU_OFFSET).AddSeconds(Lup)
+        RouteurModel.CurWP = RetUser.NWP
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
-        'If BoatInfo.POS.IndexOf("/"c) >= 0 Then
-        '    RetUser.position.classement = CInt(BoatInfo.POS.Substring(0, BoatInfo.POS.IndexOf("/"c)))
-        'End If
-        RetUser.position.WP_latitude = BoatInfo.WPLAT
-        RetUser.position.WP_longitude = BoatInfo.WPLON
-        RetUser.position.classement = BoatInfo.RNK
-        RetUser.position.wind_angle = BoatInfo.TWD
-        RetUser.position.wind_speed = BoatInfo.TWS
-        RetUser.position.Ortho = BoatInfo.ORT
-        RetUser.position.Loxo = BoatInfo.LOX
-        RetUser.position.DNM = BoatInfo.DNM
+        If RetUser.POS.IndexOf("/"c) >= 0 Then
+            RetUser.POS = RetUser.POS.Substring(0, RetUser.POS.IndexOf("/"c))
+        End If
+        
+        _Pilototo(0) = RetUser.PIL1
+        _Pilototo(1) = RetUser.PIL2
+        _Pilototo(2) = RetUser.PIL3
+        _Pilototo(3) = RetUser.PIL4
+        _Pilototo(4) = RetUser.PIL5
 
-        _Pilototo(0) = BoatInfo.PIL1
-        _Pilototo(1) = BoatInfo.PIL2
-        _Pilototo(2) = BoatInfo.PIL3
-        _Pilototo(3) = BoatInfo.PIL4
-        _Pilototo(4) = BoatInfo.PIL5
+        _WayPointDest.Lat_Deg = RetUser.WPLAT
+        _WayPointDest.Lon_Deg = RetUser.WPLON
 
-        _WayPointDest.Lat_Deg = BoatInfo.WPLAT
-        _WayPointDest.Lon_Deg = BoatInfo.WPLON
+        'RetUser.position.PIM_WP = BoatInfo.PIM >= 3
+        'RetUser.position.PIM_Angle = BoatInfo.PIM = 2
+        'RetUser.position.PIM_Bearing = BoatInfo.PIM = 1
+        'RetUser.position.PIM_Ortho = BoatInfo.PIM = 3
+        'RetUser.position.PIM_VBVMG = BoatInfo.PIM = 5
+        'RetUser.position.PIM_VMG = BoatInfo.PIM = 4
+        'RetUser.position.PIM = BoatInfo.PIM
 
-        RetUser.position.PIM_WP = BoatInfo.PIM >= 3
-        RetUser.position.PIM_Angle = BoatInfo.PIM = 2
-        RetUser.position.PIM_Bearing = BoatInfo.PIM = 1
-        RetUser.position.PIM_Ortho = BoatInfo.PIM = 3
-        RetUser.position.PIM_VBVMG = BoatInfo.PIM = 5
-        RetUser.position.PIM_VMG = BoatInfo.PIM = 4
-        RetUser.position.PIM = BoatInfo.PIM
-
-        If RetUser.Loch = 0 Then
-            RetUser.date = Now
+        If RetUser.LOC = 0 Then
+            RetUser.LUP = CInt(Now.Subtract(New DateTime(1970, 1, 1)).TotalSeconds)
         End If
 
-        RetUser.trajectoire = Track
+        RetUser.Track = Track
         'RetUser.DateOffset = Now.AddHours(-System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours).Subtract(New Date(1970, 1, 1).AddSeconds(Lup + RouteurModel.VacationMinutes * 60 - Nup)).TotalSeconds
-        RetUser.DateOffset = 0
+        'RetUser.DateOffset = 0
 
-        If Not _UserInfo Is Nothing AndAlso Not _UserInfo.position Is Nothing Then
-            RetUser.position.diffClassement = _UserInfo.position.classement - RetUser.position.classement
+        If Not _UserInfo Is Nothing AndAlso Not _UserInfo.Position Is Nothing Then
+            RetUser.DIffClassement = CInt(_UserInfo.POS) - RetUser.DIffClassement
         Else
-            RetUser.position.diffClassement = 0
+            RetUser.DIffClassement = 0
         End If
 
         Return RetUser
@@ -2993,13 +2987,13 @@ Public Class VLM_Router
             End If
                 Dim Dest As Coords
 
-                If UserInfo.position.WP_latitude = 0 AndAlso UserInfo.position.WP_latitude = UserInfo.position.WP_longitude Then
-                    Dim Pos As New Coords(UserInfo.position.latitude, UserInfo.position.longitude)
-                    Dest = GSHHS_Reader.PointToSegmentIntersect(Pos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0) _
-                                                                                         , _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
-                Else
-                    Dest = New Coords(UserInfo.position.WP_latitude, UserInfo.position.WP_longitude)
-                End If
+            If UserInfo.WPLAT = 0 AndAlso UserInfo.WPLAT = UserInfo.WPLON Then
+                Dim Pos As New Coords(UserInfo.Position)
+                Dest = GSHHS_Reader.PointToSegmentIntersect(Pos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0) _
+                                                                                     , _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
+            Else
+                Dest = New Coords(UserInfo.Position)
+            End If
                 CurrentDest = Dest
 
                 If RouteurModel.CurWP <> prevwp Then
@@ -3013,29 +3007,29 @@ Public Class VLM_Router
 
 
 
-                Dim VLMInfoMessage As String = "Meteo read D:" & UserInfo.position.wind_angle.ToString("f2")
+            Dim VLMInfoMessage As String = "Meteo read D:" & UserInfo.TWD.ToString("f2")
                 Dim i As Integer = 0
-                Dim STart As DateTime = Now.AddSeconds(-UserInfo.DateOffset)
+            Dim STart As DateTime = Now '.AddSeconds(-UserInfo.DateOffset)
                 If Math.Abs(Now.Subtract(STart).TotalHours) > 24 Then
                     STart = Now
                 End If
-                Dim mi As MeteoInfo = meteo.GetMeteoToDate(New Coords(UserInfo.position.latitude, UserInfo.position.longitude), STart, False)
+            Dim mi As MeteoInfo = meteo.GetMeteoToDate(New Coords(UserInfo.Position), STart, False)
 
                 If Not mi Is Nothing Then
-                    Dim V As Double = Sails.GetSpeed(_UserInfo.type, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(_UserInfo.position.cap, _UserInfo.position.wind_angle), _UserInfo.position.wind_speed)
-                    If Math.Abs(UserInfo.position.wind_angle - mi.Dir) > 0.1 Then
-                        VLMInfoMessage &= " (exp.:" & mi.Dir.ToString("f2") & ")"
-                    End If
+                Dim V As Double = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(_UserInfo.HDG, _UserInfo.TWA), _UserInfo.TWS)
+                If Math.Abs(UserInfo.TWD - mi.Dir) > 0.1 Then
+                    VLMInfoMessage &= " (exp.:" & mi.Dir.ToString("f2") & ")"
+                End If
 
-                    VLMInfoMessage &= " S:" & UserInfo.position.wind_speed.ToString("f2")
-                    If Math.Abs(UserInfo.position.wind_speed - mi.Strength) > 0.05 Then
-                        VLMInfoMessage &= " (exp: " & mi.Strength.ToString("f2") & ")"
-                    End If
+                VLMInfoMessage &= " S:" & UserInfo.TWS.ToString("f2")
+                If Math.Abs(UserInfo.TWS - mi.Strength) > 0.05 Then
+                    VLMInfoMessage &= " (exp: " & mi.Strength.ToString("f2") & ")"
+                End If
 
-                    VLMInfoMessage &= " Speed:" & UserInfo.position.vitesse.ToString("f2")
-                    If Math.Abs(UserInfo.position.vitesse - V) > 0.05 Then
-                        VLMInfoMessage &= " (exp: " & V.ToString("f2") & ")"
-                    End If
+                VLMInfoMessage &= " Speed:" & UserInfo.TWS.ToString("f2")
+                If Math.Abs(UserInfo.TWS - V) > 0.05 Then
+                    VLMInfoMessage &= " (exp: " & V.ToString("f2") & ")"
+                End If
                     AddLog(VLMInfoMessage)
                     'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
                     UpdateMeteoArrows()
@@ -3075,7 +3069,7 @@ Public Class VLM_Router
                     _lastflush = Now
                 End If
 
-                StorePath(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude), UserInfo.position.cap)
+            StorePath(New Coords(_UserInfo.Position), UserInfo.hdg)
 
                 If _RoutingRestartPending Then
                     _RoutingRestart.Interval = 100
@@ -3179,8 +3173,8 @@ Public Class VLM_Router
         End If
     End Sub
 
-    Private Sub SetUserInfoThreadSafe(ByVal value As user, ByVal Meteo As clsMeteoOrganizer)
-        Static SelfDlg As New Action(Of user, clsMeteoOrganizer)(AddressOf SetUserInfoThreadSafe)
+    Private Sub SetUserInfoThreadSafe(ByVal value As VLMBoatInfo, ByVal Meteo As clsMeteoOrganizer)
+        Static SelfDlg As New Action(Of VLMBoatInfo, clsMeteoOrganizer)(AddressOf SetUserInfoThreadSafe)
         Dim MI As MeteoInfo
         Dim P As Coords
         Static LastPos As New Coords
@@ -3202,11 +3196,12 @@ Public Class VLM_Router
 
             _UserInfo = value
 
-            If _UserInfo.position Is Nothing Then
-                _UserInfo.position = New userPosition
-                _UserInfo.position.longitude = RouteurModel.START_LON
-                _UserInfo.position.latitude = RouteurModel.START_LAT
-                _UserInfo.position.date = Now.ToString
+            If _UserInfo.Position Is Nothing Then
+                Throw New NotImplementedException("UserInfo.position is nothing")
+                _UserInfo.Position = New Coords
+                _UserInfo.Position.Lon_Deg = RouteurModel.START_LON
+                _UserInfo.Position.Lat_Deg = RouteurModel.START_LAT
+                '_UserInfo.date = Now
                 UserInfo(Meteo) = _UserInfo
             End If
 
@@ -3214,8 +3209,8 @@ Public Class VLM_Router
 
             If Now.Subtract(LastDataDate).TotalHours > 1 Then
                 LastDataDate = Now
-                _UserInfo.date = Now
-                If _UserInfo.Loch > 0 Then
+                '_UserInfo.date = Now
+                If _UserInfo.LOC > 0 Then
                     AddLog("Data too old falling back to now : " & LastDataDate)
                 End If
             End If
@@ -3224,32 +3219,32 @@ Public Class VLM_Router
                 CurrentRoute.StartPoint = New Coords
             End If
 
-            CurrentRoute.StartPoint.Lat_Deg = _UserInfo.position.latitude
-            CurrentRoute.StartPoint.Lon_Deg = _UserInfo.position.longitude
+            CurrentRoute.StartPoint.Lat_Deg = _UserInfo.LAT
+            CurrentRoute.StartPoint.Lon_Deg = _UserInfo.LON
 
             If PlayerInfo.Route.Count >= 1 Then
                 _RouteToGoal.StartPoint = CurrentRoute.StartPoint
                 _RouteToGoal.EndPoint = PlayerInfo.Route(PlayerInfo.Route.Count - 1)
             End If
 
-            VMG = _UserInfo.position.vitesse * Math.Cos((_UserInfo.position.cap - CurrentRoute.LoxoCourse_Deg) / 180 * Math.PI)
+            VMG = _UserInfo.BSP * Math.Cos((_UserInfo.HDG - CurrentRoute.LoxoCourse_Deg) / 180 * Math.PI)
             If VMG <> 0 Then
                 ETA = Now.AddHours(CurrentRoute.SurfaceDistance / VMG)
             Else
                 ETA = Now
             End If
 
-            P = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
-            'If _UserInfo.trajectoire Is Nothing Then
-            '    _UserInfo.trajectoire = ""
-            'End If
-            '_UserInfo.trajectoire &= StorePath(P, _UserInfo.position.cap)
+            P = New Coords(_UserInfo.Position)
+            If _UserInfo.Track Is Nothing Then
+                _UserInfo.Track = ""
+            End If
+            _UserInfo.Track &= StorePath(P, _UserInfo.HDG)
             MI = Meteo.GetMeteoToDate(P, Now, True, True)
 
 
 
-            If _DiffEvolution.Count = 0 OrElse _DiffEvolution(0) <> _UserInfo.position.diffClassement Then
-                _DiffEvolution.Insert(0, _UserInfo.position.diffClassement)
+            If _DiffEvolution.Count = 0 OrElse _DiffEvolution(0) <> _UserInfo.DIffClassement Then
+                _DiffEvolution.Insert(0, _UserInfo.DIffClassement)
             End If
 
             If _DiffEvolution.Count = 6 Then
@@ -3289,7 +3284,7 @@ Public Class VLM_Router
         Get
             Dim TC As New TravelCalculator
             Dim mi As MeteoInfo
-            TC.StartPoint = New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude)
+            TC.StartPoint = New Coords(_UserInfo.Position)
             TC.EndPoint = New Coords(_CurMousePos)
             mi = Meteo.GetMeteoToDate(TC.StartPoint, GetNextCrankingDate, True)
             _MenuWindAngleValid = mi IsNot Nothing
@@ -3367,11 +3362,11 @@ Public Class VLM_Router
     End Sub
 
 
-    Public Property UserInfo() As user
+    Public Property UserInfo() As VLMBoatInfo
         Get
             Return _UserInfo
         End Get
-        Set(ByVal value As user)
+        Set(ByVal value As VLMBoatInfo)
             UserInfo(Meteo) = value
         End Set
     End Property
@@ -3439,8 +3434,8 @@ Public Class VLM_Router
 
     End Sub
 
-    Private WriteOnly Property userinfo(ByVal meteo As clsMeteoOrganizer) As user
-        Set(ByVal value As user)
+    Private WriteOnly Property userinfo(ByVal meteo As clsMeteoOrganizer) As VLMBoatInfo
+        Set(ByVal value As VLMBoatInfo)
             If value Is Nothing Then
                 Return
             End If
@@ -3470,7 +3465,7 @@ Public Class VLM_Router
             End If
 
 
-            _iso = New IsoRouter(_UserInfo.type, Sails, Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, prefs.IsoStep, _
+            _iso = New IsoRouter(_UserInfo.POL, Sails, Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, prefs.IsoStep, _
                                  prefs.IsoStep_24, prefs.IsoStep_48, DBWrapper.GetMapLevel(prefs.MapLevel), prefs.EllipseExtFactor)
             Dim WP As Integer
 
@@ -3489,7 +3484,7 @@ Public Class VLM_Router
             End If
 
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ClearGrid"))
-            Dim start As New Coords(New Coords(_UserInfo.position.latitude, _UserInfo.position.longitude))
+            Dim start As New Coords(New Coords(_UserInfo.Position))
             'Dim Dest As Coords = GSHHS_Reader.PointToSegmentIntersect(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0) _
             '                                                                     , _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1))
 

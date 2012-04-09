@@ -3,9 +3,9 @@
     'Private _RAC As String  'numéro de la course (string)
     'Private _IDB As String  'nom du bateau (string)
     'Private _RAN As String  'nom de la course (string)
-    Private _POS As String  'classement dans la course (string - xxx/yyy)
+    'Private _POS As String  'classement dans la course (string - xxx/yyy)
     Private _PIP As String  'pilot parameter (string - doit le rester à causes des WP: x.xx,y.yy
-    Private _POL As String  'nom de la polaire (sans boat_) (string)
+    'Private _POL As String  'nom de la polaire (sans boat_) (string)
     'Private _MCR As String  'mapCenter' (string), ie centre de la carte
     'Private _MLY As String  'mapLayers' (string), ie type de layers
     'Private _MOP As String  'mapOpponents' (string), ie type d'affichage des concurrents
@@ -14,7 +14,7 @@
     'Private _ETA As String  'Date estimée d'arrivé, seulement si pas de wp perso (string)
     Private _IDU As Integer 'numéro de bateau (int)
     Private _NWP As Integer  'numéro du prochain waypoing (int)
-    Private _PIM As Integer  'Pilot mode (int)
+    'Private _PIM As Integer  
     Private _NUP As Integer  'nombre de secondes jusqu'à la prochaine VAC (int)
     Private _LUP As Integer  'Last update
     'Private _MWD As String  'mapX' (int), ie taille largeur en pixel
@@ -24,24 +24,23 @@
     'Private _MES As String  'mapEstime' (int), ie estime
     'Private _MGD As String  'mapMaille' (int), ie taille de la grid de vent
     'Private _MDT As String  'mapDrawtextwp' (string) on/off
-    Private _BSP As Double  'vitesse du bateau (Boat SPeed) (float)
-    Private _HDG As Double  'direction (HeaDinG)
+    'Private _HDG As Double  
     Private _DNM As Double  'Distance to next mark (float)
     Private _ORT As Double  'Cap ortho to next mark (float)
     Private _LOX As Double  'Cap loxo to next mark (float)
     Private _VMG As Double  'VMG (float)
     Private _TWD As Double  'Wind direction (float)
     Private _TWS As Double  'Wind speed (float)
-    Private _TWA As Double  'Wind angle - Allure (float)
+    'Private _TWA As Double  'Wind angle - Allure (float)
     Private _LOC As Double  'loch (float)
     'Private _AVG As Double  'vitesse moyenne (float)
-    Private _WPLAT As Double  'latitude du wp perso (float, en degré)
-    Private _WPLON As Double  'longitude du wp perso (float, en degré)
+    'Private _WPLAT As Double  'latitude du wp perso (float, en degré)
+    'Private _WPLON As Double  'longitude du wp perso (float, en degré)
     'private [_H@WP] as string  'mode Heading@WP, (float, degré)
     Private _LAT As Double  'latitude (float, degré)
     Private _LON As Double  'longitude (float, degré)
-    Private _TUP As Integer  'Time to Update (à partir de NUP) (int)
-    'Private _TFS As integer  'Time From Start (int)
+    'Private _TUP As Integer  'Time to Update (à partir de NUP) (int)
+    'Private _TFS As Integer  'Time From Start (int)
     Private _RNK As Integer  'Rank as string  'classement dans la course (int)
     'Private _NBS As String  'Number of Boat subscribed (int)
     'Private _NPD As String  'Notepad (blocnote)
@@ -58,14 +57,33 @@
     'Private _HID As String ' trace cachée (1) ou visible (0)
     Private _VAC As String ' durée de la vacation (en secondes)
 
+    Private _Position As Coords
+
+    ''' <summary>
+    ''' 'vitesse du bateau (Boat SPeed) (float)
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
     Public Property BSP() As Double
+
+
+    Public ReadOnly Property [date] As DateTime
         Get
-            Return _BSP
+            Dim utc = New DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(LUP)
+            Return utc.ToLocalTime
         End Get
-        Set(ByVal value As Double)
-            _BSP = value
-        End Set
+
     End Property
+
+    ''' <summary>
+    ''' Position change since last update
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Public Property DIffClassement As Integer
+
     Public Property DNM() As Double
         Get
             Return _DNM
@@ -74,14 +92,14 @@
             _DNM = value
         End Set
     End Property
+    ''' <summary>
+    ''' direction (HeaDinG)
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
     Public Property HDG() As Double
-        Get
-            Return _HDG
-        End Get
-        Set(ByVal value As Double)
-            _HDG = value
-        End Set
-    End Property
+
     Public Property IDU() As Integer
         Get
             Return _IDU
@@ -194,14 +212,14 @@
             _PIL5 = value
         End Set
     End Property
-    Public Property PIM() As Integer
-        Get
-            Return _PIM
-        End Get
-        Set(ByVal value As Integer)
-            _PIM = value
-        End Set
-    End Property
+    ''' <summary>
+    ''' Pilot mode (int)
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Public Property PIM() As RoutePointView.EnumRouteMode
+
     Public Property PIP() As String
         Get
             Return _PIP
@@ -210,20 +228,28 @@
             _PIP = value
         End Set
     End Property
+
+    ''' <summary>
+    ''' 'nom de la polaire (sans boat_) (string)
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
     Public Property POL() As String
-        Get
-            Return _POL
-        End Get
-        Set(ByVal value As String)
-            _POL = value
-        End Set
-    End Property
+
+
     Public Property POS() As String
+
+
+    Public Property Position As Coords
         Get
-            Return _POS
+            If _Position Is Nothing Then
+                _Position = New Coords(LAT, LON)
+            End If
+            Return _Position
         End Get
-        Set(ByVal value As String)
-            _POS = value
+        Set(value As Coords)
+            _Position = value
         End Set
     End Property
     Public Property RNK() As Integer
@@ -234,22 +260,33 @@
             _RNK = value
         End Set
     End Property
+
+    ''' <summary>
+    ''' User track
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Public Property Track As String
+
+
+    ''' <summary>
+    '''  Time to Update (à partir de NUP) (int)
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
     Public Property TUP() As Integer
-        Get
-            Return _TUP
-        End Get
-        Set(ByVal value As Integer)
-            _TUP = value
-        End Set
-    End Property
+
+    ''' <summary>
+    ''' Wind angle - Allure (float)
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
     Public Property TWA() As Double
-        Get
-            Return _TWA
-        End Get
-        Set(ByVal value As Double)
-            _TWA = value
-        End Set
-    End Property
+        
+
     Public Property TWD() As Double
         Get
             Return _TWD
@@ -258,6 +295,7 @@
             _TWD = value
         End Set
     End Property
+
     Public Property TWS() As Double
         Get
             Return _TWS
@@ -266,6 +304,8 @@
             _TWS = value
         End Set
     End Property
+
+
     Public Property VAC() As String
         Get
             Return _VAC
@@ -282,21 +322,21 @@
             _VMG = value
         End Set
     End Property
+    ''' <summary>
+    ''' latitude du wp perso (float, en degré)
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
     Public Property WPLAT() As Double
-        Get
-            Return _WPLAT
-        End Get
-        Set(ByVal value As Double)
-            _WPLAT = value
-        End Set
-    End Property
+
+    ''' <summary>
+    ''' longitude du wp perso (float, en degré)
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
     Public Property WPLON() As Double
-        Get
-            Return _WPLON
-        End Get
-        Set(ByVal value As Double)
-            _WPLON = value
-        End Set
-    End Property
+
 
 End Class
