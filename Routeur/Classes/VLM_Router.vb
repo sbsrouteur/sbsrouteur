@@ -3016,7 +3016,7 @@ Public Class VLM_Router
             Dim mi As MeteoInfo = meteo.GetMeteoToDate(New Coords(UserInfo.Position), STart, False)
 
                 If Not mi Is Nothing Then
-                Dim V As Double = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(_UserInfo.HDG, _UserInfo.TWA), _UserInfo.TWS)
+                Dim V As Double = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, _UserInfo.TWA, _UserInfo.TWS)
                 If Math.Abs(UserInfo.TWD - mi.Dir) > 0.1 Then
                     VLMInfoMessage &= " (exp.:" & mi.Dir.ToString("f2") & ")"
                 End If
@@ -3027,7 +3027,7 @@ Public Class VLM_Router
                 End If
 
                 VLMInfoMessage &= " Speed:" & UserInfo.TWS.ToString("f2")
-                If Math.Abs(UserInfo.TWS - V) > 0.05 Then
+                If Math.Abs(UserInfo.BSP - V) > 0.05 Then
                     VLMInfoMessage &= " (exp: " & V.ToString("f2") & ")"
                 End If
                     AddLog(VLMInfoMessage)
