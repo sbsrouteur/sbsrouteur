@@ -175,18 +175,18 @@ Public Class IsoRouter
                                  Dim MaxSearch As Double = 180
                                  Dim PrevIndex As Integer = (Pindex + Iso.Data.Length - 1) Mod Iso.Data.Length
                                  Dim NextIndex As Integer = (Pindex + 1) Mod Iso.Data.Length
-                                 'If Iso.Data(PrevIndex) IsNot Nothing Then
-                                 '    TcAngleTrim.EndPoint = Iso.Data(PrevIndex).P
-                                 '    TcAngleTrim.StartPoint = rp.P
-                                 '    MinSearch = WindAngle(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                                 'End If
-                                 'If Iso.Data(NextIndex) IsNot Nothing Then
-                                 '    TcAngleTrim.StartPoint = rp.P
-                                 '    TcAngleTrim.EndPoint = Iso.Data(NextIndex).P
-                                 '    MaxSearch = WindAngle(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                                 'End If
+                                 If Iso.Data(PrevIndex) IsNot Nothing Then
+                                     TcAngleTrim.EndPoint = Iso.Data(PrevIndex).P
+                                     TcAngleTrim.StartPoint = rp.P
+                                     MinSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                                 End If
+                                 If Iso.Data(NextIndex) IsNot Nothing Then
+                                     TcAngleTrim.StartPoint = rp.P
+                                     TcAngleTrim.EndPoint = Iso.Data(NextIndex).P
+                                     MaxSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                                 End If
 
-                                 Dim MinAngle As Double = Ortho - MinSearch
+                                 Dim MinAngle As Double = Ortho + MinSearch
                                  Dim maxAngle As Double = Ortho + MaxSearch
 
                                  If MinAngle > maxAngle Then
