@@ -10,8 +10,8 @@ Module WS_Wrapper
 
     Public Function GetBoatInfo(ByVal Player As clsPlayerInfo) As Dictionary(Of String, Object)
 
-        If _LastPassword <> Player.Password OrElse _LastUser <> Player.Nick Then
-            
+        If _LastPassword <> Player.Password OrElse _LastUser <> Player.Email Then
+
             _LastPassword = Player.Password
             _LastUser = Player.Email
 
