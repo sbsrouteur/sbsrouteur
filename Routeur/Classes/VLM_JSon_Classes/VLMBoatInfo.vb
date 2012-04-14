@@ -76,7 +76,7 @@ Public Class VLMBoatInfo
 
     Public ReadOnly Property [date] As DateTime
         Get
-            Dim utc = New DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(TFS)
+            Dim utc = New DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(LUP)
             Return utc.ToLocalTime
         End Get
 

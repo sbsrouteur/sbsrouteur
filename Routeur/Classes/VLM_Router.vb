@@ -884,8 +884,10 @@ Public Class VLM_Router
             End If
             If _PlayerInfo.RaceInfo.racetype = VLMRaceInfo.RACE_TYPE.Classic Then
                 Return _PlayerInfo.RaceInfo.deptime
+            ElseIf _Opponents.Count > 0 AndAlso _Opponents.ContainsKey(_PlayerInfo.NumBoat.ToString) Then
+                Return _Opponents(_PlayerInfo.NumBoat.ToString).RaceDepTime
             Else
-                Return UserInfo.date
+                Return _PlayerInfo.RaceInfo.deptime
             End If
 
         End Get
@@ -1713,7 +1715,7 @@ Public Class VLM_Router
                             .Id = BoatJson.idusers
                             .Classement = BoatJson.rank + NbArrived  '- RankingOffset
                             .CurPos = New Coords(BoatJson.latitude, BoatJson.longitude)
-
+                            .deptime = BoatJson.deptime
                             'If Not BoatInfo.ImgList.ContainsKey(BoatJson.country) Then
 
                             'BoatInfo.ImgList.Add(BoatJson.country, Nothing)

@@ -29,6 +29,7 @@ Public Class BoatInfo
     Private _PassDown As Boolean
     Private _MyTeam As Boolean
     Private _Real As Boolean
+    Private _deptime As Long
 
     'Private Shared _ImgList As New SortedList(Of String, BitmapImage)
 
@@ -59,6 +60,16 @@ Public Class BoatInfo
         End Get
         Set(ByVal value As Coords)
             _CurPos = value
+        End Set
+    End Property
+
+    Public Property deptime As Long
+        Get
+            Return _deptime
+        End Get
+        Set(value As Long)
+            _deptime = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("deptime"))
         End Set
     End Property
 
@@ -243,6 +254,12 @@ Public Class BoatInfo
             _PrevDTFDate = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PrevDTFDate"))
         End Set
+    End Property
+
+    Public ReadOnly Property RaceDepTime As DateTime
+        Get
+            Return New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(deptime).ToLocalTime
+        End Get
     End Property
 
     Public Property Real As Boolean
