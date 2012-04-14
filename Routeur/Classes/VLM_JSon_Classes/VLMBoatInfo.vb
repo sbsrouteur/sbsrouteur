@@ -76,7 +76,7 @@ Public Class VLMBoatInfo
 
     Public ReadOnly Property [date] As DateTime
         Get
-            Dim utc = New DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(LUP)
+            Dim utc = New DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(TFS)
             Return utc.ToLocalTime
         End Get
 
@@ -334,6 +334,17 @@ Public Class VLMBoatInfo
     ''' <returns></returns>
     ''' <remarks></remarks>
     Public Property Track As String
+
+    Public Property TFS As Integer
+        Get
+            Return _TFS
+        End Get
+        Set(value As Integer)
+            _TFS = value
+            OnPropertyChanged("TFS")
+            OnPropertyChanged("date")
+        End Set
+    End Property
         
     ''' <summary>
     '''  Time to Update (à partir de NUP) (int)
