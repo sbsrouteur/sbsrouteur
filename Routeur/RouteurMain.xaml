@@ -398,7 +398,7 @@
 					    <Slider Grid.Row="3" x:Name="SldLat" Minimum="-10080000" Visibility="Hidden" Maximum="10080000" ValueChanged="OnRenderPosChanged"/>
 				        <Slider Grid.Row="4" x:Name="SldLon" Maximum="10008000" Minimum="-10008000" Visibility="Hidden" ValueChanged="OnRenderPosChanged"/>
                     -->
-					<StackPanel Grid.Row="6" Width="Auto" Height="Auto" Grid.ColumnSpan="2">
+					<StackPanel Grid.Row="2" Width="Auto" Height="Auto" Grid.ColumnSpan="2" Grid.RowSpan="5">
 						<GroupBox  Grid.RowSpan="1"  Header="" Background="#6DFFFFFF">
 							<GroupBox.BitmapEffect>
 								<DropShadowBitmapEffect/>
@@ -435,7 +435,7 @@
 					</GroupBox>
 					<DockPanel Grid.Row="7" LastChildFill="False">
 						<TextBlock Width="Auto" Text="{Binding VorHandler.PositionDataAge, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom"/>
-						<TextBlock Width="Auto" Text="{Binding VorHandler.UserInfo.POS, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom" FontSize="24"/>
+						<TextBlock Width="Auto" Text="{Binding VorHandler.UserInfo.RNK, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Height="Auto" DockPanel.Dock="Bottom" FontSize="24"/>
 					</DockPanel>
 					<GroupBox x:Name="GrpStats" Header="Stats" Grid.Column="4" Grid.RowSpan="7" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=chkGridRoute1, Mode=Default}">
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
