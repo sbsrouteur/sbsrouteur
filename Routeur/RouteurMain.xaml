@@ -375,7 +375,7 @@
 							</TransformGroup>
 						</Image.RenderTransform>
 					</Image>
-					<Label Content="{Binding VorHandler.UserInfo.BSP, Mode=Default, StringFormat=\{0:F2\}}" Style="{DynamicResource CapLabel}" Foreground="#FFCFBC22" RenderTransformOrigin="0.5,1" d:LayoutOverrides="Width, Height" Grid.Row="1">
+					<Label Content="{Binding VorHandler.UserInfo.TWS, Mode=Default, StringFormat=\{0:F2\}}" Style="{DynamicResource CapLabel}" Foreground="#FFCFBC22" RenderTransformOrigin="0.5,1" d:LayoutOverrides="Width, Height" Grid.Row="1">
 						<Label.RenderTransform>
 							<TransformGroup>
 								<ScaleTransform ScaleX="1" ScaleY="1"/>

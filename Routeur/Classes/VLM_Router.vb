@@ -2579,7 +2579,6 @@ Public Class VLM_Router
         Dim Nup As Double
         Static NbSwitch As Integer = 0
 
-
         PosValide = False
         Dim Data As Dictionary(Of String, Object) = WS_Wrapper.GetBoatInfo(_PlayerInfo)
         If Data Is Nothing Then
@@ -2661,7 +2660,7 @@ Public Class VLM_Router
         'RetUser.DateOffset = 0
 
         If Not _UserInfo Is Nothing AndAlso Not _UserInfo.Position Is Nothing Then
-            RetUser.DIffClassement = CInt(_UserInfo.POS) - RetUser.DIffClassement
+            RetUser.DIffClassement = CInt(_UserInfo.RNK) - RetUser.RNK
         Else
             RetUser.DIffClassement = 0
         End If
@@ -3028,7 +3027,7 @@ Public Class VLM_Router
                     VLMInfoMessage &= " (exp: " & mi.Strength.ToString("f2") & ")"
                 End If
 
-                VLMInfoMessage &= " Speed:" & UserInfo.TWS.ToString("f2")
+                VLMInfoMessage &= " Speed:" & UserInfo.BSP.ToString("f2")
                 If Math.Abs(UserInfo.BSP - V) > 0.05 Then
                     VLMInfoMessage &= " (exp: " & V.ToString("f2") & ")"
                 End If
