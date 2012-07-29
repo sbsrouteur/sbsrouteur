@@ -95,12 +95,14 @@ Public Class IsoRouter
             Dim PrevPoint As Coords = Nothing
             Dim CurPoint As Coords = Nothing
             Dim MaxDist As Double = 0
+            Dim MaxSpeed As Double = 0
             Dim SumSpeed As Double = 0
             Dim NbSpeed As Double = 0
 
             For i = 0 To Iso.Data.Length - 1
                 If Iso.Data(i) IsNot Nothing Then
                     MaxDist = Math.Max(MaxDist, Iso.Data(i).DistFromPos)
+                    MaxSpeed = Math.Max(MaxSpeed, Iso.Data(i).Speed)
                     SumSpeed += Iso.Data(i).Speed
                     NbSpeed += 1
                 End If
@@ -117,7 +119,7 @@ Public Class IsoRouter
                         Dim VacCount As Long = CLng(Ticks / (RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute))
                         Dim DFP As Double = Iso.Data(StartIndex).DistFromPos + 1
                         'TODO Add param for min angle
-                        Dim AStep As Double = Math.Max(1, 5 - 1 * Math.Log10(DFP)) 'Math.min((36 + 1.05 * VacCount),
+                        Dim AStep As Double = Math.Max(0.1, 5 - 1 * Math.Log10(DFP)) 'Math.min((36 + 1.05 * VacCount),
                         RetIsoChrone = New IsoChrone(AStep)
                     End If
 
@@ -132,7 +134,7 @@ Public Class IsoRouter
                     '    CurStep = _IsoStep
                     'End If
 
-                    Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / AvgSpeed * TimeSpan.TicksPerHour)).TotalMinutes
+                    Dim NbMinutes As Double = New TimeSpan(CLng(2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / MaxSpeed * 0.6 * TimeSpan.TicksPerHour)).TotalMinutes
                     NbMinutes = Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes) * RouteurModel.VacationMinutes
                     CurStep = New TimeSpan(0, CInt(NbMinutes), 0)
 #If DBG_ISO = 1 Then
