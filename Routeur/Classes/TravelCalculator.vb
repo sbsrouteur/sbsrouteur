@@ -20,7 +20,9 @@ Public Class TravelCalculator
 
     Public ReadOnly Property LoxoCourse_Deg As Double
         Get
-            If StartPoint.N_Lon * EndPoint.N_Lon < 0 AndAlso Abs(StartPoint.N_Lon * EndPoint.N_Lon) > PI Then
+            If StartPoint Is Nothing OrElse EndPoint Is Nothing Then
+                Return Double.NaN
+            ElseIf StartPoint.N_Lon * EndPoint.N_Lon < 0 AndAlso Abs(StartPoint.N_Lon * EndPoint.N_Lon) > PI Then
                 Return LoxoCourse_Deg_Aviat_withante
             Else
                 Return LoxoCourse_Deg_Aviat
