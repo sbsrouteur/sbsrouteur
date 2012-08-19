@@ -1428,12 +1428,60 @@ Render1:
 
     End Sub
 
+    Private Sub DragBitmap(Bmp As WriteableBitmap, Dx As Integer, Dy As Integer)
+
+        Dim X As Integer
+        Dim Y As Integer
+        Dim DestX As Integer
+        Dim DestY As Integer
+        Dim W As Integer = CInt(Bmp.Width - Abs(Dx))
+        Dim H As Integer = CInt(Bmp.Height - Abs(Dy))
+
+        If Dx < 0 Then
+            X = 0
+            DestX = Dx
+        Else
+            X = -Dx
+            DestX = 0
+        End If
+        If Dy > 0 Then
+            Y = 0
+            DestY = Dy
+        Else
+            Y = -Dy
+            DestY = 0
+        End If
+        Dim SrcRect As New Rect(X, Y, W, H)
+        Dim DstRect As New Rect(DestX, DestY, Bmp.Width - Abs(Dx), Bmp.Height - Abs(Dy))
+        Dim FullRect As New Rect(0, 0, Bmp.Width, Bmp.Height)
+        Dim TmpBmp As New WriteableBitmap(Bmp)
+        Using TmpBmp.GetBitmapContext
+            TmpBmp.Clear()
+            Using Bmp.GetBitmapContext
+                TmpBmp.Blit(DstRect, Bmp, SrcRect)
+                Bmp.Clear()
+                Bmp.Blit(FullRect, TmpBmp, FullRect)
+            End Using
+        End Using
+    End Sub
+
+    Sub DragMap(LastDraggedPoint As Point, P As Point)
+
+        Dim Dx As Integer = CInt(P.X - LastDraggedPoint.X)
+        Dim Dy As Integer = CInt(P.Y - LastDraggedPoint.Y)
+
+        DragBitmap(_RBmp, Dx, Dy)
+        DragBitmap(_BackDropBmp, Dx, Dy)
+        DragBitmap(_ISOBmp, Dx, Dy)
+
+    End Sub
+
     Private Sub DrawGates(ByVal WPs As List(Of VLM_RaceWaypoint))
         Dim FutureGates As Integer = &HFF0000FF
         Dim CurrentGate As Integer = &HFFFF0000
         Dim ValidatedGates As Integer = &HFF00FF00
         Dim WPPen As Integer
-        
+
         Dim WP As VLM_RaceWaypoint
         Dim WPIndex As Integer = 1
         If WPs IsNot Nothing Then
@@ -1724,4 +1772,7 @@ Render1:
         End If
 
     End Sub
+
+
+
 End Class

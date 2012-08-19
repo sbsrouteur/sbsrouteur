@@ -23,6 +23,7 @@ Partial Public Class RouteurMain
     Private _DragCanvas As Boolean = False
     Private _ZoomCanvas As Boolean = False
     Private _DragStartPoint As Point
+    Private _LastDraggedPoint As Point
 
     Private WithEvents _RouteForm As frmRouteViewer
     Private WithEvents _frmControlDeck As New frmControlDeck
@@ -158,6 +159,7 @@ Partial Public Class RouteurMain
         End If
 
         _DragStartPoint = e.GetPosition(Me.VOR2DViewer)
+        _LastDraggedPoint = _DragStartPoint
 
     End Sub
 
@@ -200,6 +202,12 @@ Partial Public Class RouteurMain
 
     Private Sub MouseMoveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
 
+        If e.LeftButton = MouseButtonState.Pressed AndAlso DragCanvas Then
+            Dim P As Point = e.GetPosition(VOR2DViewer)
+
+            VOR2DViewer.DragMap(_LastDraggedPoint, P)
+            _LastDraggedPoint = P
+        End If
 
     End Sub
 
