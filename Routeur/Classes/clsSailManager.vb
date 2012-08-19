@@ -9,7 +9,7 @@ Imports System.IO
 Public Class clsSailManager
 
     Private Const POLAR_ANGLE_MULTIPLIER As Integer = 10
-    Private Const POLAR_SPEED_MULTIPLIER As Integer = 10
+    Private Const POLAR_SPEED_MULTIPLIER As Integer = 100
     Private Const POLAR_BSP_MULTIPLIER As Integer = 1000
 
     Private Const MaxWindSpeedMultiplied As Integer = 60 * POLAR_SPEED_MULTIPLIER
