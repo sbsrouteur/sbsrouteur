@@ -6,9 +6,12 @@
 
         If TypeOf value Is RoutePointView.EnumRouteMode Then
 
-            'Return CType(value, RoutePointViewBase.EnumRouteMode).ToString()
-            Return [Enum].GetName(GetType(RoutePointView.EnumRouteMode), value)
-
+            If targetType Is GetType(Double) Then
+                Return CDbl(value)
+            Else
+                'Return CType(value, RoutePointViewBase.EnumRouteMode).ToString()
+                Return [Enum].GetName(GetType(RoutePointView.EnumRouteMode), value)
+            End If
         Else
             Return value
         End If

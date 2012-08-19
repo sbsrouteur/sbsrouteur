@@ -125,6 +125,18 @@ Public Class VLMBoatInfo
         End Set
     End Property
 
+    Public ReadOnly Property isTWA As Boolean
+        Get
+            Return PIM = RoutePointView.EnumRouteMode.Angle
+        End Get
+    End Property
+
+    Public ReadOnly Property isHDG As Boolean
+        Get
+            Return PIM = RoutePointView.EnumRouteMode.Bearing
+        End Get
+    End Property
+
     Public Property LAT() As Double
         Get
             Return _LAT
