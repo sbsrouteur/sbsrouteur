@@ -227,7 +227,6 @@ Public Class RouteurModel
         End If
 
         If VorHandler.MeteoVisible Then
-            _MapLayer.RefreshInfo(C1, C2, VorHandler.MeteoArrowDate)
             If MeteoMapper IsNot Nothing Then
 
                 If Now.Subtract(MeteoMapper.Date).TotalMinutes > VacationMinutes Then
@@ -873,11 +872,6 @@ Public Class RouteurModel
                 End If
                 If tmrRefresh IsNot Nothing Then
                     tmrRefresh.IsEnabled = True
-                End If
-
-            Case "MeteoArrowDate"
-                If Not _MapLayer Is Nothing AndAlso VorHandler.MeteoVisible Then
-                    _MapLayer.RefreshInfo(_NOPoint, _SEPoint, _VorHandler.MeteoArrowDate)
                 End If
 
             Case "WPList"

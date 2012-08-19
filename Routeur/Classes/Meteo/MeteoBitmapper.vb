@@ -36,17 +36,21 @@ Public Class MeteoBitmapper
         Get
 
             Try
-                Dim ImgStride As Integer = CInt(_Viewer.ActualWidth * ((PixelFormats.Bgr32.BitsPerPixel) / 8))
+                Dim ImgStride As Integer = CInt(_Viewer.ActualWidth * ((PixelFormats.Pbgra32.BitsPerPixel) / 8))
                 Dim R As New Int32Rect(0, 0, CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight))
 
 
                 Debug.Assert(Thread.CurrentThread.ManagedThreadId = _Viewer.Dispatcher.Thread.ManagedThreadId)
 
-                If _Img IsNot Nothing Then
-                    _Img.WritePixels(R, _ImgData, ImgStride, 0)
+                If _Img Is Nothing Then
+                    _Img = New WriteableBitmap(CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight), 96, 96, PixelFormats.Pbgra32, Nothing)
                 End If
+                Using _Img.GetBitmapContext
+                    _Img.WritePixels(R, _ImgData, ImgStride, 0)
+                End Using
 
-            Catch
+            Catch ex As Exception
+                Dim i As Integer = 0
             End Try
 
             ImageReady = False
@@ -180,7 +184,6 @@ Public Class MeteoBitmapper
         End If
         Dim R As New Int32Rect(0, 0, CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight))
         Try
-            _Img = New WriteableBitmap(CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight), 96, 96, PixelFormats.Bgr32, Nothing)
             ReDim _ImgData(CInt(_Viewer.ActualWidth) * CInt(_Viewer.ActualHeight))
             '_Img.CopyPixels(R, _ImgData, 4 * CInt(_Viewer.ActualWidth), 0)
             _RenderThread = New Thread(AddressOf ImGRenderThread)
