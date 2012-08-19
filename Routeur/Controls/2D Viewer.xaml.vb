@@ -469,7 +469,7 @@ Render1:
             Dim PrevPoint As Point
             Static Pen As Integer = &HFF000000
             Static PathPen As Integer = &HFFC0FFC0
-            Static opponentPenPassUp As Integer = &HFF00FF00
+            Static opponentPenPassUp As Integer = &HFF00CC00
             Static opponentPenPassDown As Integer = &HFFFF0000
             Static opponentPenNeutral As Integer = &HFF0000FF
             Static opponentPenReal As Integer = &HFF7F7F00
@@ -478,7 +478,7 @@ Render1:
             Static WindBrushes() As Integer
 
             Static LocalDash As New DashStyle(New Double() {0, 2}, 0)
-            Static routePen() As Integer = New Integer() {&HFF0000FF, &HFFFF0000, &HFF00FF00, &HFFFF26E9, &HFFFF26E9}
+            Static routePen() As Integer = New Integer() {&HFF0000FF, &HFFFF0000, &HFF00CC00, &HFFFF26E9, &HFFFF26E9}
 
             Dim PenNumber As Integer = 0
             Dim CrossLine As Boolean = False
