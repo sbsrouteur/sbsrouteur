@@ -77,8 +77,8 @@
 			<TextBlock Text="Boat Bearing" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="4"/>
 			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.BSP, Mode=Default}" Grid.Column="1" Grid.Row="3" d:LayoutOverrides="GridBox" StringFormat="{DynamicResource FmtDig}"/>
 			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.HDG, Mode=Default}" Grid.Column="1" Grid.Row="5" d:LayoutOverrides="GridBox" ContentStringFormat="" StringFormat="{DynamicResource FmtDig}"/>
-			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" Grid.Row="2" Effect="{DynamicResource DigitShadow}" StrokeThickness="2" Margin="1" Visibility="{Binding VorHandler.UserInfo.TWA, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
-			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" StrokeThickness="2" Margin="1" Effect="{DynamicResource DigitShadow}" Grid.Row="6" Visibility="{Binding VorHandler.UserInfo.HDG, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" Grid.Row="2" Effect="{DynamicResource DigitShadow}" StrokeThickness="2" Margin="1" Visibility="{Binding VorHandler.UserInfo.isTWA, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" StrokeThickness="2" Margin="1" Effect="{DynamicResource DigitShadow}" Grid.Row="6" Visibility="{Binding VorHandler.UserInfo.isHDG, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 	
 		</Grid>
 	</Grid>
