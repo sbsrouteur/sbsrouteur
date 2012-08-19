@@ -19,6 +19,7 @@
 	</UserControl.Resources>
 	<Grid x:Name="BackBuffer" >
 		<Image x:Name="BackDropBuffer"  Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Margin="0" Canvas.Left="0" VerticalAlignment="Top" />
+		<Image x:Name="IsoBuffer"  Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Margin="0" Canvas.Left="0" VerticalAlignment="Top" />
 		<Image x:Name="RenderBuffer"  Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Margin="0" Canvas.Left="0" VerticalAlignment="Top" />
 	</Grid>
 </UserControl>

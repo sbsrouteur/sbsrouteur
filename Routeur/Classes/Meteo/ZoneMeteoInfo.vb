@@ -96,8 +96,8 @@ Public Class ZoneMeteoInfo
                         'SyncLock WindColors.WindColorGDIBrushes(SIndex)
                         ' G.FillRectangle(WindColors.WindColorGDIBrushes(SIndex), New System.Drawing.RectangleF(CSng(i), CSng(j), 1.0, 1.0))
                         'End SyncLock
-                        Dim C As Color = WindColors.GetColor(S)
-                        Using Br As New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(C.R, C.G, C.B))
+                        Dim C As Integer = WindColors.GetColor(S)
+                        Using Br As New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(C))
                             G.FillRectangle(Br, New System.Drawing.RectangleF(CSng(i), CSng(j), 1.0, 1.0))
                         End Using
 

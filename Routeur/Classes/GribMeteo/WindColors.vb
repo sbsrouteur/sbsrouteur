@@ -29,9 +29,9 @@
                                                 New Color() With {.A = &HFF, .R = 230, .G = 0, .B = 0} _
                                                 }
 
-    Public Shared WindColorBrushes(70) As SolidColorBrush
-    Public Shared WindColorGDIBrushes(700) As System.Drawing.Brush
-    Public Shared WindColors(70) As Color
+    Public Shared WindColorBrushes(70) As Integer
+    Public Shared WindColorGDIBrushes(700) As Integer
+    Public Shared WindColors(70) As Integer
 
     
     Shared Sub New()
@@ -40,24 +40,23 @@
 
 
         For i = 0 To 70
-            Dim C As Color = GetColor(i)
+            Dim C As Integer = GetColor(i)
 
-            WindColorBrushes(i) = New SolidColorBrush(C)
-            WindColorBrushes(i).Freeze()
+            WindColorBrushes(i) = C
             WindColors(i) = C
             'WindColorGDIBrushes(i) = New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(C.R, C.G, C.B))
 
         Next
 
         For i = 0 To 700
-            Dim C As Color = GetColor(i / 10)
+            Dim C As Integer = GetColor(i / 10)
 
-            WindColorGDIBrushes(i) = New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(C.R, C.G, C.B))
+            WindColorGDIBrushes(i) = C
 
         Next
     End Sub
 
-    Public Shared Function GetColor(ByVal WindStrength As Double) As Color
+    Public Shared Function GetColor(ByVal WindStrength As Double) As Integer
 
         Dim i As Integer
 
@@ -70,11 +69,12 @@
                 Dim Db As Double = CDbl(_Colors(i).B) - CDbl(_Colors(i - 1).B)
 
                 Dim S As Double = _Winds(i) - WindStrength
-                Return New Color() With {.A = &HFF, .R = CByte(_Colors(i).R - Dr * S / Dx), .g = CByte(_Colors(i).G - Dg * S / Dx), .b = CByte(_Colors(i).B - Db * S / Dx)}
+                Return (&HFF << 24) Or CInt(CByte(_Colors(i).R - Dr * S / Dx)) << 16 Or CInt(CByte(_Colors(i).G - Dg * S / Dx)) << 8 Or (CByte(_Colors(i).B - Db * S / Dx))
             End If
         Next
+        Return &HFF << 24 Or CInt(_Colors(_Colors.Count - 1).R) << 16 Or CInt(_Colors(_Colors.Count - 1).G) << 8 Or _Colors(_Colors.Count - 1).B
 
-        Return _Colors(_Colors.Count - 1)
+
     End Function
 
 
