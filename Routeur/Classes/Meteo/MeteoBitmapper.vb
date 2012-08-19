@@ -103,9 +103,9 @@ Public Class MeteoBitmapper
                             'SyncLock WindColors.WindColorGDIBrushes(SIndex)
                             ' G.FillRectangle(WindColors.WindColorGDIBrushes(SIndex), New System.Drawing.RectangleF(CSng(i), CSng(j), 1.0, 1.0))
                             'End SyncLock
-                            Dim C As Color = WindColors.GetColor(S)
+                            Dim C As Integer = WindColors.GetColor(S)
                             Try
-                                _ImgData(CInt((y + j) * _Viewer.ActualWidth + x + i)) = (255 << 24) + (CInt(C.R) << 16) + (CInt(C.G) << 8) + C.B
+                                _ImgData(CInt((y + j) * _Viewer.ActualWidth + x + i)) = C
                             Catch
                                 'something when wrong, return
                                 Return

@@ -129,6 +129,16 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
+		
+		<Style x:Key="ChronoStyle" TargetType="{x:Type TextBlock}">
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding VorHandler.RaceStartDate, Converter={StaticResource DateDeltaConverter},ConverterParameter=1, Mode=OneWay}" Value="1">
+					<Setter Property="Foreground" Value="#FF6EDA3E"/>
+					<!--<Setter Property="Visibility" Value="Collapsed"/>-->
+				</DataTrigger>
+			</Style.Triggers>
+			
+		</Style>
 	
 		<Style x:Key="CapLabel" TargetType="{x:Type Label}">
 			<Setter Property="Foreground" Value="#FFD31756"/>
@@ -179,6 +189,10 @@
 			<ThicknessAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="GrpLog" Storyboard.TargetProperty="(FrameworkElement.Margin)">
 				<SplineThicknessKeyFrame KeyTime="00:00:00.5000000" Value="0,-150,0,0"/>
 			</ThicknessAnimationUsingKeyFrames>
+			<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="listBox">
+				<EasingColorKeyFrame KeyTime="0" Value="#3FFFFFFF"/>
+				<EasingColorKeyFrame KeyTime="0:0:0.5" Value="#7FFFFFFF"/>
+			</ColorAnimationUsingKeyFrames>
 		</Storyboard>
 		
 		<Storyboard x:Key="OnMouseExit">
@@ -186,6 +200,10 @@
 				<SplineThicknessKeyFrame KeyTime="00:00:00" Value="0,-150,0,0"/>
 				<SplineThicknessKeyFrame KeyTime="00:00:00.5000000" Value="0,0,0,0"/>
 			</ThicknessAnimationUsingKeyFrames>
+			<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)" Storyboard.TargetName="listBox">
+				<EasingColorKeyFrame KeyTime="0" Value="White"/>
+				<EasingColorKeyFrame KeyTime="0:0:0.5" Value="#3FFFFFFF"/>
+			</ColorAnimationUsingKeyFrames>
 		</Storyboard>
 		<SolidColorBrush x:Key="DefTextBlockMenuForeColor" Color="#FF040012"/>
 		<ContextMenu x:Key="CtxNavMenu">
@@ -211,6 +229,14 @@
 		</ContextMenu>
 		
 	</Window.Resources>
+	<Window.Triggers>
+		<EventTrigger RoutedEvent="Mouse.MouseEnter" SourceName="GrpLog">
+			<BeginStoryboard Storyboard="{StaticResource OnMouseMove1}"/>
+		</EventTrigger>
+		<EventTrigger RoutedEvent="Mouse.MouseLeave" SourceName="GrpLog">
+			<BeginStoryboard x:Name="OnMouseExit_BeginStoryboard" Storyboard="{StaticResource OnMouseExit}"/>
+		</EventTrigger>
+	</Window.Triggers>
 
 	<Grid >
     
@@ -253,7 +279,6 @@
 				
 				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}" HorizontalAlignment="Left"/>
 				<CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center"/>
-				<CheckBox Content="Hide Boat &amp; Wind Arrow" IsChecked="{Binding VorHandler.HideWindArrow, Mode=Default}" VerticalAlignment="Center" />
 				<CheckBox Content="Show EasyNav Boat" IsChecked="{Binding ShowEasyNav, Mode=Default}" VerticalAlignment="Center" />
 				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="{Binding VORHandler.EnableManualRefresh, Mode=Default}"/>
 				<Separator/>
@@ -284,7 +309,7 @@
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureDuration, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Durée de la trajectoire" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
         </Menu>
-   	<TabControl x:Name="TabCanvas" IsSynchronizedWithCurrentItem="True" Grid.Column="0" Grid.RowSpan="2" Grid.Row="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="1,-2,-1,2">
+   	<TabControl x:Name="TabCanvas" IsSynchronizedWithCurrentItem="True" Grid.Column="0" Grid.RowSpan="2" Grid.Row="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="2,-2,-2,2">
  			 <TabItem Header="2D Viewer" Margin="-1,-1,-3,-2" >
 				<Grid x:Name="_2DGrid" Background="#FFE0E0F0" >
 					<Grid.ColumnDefinitions>
@@ -347,7 +372,7 @@
 								</ItemsControl.ItemsPanel>
 							</ItemsControl>
 							<Path x:Name="track24h" Stroke="Red" Data="{Binding Track24h, ElementName=NavControl}" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" />
-							<Routeur:EasyNavControl x:Name="NavControl" Width="Auto" Height="Auto" d:LayoutOverrides="GridBox" BoatType="{Binding VorHandler.UserInfo.type}" ClsSailManager="{Binding Mode=OneWay}" MeteoStrength="{Binding VorHandler.UserInfo.TWS}" MeteoDir="{Binding VorHandler.UserInfo.TWA}" BoatBearing="{Binding VorHandler.UserInfo.HDG}" BoatLon="{Binding VorHandler.UserInfo.LON}" Renderer="{Binding The2DViewer}" BoatLat="{Binding VorHandler.UserInfo.LON}" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" BoatDest="{Binding VorHandler.CurrentDest}" />
+							<Routeur:EasyNavControl x:Name="NavControl" Width="Auto" Height="Auto" d:LayoutOverrides="GridBox" BoatType="{Binding VorHandler.UserInfo.POL}" ClsSailManager="{Binding Mode=OneWay}" MeteoStrength="{Binding VorHandler.UserInfo.TWS}" MeteoDir="{Binding VorHandler.UserInfo.TWA}" BoatBearing="{Binding VorHandler.UserInfo.HDG}" BoatLon="{Binding VorHandler.UserInfo.LON}" Renderer="{Binding The2DViewer}" BoatLat="{Binding VorHandler.UserInfo.LON}" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" BoatDest="{Binding VorHandler.CurrentDest}" />
 						</Canvas>
 						
 						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
@@ -375,7 +400,7 @@
 							</TransformGroup>
 						</Image.RenderTransform>
 					</Image>
-					<Label Content="{Binding VorHandler.UserInfo.TWS, Mode=Default, StringFormat=\{0:F2\}}" Style="{DynamicResource CapLabel}" Foreground="#FFCFBC22" RenderTransformOrigin="0.5,1" d:LayoutOverrides="Width, Height" Grid.Row="1">
+					<Label Content="{Binding VorHandler.UserInfo.TWS, Mode=Default, StringFormat=c\{0:F1\}}" Style="{DynamicResource CapLabel}" Foreground="#FFCFBC22" RenderTransformOrigin="0.5,1" d:LayoutOverrides="Width, Height" Grid.Row="1">
 						<Label.RenderTransform>
 							<TransformGroup>
 								<ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -428,9 +453,9 @@
 						</GroupBox>
 						
 					</StackPanel>
-					<GroupBox Grid.Column="3" Grid.Row="7" Header="Journal" x:Name="GrpLog" Background="#6DFFFFFF" Margin="3,3,5,5" Grid.ColumnSpan="3">
+					<GroupBox Grid.Column="3" Grid.Row="7" Header="Journal" x:Name="GrpLog" Background="#1DFFFFFF" Margin="3,3,5,5" Grid.ColumnSpan="3">
 						<Grid Width="Auto" Height="Auto">
-							<ListBox ItemsSource="{Binding VorHandler.Log, Mode=Default}"/>
+							<ListBox x:Name="listBox" ItemsSource="{Binding VorHandler.Log, Mode=Default}" Background="#3FFFFFFF"/>
 						</Grid>
 					</GroupBox>
 					<DockPanel Grid.Row="7" LastChildFill="False">
@@ -441,7 +466,7 @@
 						<ItemsControl ItemsSource="{Binding Stats, Mode=Default}"/>
 					</GroupBox>
 					<StackPanel Grid.Column="1" Grid.ColumnSpan="2">
-						<TextBlock Text="{Binding VorHandler.RaceStartDate, Converter={StaticResource DateDeltaConverter}, Mode=OneWay, StringFormat=Chrono: \{0:d\\ hh\\:mm\\:s\}}" Foreground="#FFDE0F0F" FontSize="24" Margin="8,4,0,4" HorizontalAlignment="Left" >
+						<TextBlock Text="{Binding VorHandler.RaceStartDate, Converter={StaticResource DateDeltaConverter}, Mode=OneWay, StringFormat=Chrono: \{0:d\\ hh\\:mm\\:s\}}" FontSize="24" Margin="8,4,0,4" HorizontalAlignment="Left" Style="{DynamicResource ChronoStyle}" Foreground="Red" >
 							<TextBlock.Effect>
 								<DropShadowEffect ShadowDepth="1"/>
 							</TextBlock.Effect>
@@ -478,7 +503,7 @@
 					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.HDG, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="1"/>
 					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.BSP, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="1"/>
 					<TextBlock Text="Date" TextWrapping="Wrap" Grid.Column="2"/>
-					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.Position.date, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Grid.Column="3"/>
+					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.date, ConverterParameter=1, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Grid.Column="3"/>
 					<TextBlock Text="Position" TextWrapping="Wrap" Grid.Column="2" Grid.Row="2" Grid.RowSpan="1"/>
 					<TextBlock HorizontalAlignment="Stretch" Width="Auto" Text="{Binding VorHandler.UserInfo.POS, ConverterParameter=1, Mode=Default}" TextWrapping="Wrap" Grid.Column="3" Grid.Row="2"/>
 					<TextBlock Text="Cap" TextWrapping="Wrap" Grid.Column="2" Grid.Row="3"/>
