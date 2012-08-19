@@ -62,7 +62,7 @@
 				<TransformGroup>
 					<ScaleTransform/>
 					<SkewTransform/>
-					<RotateTransform Angle="{Binding VorHandler.UserInfo.position.cap}"/>
+					<RotateTransform Angle="{Binding VorHandler.UserInfo.HDG}"/>
 					<TranslateTransform/>
 				</TransformGroup>
 			</Image.RenderTransform>
