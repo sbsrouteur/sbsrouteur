@@ -165,7 +165,6 @@ Partial Public Class RouteurMain
 
     Private Sub MouseEndDrag(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
 
-        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
         Dim C1 As Coords = Nothing
         Dim C2 As Coords = Nothing
         Dim EndDragPoint As Point = e.GetPosition(Me.VOR2DViewer)
@@ -173,14 +172,14 @@ Partial Public Class RouteurMain
         If DragCanvas Then
             DragCanvas = False
 
-            Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
-            Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
-            If abs(Dx) < 5 Or abs(Dy) < 5 Then
-                Return
-            End If
+            'Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
+            'Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
+            'If abs(Dx) < 5 Or abs(Dy) < 5 Then
+            '    Return
+            'End If
 
-            C1 = New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
-            C2 = New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
+            'C1 = New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
+            'C2 = New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
         ElseIf _ZoomCanvas Then
             _ZoomCanvas = False
             'FixMe handle antemeridien
@@ -194,6 +193,7 @@ Partial Public Class RouteurMain
 
         End If
         If C1 IsNot Nothing AndAlso C2 IsNot Nothing Then
+            Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
             M.UpdateRaceScale(C1, C2)
             RedrawClick(Nothing, Nothing)
         End If
@@ -202,11 +202,31 @@ Partial Public Class RouteurMain
 
     Private Sub MouseMoveCanvas(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
 
+        Dim C1 As Coords = Nothing
+        Dim C2 As Coords = Nothing
+        Dim EndDragPoint As Point = e.GetPosition(Me.VOR2DViewer)
+
         If e.LeftButton = MouseButtonState.Pressed AndAlso DragCanvas Then
             Dim P As Point = e.GetPosition(VOR2DViewer)
 
             VOR2DViewer.DragMap(_LastDraggedPoint, P)
             _LastDraggedPoint = P
+        End If
+        If DragCanvas Then
+
+            Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
+            Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
+            _DragStartPoint = EndDragPoint
+            
+            C1 = New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
+            C2 = New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
+        ElseIf _ZoomCanvas Then
+
+        End If
+        If C1 IsNot Nothing AndAlso C2 IsNot Nothing Then
+            Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+            M.UpdateRaceScale(C1, C2)
+            'RedrawClick(Nothing, Nothing)
         End If
 
     End Sub
