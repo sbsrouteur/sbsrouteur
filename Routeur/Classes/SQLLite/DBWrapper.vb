@@ -5,9 +5,10 @@ Imports System.Data.SQLite
 
 Public Class DBWrapper
 
-    Private Const DBName As String = "RouteurDB"
+    Private Const DBName As String = "RouteurDB.db3"
 
     Private _DBPath As String
+    Private Shared _Lock As New Object
 
     Public Sub New()
         Dim BaseFile As String = System.IO.Path.Combine(RouteurModel.BaseFileDir, DBName)
@@ -16,6 +17,8 @@ Public Class DBWrapper
         If Not File.Exists(BaseFile) Then
             CreateDB(BaseFile)
         End If
+
+        CheckDBVersionAndUpdate()
 
     End Sub
 
@@ -269,6 +272,55 @@ Public Class DBWrapper
 
         Return False
 
+
+    End Function
+
+    Private Sub CheckDBVersionAndUpdate()
+        Static VersionChecked As Boolean = False
+
+        If VersionChecked Then
+            Return
+        End If
+        SyncLock _Lock
+            Dim CurVersion As Integer = GetCurDBVersion()
+            Const DBVersion As Integer = 2
+
+            If CurVersion < DBVersion Then
+                Using conn As New SQLiteConnection(_DBPath)
+                    conn.Open()
+                    For i As Integer = CurVersion To DBVersion - 1
+
+                        Using cmd As New SQLiteCommand(GetDBScript(i), conn)
+                            cmd.ExecuteNonQuery()
+                        End Using
+                    Next
+                End Using
+
+            ElseIf CurVersion > DBVersion Then
+                'Version is higher than exe
+                MessageBox.Show("You DB version is more recent than current application can support. You Should Exit and update the application")
+            Else
+                'Version is OK nothing to do
+            End If
+            VersionChecked = True
+
+        End SyncLock
+
+    End Sub
+
+    Private Function GetCurDBVersion() As Integer
+        Using Conn As New SQLiteConnection(_DBPath)
+            Conn.Open()
+            Using cmd As New SQLiteCommand("Select Max(VersionNumber) from DBVersion", Conn)
+                Return CInt(cmd.ExecuteScalar)
+            End Using
+        End Using
+
+    End Function
+
+    Private Function GetDBScript(i As Integer) As String
+
+        Return My.Resources.ResourceManager.GetString("UpdateV" & i & "ToV" & i + 1)
 
     End Function
 
