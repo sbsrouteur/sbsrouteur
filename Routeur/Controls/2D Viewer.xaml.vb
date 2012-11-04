@@ -21,7 +21,7 @@ Partial Public Class _2D_Viewer
     Implements INotifyPropertyChanged
     Private Const DPI_RES As Integer = 96
 
-#Const DBG_UPDATE_PATH = 1
+#Const DBG_UPDATE_PATH = 0
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
