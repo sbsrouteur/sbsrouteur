@@ -57,64 +57,6 @@ Public Class DBWrapper
 
     End Function
 
-    'Public Sub AddPoly(MapLevel As Integer, A As Polygon, Optional Flush As Boolean = False)
-
-    '    Static Conn As SQLiteConnection
-    '    Static PolyCount As Long = 0
-    '    Static Trans As SQLiteTransaction = Nothing
-
-    '    If Flush Then
-    '        Trans.Commit()
-    '        Conn.Close()
-    '    End If
-
-    '    If A Is Nothing OrElse A.Length = 0 Then
-    '        Return
-    '    End If
-
-    '    If Conn Is Nothing Then
-    '        Conn = New SQLiteConnection(_DBPath)
-    '        Conn.Open()
-    '        Trans = Conn.BeginTransaction()
-    '    End If
-
-
-    '    Dim Cmd As New SQLiteCommand(Conn)
-    '    Dim StartCoords As Coords = A(0)
-    '    Try
-    '        For i As Integer = 0 To A.Length - 1
-
-    '            Dim CmdText As String = "insert into mapssegments (maplevel,lon1,lat1,lon2,lat2) values (" & MapLevel & "," &
-    '                                                                A(i).Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-    '                                                                A(i).Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-    '                                                                A(i + 1).Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-    '                                                                A(i + 1).Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ")"
-    '            Cmd.CommandText = CmdText
-    '            Cmd.ExecuteNonQuery()
-
-    '            PolyCount += 1
-    '            If PolyCount Mod 3000 = 0 Then
-    '                Trans.Commit()
-    '                Trans = Conn.BeginTransaction
-    '            End If
-
-    '        Next
-    '        Dim LastCmdText As String = "insert into mapssegments (maplevel,lon1,lat1,lon2,lat2) values (" & MapLevel & "," &
-    '                                                                A(A.Length - 1).Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-    '                                                                A(A.Length - 1).Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-    '                                                                StartCoords.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-    '                                                                StartCoords.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ")"
-    '        Cmd.CommandText = LastCmdText
-    '        Cmd.ExecuteNonQuery()
-
-    '    Finally
-    '        'If Trans IsNot Nothing Then
-    '        '    Trans.Commit()
-    '        'End If
-    '        'Conn.Close()
-    '    End Try
-
-    'End Sub
 
     Public Sub AddSegment(MapLevel As Integer, P1 As Coords, p2 As Coords, Optional flush As Boolean = False)
 
