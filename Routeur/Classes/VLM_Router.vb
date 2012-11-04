@@ -3030,6 +3030,10 @@ Public Class VLM_Router
                 VLMInfoMessage &= " Speed:" & UserInfo.BSP.ToString("f2")
                 If Math.Abs(UserInfo.BSP - V) > 0.05 Then
                     VLMInfoMessage &= " (exp: " & V.ToString("f2") & ")"
+                    Using Fs As New IO.StreamWriter(IO.Path.Combine(RouteurModel.BaseFileDir, "WindErrors.csv"), True)
+                        Fs.WriteLine(_UserInfo.LUP & ";" & _UserInfo.TWS & ";" & _UserInfo.TWA & ";" & _UserInfo.BSP & ";" & V)
+                        Fs.Close()
+                    End Using
                 End If
                     AddLog(VLMInfoMessage)
                     'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
