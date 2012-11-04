@@ -167,4 +167,27 @@ CREATE VIRTUAL TABLE MapLevel_Idx5 USING rtree(
    minY, maxY       -- Minimum and maximum Y coordinate
 );</value>
   </data>
+  <data name="UpdateV1ToV2" xml:space="preserve">
+    <value>begin transaction;
+
+insert into DBVersion (VersionNumber) Values (2);
+
+CREATE TABLE `Tracks`
+(
+       ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+       RaceId INTEGER NOT NULL,
+       BoatNum INTEGER NOT NULL
+);
+
+CREATE TABLE `TrackPoints`
+(
+       RefTrack INTEGER NOT NULL,
+       IdPoint INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+       PointDate DATETIME NOT NULL,
+       Lon FLOAT NOT NULL,
+       Lat FLOAT NOT NULL
+);
+
+commit transaction;</value>
+  </data>
 </root>
