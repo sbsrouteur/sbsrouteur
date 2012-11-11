@@ -1711,7 +1711,11 @@ Public Class VLM_Router
         Dim Cookies As CookieContainer = Login()
         Dim NbArrived As Integer = 0
         Static RaceHasReals As Boolean = True
-        Dim JSonRanking As Dictionary(Of String, Object) = WS_Wrapper.GetRankings(_PlayerInfo.RaceInfo.idraces, NbArrived)
+        Dim JSonRanking As Dictionary(Of String, Object) = Nothing
+
+        If DrawOpponnents Then
+            JSonRanking = WS_Wrapper.GetRankings(_PlayerInfo.RaceInfo.idraces, NbArrived)
+        End If
 
         If JSonRanking IsNot Nothing Then
             SyncLock _Opponents
