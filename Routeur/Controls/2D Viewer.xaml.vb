@@ -465,7 +465,7 @@ Render1:
 
             Dim PrevPoint As Point
             Static Pen As Integer = &HFF000000
-            Static PathPen As Integer = CInt(CLng(PathInfo.TrackColor.B) + (CLng(PathInfo.TrackColor.G) << 8) + (CLng(PathInfo.TrackColor.R) << 16)) Or &HFF000000
+            Static PathPen As Integer = CInt(CLng(PathInfo.TrackColor.R) + (CLng(PathInfo.TrackColor.G) << 8) + (CLng(PathInfo.TrackColor.B) << 16)) Or &HFF000000
             Static opponentPenPassUp As Integer = &HFF00CC00
             Static opponentPenPassDown As Integer = &HFFFF0000
             Static opponentPenNeutral As Integer = &HFF0000FF
