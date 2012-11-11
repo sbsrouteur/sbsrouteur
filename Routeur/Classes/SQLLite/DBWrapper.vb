@@ -330,8 +330,8 @@ Public Class DBWrapper
 
     End Function
 
-    Function GetTrack(RaceID As Integer, BoatId As Integer) As String
-        Dim RetTrack As New StringBuilder("")
+    Function GetTrack(RaceID As Integer, BoatId As Integer) As List(Of Coords)
+        Dim Retlist As New List(Of Coords)
         Using conn As New SQLiteConnection(_DBPath)
             conn.Open()
             Using cmd As New SQLiteCommand("select PointDate, Lon, Lat from TrackPoints inner join Tracks on TrackPoints.RefTrack = Tracks.id " &
@@ -341,22 +341,91 @@ Public Class DBWrapper
                 If Reader.HasRows Then
                     Dim Lat As Double
                     Dim Lon As Double
-                    While Reader.NextResult
+                    While Reader.Read
                         Lat = Reader.GetDouble(2)
                         Lon = Reader.GetDouble(1)
+                        Retlist.Add(New Coords(Lon, Lat))
                     End While
-                    RetTrack.Append(Lon & "!" & Lat & ";")
                 End If
             End Using
         End Using
 
-        Return RetTrack.ToString
+        Return Retlist
     End Function
 
     Sub ImportTrack(RaceID As Integer, BoatNum As Integer)
 
         Throw New NotImplementedException
 
+    End Sub
+
+    Function GetLastTrackDate(RaceID As Integer, BoatNum As Integer) As Date
+        Using conn As New SQLiteConnection(_DBPath)
+            conn.Open()
+            Using cmd As New SQLiteCommand(_DBPath, conn)
+                cmd.CommandText = "select max (pointdate) from trackpoints " &
+                                    "inner join tracks on reftrack = id where raceid=" & RaceID & " and BoatNum = " & BoatNum
+                Dim Epoch As Object = cmd.ExecuteScalar
+                Dim UTCDate As DateTime
+                If IsDBNull(Epoch) Then
+                    UTCDate = New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                Else
+                    UTCDate = Date.SpecifyKind(Date.Parse(CStr(Epoch)), DateTimeKind.Utc)
+                End If
+                
+                Return UTCDate.ToLocalTime
+            End Using
+        End Using
+    End Function
+
+    Sub AddTrackPoints(RaceID As Integer, BoatNum As Integer, PtList As List(Of TrackPoint))
+
+        Static PrevTrack As Integer = -1
+        Static prevboat As Integer = -1
+        Static CurRace As Integer = -1
+
+
+        Using con As New SQLiteConnection(_DBPath)
+            con.Open()
+
+            Using cmd As New SQLiteCommand(con)
+
+                If PrevTrack <> RaceID OrElse prevboat <> BoatNum Then
+                    PrevTrack = RaceID
+                    prevboat = BoatNum
+
+                    cmd.CommandText = "select id from tracks where raceid=" & RaceID & " and BoatNum = " & BoatNum
+                    Dim NumRace As Object = cmd.ExecuteScalar()
+
+                    If IsDBNull(NumRace) OrElse NumRace Is Nothing Then
+                        cmd.CommandText = "insert into tracks(raceid,boatnum) values(" & RaceID & "," & BoatNum & ");" & cmd.CommandText
+                        CurRace = CInt(cmd.ExecuteScalar)
+
+                    Else
+                        CurRace = CInt(NumRace)
+                    End If
+
+                    cmd.CommandText = ""
+                End If
+                Dim PtIndex As Integer = 1
+                For Each Pt As TrackPoint In PtList
+                    Dim ptDate As DateTime = New DateTime(1970, 1, 1).AddSeconds(Pt.Epoch)
+                    cmd.CommandText &= vbCrLf & "insert into Trackpoints(RefTrack,pointdate,lon,lat) values(" & CurRace & ",'" & ptDate &
+                                        "' , " & Pt.P.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
+                                         Pt.P.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ");"
+                    If PtIndex Mod 100 = 0 Then
+                        cmd.ExecuteNonQuery()
+                        cmd.CommandText = ""
+                        PtIndex = 1
+                    Else
+                        PtIndex += 1
+                    End If
+                Next
+                If cmd.CommandText <> "" Then
+                    cmd.ExecuteNonQuery()
+                End If
+            End Using
+        End Using
     End Sub
 
 

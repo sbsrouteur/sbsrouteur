@@ -339,14 +339,7 @@ Public Class VLMBoatInfo
         End Set
     End Property
 
-    ''' <summary>
-    ''' User track
-    ''' </summary>
-    ''' <value></value>
-    ''' <returns></returns>
-    ''' <remarks></remarks>
-    Public Property Track As String
-
+    
     Public Property TFS As Integer
         Get
             Return _TFS

@@ -290,6 +290,41 @@ Module WS_Wrapper
         End If
     End Function
 
+    Public Function GetTrack(RaceId As Integer, BoatNum As Integer, StartEpoch As Long) As List(Of TrackPoint)
+        Dim RetJSon As New Dictionary(Of String, Object)
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/tracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & StartEpoch & "&endtime=0"
+        Dim RetList As New List(Of TrackPoint)
+        Dim Retstring As String = ""
+        Try
+            Retstring = RequestPage(URL)
+            RetJSon = JSonParser.Parse(Retstring)
+            Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
+            If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
+                CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
+
+                Dim Track As List(Of Object) = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks"), List(Of Object))
+                Dim NbTracks As Integer = JSonHelper.GetJSonIntValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "nb_tracks")
+                If NbTracks > 0 Then
+                    For Each Pos As List(Of Object) In Track
+
+                        Dim P As New TrackPoint
+                        P.Epoch = CLng(Pos(0))
+                        If P.Epoch > StartEpoch Then
+                            P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
+                            RetList.Add(P)
+                        End If
+                    Next
+                End If
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show("Failed to parse JSON Track data " & Retstring)
+        End Try
+
+        Return RetList
+
+    End Function
+
     Public Function GetUserFleetInfo(ByVal UserName As String, ByVal Password As String) As Dictionary(Of String, Object)
 
         If _LastPassword <> Password OrElse _LastUser <> UserName Then

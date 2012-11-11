@@ -76,5 +76,6 @@ Public Class clsPlayerInfo
         'End Set
     End Property
 
+    Public Property TrackColor As Color
 
 End Class

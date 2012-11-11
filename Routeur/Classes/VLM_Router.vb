@@ -82,7 +82,7 @@ Public Class VLM_Router
     Private WithEvents _RoutingRestart As New Timers.Timer
     Private _RoutingRestartPending As Boolean = False
     Private _IsoRoutingRestartPending As Boolean = False
-    Private Shared _Track As String = Nothing
+    Private Shared _Track As List(Of Coords)
     Private _DrawOpponnents As Boolean = False
     Private _CurUserWP As Integer = 0
 
@@ -2056,24 +2056,31 @@ Public Class VLM_Router
         End If
     End Sub
 
-    Public ReadOnly Property Track() As String
+    Public ReadOnly Property Track() As List(Of Coords)
         Get
-            If Not _Track Is Nothing AndAlso _Track.Length > 0 Then
-                Dim C As New Coords(UserInfo.Position)
-                Dim CurPos As String = C.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "!" & C.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ";"
-                If Not _Track.EndsWith(CurPos) Then
-                    _Track &= CurPos
-                End If
-                Return _Track
-            Else
-                _Track = ""
-                Dim prefs As RacePrefs = RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces)
-                Dim db As New DBWrapper(DBWrapper.GetMapLevel(prefs.MapLevel))
-                _Track = db.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat)
-                Return _Track
-                
-
+            'If Not _Track Is Nothing AndAlso _Track.Length > 0 Then
+            '    Dim C As New Coords(UserInfo.Position)
+            '    Dim CurPos As String = C.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "!" & C.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ";"
+            '    If Not _Track.EndsWith(CurPos) Then
+            '        _Track &= CurPos
+            '    End If
+            '    Return _Track
+            'Else
+            Dim prefs As RacePrefs = RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces)
+            Dim IdRace As Integer = CInt(_PlayerInfo.RaceInfo.idraces)
+            Dim db As New DBWrapper(DBWrapper.GetMapLevel(prefs.MapLevel))
+            Dim LastTrackDate As DateTime = db.GetLastTrackDate(IdRace, _PlayerInfo.NumBoat)
+            If Now.Subtract(LastTrackDate).TotalMinutes >= _PlayerInfo.RaceInfo.vacfreq Then
+                Dim PtList As List(Of TrackPoint) = WS_Wrapper.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat, CLng(LastTrackDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1)).TotalSeconds + 1))
+                db.AddTrackPoints(IdRace, _PlayerInfo.NumBoat, PtList)
             End If
+
+            _Track = db.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat)
+            
+            Return _Track
+
+
+            'End If
         End Get
     End Property
 
@@ -2106,34 +2113,7 @@ Public Class VLM_Router
     End Function
 
 
-    Public Function StorePath(ByVal C As Coords, PosDate As DateTime) As String
-        Throw New NotImplementedException
-        'Static LastC As New Coords
-        'Static lastcap As Double
-        'Static LastStore As DateTime
-        'Dim Trace As System.IO.StreamWriter = Nothing
-        'Dim RetString As String = ""
-        'Try
-        '    If PosValide AndAlso (cap <> lastcap OrElse Now.Subtract(LastStore).TotalHours > 1) Then
-        '        Trace = New System.IO.StreamWriter(GetTrackFileName, True)
-        '        RetString = C.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "!" & C.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ";"
-        '        Trace.Write(RetString)
-        '        _Track = Track 'RetString
-        '        LastC.Lon = C.Lon
-        '        LastC.Lat = C.Lat
-        '        lastcap = cap
-        '        LastStore = Now
-        '    End If
-        'Catch ex As Exception
-        'Finally
-        '    If Not Trace Is Nothing Then
-        '        Trace.Close()
-        '    End If
-        'End Try
-        'Return RetString
-
-    End Function
-
+    
 
     Public ReadOnly Property Log() As ObservableCollection(Of String)
         Get
@@ -2366,32 +2346,35 @@ Public Class VLM_Router
 
     Public Sub MouseOver(ByVal C As Coords)
 
-        Dim TC As New TravelCalculator
-        Dim StartCount As Integer = _BoatUnderMouse.Count
-        _CurMousePos = C
-        TC.StartPoint = C
-        SyncLock _BoatUnderMouse
-            _BoatUnderMouse.Clear()
-            SyncLock _Opponents
-                For Each O In Opponents.Values
-                    TC.EndPoint = O.CurPos
-                    If TC.SurfaceDistance < 3 * _PixelSize Then
-                        _BoatUnderMouse.Add(O)
-                    End If
+        Try
+            Dim TC As New TravelCalculator
+            Dim StartCount As Integer = _BoatUnderMouse.Count
+            _CurMousePos = C
+            TC.StartPoint = C
+            SyncLock _BoatUnderMouse
+                _BoatUnderMouse.Clear()
+                SyncLock _Opponents
+                    For Each O In Opponents.Values
+                        TC.EndPoint = O.CurPos
+                        If TC.SurfaceDistance < 3 * _PixelSize Then
+                            _BoatUnderMouse.Add(O)
+                        End If
 
-                Next
+                    Next
+                End SyncLock
             End SyncLock
-        End SyncLock
 
-        System.Threading.ThreadPool.QueueUserWorkItem(AddressOf GetRoutesUnderMouse, C)
+            System.Threading.ThreadPool.QueueUserWorkItem(AddressOf GetRoutesUnderMouse, C)
 
-        TC.StartPoint = Nothing
-        TC.EndPoint = Nothing
-        If StartCount <> _BoatUnderMouse.Count Then
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatInfoVisible"))
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatInfo"))
-        End If
-
+            TC.StartPoint = Nothing
+            TC.EndPoint = Nothing
+            If StartCount <> _BoatUnderMouse.Count Then
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatInfoVisible"))
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatInfo"))
+            End If
+        Finally
+            'just ignore exception here
+        End Try
     End Sub
 
     Public ReadOnly Property BoatInfoVisible() As Boolean
@@ -2638,22 +2621,11 @@ Public Class VLM_Router
         _WayPointDest.Lat_Deg = RetUser.WPLAT
         _WayPointDest.Lon_Deg = RetUser.WPLON
 
-        'RetUser.position.PIM_WP = BoatInfo.PIM >= 3
-        'RetUser.position.PIM_Angle = BoatInfo.PIM = 2
-        'RetUser.position.PIM_Bearing = BoatInfo.PIM = 1
-        'RetUser.position.PIM_Ortho = BoatInfo.PIM = 3
-        'RetUser.position.PIM_VBVMG = BoatInfo.PIM = 5
-        'RetUser.position.PIM_VMG = BoatInfo.PIM = 4
-        'RetUser.position.PIM = BoatInfo.PIM
-
         If RetUser.LOC = 0 Then
             RetUser.LUP = CInt(Now.Subtract(New DateTime(1970, 1, 1)).TotalSeconds)
         End If
 
-        RetUser.Track = Track
-        'RetUser.DateOffset = Now.AddHours(-System.TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours).Subtract(New Date(1970, 1, 1).AddSeconds(Lup + RouteurModel.VacationMinutes * 60 - Nup)).TotalSeconds
-        'RetUser.DateOffset = 0
-
+        
         If Not _UserInfo Is Nothing AndAlso Not _UserInfo.Position Is Nothing Then
             RetUser.DIffClassement = CInt(_UserInfo.RNK) - RetUser.RNK
         Else
@@ -2959,6 +2931,9 @@ Public Class VLM_Router
             Dim prevwp As Integer = RouteurModel.CurWP
             Dim CurDate As Date = If(UserInfo Is Nothing, Now, _UserInfo.date)
             UserInfo(meteo) = ParseVLMBoatInfoString()
+            If _UserInfo IsNot Nothing Then
+
+            End If
             If Not force AndAlso CurDate = _UserInfo.date Then
                 If requerydelay = 0 Then
                     requerydelay = 2 / 60
@@ -3221,16 +3196,8 @@ Public Class VLM_Router
             End If
 
             P = New Coords(_UserInfo.Position)
-            If _UserInfo.Track Is Nothing Then
-                _UserInfo.Track = ""
-            End If
-            If _PlayerInfo.RaceInfo.RaceStarted Then
-                _UserInfo.Track &= StorePath(P, _UserInfo.date)
-            End If
 
             MI = Meteo.GetMeteoToDate(P, Now, True, True)
-
-
 
             If _DiffEvolution.Count = 0 OrElse _DiffEvolution(0) <> _UserInfo.DIffClassement Then
                 _DiffEvolution.Insert(0, _UserInfo.DIffClassement)
