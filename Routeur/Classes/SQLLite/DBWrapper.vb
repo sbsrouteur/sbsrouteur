@@ -353,6 +353,11 @@ Public Class DBWrapper
         Return RetTrack.ToString
     End Function
 
+    Sub ImportTrack(RaceID As Integer, BoatNum As Integer)
+
+        Throw New NotImplementedException
+
+    End Sub
 
 
 End Class
