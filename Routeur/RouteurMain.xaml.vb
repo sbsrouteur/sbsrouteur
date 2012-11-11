@@ -601,4 +601,26 @@ Partial Public Class RouteurMain
         M.UpdateRaceScale(p1, p2)
         RedrawClick(Nothing, Nothing)
     End Sub
+
+    Private Sub ImportTrack(sender As System.Object, e As System.Windows.RoutedEventArgs)
+
+        Dim RaceId As Integer
+        Dim BoatNum As Integer
+        Dim StrRaceId As String = InputBox("Enter Race ID:", "-1")
+        Dim StrBoatNum As String = InputBox("Enter BoatNum:", "-1")
+
+        If Not Integer.TryParse(StrRaceId, RaceId) Then
+            Return
+        End If
+        If Not Integer.TryParse(StrBoatNum, BoatNum) Then
+            Return
+        End If
+
+        If BoatNum = -1 OrElse RaceId = -1 Then
+            Return
+        End If
+
+        WS_Wrapper.GetTrack(RaceId, BoatNum, 1)
+
+    End Sub
 End Class

@@ -448,8 +448,7 @@ Render1:
         Next
     End Sub
 
-    Public Sub UpdatePath(ByVal PathString As String, ByVal Routes As IList(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)), EstimateRouteIndex As Integer, ByVal Opponents As Dictionary(Of String, BoatInfo), _
-                          ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
+    Public Sub UpdatePath(PathInfo As PathInfo)
 
         Dim Start As DateTime = Now
         Dim CurPos As New Coords
@@ -460,15 +459,13 @@ Render1:
 
         Try
 
-            Dim Coords() As String = Nothing
             Dim FirstPoint As Boolean = True
             Dim FirstLine As Boolean = True
-            Dim CoordValue() As String
             Dim P1 As Point
 
             Dim PrevPoint As Point
             Static Pen As Integer = &HFF000000
-            Static PathPen As Integer = &HFFC0FFC0
+            Static PathPen As Integer = CInt(CLng(PathInfo.TrackColor.B) + (CLng(PathInfo.TrackColor.G) << 8) + (CLng(PathInfo.TrackColor.R) << 16)) Or &HFF000000
             Static opponentPenPassUp As Integer = &HFF00CC00
             Static opponentPenPassDown As Integer = &HFFFF0000
             Static opponentPenNeutral As Integer = &HFF0000FF
@@ -492,7 +489,7 @@ Render1:
             Dim ForceIsoRedraw As Boolean = False
 
             'GC.Collect()
-            _WPs = WPs
+            _WPs = PathInfo.WPs
 
             'Dim Pixels As Array
             'If Monitor.TryEnter(Me) Then
@@ -620,13 +617,13 @@ Render1:
                         _ISOBmp = New WriteableBitmap(CInt(ActualWidth), CInt(ActualHeight), DPI_RES, DPI_RES, PixelFormats.Pbgra32, Nothing)
 
                     End If
-                    If ClearGrid Then
+                    If PathInfo.ClearGrid Then
                         _ISOBmp.Clear()
                     End If
 
-                    If Not IsoChrones Is Nothing Then
+                    If Not PathInfo.IsoChrones Is Nothing Then
                         Using _ISOBmp.GetBitmapContext
-                            For Each iso As IsoChrone In IsoChrones
+                            For Each iso As IsoChrone In PathInfo.IsoChrones
                                 If Not iso.Drawn Or ForceIsoRedraw Then
                                     Dim MaxIndex As Integer = iso.MaxIndex
                                     Dim index As Integer
@@ -678,8 +675,8 @@ Render1:
                 ElseIf _EraseIsoChrones Then
                     _ISOBmp.Clear()
                     _EraseIsoChrones = False
-                    If IsoChrones IsNot Nothing Then
-                        For Each iso In IsoChrones
+                    If PathInfo.IsoChrones IsNot Nothing Then
+                        For Each iso In PathInfo.IsoChrones
                             iso.Drawn = False
                         Next
                     End If
@@ -701,9 +698,9 @@ Render1:
                 'End If
                 'End If
 
-                If Not Opponents Is Nothing Then
-                    SyncLock Opponents
-                        For Each op In Opponents
+                If Not PathInfo.Opponents Is Nothing Then
+                    SyncLock PathInfo.Opponents
+                        For Each op In PathInfo.Opponents
                             If Not op.Value.Drawn Then
                                 'P1.X = LonToCanvas(op.Value.CurPos.Lon_Deg)
                                 'P1.Y = LatToCanvas(op.Value.CurPos.Lat_Deg)
@@ -750,45 +747,35 @@ Render1:
                 ' Draw the recorded path
                 '
 
-                If PathString IsNot Nothing Then
-                    Coords = PathString.Split(";"c)
-
-                End If
 
                 ShownPoints = 0
-                If Not Coords Is Nothing Then
+                If PathInfo.Path IsNot Nothing Then
                     PrevSide = 0
                     Dim Ignorepoints As Integer = 0 'Coords.Count - 99
                     Dim Ignored As Integer = 0
                     Dim Pnt As New Coords
-                    For Each C In Coords
-                        If C <> "" AndAlso C <> "0!0" Then
+                    For Each C As Coords In PathInfo.Path
+                        If C IsNot Nothing Then
                             If Ignored >= Ignorepoints Then
-                                CoordValue = C.Split("!"c)
-                                Dim lon As Double
-                                Dim lat As Double
 
-                                Double.TryParse(CoordValue(0), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, lon)
-                                Double.TryParse(CoordValue(1), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, lat)
+                                P1.X = LonToCanvas(C.Lon_Deg)
+                                P1.Y = LatToCanvas(C.Lat_Deg)
 
-                                P1.X = LonToCanvas(lon)
-                                P1.Y = LatToCanvas(lat)
+                                CurPos.Lon_Deg = C.Lon_Deg
+                                CurPos.Lat_Deg = C.Lat_Deg
 
-                                CurPos.Lon_Deg = lon
-                                CurPos.Lat_Deg = lat
-
-                                CrossLine = (Val(CoordValue(0)) - PrevSide) > 180
+                                CrossLine = (Val(C.Lon_Deg) - PrevSide) > 180
                                 If ShownPoints > 0 Then
 
-                                    Pnt.Lon_Deg = lon
-                                    Pnt.Lat_Deg = lat
+                                    Pnt.Lon_Deg = C.Lon_Deg
+                                    Pnt.Lat_Deg = C.Lat_Deg
 
                                     SafeDrawLine(_RBmp, PrevP, Pnt, PathPen)
                                 End If
-                                PrevP.Lon_Deg = lon
-                                PrevP.Lat_Deg = lat
+                                PrevP.Lon_Deg = C.Lon_Deg
+                                PrevP.Lat_Deg = C.Lat_Deg
                                 PrevPoint = P1
-                                PrevSide = Val(CoordValue(0))
+                                PrevSide = C.Lon_Deg
                                 'End If
                                 ShownPoints += 1
                             Else
@@ -811,13 +798,13 @@ Render1:
                 '
                 ' Draw the other routes
                 '
-                If Not OpponentMap And Not Routes Is Nothing Then
+                If Not OpponentMap And Not PathInfo.Routes Is Nothing Then
                     'Try
                     ShownPoints += 1
                     PenNumber = 0
                     Dim CurWP As Integer = 1
                     Dim RouteIndex As Integer = 0
-                    For Each R In Routes
+                    For Each R In PathInfo.Routes
 
                         If Not R Is Nothing Then
                             FirstPoint = True
@@ -838,7 +825,7 @@ Render1:
                                         Dim Pe As Integer = routePen(PenNumber)
                                         SafeDrawLine(_RBmp, PrevP, P.P, Pe)
                                     End If
-                                    If RouteIndex = EstimateRouteIndex Then
+                                    If RouteIndex = PathInfo.EstimateRouteIndex Then
                                         SafeDrawEllipse(_RBmp, P.P, routePen(PenNumber), 2, 2)
                                     End If
                                     PrevP.Lon = P.P.Lon
@@ -1595,6 +1582,8 @@ Render1:
             _Scale = value
         End Set
     End Property
+
+    Public Property TrackColor As Color
 
     Public ReadOnly Property TileServerBusy() As Boolean
         Get

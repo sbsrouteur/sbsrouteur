@@ -116,7 +116,9 @@
     <Compile Include="Classes\NavHelper\VMGNavHelper.vb" />
     <Compile Include="Classes\SQLLite\DBWrapper.vb" />
     <Compile Include="Classes\SQLLite\MapSegment.vb" />
+    <Compile Include="Classes\TrackPoint.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMShortRaceInfo.vb" />
+    <Compile Include="Controls\PathInfo.vb" />
     <Compile Include="Dialogs\frmAppOptions.xaml.vb">
       <DependentUpon>frmAppOptions.xaml</DependentUpon>
     </Compile>

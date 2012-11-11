@@ -920,26 +920,8 @@ Public Class RouteurModel
                 routes(4) = VorHandler.TempVMGRoute
                 routes(5) = VorHandler.AllureRoute
                 routes(6) = VorHandler.PilototoRoute
-                'If Moorea Is Nothing Then
-                '    Moorea = New ObservableCollection(Of clsrouteinfopoints)
-                '    Dim db As New DBWrapper
-                '    db.MapLevel = 5
-                '    Dim segments As List(Of MapSegment) = db.SegmentList(-150, -17, -149.45, -17.6, True)
-                '    For Each seg In segments
-                '        Moorea.Add(New clsrouteinfopoints() With {.P = New Coords(seg.Lat1, seg.Lon1)})
-                '    Next
-                'End If
-                'routes(7) = Moorea
-
-                Dim Traj As String = ""
-
-                If VorHandler Is Nothing OrElse VorHandler.UserInfo Is Nothing OrElse VorHandler.UserInfo.track Is Nothing Then
-                    Traj = ""
-                Else
-                    Traj = VorHandler.Track
-
-                End If
-
+                
+            
 
                 Dim Rtes As List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)) = New List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints))(routes)
                 'ReDim Rtes(routes.Length)
@@ -948,16 +930,26 @@ Public Class RouteurModel
                 'Rtes(Index) = New ObservableCollection(Of VLM_Router.clsrouteinfopoints)(Item)
                 'Index += 1
                 'Next
-                The2DViewer.UpdatePath(Traj, Rtes, 6, VorHandler.Opponents, _ClearGrid, _ClearBoats, VorHandler.IsoChrones, CurPlayer.RaceInfo.races_waypoints, _RouteManager.VisibleRoutes)
+                Dim P As New PathInfo
+
+                P.Path = VorHandler.Track
+                P.Routes = Rtes
+                P.EstimateRouteIndex = 6
+                P.Opponents = VorHandler.Opponents
+                P.ClearGrid = _ClearGrid
+                P.ClearBoats = _ClearBoats
+                P.IsoChrones = VorHandler.IsoChrones
+                P.WPs = CurPlayer.RaceInfo.races_waypoints
+                P.ManagedRoutes = _RouteManager.VisibleRoutes
+                P.TrackColor = VorHandler.PlayerInfo.TrackColor
+                The2DViewer.UpdatePath(P)
                 _ClearGrid = False
                 _ClearBoats = False
-            Else
-                tmrRefresh.IsEnabled = True
             End If
             System.Threading.Monitor.Exit(Me)
-        Else
-            tmrRefresh.Start()
         End If
+        tmrRefresh.Start()
+
     End Sub
 
     Private Sub _stats_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _stats.PropertyChanged

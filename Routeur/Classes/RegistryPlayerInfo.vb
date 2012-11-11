@@ -50,6 +50,8 @@ Public Class RegistryPlayerInfo
         End Set
     End Property
 
+    Public Property TrackColor As Color
+
     Public Property Deleted() As Boolean
         Get
             Return _Deleted
@@ -154,7 +156,7 @@ Public Class RegistryPlayerInfo
                 .NumBoat = IDU
                 .Nick = Nick
                 .Password = Password
-
+                .TrackColor = TrackColor
             End With
             Return Ret
         End Get
@@ -295,9 +297,12 @@ Public Class RegistryPlayerInfo
             _RaceInfo = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAN")
             _RaceNum = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "RAC")
             _IsRacing = _RaceNum <> "0"
-            If Not NewStyle Then
-                _Email = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "EML")
-            End If
+            Dim lcolor As Long = 0
+            Long.TryParse(JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "COL"), System.Globalization.NumberStyles.HexNumber, Nothing, lcolor)
+            TrackColor = Color.FromRgb(CByte(lcolor And &HFF), CByte((lcolor And &HFF00) >> 8), CByte((lcolor And &HFF0000) >> 16))
+            'If Not NewStyle Then
+            '    _Email = JSonHelper.GetJSonStringValue(JSonData(JSONDATA_BASE_OBJECT_NAME), "EML")
+            'End If
             '_NewStyle = _IDP.Contains("@"c)
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPasswordOK"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceInfo"))
