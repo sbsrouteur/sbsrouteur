@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports System.Data.SQLite
+Imports System.Text
 
 
 
@@ -20,6 +21,11 @@ Public Class DBWrapper
 
         CheckDBVersionAndUpdate()
 
+    End Sub
+
+    Public Sub New(MapLevel As Integer)
+        Me.New()
+        Me.MapLevel = MapLevel
     End Sub
 
     Private Sub CreateDB(DBFileName As String)
@@ -322,6 +328,29 @@ Public Class DBWrapper
 
         Return My.Resources.ResourceManager.GetString("UpdateV" & i & "ToV" & i + 1)
 
+    End Function
+
+    Function GetTrack(RaceID As Integer, BoatId As Integer) As String
+        Dim RetTrack As New StringBuilder("")
+        Using conn As New SQLiteConnection(_DBPath)
+            conn.Open()
+            Using cmd As New SQLiteCommand("select PointDate, Lon, Lat from TrackPoints inner join Tracks on TrackPoints.RefTrack = Tracks.id " &
+                                            " where RaceID = " & RaceID & " and BoatNum=" & BoatId & " order by PointDate", conn)
+                Dim Reader As SQLiteDataReader = cmd.ExecuteReader
+
+                If Reader.HasRows Then
+                    Dim Lat As Double
+                    Dim Lon As Double
+                    While Reader.NextResult
+                        Lat = Reader.GetDouble(2)
+                        Lon = Reader.GetDouble(1)
+                    End While
+                    RetTrack.Append(Lon & "!" & Lat & ";")
+                End If
+            End Using
+        End Using
+
+        Return RetTrack.ToString
     End Function
 
 

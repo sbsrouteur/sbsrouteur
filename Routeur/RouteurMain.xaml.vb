@@ -432,7 +432,11 @@ Partial Public Class RouteurMain
 
     Private Sub CenterOnBoat(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
 
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+
+        If M.VorHandler.UserInfo Is Nothing Then
+            Return
+        End If
 
         Dim V As VLM_Router = M.VorHandler
         Dim MinLon As Double = M.The2DViewer.CanvasToLon(0)

@@ -129,4 +129,10 @@
         End Set
     End Property
 
+    ReadOnly Property RaceStarted As Boolean
+        Get
+            Return Now >= deptime
+        End Get
+    End Property
+
 End Class
