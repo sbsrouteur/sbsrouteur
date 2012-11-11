@@ -278,6 +278,7 @@
 			<MenuItem Header="Display" VerticalAlignment="Center">
 				
 				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}" HorizontalAlignment="Left"/>
+				<CheckBox x:Name="chkDrawReals" Height="Auto" Content="Draw RealBoats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawReals, Mode=Default}" HorizontalAlignment="Left"/>
 				<CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center"/>
 				<CheckBox Content="Show EasyNav Boat" IsChecked="{Binding ShowEasyNav, Mode=Default}" VerticalAlignment="Center" />
 				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="{Binding VORHandler.EnableManualRefresh, Mode=Default}"/>
