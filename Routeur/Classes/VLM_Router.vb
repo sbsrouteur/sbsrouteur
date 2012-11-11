@@ -2067,16 +2067,11 @@ Public Class VLM_Router
                 Return _Track
             Else
                 _Track = ""
-                Try
-                    If System.IO.File.Exists(GetTrackFileName) Then
-                        Dim S As New System.IO.StreamReader(GetTrackFileName)
-                        _Track = S.ReadToEnd
-                        S.Close()
-                    End If
-                Catch ex As Exception
-                    _Track = Nothing
-                End Try
+                Dim prefs As RacePrefs = RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces)
+                Dim db As New DBWrapper(DBWrapper.GetMapLevel(prefs.MapLevel))
+                _Track = db.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat)
                 Return _Track
+                
 
             End If
         End Get
@@ -2111,31 +2106,31 @@ Public Class VLM_Router
     End Function
 
 
-    Public Function StorePath(ByVal C As Coords, ByVal cap As Double) As String
-
-        Static LastC As New Coords
-        Static lastcap As Double
-        Static LastStore As DateTime
-        Dim Trace As System.IO.StreamWriter = Nothing
-        Dim RetString As String = ""
-        Try
-            If PosValide AndAlso (cap <> lastcap OrElse Now.Subtract(LastStore).TotalHours > 1) Then
-                Trace = New System.IO.StreamWriter(GetTrackFileName, True)
-                RetString = C.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "!" & C.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ";"
-                Trace.Write(RetString)
-                _Track = Track 'RetString
-                LastC.Lon = C.Lon
-                LastC.Lat = C.Lat
-                lastcap = cap
-                LastStore = Now
-            End If
-        Catch ex As Exception
-        Finally
-            If Not Trace Is Nothing Then
-                Trace.Close()
-            End If
-        End Try
-        Return RetString
+    Public Function StorePath(ByVal C As Coords, PosDate As DateTime) As String
+        Throw New NotImplementedException
+        'Static LastC As New Coords
+        'Static lastcap As Double
+        'Static LastStore As DateTime
+        'Dim Trace As System.IO.StreamWriter = Nothing
+        'Dim RetString As String = ""
+        'Try
+        '    If PosValide AndAlso (cap <> lastcap OrElse Now.Subtract(LastStore).TotalHours > 1) Then
+        '        Trace = New System.IO.StreamWriter(GetTrackFileName, True)
+        '        RetString = C.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "!" & C.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ";"
+        '        Trace.Write(RetString)
+        '        _Track = Track 'RetString
+        '        LastC.Lon = C.Lon
+        '        LastC.Lat = C.Lat
+        '        lastcap = cap
+        '        LastStore = Now
+        '    End If
+        'Catch ex As Exception
+        'Finally
+        '    If Not Trace Is Nothing Then
+        '        Trace.Close()
+        '    End If
+        'End Try
+        'Return RetString
 
     End Function
 
@@ -2752,18 +2747,6 @@ Public Class VLM_Router
 
     End Function
 
-    Private Function GetTrackFileName() As String
-
-        Dim RetValue As String = RouteurModel.BaseFileDir & "\track_" & _PlayerInfo.RaceInfo.idraces & "_" & _PlayerInfo.NumBoat & ".dat"
-
-        If Not System.IO.Directory.Exists(RouteurModel.BaseFileDir) Then
-            System.IO.Directory.CreateDirectory(RouteurModel.BaseFileDir)
-        End If
-
-        Return RetValue
-
-    End Function
-
     Private Function GetNextCrankingDate() As DateTime
         Dim CurDate As DateTime = _UserInfo.date.AddMinutes(RouteurModel.VacationMinutes)
         If _PlayerInfo.RaceInfo.deptime > CurDate Then
@@ -3074,8 +3057,6 @@ Public Class VLM_Router
                     _lastflush = Now
                 End If
 
-            StorePath(New Coords(_UserInfo.Position), UserInfo.hdg)
-
                 If _RoutingRestartPending Then
                     _RoutingRestart.Interval = 100
                     _RoutingRestart.Start()
@@ -3243,7 +3224,10 @@ Public Class VLM_Router
             If _UserInfo.Track Is Nothing Then
                 _UserInfo.Track = ""
             End If
-            _UserInfo.Track &= StorePath(P, _UserInfo.HDG)
+            If _PlayerInfo.RaceInfo.RaceStarted Then
+                _UserInfo.Track &= StorePath(P, _UserInfo.date)
+            End If
+
             MI = Meteo.GetMeteoToDate(P, Now, True, True)
 
 
@@ -3270,7 +3254,7 @@ Public Class VLM_Router
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatCanvasX"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BoatCanvasY"))
             bInvoking = False
-        End If
+            End If
     End Sub
 
 
