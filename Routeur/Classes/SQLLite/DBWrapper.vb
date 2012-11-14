@@ -6,6 +6,7 @@ Imports System.Text
 
 Public Class DBWrapper
 
+    Private Const OldDbName As String = "RouteurDB"
     Private Const DBName As String = "RouteurDB.db3"
 
     Private _DBPath As String
@@ -16,7 +17,11 @@ Public Class DBWrapper
         _DBPath = "Data Source = """ & BaseFile & """ ; Version = 3; ConnectionPooling=100"
 
         If Not File.Exists(BaseFile) Then
-            CreateDB(BaseFile)
+            If Not File.Exists(System.IO.Path.Combine(RouteurModel.BaseFileDir, OldDbName)) Then
+                CreateDB(BaseFile)
+            ElseIf File.Exists(Path.Combine(RouteurModel.BaseFileDir, OldDbName)) Then
+                File.Move(Path.Combine(RouteurModel.BaseFileDir, OldDbName), BaseFile)
+            End If
         End If
 
         CheckDBVersionAndUpdate()
