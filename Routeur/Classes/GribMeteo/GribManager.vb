@@ -1105,10 +1105,22 @@ Public Class GribManager
     End Function
 
     Shared Sub New()
+
+        'Init grib thread mgt spinlocks
         For i = 0 To NB_MAX_GRIBS - 1
             _GribLock(i) = New SpinLock
             _Evt(i) = New AutoResetEvent(False)
         Next
+
+        'Cleanup fgrib files in app folder
+        For Each Fgrib In Directory.GetFiles(RouteurModel.BaseFileDir, "fgrib*")
+            Try
+                File.Delete(Fgrib)
+            Finally
+                'swallow exceptions
+            End Try
+        Next
+
     End Sub
 
     Public Sub New()
