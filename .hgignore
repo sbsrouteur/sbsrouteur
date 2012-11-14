@@ -1,0 +1,4 @@
+syntax: glob
+Routeur/bin/Debug/*
+Routeur/bin/Debug_64/*
+Routeur/obj/*
