@@ -13,9 +13,10 @@ Public Class IsoRouter
 
     Private _SearchAngle As Double
     Private _AngleStep As Double
-    Private _IsoStep As TimeSpan
-    Private _IsoStep_24 As TimeSpan
-    Private _IsoStep_48 As TimeSpan
+    'Private _IsoStep As TimeSpan
+    'Private _IsoStep_24 As TimeSpan
+    'Private _IsoStep_48 As TimeSpan
+    Private _VacLength As TimeSpan
     Private _EllipseExt As Double = 1.3
     Private _IsoChrones As New LinkedList(Of IsoChrone)
 
@@ -40,9 +41,10 @@ Public Class IsoRouter
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan, MapLevel As Integer, EllipseExcent As Double)
         _AngleStep = AngleStep
-        _IsoStep = IsoStep
-        _IsoStep_24 = IsoStep_24
-        _IsoStep_48 = IsoStep_48
+        '_IsoStep = IsoStep
+        '_IsoStep_24 = IsoStep_24
+        '_IsoStep_48 = IsoStep_48
+        _VacLength = IsoStep
         _SearchAngle = SearchAngle
         _EllipseExt = EllipseExcent
         _Meteo = Meteo
@@ -71,7 +73,7 @@ Public Class IsoRouter
             'Special Case for startpoint
             RetIsoChrone = New IsoChrone(_AngleStep)
             For alpha = 0 To 360 - _AngleStep Step _AngleStep
-                P1 = ReachPoint(_StartPoint, alpha, _IsoStep)
+                P1 = ReachPoint(_StartPoint, alpha, _VacLength)
                 If Not P1 Is Nothing Then
                     TcInit.EndPoint = P1.P
                     P1.DistFromPos = TcInit.SurfaceDistance
