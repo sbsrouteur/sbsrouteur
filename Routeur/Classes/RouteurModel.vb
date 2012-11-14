@@ -948,7 +948,6 @@ Public Class RouteurModel
             End If
             System.Threading.Monitor.Exit(Me)
         End If
-        tmrRefresh.Start()
 
     End Sub
 
