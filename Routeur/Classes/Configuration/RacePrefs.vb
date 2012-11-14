@@ -110,9 +110,6 @@ Public Class RacePrefs
                 .CourseExtensionHours = RACE_COURSE_EXTENSION_HOURS
                 .IsoLookupAngle = 90
                 .IsoAngleStep = 5
-                .IsoStep = New TimeSpan(0, 30, 0)
-                .IsoStep_24 = New TimeSpan(1, 0, 0)
-                .IsoStep_48 = New TimeSpan(3, 0, 0)
                 .UseCustomDest = False
                 .RouteDest = Nothing
                 .UseCustomStartDate = False
@@ -258,45 +255,6 @@ Public Class RacePrefs
         End Get
         Set(ByVal value As String)
             _IsoStep_48 = XmlConvert.ToTimeSpan(value)
-        End Set
-    End Property
-
-    <XmlIgnore()> _
-    Public Property IsoStep() As TimeSpan
-        Get
-            Return _IsoStep
-        End Get
-        Set(ByVal value As TimeSpan)
-            If value.Ticks <> _IsoStep.Ticks Then
-                _IsoStep = value
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoStep"))
-            End If
-        End Set
-    End Property
-
-    <XmlIgnore()> _
-    Public Property IsoStep_24() As TimeSpan
-        Get
-            Return _IsoStep_24
-        End Get
-        Set(ByVal value As TimeSpan)
-            If value.Ticks <> _IsoStep_24.Ticks Then
-                _IsoStep_24 = value
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoStep_24"))
-            End If
-        End Set
-    End Property
-
-    <XmlIgnore()> _
-    Public Property IsoStep_48() As TimeSpan
-        Get
-            Return _IsoStep_48
-        End Get
-        Set(ByVal value As TimeSpan)
-            If value.Ticks <> _IsoStep_48.Ticks Then
-                _IsoStep_48 = value
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsoStep_48"))
-            End If
         End Set
     End Property
 

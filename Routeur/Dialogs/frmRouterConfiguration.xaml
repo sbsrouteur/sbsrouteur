@@ -60,16 +60,17 @@
 				<ColumnDefinition Width="1*"/>
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions >
-				<RowDefinition Height="1*"/>
-				<RowDefinition Height="1*"/>
+				<RowDefinition Height="0"/>
+				<RowDefinition Height="0"/>
 				<RowDefinition Height="1*"/>
 			</Grid.RowDefinitions>
-			<TextBlock Text="Isochrones Step 1st 24h:" TextWrapping="Wrap" Grid.Column="0" Grid.Row="0" TextAlignment="Center"/>
+			<!--<TextBlock Text="Isochrones Step 1st 24h:" TextWrapping="Wrap" Grid.Column="0" Grid.Row="0" TextAlignment="Center"/>
 			<TextBlock Text="Isochrones Step 24h-48h:" TextWrapping="Wrap" Grid.Column="1" Grid.Row="0" TextAlignment="Center"/>
 			<TextBlock Text="Isochrones Step &gt;48h:" TextWrapping="Wrap" Grid.Column="2" Grid.Row="0" TextAlignment="Center"/>
 			<TextBox Text="{Binding IsoStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="0" Grid.Row="1" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
 			<TextBox Text="{Binding IsoStep_24, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="1" Grid.Row="1" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
 			<TextBox Text="{Binding IsoStep_48, Mode=TwoWay, UpdateSourceTrigger=Default}" Grid.Column="2" Grid.Row="1" Style="{DynamicResource TimeSpanFormatCheckTextBox}" />
+			!!-->
 			<StackPanel Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="3" >
 				<TextBlock Text="Angle Step:" TextWrapping="Wrap" />
 				<TextBox MinWidth="40" Text="{Binding IsoAngleStep, Mode=TwoWay, UpdateSourceTrigger=Default}" Style="{DynamicResource DoubleFormatCheckTextBox}" />

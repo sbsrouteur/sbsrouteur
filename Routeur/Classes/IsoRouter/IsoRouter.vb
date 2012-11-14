@@ -13,9 +13,6 @@ Public Class IsoRouter
 
     Private _SearchAngle As Double
     Private _AngleStep As Double
-    'Private _IsoStep As TimeSpan
-    'Private _IsoStep_24 As TimeSpan
-    'Private _IsoStep_48 As TimeSpan
     Private _VacLength As TimeSpan
     Private _EllipseExt As Double = 1.3
     Private _IsoChrones As New LinkedList(Of IsoChrone)
@@ -39,12 +36,9 @@ Public Class IsoRouter
     
 #Const DBG_ISO = 1
 
-    Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal IsoStep As TimeSpan, ByVal IsoStep_24 As TimeSpan, ByVal IsoStep_48 As TimeSpan, MapLevel As Integer, EllipseExcent As Double)
+    Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal VacLength As TimeSpan, MapLevel As Integer, EllipseExcent As Double)
         _AngleStep = AngleStep
-        '_IsoStep = IsoStep
-        '_IsoStep_24 = IsoStep_24
-        '_IsoStep_48 = IsoStep_48
-        _VacLength = IsoStep
+        _VacLength = VacLength
         _SearchAngle = SearchAngle
         _EllipseExt = EllipseExcent
         _Meteo = Meteo
