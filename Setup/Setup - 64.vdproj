@@ -244,7 +244,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:3.5.30729      "
+                "FrameworkVersion" = "8:3.5.30729       "
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=76617"
                 }
@@ -739,7 +739,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Routeur"
         "ProductCode" = "8:{4D3969B1-0256-4970-B2A2-0E460DD335F8}"
-        "PackageCode" = "8:{05D0487E-7155-4781-B1BA-F6CC2D658BDE}"
+        "PackageCode" = "8:{36FD8A36-2B19-4626-B438-5E5A4209AA9D}"
         "UpgradeCode" = "8:{AB55297F-8D40-4FA0-8773-32E1C48C358D}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -859,6 +859,20 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_11B14E569F3140B599202591A02D137F"
+            {
+            "Name" = "8:Routeur (64bits)"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_F06F8B0150794DD783C40D25CE2D33E4"
+            "Folder" = "8:_2474D76181914BB6AD6383363A3CB470"
+            "WorkingFolder" = "8:_AE3B60F23EAA4A4D98127D1BD90E3D0A"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {
