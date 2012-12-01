@@ -172,14 +172,6 @@ Partial Public Class RouteurMain
         If DragCanvas Then
             DragCanvas = False
 
-            'Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
-            'Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
-            'If abs(Dx) < 5 Or abs(Dy) < 5 Then
-            '    Return
-            'End If
-
-            'C1 = New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
-            'C2 = New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
         ElseIf _ZoomCanvas Then
             _ZoomCanvas = False
             'FixMe handle antemeridien
@@ -205,6 +197,13 @@ Partial Public Class RouteurMain
         Dim C1 As Coords = Nothing
         Dim C2 As Coords = Nothing
         Dim EndDragPoint As Point = e.GetPosition(Me.VOR2DViewer)
+
+        Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
+        Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
+        If Abs(Dx) < 5 And Abs(Dy) < 5 Then
+            Return
+        End If
+
 
         If e.LeftButton = MouseButtonState.Pressed AndAlso DragCanvas Then
             Dim P As Point = e.GetPosition(VOR2DViewer)
