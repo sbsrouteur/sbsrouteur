@@ -213,8 +213,6 @@ Partial Public Class RouteurMain
         End If
         If DragCanvas Then
 
-            Dim Dx As Double = EndDragPoint.X - _DragStartPoint.X
-            Dim Dy As Double = EndDragPoint.Y - _DragStartPoint.Y
             _DragStartPoint = EndDragPoint
             
             C1 = New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
