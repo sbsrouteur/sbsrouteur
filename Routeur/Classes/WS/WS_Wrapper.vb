@@ -295,7 +295,6 @@ Module WS_Wrapper
         Dim URL As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/tracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & StartEpoch & "&endtime=0"
         Dim RetList As New List(Of TrackPoint)
         Dim Retstring As String = ""
-        Try
             Retstring = RequestPage(URL)
             RetJSon = JSonParser.Parse(Retstring)
             Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
@@ -317,10 +316,7 @@ Module WS_Wrapper
                 End If
             End If
 
-        Catch ex As Exception
-            MessageBox.Show("Failed to parse JSON Track data " & Retstring)
-        End Try
-
+        
         Return RetList
 
     End Function
