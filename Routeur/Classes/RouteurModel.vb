@@ -130,9 +130,7 @@ Public Class RouteurModel
 
     Private _NOPoint As Coords
     Private _SEPoint As Coords
-    Private _Width As Double
-    Private _Height As Double
-
+    
     Private WithEvents _RouteManager As RouteManager
 
     Private _2DViewerLock As New Object
@@ -737,8 +735,6 @@ Public Class RouteurModel
 
         _NOPoint = C1
         _SEPoint = C2
-        _Width = Width
-        _Height = Height
         _ClearBoats = True
 
     End Sub
