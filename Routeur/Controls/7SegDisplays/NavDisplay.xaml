@@ -60,7 +60,7 @@
 				<RowDefinition Height="Auto" MinHeight="25"/>
 				<RowDefinition Height="Auto" MinHeight="25"/>
 			</Grid.RowDefinitions>
-			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.PIM}" StringFormat="nav"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.PIM, Converter={StaticResource EnumRouteModeConverter}}" StringFormat="nav"/>
 			<TextBlock TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" Grid.ColumnSpan="2" HorizontalAlignment="Center"><Run Text="Nav"/></TextBlock>
 			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" StrokeThickness="2" Effect="{DynamicResource DigitShadow}" Visibility="{Binding VorHandler.UserInfo.PIM_WP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
 			<TextBlock Text="WP Lat" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
