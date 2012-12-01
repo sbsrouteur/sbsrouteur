@@ -48,14 +48,20 @@
 				</RadialGradientBrush>
 			</GridSplitter.OpacityMask>
 		</GridSplitter>
-		<DataGrid x:Name="dataGrid" Margin="4" ItemsSource="{Binding Route, Mode=Default}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.Row="1" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
-			<DataGrid.Columns>
-				<DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=Default}"/>
-				<DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
-				<DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
-				<DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointViewActionsTemplate}"/>
-			</DataGrid.Columns>
-		</DataGrid>
+		<Grid Grid.Row="1" Grid.Column="1">
+			<DataGrid x:Name="dataGrid" Margin="4" ItemsSource="{Binding Route, Mode=Default}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.Row="1" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=Default}"/>
+					<DataGridTextColumn Header="Pos" Binding="{Binding P, Mode=Default}"/>
+					<DataGridTextColumn Header="Mode" Binding="{Binding RouteMode, Mode=Default}"/>
+					<DataGridTextColumn Header="Value" Binding="{Binding RouteValue, Mode=Default}"/>
+					<!--<DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
+					<DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
+					<DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointViewActionsTemplate}"/>
+					-->
+				</DataGrid.Columns>
+			</DataGrid>
+		</Grid>
 		<Grid Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="0.284*"/>
