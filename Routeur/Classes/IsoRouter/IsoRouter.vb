@@ -150,7 +150,6 @@ Public Class IsoRouter
 
             Parallel.For(StartIndex, Iso.Data.Length,
                          Sub(Pindex As Integer)
-
                              Dim tcfn1 As New TravelCalculator
                              Dim CurDest As Coords
                              Dim rp As clsrouteinfopoints
@@ -271,7 +270,6 @@ Public Class IsoRouter
                              tcfn1.StartPoint = Nothing
                              tcfn1 = Nothing
                          End Sub)
-
             'Console.WriteLine("Iso complete " & Now.Subtract(IsoStart).ToString)
 
 
