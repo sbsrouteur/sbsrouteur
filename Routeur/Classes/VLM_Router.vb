@@ -2173,7 +2173,12 @@ Public Class VLM_Router
                 LastLon = _UserInfo.LON
                 Dim CurPos As New Coords(LastLat, LastLon)
                 _PlannedRoute.Clear()
+                Dim FirstPoint As Boolean = True
                 For Each C In (From Pt In _PlayerInfo.Route).Skip(RouteurModel.CurWP - 1)
+                    If FirstPoint Then
+                        C = GSHHS_Reader.PointToSegmentIntersect(CurPos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0), _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
+                        FirstPoint = False
+                    End If
                     P = New clsrouteinfopoints() With {.P = C}
                     BuildOrthoToP(CurPos, P, _PlannedRoute)
                     '_PlannedRoute.Add(P)

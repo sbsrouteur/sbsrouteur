@@ -67,8 +67,15 @@
         Get
             Dim R(_race_waypoints.Count - 1) As Coords
             Dim i As Integer
+            Dim PrevPoint As Coords = Nothing
             For i = 0 To _race_waypoints.Count - 1
-                R(i) = _race_waypoints(i).WPs(0)(0)
+                If PrevPoint Is Nothing Then
+                    R(i) = _race_waypoints(i).WPs(0)(0)
+
+                Else
+                    R(i) = GSHHS_Reader.PointToSegmentIntersect(PrevPoint, _race_waypoints(i).WPs(0)(0), _race_waypoints(i).WPs(0)(1))
+                End If
+                PrevPoint = R(i)
             Next
 
             Return R
