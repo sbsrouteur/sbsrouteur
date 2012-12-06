@@ -2095,6 +2095,11 @@ Public Class VLM_Router
                 Dim IdRace As Integer = CInt(_PlayerInfo.RaceInfo.idraces)
                 Dim db As New DBWrapper(DBWrapper.GetMapLevel(prefs.MapLevel))
             Dim LastTrackEpoch As Long = db.GetLastTrackDate(IdRace, _PlayerInfo.NumBoat)
+            If LastTrackEpoch = 0 Then
+                'If no data, then use race start epoch
+                Dim StartDate As New DateTime(_PlayerInfo.RaceInfo.deptime.Ticks, DateTimeKind.Local)
+                LastTrackEpoch = CLng(StartDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds) - 3600
+            End If
             Dim Cnv As New EpochToUTCDateConverter
             Dim LastTrackDate As DateTime = New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(LastTrackEpoch)
             Try
