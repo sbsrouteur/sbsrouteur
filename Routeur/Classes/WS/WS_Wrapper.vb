@@ -292,9 +292,16 @@ Module WS_Wrapper
 
     Public Function GetTrack(RaceId As Integer, BoatNum As Integer, StartEpoch As Long) As List(Of TrackPoint)
         Dim RetJSon As New Dictionary(Of String, Object)
-        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/tracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & StartEpoch & "&endtime=0"
+        Dim EpochNow As Long = CLng(Now.ToUniversalTime.Subtract(New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
+        Dim QryStartEpoch As Long = StartEpoch
+        Dim QryEndEpoch As Long = Math.Min(StartEpoch + 48 * 3600, EpochNow)
+        Dim TrackComplete As Boolean = False
         Dim RetList As New List(Of TrackPoint)
-        Dim Retstring As String = ""
+        Dim LastEpoch As Long = StartEpoch
+
+        While Not TrackComplete
+            Dim URL As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/tracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & QryStartEpoch & "&endtime=" & QryEndEpoch
+            Dim Retstring As String = ""
             Retstring = RequestPage(URL)
             RetJSon = JSonParser.Parse(Retstring)
             Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
@@ -308,15 +315,23 @@ Module WS_Wrapper
 
                         Dim P As New TrackPoint
                         P.Epoch = CLng(Pos(0))
-                        If P.Epoch > StartEpoch Then
+                        If P.Epoch > QryStartEpoch Then
                             P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
                             RetList.Add(P)
+                            LastEpoch = P.Epoch
                         End If
                     Next
                 End If
             End If
 
-        
+            If QryEndEpoch >= EpochNow Then
+                TrackComplete = True
+            Else
+                QryStartEpoch = LastEpoch + 1
+                QryEndEpoch = Math.Min(QryStartEpoch + 48 * 3600, EpochNow)
+            End If
+
+        End While
         Return RetList
 
     End Function
