@@ -150,6 +150,8 @@ Namespace My.Resources
         '''       Lon FLOAT NOT NULL,
         '''       Lat FLOAT NOT NULL
         ''');
+        '''CREATE UNIQUE INDEX IdxTrackPoints
+        ''' ON `TrackPoints` (RefTrack,PointDate);
         '''Commit transaction;.
         '''</summary>
         Friend ReadOnly Property UpdateV2ToV3() As String
