@@ -244,7 +244,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:3.5.30729       "
+                "FrameworkVersion" = "8:3.5.30729        "
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=76617"
                 }
@@ -738,15 +738,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Routeur"
-        "ProductCode" = "8:{4D3969B1-0256-4970-B2A2-0E460DD335F8}"
-        "PackageCode" = "8:{36FD8A36-2B19-4626-B438-5E5A4209AA9D}"
+        "ProductCode" = "8:{89D1E662-5A83-49D3-9F70-1587A8DEB5A4}"
+        "PackageCode" = "8:{D598114C-EFFD-4871-9DBA-92ED66CF3DF7}"
         "UpgradeCode" = "8:{AB55297F-8D40-4FA0-8773-32E1C48C358D}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.28.0"
+        "ProductVersion" = "8:1.29.0"
         "Manufacturer" = "8:sbs"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
