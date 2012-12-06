@@ -190,4 +190,18 @@ CREATE TABLE `TrackPoints`
 
 commit transaction;</value>
   </data>
+  <data name="UpdateV2ToV3" xml:space="preserve">
+    <value>begin transaction;
+insert into DBVersion (VersionNumber) Values (3);
+drop table TrackPoints;
+CREATE TABLE `TrackPoints`
+(
+       RefTrack INTEGER NOT NULL,
+       IdPoint INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+       PointDate INTEGER NOT NULL,
+       Lon FLOAT NOT NULL,
+       Lat FLOAT NOT NULL
+);
+Commit transaction;</value>
+  </data>
 </root>

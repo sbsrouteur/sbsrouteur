@@ -294,7 +294,7 @@ Public Class DBWrapper
         End If
         SyncLock _Lock
             Dim CurVersion As Integer = GetCurDBVersion()
-            Const DBVersion As Integer = 2
+            Const DBVersion As Integer = 3
 
             If CurVersion < DBVersion Then
                 Using conn As New SQLiteConnection(_DBPath)
@@ -343,13 +343,19 @@ Public Class DBWrapper
                                             " where RaceID = " & RaceID & " and BoatNum=" & BoatId & " order by PointDate", conn)
                 Dim Reader As SQLiteDataReader = cmd.ExecuteReader
 
+                Dim PrevLat As Double = -99999999
+                Dim PrevLon As Double = -9999999
                 If Reader.HasRows Then
                     Dim Lat As Double
                     Dim Lon As Double
                     While Reader.Read
                         Lat = Reader.GetDouble(2)
                         Lon = Reader.GetDouble(1)
-                        Retlist.Add(New Coords(Lon, Lat))
+                        If PrevLat <> Lat OrElse PrevLon <> Lon Then
+                            Retlist.Add(New Coords(Lon, Lat))
+                            PrevLat = Lat
+                            PrevLon = Lon
+                        End If
                     End While
                 End If
             End Using
@@ -364,21 +370,21 @@ Public Class DBWrapper
 
     End Sub
 
-    Function GetLastTrackDate(RaceID As Integer, BoatNum As Integer) As Date
+    Function GetLastTrackDate(RaceID As Integer, BoatNum As Integer) As Long
         Using conn As New SQLiteConnection(_DBPath)
             conn.Open()
             Using cmd As New SQLiteCommand(_DBPath, conn)
-                cmd.CommandText = "select max (pointdate) from trackpoints " &
+                cmd.CommandText = "select max(pointdate) from trackpoints " &
                                     "inner join tracks on reftrack = id where raceid=" & RaceID & " and BoatNum = " & BoatNum
                 Dim Epoch As Object = cmd.ExecuteScalar
-                Dim UTCDate As DateTime
+                Dim RetEpoch As Long
                 If IsDBNull(Epoch) Then
-                    UTCDate = New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                    RetEpoch = 0
                 Else
-                    UTCDate = Date.SpecifyKind(Date.Parse(CStr(Epoch)), DateTimeKind.Utc)
+                    RetEpoch = CLng(Epoch)
                 End If
-                
-                Return UTCDate.ToLocalTime
+
+                Return RetEpoch
             End Using
         End Using
     End Function
@@ -414,8 +420,7 @@ Public Class DBWrapper
                 End If
                 Dim PtIndex As Integer = 1
                 For Each Pt As TrackPoint In PtList
-                    Dim ptDate As DateTime = New DateTime(1970, 1, 1).AddSeconds(Pt.Epoch)
-                    cmd.CommandText &= vbCrLf & "insert into Trackpoints(RefTrack,pointdate,lon,lat) values(" & CurRace & ",'" & ptDate &
+                    cmd.CommandText &= vbCrLf & "insert into Trackpoints(RefTrack,pointdate,lon,lat) values(" & CurRace & ",'" & Pt.Epoch &
                                         "' , " & Pt.P.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
                                          Pt.P.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ");"
                     If PtIndex Mod 100 = 0 Then

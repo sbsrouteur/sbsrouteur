@@ -2094,7 +2094,9 @@ Public Class VLM_Router
                 Dim prefs As RacePrefs = RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces)
                 Dim IdRace As Integer = CInt(_PlayerInfo.RaceInfo.idraces)
                 Dim db As New DBWrapper(DBWrapper.GetMapLevel(prefs.MapLevel))
-                Dim LastTrackDate As DateTime = db.GetLastTrackDate(IdRace, _PlayerInfo.NumBoat)
+            Dim LastTrackEpoch As Long = db.GetLastTrackDate(IdRace, _PlayerInfo.NumBoat)
+            Dim Cnv As New EpochToUTCDateConverter
+            Dim LastTrackDate As DateTime = New DateTime(1970, 1, 1).AddSeconds(LastTrackEpoch)
             Try
                 If Now.Subtract(LastTrackDate).TotalMinutes >= _PlayerInfo.RaceInfo.vacfreq Then
                     Dim PtList As List(Of TrackPoint) = WS_Wrapper.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat, CLng(LastTrackDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1)).TotalSeconds + 1))
