@@ -202,6 +202,8 @@ CREATE TABLE `TrackPoints`
        Lon FLOAT NOT NULL,
        Lat FLOAT NOT NULL
 );
+CREATE UNIQUE INDEX IdxTrackPoints
+ ON `TrackPoints` (RefTrack,PointDate);
 Commit transaction;</value>
   </data>
 </root>
