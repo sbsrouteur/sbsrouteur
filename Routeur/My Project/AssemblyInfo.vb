@@ -16,7 +16,7 @@ Imports System.Windows
 <Assembly: AssemblyDescription("")> 
 <Assembly: AssemblyCompany("")> 
 <Assembly: AssemblyProduct("Routeur")> 
-<Assembly: AssemblyCopyright("Copyright @  2010")> 
+<Assembly: AssemblyCopyright("Copyright @  2010-2013")> 
 <Assembly: AssemblyTrademark("")> 
 <Assembly: ComVisible(false)>
 
@@ -56,5 +56,5 @@ Imports System.Windows
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("0.29.0.0")> 
-<Assembly: AssemblyFileVersion("0.29.0.0")> 
+<Assembly: AssemblyVersion("0.30.0.0")> 
+<Assembly: AssemblyFileVersion("0.30.0.0")> 
