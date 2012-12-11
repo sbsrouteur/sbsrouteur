@@ -331,7 +331,7 @@
 						<RowDefinition Height="0.86*"/>
 						<RowDefinition Height="0.14*" MinHeight="34.572"/>
 					</Grid.RowDefinitions>
-					<Image x:Name="ImgMeteo" Grid.RowSpan="8" Grid.ColumnSpan="4" Margin="0" Source="{Binding MeteoMapper.Image}" Stretch="None" OpacityMask="#FFEF2020" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+					<Image x:Name="ImgMeteo" Grid.RowSpan="8" Grid.ColumnSpan="8" Margin="0" Source="{Binding MeteoMapper.Image}" Stretch="None" OpacityMask="#FFEF2020" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 					<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" ContextMenuOpening="OnMapContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}" Grid.ColumnSpan="6" Grid.RowSpan="8">
 						<!--<Routeur:_2D_Viewer.RenderTransform>
 								<TransformGroup>
