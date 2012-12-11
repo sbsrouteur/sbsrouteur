@@ -300,8 +300,9 @@
     <Compile Include="RouteurMain.xaml.vb">
       <DependentUpon>RouteurMain.xaml</DependentUpon>
     </Compile>
-    <Reference Include="WriteableBitmapEx.Wpf">
-      <HintPath>Refs\WriteableBitmapEx_v1.0.2.0\WPF\WriteableBitmapEx.Wpf.dll</HintPath>
+    <Reference Include="WriteableBitmapEx.Wpf, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Refs\WriteableBitmapEx_v1.0.5.0\WPF\WriteableBitmapEx.Wpf.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
