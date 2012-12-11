@@ -36,14 +36,16 @@ Public Class MeteoBitmapper
         Get
 
             Try
-                Dim ImgStride As Integer = CInt(_Viewer.ActualWidth * ((PixelFormats.Pbgra32.BitsPerPixel) / 8))
-                Dim R As New Int32Rect(0, 0, CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight))
+                Dim W As Integer = CInt(Math.Ceiling(_Viewer.ActualWidth))
+                Dim H As Integer = CInt(Math.Ceiling(_Viewer.ActualHeight))
+                Dim ImgStride As Integer = CInt(W * ((PixelFormats.Pbgra32.BitsPerPixel) / 8))
+                Dim R As New Int32Rect(0, 0, CInt(W), CInt(H))
 
 
                 Debug.Assert(Thread.CurrentThread.ManagedThreadId = _Viewer.Dispatcher.Thread.ManagedThreadId)
 
                 If _Img Is Nothing Then
-                    _Img = New WriteableBitmap(CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight), 96, 96, PixelFormats.Pbgra32, Nothing)
+                    _Img = New WriteableBitmap(CInt(W), CInt(H), 96, 96, PixelFormats.Pbgra32, Nothing)
                 End If
                 Using _Img.GetBitmapContext
                     _Img.WritePixels(R, _ImgData, ImgStride, 0)
@@ -79,7 +81,7 @@ Public Class MeteoBitmapper
                             V(i + 2 * j) = mi.Strength
                             Dim Index As Integer = CInt(10 * (y / Dy + j) + (x / Dx + i))
                             If Index < Dir.Count Then
-                                Dir(Index) = (mi.Dir + 180) / 180 * PI
+                                Dir(Index) = (180 - mi.Dir) / 180 * PI
                             End If
                         Else
                             MiFail = True
@@ -120,24 +122,30 @@ Public Class MeteoBitmapper
                     Next
                 Next
 
-                For i = 0 To 99
-                    Dim Row As Integer = Dy * CInt(i / 10)
-                    Dim Col As Integer = Dx * (i Mod 10)
-                    For p = 0 To _Arrow.Count - 1 Step 2
-                        Dim d As Double = Sqrt(_Arrow(p) * _Arrow(p) + _Arrow(p + 1) * _Arrow(p + 1))
-                        Dim a As Double = Atan2(_Arrow(p + 1), _Arrow(p))
-                        Dim Px As Integer = CInt(d * Cos(a + Dir(i)))
-                        Dim Py As Integer = CInt(d * Sin(a + Dir(i)))
-                        Dim index As Integer = CInt((Row - Py) * _Viewer.ActualWidth + Col + Px)
-                        If index > 0 And index < _ImgData.Count Then
-                            _ImgData(index) = 0
-                        End If
-                    Next
-                    
-                Next
-
-
             Next
+        Next
+
+        For i = 0 To 99
+            Dim Row As Integer = Dy * CInt(Math.Floor(i / 10))
+            Dim Col As Integer = Dx * (i Mod 10)
+            For p = 0 To _Arrow.Count - 1 Step 2
+                Dim d As Double = Sqrt(_Arrow(p) * _Arrow(p) + _Arrow(p + 1) * _Arrow(p + 1))
+#Const DBG_ARROWS = False
+#If DBG_ARROWS Then
+                Dim a As Double = Atan2(_Arrow(p + 1), _Arrow(p)) + 3.6 * i / 180 * Math.PI
+                
+#Else
+                Dim a As Double = Atan2(_Arrow(p + 1), _Arrow(p)) + Dir(i)
+                
+#End If
+                Dim Px As Integer = CInt(d * Cos(a))
+                Dim Py As Integer = CInt(d * Sin(a))
+                Dim index As Integer = CInt((Row - Py) * _Viewer.ActualWidth + Col + Px)
+                If index > 0 And index < _ImgData.Count Then
+                    _ImgData(index) = &HFF000000
+                End If
+            Next
+
         Next
 
     End Sub
@@ -184,7 +192,7 @@ Public Class MeteoBitmapper
         End If
         Dim R As New Int32Rect(0, 0, CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight))
         Try
-            ReDim _ImgData(CInt(_Viewer.ActualWidth) * CInt(_Viewer.ActualHeight))
+            ReDim _ImgData(CInt(Math.Ceiling(_Viewer.ActualWidth)) * CInt(Math.Ceiling(_Viewer.ActualHeight)))
             '_Img.CopyPixels(R, _ImgData, 4 * CInt(_Viewer.ActualWidth), 0)
             _RenderThread = New Thread(AddressOf ImGRenderThread)
             _StopRender = False
