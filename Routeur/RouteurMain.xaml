@@ -255,23 +255,23 @@
             <!--<CheckBox Content="Autorouting" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=comboBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding AutoRouting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ShowAutorouting, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" VerticalAlignment="Center"/>-->
 			<MenuItem Header="Actions" VerticalAlignment="Center">
 	            <CheckBox x:Name="chkNoObstacle" Content="Ignore Obstacles" VerticalAlignment="Center" IsChecked="{Binding NoObstacle, Mode=Default}"/>
-				<Separator></Separator>
+				<Separator/>
 	            <CheckBox x:Name="chkIsoRoute" Content="Isochrone Route" Checked="CheckIsoRoute" Unchecked="CheckIsoRoute" VerticalAlignment="Center" IsChecked="{Binding IsoRouterActive, Mode=Default}"/>
-	            <Separator></Separator>
+	            <Separator/>
 	            <Button Width="Auto" Height="26.92" Content="Redraw" Click="RedrawClick" Margin="4,0"/>
-				<MenuItem Header="Refresh From VLM" Click="Refresh" Visibility="Collapsed"></MenuItem>
-				<Separator></Separator>
-				<MenuItem Header="Evt Set" Click="EvtSet" Visibility="Collapsed"  ></MenuItem>
-	            <MenuItem Header="Quit" Click="AppQuit" ></MenuItem>
+				<MenuItem Header="Refresh From VLM" Click="Refresh" Visibility="Collapsed"/>
+				<Separator/>
+				<MenuItem Header="Evt Set" Click="EvtSet" Visibility="Collapsed"  />
+	            <MenuItem Header="Quit" Click="AppQuit" />
 			</MenuItem>
 			<MenuItem Header="Information" VerticalAlignment="Center" Click="ComputeRouteXTR">
-				<TextBlock Text="{Binding MeteoValidSpan, StringFormat= MeteoUpdate in {0:hh}:{0:mm}:{0:ss}, Mode=OneWay}" VerticalAlignment="Center" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
+				<TextBlock Text="{Binding MeteoValidSpan, Mode=OneWay, StringFormat=MeteoUpdate in \{0:hh\}:\{0:mm\}:\{0:ss\}}" VerticalAlignment="Center" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
 				<Separator />
 				<ComboBox IsSynchronizedWithCurrentItem="True" x:Name="comboBox" 
 					ItemsSource="{Binding P_Info, Mode=OneWay}" SelectedItem="{Binding CurPlayer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Nick"/>
 				<Separator />
-				<TextBlock Text="{Binding RacePrefs.MapLevel, StringFormat=MapLevel {0}, Mode=OneWay}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
-				<TextBlock Text="{Binding RacePrefs.GridGrain, StringFormat=GridGrain {0:F2}, Mode=OneWay}" IsEnabled="False" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
+				<TextBlock Text="{Binding RacePrefs.MapLevel, Mode=OneWay, StringFormat=MapLevel \{0\}}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
+				<TextBlock Text="{Binding RacePrefs.GridGrain, Mode=OneWay, StringFormat=GridGrain \{0:F2\}}" IsEnabled="False" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
 				<Separator />
 				<MenuItem Header="Freeze Pilototo Route and Assess computation Errors" />
 			</MenuItem>
@@ -284,9 +284,9 @@
 				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="{Binding VORHandler.EnableManualRefresh, Mode=Default}"/>
 				<Separator/>
 				<MenuItem Header="Zoom">
-					<MenuItem Header="Center on Boat!" Click="CenterOnBoat"></MenuItem>
-					<MenuItem Header="Zoom to Next WP" Click="ZoomToNextWP"></MenuItem>
-					<MenuItem Header="Zoom entire race" Click="ZoomToRace"></MenuItem>
+					<MenuItem Header="Center on Boat!" Click="CenterOnBoat"/>
+					<MenuItem Header="Zoom to Next WP" Click="ZoomToNextWP"/>
+					<MenuItem Header="Zoom entire race" Click="ZoomToRace"/>
 				</MenuItem>
 				<Separator />
 				<CheckBox Content="Hide Isochrones lines" IsChecked="{Binding The2DViewer.HideIsochronesLines, Mode=Default}"/>
@@ -294,7 +294,7 @@
 				
 			</MenuItem>
 			<MenuItem Header="Meteo" VerticalAlignment="Center">
-				<CheckBox IsChecked="{Binding VorHandler.MeteoVisible, Mode=Default}" Content="Meteo Data Visible" ></CheckBox>
+				<CheckBox IsChecked="{Binding VorHandler.MeteoVisible, Mode=Default}" Content="Meteo Data Visible" />
 				<Slider Maximum="1" Minimum="0" Value="{Binding Opacity, ElementName=canvas, Mode=TwoWay}" SmallChange=".01" LargeChange=".1" TickFrequency="0.1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" ToolTip="Bg Transparency" />
 				<!--<Slider Maximum="100" Minimum="5" Value="{Binding VorHandler.MeteoArrowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" TickFrequency="25" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" />
 				-->
@@ -302,7 +302,7 @@
 				<TextBlock Text="{Binding VorHandler.MeteoArrowDate, Mode=Default}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
 			</MenuItem>
 			<MenuItem Header="Routes" VerticalAlignment="Center" >
-				<MenuItem Header="Pilototo Route" Click="ShowPilototoRouteDlg" ></MenuItem>
+				<MenuItem Header="Pilototo Route" Click="ShowPilototoRouteDlg" />
 				<MenuItem Header="Recorded Routes manager" Click="ShowRouteMgr"  />
 				<MenuItem Header="Import Track" Click="ImportTrack" />
 			</MenuItem>
@@ -332,7 +332,7 @@
 						<RowDefinition Height="0.14*" MinHeight="34.572"/>
 					</Grid.RowDefinitions>
 					<Image x:Name="ImgMeteo" Grid.RowSpan="8" Grid.ColumnSpan="4" Margin="0" Source="{Binding MeteoMapper.Image}" Stretch="None" OpacityMask="#FFEF2020" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-					<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" ContextMenuOpening="OnMapContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}" Grid.ColumnSpan="4" Grid.RowSpan="8">
+					<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" ContextMenuOpening="OnMapContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}" Grid.ColumnSpan="6" Grid.RowSpan="8">
 						<!--<Routeur:_2D_Viewer.RenderTransform>
 								<TransformGroup>
 									<ScaleTransform ScaleX="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ScaleY="{Binding Value, ElementName=SldZoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
