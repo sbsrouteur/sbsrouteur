@@ -238,9 +238,11 @@ restart_download:
     End Sub
 
     Sub Clear()
-        _TileBuildList.Clear()
-        Busy = False
-        RaiseEvent TileProgress(100)
+        SyncLock _TileBuildList
+            _TileBuildList.Clear()
+            Busy = False
+            RaiseEvent TileProgress(100)
+        End SyncLock
     End Sub
 
 

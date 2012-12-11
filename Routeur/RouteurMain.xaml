@@ -298,8 +298,8 @@
 				<Slider Maximum="1" Minimum="0" Value="{Binding Opacity, ElementName=canvas, Mode=TwoWay}" SmallChange=".01" LargeChange=".1" TickFrequency="0.1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" ToolTip="Bg Transparency" />
 				<!--<Slider Maximum="100" Minimum="5" Value="{Binding VorHandler.MeteoArrowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" TickFrequency="25" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" />
 				-->
-				<Slider x:Name="slider" Maximum="{Binding VorHandler.MeteoArrowDateEnd, Mode=Default}" Minimum="{Binding VorHandler.MeteoArrowDateStart, Mode=Default}" Width="129" Value="{Binding MeteoMapper.DateTicks, Mode=OneWay}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding VorHandler.TickFreq, Mode=Default}" TickPlacement="BottomRight" />
-				<TextBlock Text="{Binding VorHandler.MeteoArrowDate, Mode=Default}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
+				<Slider x:Name="slider" Maximum="{Binding VorHandler.MeteoArrowDateEnd, Mode=Default}" Minimum="{Binding VorHandler.MeteoArrowDateStart, Mode=Default}" Width="129" Value="{Binding MeteoMapper.DateTicks}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding VorHandler.TickFreq, Mode=Default}" TickPlacement="BottomRight" />
+				<TextBlock Text="{Binding MeteoMapper.Date, Mode=Default}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
 			</MenuItem>
 			<MenuItem Header="Routes" VerticalAlignment="Center" >
 				<MenuItem Header="Pilototo Route" Click="ShowPilototoRouteDlg" />
@@ -420,11 +420,7 @@
 							</TransformGroup>
 						</Label.LayoutTransform>
 					</Label>
-<!--
-                        <Slider Grid.Row="2" x:Name="SldZoom" Value="1" Minimum="0.00001" Maximum="20" Margin="0,0,0,2.142" ValueChanged="OnRenderPosChanged"/>
-					    <Slider Grid.Row="3" x:Name="SldLat" Minimum="-10080000" Visibility="Hidden" Maximum="10080000" ValueChanged="OnRenderPosChanged"/>
-				        <Slider Grid.Row="4" x:Name="SldLon" Maximum="10008000" Minimum="-10008000" Visibility="Hidden" ValueChanged="OnRenderPosChanged"/>
-                    -->
+					<Label Content="{Binding The2DViewer.ZFactor, StringFormat=Zoom:\{0\} x}" Background="#7FFFFFFF" FontSize="18.667"></Label>
 					<StackPanel Grid.Row="2" Width="Auto" Height="Auto" Grid.ColumnSpan="2" Grid.RowSpan="5">
 						<GroupBox  Grid.RowSpan="1"  Header="" Background="#6DFFFFFF">
 							<GroupBox.BitmapEffect>
