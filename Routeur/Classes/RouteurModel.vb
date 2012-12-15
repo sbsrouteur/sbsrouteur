@@ -32,8 +32,6 @@ Public Class RouteurModel
     Private Shared _RouteExtensionHours As Double = RacePrefs.RACE_COURSE_EXTENSION_HOURS
     Private _ShowEasyNav As Boolean = False
 
-    Private WithEvents _MapLayer As MeteoLayer
-
     Public Shared DebugEvt As New AutoResetEvent(True)
     Private Shared _BaseFileDir As String = Environment.GetEnvironmentVariable("APPDATA") & "\sbs\Routeur"
     Private _MapMenuEnabled As Boolean = True
@@ -215,14 +213,6 @@ Public Class RouteurModel
             RouteManager.Rescale()
         End If
 
-        'Update Meteo
-        If _MapLayer Is Nothing Then
-            _MapLayer = New MeteoLayer(VorHandler.Meteo)
-        End If
-
-        If _MapLayer.ViewPort Is Nothing Then
-            _MapLayer.ViewPort = _2DViewer
-        End If
 
         If VorHandler.MeteoVisible Then
             If MeteoMapper IsNot Nothing Then
@@ -461,25 +451,6 @@ Public Class RouteurModel
         End Get
     End Property
 
-    'Private Sub BuildWPPath()
-    '    Dim X As Double
-    '    Dim Y As Double
-
-    '    If _CurPlayer Is Nothing OrElse _CurPlayer.RaceInfo Is Nothing Or _2DViewer Is Nothing Then
-    '        Return
-    '    End If
-    '    _WPPath = ""
-    '    For Each WP In _CurPlayer.RaceInfo.races_waypoints
-    '        X = (WP.WPs.Item(0)(0).Lon - _NOPoint.Lon) / (_SEPoint.Lon - _NOPoint.Lon) * _Width
-    '        Y = _Height - (WP.WPs.Item(0)(0).Lat - _SEPoint.Lat) / (_NOPoint.Lat - _SEPoint.Lat) * _Height
-    '        _WPPath &= "M " & GetCoordsString(X, Y)
-    '        X = (WP.WPs.Item(0)(1).Lon - _NOPoint.Lon) / (_SEPoint.Lon - _NOPoint.Lon) * _Width
-    '        Y = _Height - (WP.WPs.Item(0)(1).Lat - _SEPoint.Lat) / (_NOPoint.Lat - _SEPoint.Lat) * _Height
-    '        _WPPath &= "L " & GetCoordsString(X, Y)
-    '    Next
-
-    'End Sub
-
 
     Public Property IsoRouterActive() As Boolean
         Get
@@ -494,14 +465,7 @@ Public Class RouteurModel
         End Set
     End Property
 
-    Public ReadOnly Property MapLayer As ObservableCollection(Of ZoneMeteoInfo)
-        Get
-            If _MapLayer Is Nothing Then
-                Return Nothing
-            End If
-            Return _MapLayer.MeteoInfoList
-        End Get
-    End Property
+
 
     Public Property MapMenuEnabled() As Boolean
         Get
@@ -1093,10 +1057,10 @@ Public Class RouteurModel
         MyBase.Finalize()
     End Sub
 
-    Private Sub _MapLayer_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _MapLayer.PropertyChanged
+    'Private Sub _MapLayer_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _MapLayer.PropertyChanged
 
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MapLayer"))
-    End Sub
+    '    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MapLayer"))
+    'End Sub
 
     Private Sub InitCron()
 
