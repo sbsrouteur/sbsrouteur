@@ -16,7 +16,7 @@ Public Class RouteManager
     Private _FilterRaceID As String
     Private Shared _M As RouteurModel
     Private _CurPos As Coords
-    Private _Meteo As clsMeteoOrganizer
+    Private _Meteo As GribManager
     Private _Boat As String
     Private _Sails As clsSailManager
     Private _Dispatcher As Dispatcher
@@ -247,7 +247,7 @@ Public Class RouteManager
 
     End Sub
 
-    Public Sub New(ByVal M As RouteurModel, ByVal Meteo As clsMeteoOrganizer, ByVal Sails As clsSailManager)
+    Public Sub New(ByVal M As RouteurModel, ByVal Meteo As GribManager, ByVal Sails As clsSailManager)
         _M = M
         _Meteo = Meteo
         _Sails = Sails

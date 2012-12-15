@@ -1,6 +1,6 @@
 ﻿Module BearingNavHelper
 
-    Public Function ComputeTrackBearing(ByVal From As Coords, ByVal Bearing As Double, ByVal StartDate As DateTime, ByVal EndDate As DateTime, ByVal Meteo As clsMeteoOrganizer, ByVal BoatType As String, ByVal Sails As clsSailManager, ByVal MayBlock As Boolean) As Coords
+    Public Function ComputeTrackBearing(ByVal From As Coords, ByVal Bearing As Double, ByVal StartDate As DateTime, ByVal EndDate As DateTime, ByVal Meteo As GribManager, ByVal BoatType As String, ByVal Sails As clsSailManager, ByVal MayBlock As Boolean) As Coords
 
         Dim CurTick As DateTime = StartDate
         Dim CurPOS As Coords = From
