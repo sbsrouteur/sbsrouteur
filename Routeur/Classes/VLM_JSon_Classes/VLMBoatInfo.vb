@@ -74,7 +74,7 @@ Public Class VLMBoatInfo
     Public Property BSP() As Double
 
 
-    Public ReadOnly Property [date] As DateTime
+    Public ReadOnly Property [Date] As DateTime
         Get
             Dim utc = New DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(LUP)
             Return utc.ToLocalTime
