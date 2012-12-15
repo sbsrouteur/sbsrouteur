@@ -900,8 +900,8 @@ Render1:
 
         CurCoords.Lon_Deg = CanvasToLon(P.X)
         CurCoords.Lat_Deg = CanvasToLat(P.Y)
-        P.X += 5
-        P.Y += 5
+        'P.X += 5
+        'P.Y += 5
         'Debug.WriteLine("Coords : " & CurCoords.ToString)
         RaiseEvent PropertyChanged(Me, evtprops)
 
