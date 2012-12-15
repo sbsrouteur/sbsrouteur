@@ -324,8 +324,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Classes\MeteoLayer\MeteoLayer.vb" />
-    <Compile Include="Classes\Meteo\ZoneMeteoInfo.vb" />
     <Compile Include="Classes\NavHelper\BearingNavHelper.vb" />
     <Compile Include="Controls\2D Viewer.xaml.vb">
       <DependentUpon>2D Viewer.xaml</DependentUpon>
