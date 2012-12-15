@@ -149,6 +149,9 @@
     <Compile Include="Classes\TrackPoint.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMShortRaceInfo.vb" />
     <Compile Include="Controls\PathInfo.vb" />
+    <Compile Include="Controls\WindInfoCtrl\WindInfoControl.xaml.vb">
+      <DependentUpon>WindInfoControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\frmAppOptions.xaml.vb">
       <DependentUpon>frmAppOptions.xaml</DependentUpon>
     </Compile>
@@ -240,6 +243,10 @@
     <Page Include="Controls\7SegDisplays\SegmentDigit.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\WindInfoCtrl\WindInfoControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -544,9 +544,9 @@ Public Class VLM_Router
             _XTRAssessmentON = False
             Return
         End If
-        Dim trimmeddate As DateTime = _UserInfo.date.AddSeconds(-_UserInfo.date.Second)
+        Dim trimmeddate As DateTime = _UserInfo.[Date].AddSeconds(-_UserInfo.[Date].Second)
 
-        While _XTRRoute.Count > 0 AndAlso _XTRRoute(0).T.AddSeconds(_XTRRoute(0).T.Second) < _UserInfo.date
+        While _XTRRoute.Count > 0 AndAlso _XTRRoute(0).T.AddSeconds(_XTRRoute(0).T.Second) < _UserInfo.[Date]
             _XTRRoute.RemoveAt(0)
         End While
 
@@ -643,7 +643,7 @@ Public Class VLM_Router
             Dim Tc As New TravelCalculator With {.StartPoint = _CurMousePos}
 
             Try
-                Dim Mi As MeteoInfo = Meteo.GetMeteoToDate(Tc.StartPoint, _UserInfo.date, True)
+                Dim Mi As MeteoInfo = Meteo.GetMeteoToDate(Tc.StartPoint, _UserInfo.[Date], True)
                 If Mi Is Nothing Then
                     Return Nothing
                 End If
@@ -800,7 +800,7 @@ Public Class VLM_Router
                 Return Now.Ticks
             End If
 
-            Return _UserInfo.date.Ticks
+            Return _UserInfo.[Date].Ticks
         End Get
     End Property
 
@@ -1036,7 +1036,7 @@ Public Class VLM_Router
             End If
             Dim C As New Coords(_UserInfo.Position)
             Dim Mi As MeteoInfo
-            Dim Dte As DateTime = _UserInfo.date.AddMinutes(RouteurModel.VacationMinutes)
+            Dim Dte As DateTime = _UserInfo.[Date].AddMinutes(RouteurModel.VacationMinutes)
             Dim Speed As Double = 0
             Dim TC As New TravelCalculator
             _AllureRoute.Clear()
@@ -1236,7 +1236,7 @@ Public Class VLM_Router
                 'Add current navigation order
                 RP = New RoutePointView
                 With RP
-                    .ActionDate = _UserInfo.date
+                    .ActionDate = _UserInfo.[Date]
 
                     .RouteMode = CType(_UserInfo.PIM, EnumRouteMode)
 
@@ -1265,7 +1265,7 @@ Public Class VLM_Router
                 End With
                 Route(5) = RP
                 CancelComputation = False
-                Dim startdate As DateTime = _UserInfo.date
+                Dim startdate As DateTime = _UserInfo.[Date]
                 If startdate < RaceStartDate Then
                     startdate = RaceStartDate
                 End If
@@ -2091,9 +2091,9 @@ Public Class VLM_Router
             '    End If
             '    Return _Track
             'Else
-                Dim prefs As RacePrefs = RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces)
-                Dim IdRace As Integer = CInt(_PlayerInfo.RaceInfo.idraces)
-                Dim db As New DBWrapper(DBWrapper.GetMapLevel(prefs.MapLevel))
+            Dim prefs As RacePrefs = RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces)
+            Dim IdRace As Integer = CInt(_PlayerInfo.RaceInfo.idraces)
+            Dim db As New DBWrapper(DBWrapper.GetMapLevel(prefs.MapLevel))
             Dim LastTrackEpoch As Long = db.GetLastTrackDate(IdRace, _PlayerInfo.NumBoat)
             If LastTrackEpoch = 0 Then
                 'If no data, then use race start epoch
@@ -2761,7 +2761,7 @@ Public Class VLM_Router
     End Function
 
     Private Function GetNextCrankingDate() As DateTime
-        Dim CurDate As DateTime = _UserInfo.date.AddMinutes(RouteurModel.VacationMinutes)
+        Dim CurDate As DateTime = _UserInfo.[Date].AddMinutes(RouteurModel.VacationMinutes)
         If _PlayerInfo.RaceInfo.deptime > CurDate Then
             'Race has not started, start route from race start time
             CurDate = _PlayerInfo.RaceInfo.deptime
@@ -2957,11 +2957,11 @@ Public Class VLM_Router
 
 
 
-        If Not force AndAlso Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.date).TotalMinutes < RouteurModel.VacationMinutes + requerydelay Then
+        If Not force AndAlso Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.[Date]).TotalMinutes < RouteurModel.VacationMinutes + requerydelay Then
             Return
         End If
 
-        If Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.date).TotalMinutes < RouteurModel.VacationMinutes Then
+        If Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.[Date]).TotalMinutes < RouteurModel.VacationMinutes Then
             EnableManualRefresh = True
             _ManualRefreshCount = 0
         End If
@@ -2970,12 +2970,12 @@ Public Class VLM_Router
             'ResponseString = WS_Wrapper.GetBoatInfo(_PlayerInfo)
             'ResponseString = _WebClient.DownloadString(STR_GetUserInfo)
             Dim prevwp As Integer = RouteurModel.CurWP
-            Dim CurDate As Date = If(UserInfo Is Nothing, Now, _UserInfo.date)
+            Dim CurDate As Date = If(UserInfo Is Nothing, Now, _UserInfo.[Date])
             UserInfo(meteo) = ParseVLMBoatInfoString()
             If _UserInfo IsNot Nothing Then
 
             End If
-            If Not force AndAlso CurDate = _UserInfo.date Then
+            If Not force AndAlso CurDate = _UserInfo.[Date] Then
                 If requerydelay = 0 Then
                     requerydelay = 2 / 60
                 Else
@@ -3039,8 +3039,8 @@ Public Class VLM_Router
                 UpdateMeteoArrows()
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateStart"))
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateEnd"))
-                If _MeteoArrowDate < _UserInfo.date Then
-                    MeteoArrowDate = _UserInfo.date
+                If _MeteoArrowDate < _UserInfo.[Date] Then
+                    MeteoArrowDate = _UserInfo.[Date]
                 End If
             Else
                 AddLog("No Meteo data !!")
@@ -3207,7 +3207,7 @@ Public Class VLM_Router
                 UserInfo(Meteo) = _UserInfo
             End If
 
-            LastDataDate = _UserInfo.date 'DateConverter.GetDate(_UserInfo.position.date)
+            LastDataDate = _UserInfo.[Date] 'DateConverter.GetDate(_UserInfo.position.date)
 
             If Now.Subtract(LastDataDate).TotalHours > 1 Then
                 LastDataDate = Now
@@ -3519,7 +3519,7 @@ Public Class VLM_Router
 
         _XTRRoute = New ObservableCollection(Of clsrouteinfopoints)(PilototoRoute)
         _XTRAssessmentON = True
-        _XTRStart = _UserInfo.date
+        _XTRStart = _UserInfo.[Date]
 
     End Sub
 
@@ -3587,7 +3587,7 @@ Public Class VLM_Router
 
     End Sub
 
-
+    
     Public Shared Function WindAngle(ByVal Cap As Double, ByVal Wind As Double) As Double
 
         Dim I As Double = 0
