@@ -337,6 +337,12 @@ Public Class DBWrapper
 
     Function GetTrack(RaceID As Integer, BoatId As Integer) As List(Of Coords)
         Dim Retlist As New List(Of Coords)
+        Dim LastEpoch As Long = 0
+        Dim TC As New TravelCalculator
+        Dim FirstPoint As Boolean = True
+        Dim LastBearing As Double = -9999
+        Dim SkipPoint As Boolean
+        Dim EpochLimit As Long = CLng(Now.Subtract(New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds - 48 * 3600)
         Using conn As New SQLiteConnection(_DBPath)
             conn.Open()
             Using cmd As New SQLiteCommand("select PointDate, Lon, Lat from TrackPoints inner join Tracks on TrackPoints.RefTrack = Tracks.id " &
@@ -351,10 +357,26 @@ Public Class DBWrapper
                     While Reader.Read
                         Lat = Reader.GetDouble(2)
                         Lon = Reader.GetDouble(1)
-                        If PrevLat <> Lat OrElse PrevLon <> Lon Then
+                        Dim Epoch As Long = Reader.GetInt64(0)
+                        SkipPoint = Epoch < EpochLimit And Epoch - LastEpoch < 3600
+                        If Not FirstPoint Then
+                            SkipPoint = SkipPoint And Math.Abs(TC.LoxoCourse_Deg - LastBearing) < 10
+                        Else
+                            TC.StartPoint = New Coords(Lat, Lon)
+                        End If
+                        If Not SkipPoint Then
                             Retlist.Add(New Coords(Lon, Lat))
                             PrevLat = Lat
                             PrevLon = Lon
+                            LastBearing = TC.LoxoCourse_Deg
+                            If Not firstpoint Then
+                                TC.StartPoint = TC.EndPoint
+                                TC.EndPoint = New Coords(Lat, Lon)
+                            Else
+                                FirstPoint = False
+                            End If
+                        LastEpoch = Epoch
+
                         End If
                     End While
                 End If
