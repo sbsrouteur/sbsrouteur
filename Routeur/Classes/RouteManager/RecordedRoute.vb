@@ -192,7 +192,7 @@ Public Class RecordedRoute
 
 
 
-    Public Sub RecomputeRoute(ByVal From As Coords, ByVal Meteo As clsMeteoOrganizer, ByVal BoatType As String, ByVal Sails As clsSailManager)
+    Public Sub RecomputeRoute(ByVal From As Coords, ByVal Meteo As GribManager, ByVal BoatType As String, ByVal Sails As clsSailManager)
 
         Dim CurPos As Coords = New Coords(From)
         Dim CurDate As DateTime = Now

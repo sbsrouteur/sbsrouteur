@@ -8,7 +8,7 @@ Public Class MeteoBitmapper
     Implements INotifyPropertyChanged
     Public Event PropertyChanged(sender As Object, e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
-    Private _meteo As clsMeteoOrganizer = Nothing
+    Private _meteo As GribManager = Nothing
     Private _Img As WriteableBitmap = Nothing
     Private _Date As DateTime = Now
     Private _Viewer As _2D_Viewer
@@ -38,7 +38,7 @@ Public Class MeteoBitmapper
                                                  -2, -4, 2, -4
                                                  }
 
-    Public Sub New(Meteo As clsMeteoOrganizer, Viewer As _2D_Viewer)
+    Public Sub New(Meteo As GribManager, Viewer As _2D_Viewer)
         _meteo = Meteo
         _Viewer = Viewer
     End Sub

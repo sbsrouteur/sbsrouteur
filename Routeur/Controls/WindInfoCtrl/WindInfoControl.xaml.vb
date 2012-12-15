@@ -81,19 +81,19 @@ Partial Public Class WindInfoControl
         End Set
     End Property
 
-    Public Property MeteoProvider As clsMeteoOrganizer
+    Public Property MeteoProvider As GribManager
         Get
-            Return CType(GetValue(MeteoProviderProperty), clsMeteoOrganizer)
+            Return CType(GetValue(MeteoProviderProperty), GribManager)
         End Get
 
-        Set(ByVal value As clsMeteoOrganizer)
+        Set(ByVal value As GribManager)
             SetValue(MeteoProviderProperty, value)
         End Set
     End Property
 
     Public Shared ReadOnly MeteoProviderProperty As DependencyProperty = _
                            DependencyProperty.Register("MeteoProvider", _
-                           GetType(clsMeteoOrganizer), GetType(WindInfoControl), _
+                           GetType(GribManager), GetType(WindInfoControl), _
                            New FrameworkPropertyMetadata(Nothing))
 
 

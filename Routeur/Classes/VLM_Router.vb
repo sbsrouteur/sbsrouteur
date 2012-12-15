@@ -29,7 +29,7 @@ Public Class VLM_Router
     Private _WindChangeDate As DateTime
     Private _WindCoords As New Coords
 
-    Private _Meteo As New clsMeteoOrganizer
+    Private WithEvents _Meteo As New GribManager
 
     Private _CurrentRoute As New TravelCalculator
     Private _RouteToGoal As New TravelCalculator
@@ -761,7 +761,7 @@ Public Class VLM_Router
         End Get
     End Property
 
-    Public ReadOnly Property Meteo() As clsMeteoOrganizer
+    Public ReadOnly Property Meteo() As GribManager
         Get
             Return _Meteo
         End Get
@@ -932,7 +932,7 @@ Public Class VLM_Router
             Return _TempVMGRoute
         End Get
         Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
-            ThreadSafeSetter(_TempVMGRoute, value, New PropertyChangedEventArgs("TempVMGRoute"), False, Meteo)
+            ThreadSafeSetter(_TempVMGRoute, value, New PropertyChangedEventArgs("TempVMGRoute"), False)
         End Set
     End Property
 
@@ -943,15 +943,11 @@ Public Class VLM_Router
         End Get
 
         Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
-            BestRouteAtPoint(Meteo) = value
+            _BestRouteAtPoint = value
         End Set
     End Property
 
-    Private WriteOnly Property BestRouteAtPoint(ByVal meteo As clsMeteoOrganizer) As ObservableCollection(Of clsrouteinfopoints)
-        Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
-            ThreadSafeSetter(_BestRouteAtPoint, value, New PropertyChangedEventArgs("BestRouteAtPoint"), False, meteo)
-        End Set
-    End Property
+
 
     Public Property BruteRoute() As ObservableCollection(Of clsrouteinfopoints)
         Get
@@ -959,25 +955,15 @@ Public Class VLM_Router
         End Get
 
         Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
-            BruteRoute(Meteo) = value
+            _BruteRoute = value
         End Set
     End Property
 
-    Private WriteOnly Property BruteRoute(ByVal meteo As clsMeteoOrganizer) As ObservableCollection(Of clsrouteinfopoints)
-        Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
 
-            ThreadSafeSetter(_BruteRoute, value, New PropertyChangedEventArgs("BruteRoute"), False, meteo)
 
-        End Set
-    End Property
-
-    Public Shared Function CrossWindChange(ByVal StartDate As DateTime, ByRef TargetDate As DateTime, ByVal Meteo As clsMeteoOrganizer) As Boolean
+    Public Shared Function CrossWindChange(ByVal StartDate As DateTime, ByRef TargetDate As DateTime, ByVal Meteo As GribManager) As Boolean
 
         Dim NextWindChange As DateTime
-
-        If TargetDate > Meteo.MaxDate Then
-            Return False
-        End If
 
         If StartDate.Hour >= 8 And StartDate.Hour < 20 Then
             NextWindChange = New DateTime(StartDate.Year, StartDate.Month, StartDate.Day, 20, 0, 1)
@@ -2052,9 +2038,9 @@ Public Class VLM_Router
         End Try
     End Sub
 
-    Private Delegate Sub dlgthreadsafesetter(ByVal Pv As ObservableCollection(Of clsrouteinfopoints), ByVal Value As ObservableCollection(Of clsrouteinfopoints), ByVal e As PropertyChangedEventArgs, ByVal RefreshBoatInfo As Boolean, ByVal meteo As clsMeteoOrganizer)
+    Private Delegate Sub dlgthreadsafesetter(ByVal Pv As ObservableCollection(Of clsrouteinfopoints), ByVal Value As ObservableCollection(Of clsrouteinfopoints), ByVal e As PropertyChangedEventArgs, ByVal RefreshBoatInfo As Boolean)
 
-    Private Sub ThreadSafeSetter(ByVal Pv As ObservableCollection(Of clsrouteinfopoints), ByVal Value As ObservableCollection(Of clsrouteinfopoints), ByVal e As PropertyChangedEventArgs, ByVal RefreshBoatInfo As Boolean, ByVal meteo As clsMeteoOrganizer)
+    Private Sub ThreadSafeSetter(ByVal Pv As ObservableCollection(Of clsrouteinfopoints), ByVal Value As ObservableCollection(Of clsrouteinfopoints), ByVal e As PropertyChangedEventArgs, ByVal RefreshBoatInfo As Boolean)
 
         Static SelfDlg As New dlgthreadsafesetter(AddressOf ThreadSafeSetter)
         If Application.Current Is Nothing Then
@@ -2210,17 +2196,17 @@ Public Class VLM_Router
         End Set
     End Property
 
-    Public ReadOnly Property TempRoute() As ObservableCollection(Of clsrouteinfopoints)
+    Public Property TempRoute() As ObservableCollection(Of clsrouteinfopoints)
         Get
             Return _TempRoute
         End Get
-    End Property
-
-    Private WriteOnly Property TempRoute(ByVal meteo As clsMeteoOrganizer) As ObservableCollection(Of clsrouteinfopoints)
-        Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
-            ThreadSafeSetter(_TempRoute, value, New PropertyChangedEventArgs("TempRoute"), False, meteo)
+        Set(value As ObservableCollection(Of clsrouteinfopoints))
+            _TempRoute = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("TempRoute"))
         End Set
     End Property
+
+
 
     Public Property VMG() As Double
         Get
@@ -2834,10 +2820,6 @@ Public Class VLM_Router
                 RoutePoints.Add(P)
             End If
 
-            'If GetRoutePointAtCoords(PlannedRoute, C, RetC) Then
-            '    P = New RoutePointInfo("Planned", RetC)
-            '    RoutePoints.Add(P)
-            'End If
 
             If GetRoutePointAtCoords(BruteRoute, C, RetC) Then
                 P = New RoutePointInfo("Best Route", RetC)
@@ -2944,7 +2926,7 @@ Public Class VLM_Router
         getboatinfo(Meteo, Force)
     End Sub
 
-    Public Sub GetBoatInfo(ByVal meteo As clsMeteoOrganizer, Optional ByVal force As Boolean = False)
+    Public Sub GetBoatInfo(ByVal meteo As GribManager, Optional ByVal force As Boolean = False)
 
         Dim ErrorCount As Integer = 0
         Dim ResponseString As String = ""
@@ -2971,7 +2953,7 @@ Public Class VLM_Router
             'ResponseString = _WebClient.DownloadString(STR_GetUserInfo)
             Dim prevwp As Integer = RouteurModel.CurWP
             Dim CurDate As Date = If(UserInfo Is Nothing, Now, _UserInfo.[Date])
-            UserInfo(meteo) = ParseVLMBoatInfoString()
+            UserInfo = ParseVLMBoatInfoString()
             If _UserInfo IsNot Nothing Then
 
             End If
@@ -3175,8 +3157,8 @@ Public Class VLM_Router
         End If
     End Sub
 
-    Private Sub SetUserInfoThreadSafe(ByVal value As VLMBoatInfo, ByVal Meteo As clsMeteoOrganizer)
-        Static SelfDlg As New Action(Of VLMBoatInfo, clsMeteoOrganizer)(AddressOf SetUserInfoThreadSafe)
+    Private Sub SetUserInfoThreadSafe(ByVal value As VLMBoatInfo)
+        Static SelfDlg As New Action(Of VLMBoatInfo)(AddressOf SetUserInfoThreadSafe)
         Dim MI As MeteoInfo
         Dim P As Coords
         Static LastPos As New Coords
@@ -3200,11 +3182,11 @@ Public Class VLM_Router
 
             If _UserInfo.Position Is Nothing Then
                 Throw New NotImplementedException("UserInfo.position is nothing")
-                _UserInfo.Position = New Coords
-                _UserInfo.Position.Lon_Deg = RouteurModel.START_LON
-                _UserInfo.Position.Lat_Deg = RouteurModel.START_LAT
+                UserInfo.Position = New Coords
+                UserInfo.Position.Lon_Deg = RouteurModel.START_LON
+                UserInfo.Position.Lat_Deg = RouteurModel.START_LAT
                 '_UserInfo.date = Now
-                UserInfo(Meteo) = _UserInfo
+                'UserInfo(Meteo) = _UserInfo
             End If
 
             LastDataDate = _UserInfo.[Date] 'DateConverter.GetDate(_UserInfo.position.date)
@@ -3364,7 +3346,8 @@ Public Class VLM_Router
             Return _UserInfo
         End Get
         Set(ByVal value As VLMBoatInfo)
-            UserInfo(Meteo) = value
+            SetUserInfoThreadSafe(value)
+
         End Set
     End Property
 
@@ -3431,15 +3414,7 @@ Public Class VLM_Router
 
     End Sub
 
-    Private WriteOnly Property userinfo(ByVal meteo As clsMeteoOrganizer) As VLMBoatInfo
-        Set(ByVal value As VLMBoatInfo)
-            If value Is Nothing Then
-                Return
-            End If
-            SetUserInfoThreadSafe(value, meteo)
-        End Set
 
-    End Property
 
 
     Public Function StartIsoRoute(ByVal Owner As RouteurMain, ByVal StartRouting As Boolean, ByVal AutoRestart As Boolean) As Boolean
@@ -3462,7 +3437,7 @@ Public Class VLM_Router
             End If
 
 
-            _iso = New IsoRouter(_UserInfo.POL, Sails, Meteo.GribMeteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, New TimeSpan(0, _PlayerInfo.RaceInfo.vacfreq, 0), _
+            _iso = New IsoRouter(_UserInfo.POL, Sails, Meteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, New TimeSpan(0, _PlayerInfo.RaceInfo.vacfreq, 0), _
                                  DBWrapper.GetMapLevel(prefs.MapLevel), prefs.EllipseExtFactor)
             Dim WP As Integer
 
@@ -3678,13 +3653,13 @@ Public Class VLM_Router
     Private Sub _iso_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _iso.PropertyChanged
         If e.PropertyName = "TmpRoute" Then 'And Now.Subtract(lastchange).TotalSeconds > 1 Then
             'lastchange = Now
-            TempRoute(Meteo) = _iso.Route
+            TempRoute = _iso.Route
         End If
 
     End Sub
 
     Private Sub _iso_RouteComplete() Handles _iso.RouteComplete
-        BruteRoute(Meteo) = _iso.Route
+        BruteRoute = _iso.Route
         If _iso.Route.Any Then
             RaiseEvent IsoComplete(_iso.Route.Last)
         Else

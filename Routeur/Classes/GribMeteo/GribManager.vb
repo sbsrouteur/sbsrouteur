@@ -48,6 +48,10 @@ Public Class GribManager
     Private _Process(NB_MAX_GRIBS - 1) As System.Diagnostics.Process
     Private Shared _Evt(NB_MAX_GRIBS - 1) As AutoResetEvent
 
+    Private _GetMeteoToDateTicks As Long
+    Private _GetMeteoToDateCount As Long
+
+
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -614,6 +618,28 @@ Public Class GribManager
         End If
         'Dir = If(Angle1 >= 0, DirInterpolation.Pos, DirInterpolation.Neg)
         Return retmeteo
+
+    End Function
+
+    Public Function GetMeteoToDate(ByVal C As Coords, ByVal D As Date, ByVal NoLock As Boolean, Optional ByVal noload As Boolean = False) As MeteoInfo
+
+        Dim Start As DateTime = Now
+
+        If Double.IsNaN(C.Lon_Deg) OrElse Double.IsNaN(C.Lat_Deg) Then
+            Return Nothing
+        End If
+
+        Dim Ret As MeteoInfo = GetMeteoToDate(D, C.N_Lon_Deg, C.Lat_Deg, NoLock, noload)
+
+        If Ret IsNot Nothing Then
+            _GetMeteoToDateTicks += Now.Subtract(Start).Ticks
+            _GetMeteoToDateCount += 1
+            Stats.SetStatValue(Stats.StatID.Grib_GetMeteoToDateAvgMS) = _GetMeteoToDateTicks / _GetMeteoToDateCount / TimeSpan.TicksPerMillisecond
+        End If
+        If Ret IsNot Nothing AndAlso Ret.Strength < 0 Then
+            Dim i As Integer = 1
+        End If
+        Return Ret
 
     End Function
 

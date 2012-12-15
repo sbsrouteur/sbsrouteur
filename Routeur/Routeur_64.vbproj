@@ -373,7 +373,6 @@
     <Compile Include="Classes\BoatInfo\BoatInfo.vb" />
     <Compile Include="Classes\BspRect.vb" />
     <Compile Include="Classes\ClassCloner.vb" />
-    <Compile Include="Classes\clsMeteoOrganizer.vb" />
     <Compile Include="Classes\clsPlayerInfo.vb" />
     <Compile Include="Classes\clsSailManager.vb" />
     <Compile Include="Classes\Configuration\RacePrefs.vb" />
