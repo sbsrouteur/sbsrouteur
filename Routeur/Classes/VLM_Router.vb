@@ -880,6 +880,7 @@ Public Class VLM_Router
         End Get
         Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
             _PilototoRoute = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PilototoRoute"))
         End Set
     End Property
 
@@ -944,6 +945,7 @@ Public Class VLM_Router
 
         Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
             _BestRouteAtPoint = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BestRouteAtPoint"))
         End Set
     End Property
 
@@ -956,6 +958,7 @@ Public Class VLM_Router
 
         Set(ByVal value As ObservableCollection(Of clsrouteinfopoints))
             _BruteRoute = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("BruteRoute"))
         End Set
     End Property
 
@@ -1099,8 +1102,9 @@ Public Class VLM_Router
                     Dim ReachedWP As Boolean = False
 
                     If UserWP.UseRaceWP Then
-                        CurWP1 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(0)
-                        CurWP2 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(1)
+                        Dim NextWP = GetNextRankingWP(CurRaceWP)
+                        CurWP1 = _PlayerInfo.RaceInfo.races_waypoints(NextWP).WPs(0)(0)
+                        CurWP2 = _PlayerInfo.RaceInfo.races_waypoints(NextWP).WPs(0)(1)
                     Else
                         CurWP1 = New Coords(UserWP.WPLat, UserWP.WPLon)
                         CurWP2 = Nothing
