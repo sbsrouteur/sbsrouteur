@@ -906,6 +906,8 @@ Public Class GribManager
 
         Const SquareWidth As Integer = 20
         Const SquareHeight As Integer = 20
+        lon = CInt(lon / 5) * 5
+        lat = CInt(lat / 5) * 5
         Dim WLon As Integer = CInt(lon - SquareWidth / 2) 'revert grib lon for request!!!
         Dim ELon As Integer = WLon + SquareWidth
         Dim NLat As Integer = CInt(lat + SquareHeight / 2)
