@@ -288,8 +288,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Classes\MeteoLayer\MeteoLayer.vb" />
-    <Compile Include="Classes\Meteo\ZoneMeteoInfo.vb" />
     <Compile Include="Classes\NavHelper\BearingNavHelper.vb" />
     <Compile Include="Controls\2D Viewer.xaml.vb">
       <DependentUpon>2D Viewer.xaml</DependentUpon>
@@ -339,7 +337,6 @@
     <Compile Include="Classes\BoatInfo\BoatInfo.vb" />
     <Compile Include="Classes\BspRect.vb" />
     <Compile Include="Classes\ClassCloner.vb" />
-    <Compile Include="Classes\clsMeteoOrganizer.vb" />
     <Compile Include="Classes\clsPlayerInfo.vb" />
     <Compile Include="Classes\clsSailManager.vb" />
     <Compile Include="Classes\Configuration\RacePrefs.vb" />
@@ -594,6 +591,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Classes\bsp_optimizer\" />
+    <Folder Include="Classes\MeteoLayer\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
