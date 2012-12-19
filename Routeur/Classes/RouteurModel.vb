@@ -494,7 +494,7 @@ Public Class RouteurModel
             The2DViewer.RedrawCanvas()
         End If
 
-        If Not _MeteoMapper Is Nothing AndAlso _MeteoMapper.ImageReady Then
+        If Not _MeteoMapper Is Nothing Then 'AndAlso _MeteoMapper.ImageReady Then
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoMapper"))
         End If
 
@@ -639,7 +639,7 @@ Public Class RouteurModel
     Public ReadOnly Property MeteoMapper As MeteoBitmapper
         Get
             If _MeteoMapper Is Nothing AndAlso VorHandler IsNot Nothing AndAlso VorHandler.Meteo IsNot Nothing AndAlso _2DViewer IsNot Nothing Then
-                _MeteoMapper = New MeteoBitmapper(VorHandler.Meteo, _2DViewer)
+                _MeteoMapper = New MeteoBitmapper(VorHandler.Meteo, _2DViewer, _Dispatcher)
             End If
             Return _MeteoMapper
         End Get
@@ -837,6 +837,11 @@ Public Class RouteurModel
             Case "WPList"
                 CurWP = CurWP
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
+
+            Case "PilototoRoute"
+                If _MeteoMapper IsNot Nothing Then
+                    _MeteoMapper.Route = VorHandler.PilototoRoute
+                End If
 
             Case Else
                 RaiseEvent PropertyChanged(sender, e)
