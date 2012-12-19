@@ -26,7 +26,7 @@ Public Class MeteoBitmapper
     Private _RefreshTimer As DispatcherTimer
     Private _CurImgIndex As Integer = 0
     Private _MaxImageIndex As Integer = 0
-    Private _MeteoFont As New Font("Segoe UI", 7)
+    Private _MeteoFont As New Font(SystemFonts.DefaultFont.OriginalFontName, 6, FontStyle.Regular)
 
     Private Class MeteoData
         Property Dir As Double
@@ -84,10 +84,10 @@ Public Class MeteoBitmapper
                     _Img.Clear()
                     _Img.Lock()
                     Using bmp As New System.Drawing.Bitmap(_Img.PixelWidth, _Img.PixelHeight,
-                     _Img.BackBufferStride, System.Drawing.Imaging.PixelFormat.Format32bppPArgb,
+                     _Img.BackBufferStride, System.Drawing.Imaging.PixelFormat.Format32bppArgb,
                          _Img.BackBuffer)
                         Using g As Graphics = System.Drawing.Graphics.FromImage(bmp)
-
+                            g.TextRenderingHint = Text.TextRenderingHint.AntiAliasGridFit
                             For x As Integer = 0 To NbX - 1
                                 For y As Integer = 0 To NbY - 1
 
@@ -110,11 +110,11 @@ Public Class MeteoBitmapper
                                             pt(n).Y = CInt(pt(n).Y + (H / (NbY - 1) * y))
                                         Next
 
-                                        Dim br As New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(WindColor))
-                                        g.FillPolygon(br, pt)
-
+                                        Using br As New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(WindColor))
+                                            g.FillPolygon(br, pt)
+                                        End Using
                                         Dim TxtPt As New Point(CInt((W / (NbX - 1) * x)), CInt(H / (NbY - 1) * y + 20))
-                                        Dim DString As String = (_MeteoCache(ImgIndex)(x + NbX * y).Dir / Math.PI * 180 + 90).ToString("0°")
+                                        Dim DString As String = (_MeteoCache(ImgIndex)(x + NbX * y).Dir / Math.PI * 180 - 180).ToString("0°")
                                         g.DrawString(_MeteoCache(ImgIndex)(x + NbX * y).Strength.ToString("0.0"), _MeteoFont, Brushes.Black, TxtPt)
                                         TxtPt = New Point(CInt((W / (NbX - 1) * x)) - 20, CInt(H / (NbY - 1) * y + 20))
                                         g.DrawString(DString, _MeteoFont, Brushes.Black, TxtPt)
