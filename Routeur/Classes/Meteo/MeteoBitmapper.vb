@@ -114,7 +114,7 @@ Public Class MeteoBitmapper
                                             g.FillPolygon(br, pt)
                                         End Using
                                         Dim TxtPt As New Point(CInt((W / (NbX - 1) * x)), CInt(H / (NbY - 1) * y + 20))
-                                        Dim DString As String = (_MeteoCache(ImgIndex)(x + NbX * y).Dir / Math.PI * 180 - 180).ToString("0°")
+                                        Dim DString As String = (-(_MeteoCache(ImgIndex)(x + NbX * y).Dir / Math.PI * 180 - 180)).ToString("0°")
                                         g.DrawString(_MeteoCache(ImgIndex)(x + NbX * y).Strength.ToString("0.0"), _MeteoFont, Brushes.Black, TxtPt)
                                         TxtPt = New Point(CInt((W / (NbX - 1) * x)) - 20, CInt(H / (NbY - 1) * y + 20))
                                         g.DrawString(DString, _MeteoFont, Brushes.Black, TxtPt)
