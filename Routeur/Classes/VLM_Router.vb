@@ -1062,6 +1062,8 @@ Public Class VLM_Router
         Dim CurRaceWP As Integer = CurWP
         Dim CurBoatSpeed As Double
         Dim Db As New DBWrapper
+        Dim ReachedWP As Boolean = False
+
         Db.MapLevel = MapLevel
 
         While Not CancelRequest
@@ -1099,12 +1101,10 @@ Public Class VLM_Router
 
                     'Compute current WP
                     Dim UserWP As RoutePointWPValue = CType(NextOrder.RouteValue, RoutePointWPValue)
-                    Dim ReachedWP As Boolean = False
-
+                    ReachedWP = False
                     If UserWP.UseRaceWP Then
-                        Dim NextWP = GetNextRankingWP(CurRaceWP)
-                        CurWP1 = _PlayerInfo.RaceInfo.races_waypoints(NextWP).WPs(0)(0)
-                        CurWP2 = _PlayerInfo.RaceInfo.races_waypoints(NextWP).WPs(0)(1)
+                        CurWP1 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(0)
+                        CurWP2 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(1)
                     Else
                         CurWP1 = New Coords(UserWP.WPLat, UserWP.WPLon)
                         CurWP2 = Nothing
@@ -1152,6 +1152,9 @@ Public Class VLM_Router
                         Return RetRoute
                     End If
                 End If
+            ElseIf ReachedWP And CurWP >= CurRaceWP Then
+                'ReachedWP WP that's not a gate
+                CurRaceWP = GetNextRankingWP(CurRaceWP)
             End If
 
             If GSHHS_Reader._Tree IsNot Nothing AndAlso Db.IntersectMapSegment(CurPos, NextPos, GSHHS_Reader._Tree) Then
