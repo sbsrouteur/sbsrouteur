@@ -429,7 +429,7 @@
 							<Grid>
 								<StackPanel Width="Auto" Height="Auto">
 									<TextBlock Text="{Binding The2DViewer.CurCoords, ConverterParameter=2, Converter={StaticResource CoordsConverter}, Mode=Default}" TextWrapping="Wrap" Width="Auto" Height="Auto" Margin="{DynamicResource DefMargin}"/>
-									<Routeur:WindInfoControl MeteoProvider="{Binding VorHandler.Meteo}" WindDate="{Binding VorHandler.UserInfo.Date}" WindPos="{Binding The2DViewer.CurCoords}" />
+									<Routeur:WindInfoControl MeteoProvider="{Binding VorHandler.Meteo}" WindDate="{Binding VorHandler.UserInfo.Date}" WindPos="{Binding The2DViewer.CurCoords}" Visibility="Collapsed" />
 									<TextBlock Text="{Binding VorHandler.CurWPDist, Mode=Default, StringFormat=Dist:\{0:F2\} nm}" TextWrapping="Wrap" Width="Auto" Height="Auto"/>
 									<ItemsControl ItemsSource="{Binding VorHandler.DiffEvolution, Mode=Default}" Width="Auto" Height="Auto" ToolTip="Variation de classement" />
 									<GroupBox x:Name="grpRoutesUnderMouse" Margin="0" Header=""  Visibility="{Binding VorHandler.RoutesUnderMouse, Converter={StaticResource NumberVisibilityConverter}, Mode=Default}" Background="#70FFFFFF" HorizontalAlignment="Left">
