@@ -1,0 +1,95 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:local="clr-namespace:Routeur"
+	x:Class="NavDisplay"
+	x:Name="UserControl"
+	d:DesignWidth="640" d:DesignHeight="480">
+
+	<UserControl.Resources>
+		<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+		<ImageBrush x:Key="AluBrush" ImageSource="..\..\Graphics\Aluminium1.jpg" Stretch="UniformToFill"/>
+		
+		<System:String x:Key="FmtDig">0.0</System:String>
+		<ImageBrush x:Key="LCDBackBrush" ImageSource="..\..\Graphics\LCD.png"/>
+	</UserControl.Resources>
+
+	<Grid x:Name="LayoutRoot">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="23" />
+			<RowDefinition Height="1*"/>
+			<RowDefinition Height="23"/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="20"/>
+			<ColumnDefinition Width="0.91*"/>
+			<ColumnDefinition Width="20"/>
+		</Grid.ColumnDefinitions>
+		<Rectangle RadiusX="13" RadiusY="13" StrokeThickness="31" Stroke="{DynamicResource AluBrush}" Grid.RowSpan="3" Grid.ColumnSpan="3" Panel.ZIndex="-6" />
+		<Rectangle RadiusX="13" RadiusY="13" StrokeThickness="13" MinWidth="0.3" Grid.RowSpan="3" Grid.ColumnSpan="3" >
+			<Rectangle.Stroke>
+				<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" MappingMode="RelativeToBoundingBox">
+					<LinearGradientBrush.RelativeTransform>
+						<TransformGroup>
+							<ScaleTransform CenterX="0.5" CenterY="0.5"/>
+							<SkewTransform CenterX="0.5" CenterY="0.5"/>
+							<RotateTransform Angle="149" CenterX="0.5" CenterY="0.5"/>
+							<TranslateTransform/>
+						</TransformGroup>
+					</LinearGradientBrush.RelativeTransform>
+					<GradientStop Color="#88FFFFFF" Offset="0"/>
+					<GradientStop Color="#54080000" Offset="1"/>
+				</LinearGradientBrush>
+			</Rectangle.Stroke>
+		</Rectangle>
+		<Grid Grid.Row="1" Grid.Column="1">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+		<Grid Background="{DynamicResource LCDBackBrush}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" MinWidth="30"/>
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" MinHeight="20"/>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+			</Grid.RowDefinitions>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.PIM, Converter={StaticResource EnumRouteModeConverter}}" StringFormat="nav"/>
+			<TextBlock TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" Grid.ColumnSpan="2" HorizontalAlignment="Center"><Run Text="Nav"/></TextBlock>
+			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" StrokeThickness="2" Effect="{DynamicResource DigitShadow}" Visibility="{Binding VorHandler.UserInfo.PIM_WP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+			<TextBlock Text="WP Lat" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
+			<TextBlock Text="WP Lon" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="2"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.WPLAT, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="lat" Grid.Row="1"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.WPLON, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2" StringFormat="lon"/>
+	
+		</Grid>
+		<Grid Grid.Row="1" Background="{DynamicResource LCDBackBrush}">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="0.33*"/>
+				<ColumnDefinition Width="0.33*" />
+				<ColumnDefinition Width="0.33*"/>
+
+				
+			</Grid.ColumnDefinitions>
+			<TextBlock Text="Ortho" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center"/>
+			<TextBlock Text="Loxo" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Grid.Column="1"/>
+			<TextBlock Text="Dist to WP" TextWrapping="Wrap" FontSize="13.333" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Grid.Column="2"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.ORT, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.LOX, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center" Grid.Column="1"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.DNM, Mode=Default}" d:LayoutOverrides="GridBox" StringFormat="0.0" Grid.Row="1" HorizontalContentAlignment="Center" Grid.Column="2"/>
+
+		</Grid>
+		</Grid>
+	</Grid>
+</UserControl>
