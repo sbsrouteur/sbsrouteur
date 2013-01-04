@@ -294,12 +294,12 @@
 				
 			</MenuItem>
 			<MenuItem Header="Meteo" VerticalAlignment="Center">
-				<CheckBox IsChecked="{Binding VorHandler.MeteoVisible, Mode=Default}" Content="Meteo Data Visible" />
-				<Slider Maximum="1" Minimum="0" Value="{Binding Opacity, ElementName=canvas, Mode=TwoWay}" SmallChange=".01" LargeChange=".1" TickFrequency="0.1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" ToolTip="Bg Transparency" />
-				<!--<Slider Maximum="100" Minimum="5" Value="{Binding VorHandler.MeteoArrowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" TickFrequency="25" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" />
+				<CheckBox IsChecked="{Binding MeteoMapper.Visible, Mode=Default}" Content="Meteo Data Visible" />
+				<CheckBox IsChecked="{Binding MeteoMapper.Animate, Mode=Default}" Content="Animate meteo data" />
+				<!--<Slider Maximum="1" Minimum="0" Value="{Binding Opacity, ElementName=canvas, Mode=TwoWay}" SmallChange=".01" LargeChange=".1" TickFrequency="0.1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" TickPlacement="BottomRight" ToolTip="Bg Transparency" />
 				-->
-				<Slider x:Name="slider" Maximum="{Binding VorHandler.MeteoArrowDateEnd, Mode=Default}" Minimum="{Binding VorHandler.MeteoArrowDateStart, Mode=Default}" Width="129" Value="{Binding MeteoMapper.DateTicks}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding VorHandler.TickFreq, Mode=Default}" TickPlacement="BottomRight" />
-				<TextBlock Text="{Binding MeteoMapper.Date, Mode=Default}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
+				<Slider x:Name="slider" Maximum="{Binding MeteoMapper.MeteoDateEnd.Ticks, Mode=Default}" Minimum="{Binding MeteoMapper.MeteoDateStart.Ticks, Mode=Default}" Width="129" Value="{Binding MeteoMapper.CurDateIndexTicks}" SmallChange="{Binding VorHandler.TimeArrowDateSmallTick, Mode=Default}" LargeChange="{Binding VorHandler.TimeArrowDateLargeTick, Mode=Default}" TickFrequency="{Binding VorHandler.TickFreq, Mode=Default}" TickPlacement="BottomRight" />
+				<TextBlock Text="{Binding MeteoMapper.CurDateIndex, Mode=Default}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
 			</MenuItem>
 			<MenuItem Header="Routes" VerticalAlignment="Center" >
 				<MenuItem Header="Pilototo Route" Click="ShowPilototoRouteDlg" />
@@ -331,7 +331,7 @@
 						<RowDefinition Height="0.86*"/>
 						<RowDefinition Height="0.14*" MinHeight="34.572"/>
 					</Grid.RowDefinitions>
-					<Image x:Name="ImgMeteo" Grid.RowSpan="8" Grid.ColumnSpan="8" Margin="0" Source="{Binding MeteoMapper.Image}" Stretch="None" OpacityMask="#FFEF2020" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+					<Image x:Name="ImgMeteo" Grid.RowSpan="8" Grid.ColumnSpan="8" Margin="0" Source="{Binding MeteoMapper.Image}" Stretch="None" OpacityMask="#FFEF2020" Visibility="{Binding MeteoMapper.Visible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 					<Routeur:_2D_Viewer x:Name="VOR2DViewer" Margin="0,0,0,0" MouseMove="MouseMoveCanvas" MouseLeftButtonDown="MouseStartDrag" MouseLeftButtonUp="MouseEndDrag" MouseLeave="MouseLeaveCanvas" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" MouseWheel="MouseZoom" MouseDoubleClick="AddPointToRoute" ContextMenuOpening="OnMapContextMenuOpening" ContextMenu="{DynamicResource CtxNavMenu}" Grid.ColumnSpan="6" Grid.RowSpan="8">
 						<!--<Routeur:_2D_Viewer.RenderTransform>
 								<TransformGroup>
@@ -343,7 +343,7 @@
 						
 					<GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
 					<GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
-					<Canvas Height="Auto" x:Name="BgWeatherObjects" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" Margin="0,0,50.22,0">
+					<!--<Canvas Height="Auto" x:Name="BgWeatherObjects" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" Margin="0,0,50.22,0">
 						<Canvas x:Name="canvas" Height="1800"  Grid.ColumnSpan="1"  Width="10800"  RenderTransformOrigin="{Binding RenderTransformOrigin, ElementName=VOR2DViewer, Mode=Default}" RenderTransform="{Binding RenderTransform, ElementName=VOR2DViewer, Mode=Default}" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"  >
 							<ItemsControl x:Name="WindMap" ItemsSource="{Binding MapLayer}" ItemTemplate="{DynamicResource MeteoInfoColorBox}">
 								<ItemsControl.ItemsPanel>
@@ -354,6 +354,7 @@
 							</ItemsControl>
 						</Canvas>
 					</Canvas>
+					-->
 					<Grid Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="5" Grid.RowSpan="8" MouseMove="_2D_Renderer_MouseMoveHandler" Width="Auto"/>
 					<Canvas Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="5" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Visibility="{Binding HideNonMapCanvas, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window, Mode=Default}" Grid.RowSpan="8" Margin="0,0,50.22,0">
 						<!--<Grid x:Name="Weather_Map" >
@@ -377,9 +378,10 @@
 							<Routeur:EasyNavControl x:Name="NavControl" Width="Auto" Height="Auto" d:LayoutOverrides="GridBox" BoatType="{Binding VorHandler.UserInfo.POL}" ClsSailManager="{Binding Mode=OneWay}" MeteoStrength="{Binding VorHandler.UserInfo.TWS}" MeteoDir="{Binding VorHandler.UserInfo.TWA}" BoatBearing="{Binding VorHandler.UserInfo.HDG}" BoatLon="{Binding VorHandler.UserInfo.LON}" Renderer="{Binding The2DViewer}" BoatLat="{Binding VorHandler.UserInfo.LON}" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" BoatDest="{Binding VorHandler.CurrentDest}" />
 						</Canvas>
 						
-						<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
+						<!--<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
 							<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
 						</Grid>
+						-->
 						<!--<StackPanel Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}"/>-->
 					</Canvas>
 					
