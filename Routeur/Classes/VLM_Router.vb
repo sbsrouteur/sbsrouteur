@@ -767,78 +767,6 @@ Public Class VLM_Router
         End Get
     End Property
 
-    Public Property MeteoArrowDate() As Date
-        Get
-            Return _MeteoArrowDate
-        End Get
-        Set(ByVal value As Date)
-            If value <> _MeteoArrowDate Then
-                _MeteoArrowDate = value
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDate"))
-                'UpdateMeteoArrows()
-                'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
-            End If
-        End Set
-    End Property
-    Public Property MeteoArrowDateTicks() As Long
-        Get
-            Return _MeteoArrowDate.Ticks
-        End Get
-        Set(ByVal value As Long)
-            If value <> _MeteoArrowDate.Ticks Then
-                _MeteoArrowDate = New Date(value)
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDate"))
-                'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
-                UpdateMeteoArrows()
-            End If
-        End Set
-    End Property
-
-    Public ReadOnly Property MeteoArrowDateStart() As Long
-        Get
-            If UserInfo Is Nothing Then
-                Return Now.Ticks
-            End If
-
-            Return _UserInfo.[Date].Ticks
-        End Get
-    End Property
-
-    Public ReadOnly Property MeteoArrowDateEnd() As Long
-        Get
-            'FIXME Use meteo span const from grib manager!!
-            Return MeteoArrowDateStart + TimeSpan.TicksPerDay * GribManager.GRIB_MAX_DAY
-        End Get
-    End Property
-
-    Public Property MeteoArrowSize() As Double
-        Get
-            Return _MeteoArrowSize
-        End Get
-        Set(ByVal value As Double)
-            If _MeteoArrowSize <> value Then
-                _MeteoArrowSize = value
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowSize"))
-                'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
-                UpdateMeteoArrows()
-            End If
-        End Set
-
-    End Property
-
-
-    Public Property MeteoVisible() As Boolean
-        Get
-            Return _MeteoVisible
-        End Get
-        Set(ByVal value As Boolean)
-            If _MeteoVisible <> value Then
-                _MeteoVisible = value
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoVisible"))
-            End If
-        End Set
-    End Property
-
     Public Shared ReadOnly Property Sails() As clsSailManager
         Get
             Return _Sails
@@ -1644,7 +1572,7 @@ Public Class VLM_Router
         _MeteoHeight = Height
         'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
         _PixelSize = Max((C2.Lon_Deg - C1.Lon_Deg) / Width * 60, (C2.Lat_Deg - C1.Lat_Deg) / Width * 60)
-        UpdateMeteoArrows()
+
     End Sub
 
     Public Property CurrentRoute() As TravelCalculator
@@ -2328,56 +2256,6 @@ Public Class VLM_Router
         End Get
     End Property
 
-    Private Sub MeteoArrowDeferred(ByVal state As Object)
-
-        Dim x As Double
-        Dim y As Double
-        Dim retstring As String = ""
-        Dim C As New Coords
-        Dim Mi As MeteoInfo
-        Dim Scale As Double = MeteoArrowSize
-        Dim Dte As Date = MeteoArrowDate
-
-        If _UserInfo Is Nothing OrElse Dte.Ticks = 0 OrElse _MeteoNOPoint Is Nothing OrElse _MeteoSEPoint Is Nothing Then
-            Return
-        End If
-
-        Dim MeteoRange As Double = 1
-        Dim MinLon As Double = _MeteoNOPoint.Lon
-        Dim MaxLon As Double = _MeteoSEPoint.Lon
-        Dim DeltaLon As Double = (MaxLon - MinLon) / 10
-        Dim MinLat As Double = _MeteoSEPoint.Lat
-        Dim MaxLat As Double = _MeteoNOPoint.Lat
-        Dim DeltaLat As Double = (MaxLat - MinLat) / 10
-        Dim PX As Double
-        Dim PY As Double
-
-        For x = 0 To 10
-            For y = 0 To 10
-                C.Lat = MinLat + y * DeltaLat
-                C.Lon = MinLon + x * DeltaLon
-                Mi = Meteo.GetMeteoToDate(C, Dte, True)
-                If Not Mi Is Nothing AndAlso Mi.Strength >= 0.1 Then
-                    PX = x * _MeteoWidth / 10
-                    PY = (10 - y) * _MeteoHeight / 10
-
-                    retstring &= GetMeteoArrowString(PX, PY, Scale, Mi)
-                End If
-            Next
-        Next
-        _MeteoPath = retstring
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
-
-    End Sub
-
-
-    Public ReadOnly Property MeteoArrow() As String
-        Get
-            Return _MeteoPath
-        End Get
-    End Property
-
-
     Public Sub MouseOver(ByVal C As Coords)
 
         Try
@@ -3025,12 +2903,9 @@ Public Class VLM_Router
                 End If
                 AddLog(VLMInfoMessage)
                 'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
-                UpdateMeteoArrows()
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateStart"))
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateEnd"))
-                If _MeteoArrowDate < _UserInfo.[Date] Then
-                    MeteoArrowDate = _UserInfo.[Date]
-                End If
+                
             Else
                 AddLog("No Meteo data !!")
             End If
@@ -3358,13 +3233,6 @@ Public Class VLM_Router
         End Set
     End Property
 
-    Private Sub UpdateMeteoArrows()
-
-        If MeteoVisible Then
-            System.Threading.ThreadPool.QueueUserWorkItem(AddressOf MeteoArrowDeferred, Nothing)
-        End If
-
-    End Sub
     Public Sub UpdatePath(ByVal Clear As Boolean)
 
         If Clear Then

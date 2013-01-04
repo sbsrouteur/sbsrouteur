@@ -28,12 +28,16 @@ Public Class MeteoBitmapper
     Private _MaxImageIndex As Integer = 0
     Private _MeteoFont As New Font(SystemFonts.DefaultFont.OriginalFontName, 6, FontStyle.Regular)
 
+    Private Property _MeteoVisible As Boolean = False
+    Private Property _EndDate As DateTime
+    Private Property _CurDateIndex As DateTime
+    Private Property _Animate As Boolean = True
+
     Private Class MeteoData
         Property Dir As Double
         Property Strength As Double = -1
     End Class
 
-    Public Property Route As ObservableCollection(Of clsrouteinfopoints)
 
 
     Private _Arrow() As Integer = New Integer() {0, 4,
@@ -51,6 +55,7 @@ Public Class MeteoBitmapper
         _meteo = Meteo
         _Viewer = Viewer
         _RefreshTimer = New DispatcherTimer(New TimeSpan(0, 0, 0, 0, 30), DispatcherPriority.ApplicationIdle, AddressOf OnBitmapTimerRefresh, D)
+
     End Sub
 
 
@@ -152,8 +157,6 @@ Public Class MeteoBitmapper
         End Get
     End Property
 
-    Public Property ImageReady As Boolean = False
-
     Private Sub GetImageData(MeteoIndex As Integer)
 
         Dim R As New Int32Rect(0, 0, CInt(_Viewer.ActualWidth), CInt(_Viewer.ActualHeight))
@@ -205,6 +208,54 @@ Public Class MeteoBitmapper
         'Console.WriteLine("Meteo duration" & Now.Subtract(Start).TotalSeconds)
     End Sub
 
+    Public Property Animate As Boolean
+        Get
+            Return _Animate
+        End Get
+        Set(value As Boolean)
+            If value <> _Animate Then
+                _Animate = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Animate"))
+                If value Then
+                    _RefreshTimer.Start()
+                Else
+                    _RefreshTimer.Stop()
+                End If
+            End If
+        End Set
+    End Property
+
+    Public Property CurDateIndex As DateTime
+        Get
+            Return _CurDateIndex
+        End Get
+        Set(value As DateTime)
+            Dim NewIndex As Integer = CInt(value.Subtract(_Date).TotalMinutes / 5)
+            If newindex <> _CurImgIndex Then
+                _CurDateIndex = value
+                If Not _Animate Then
+                    _CurImgIndex = NewIndex
+                End If
+                onpropertychanged("Image")
+            End If
+
+        End Set
+    End Property
+
+    Public Property CurDateIndexTicks As Long
+        Get
+            Return _CurDateIndex.Ticks
+        End Get
+        Set(value As Long)
+            Dim NewIndex As Integer = CInt(New DateTime(value).Subtract(_Date).TotalMinutes / 5)
+            If NewIndex <> _CurImgIndex Then
+                CurDateIndex = New DateTime(value)
+                onpropertychanged("Image")
+            End If
+
+        End Set
+    End Property
+
     Public Property [Date] As DateTime
         Get
             Return _Date
@@ -212,23 +263,31 @@ Public Class MeteoBitmapper
         Set(value As DateTime)
             _Date = value
             onpropertychanged("Date")
-            StartImgRender()
+            onpropertychanged("MeteoDateStart")
+            If Visible Then
+                StartImgRender()
+            End If
         End Set
     End Property
-
-    Public Property DateTicks As Long
-        Get
-            Return Me.Date.Ticks
-        End Get
-        Set(value As Long)
-            Me.Date = New DateTime(value)
-        End Set
-    End Property
-
 
     Private Sub onpropertychanged(Prop As String)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(Prop))
     End Sub
+
+    Public ReadOnly Property MeteoDateStart As DateTime
+        Get
+            Return _Date
+        End Get
+    End Property
+
+    Public ReadOnly Property MeteoDateEnd As DateTime
+        Get
+            Return _Date.AddMinutes(5 * _MaxImageIndex)
+        End Get
+    End Property
+
+
+    Public Property Route As ObservableCollection(Of clsrouteinfopoints)
 
     Public Sub StartImgRender()
 
@@ -252,10 +311,7 @@ Public Class MeteoBitmapper
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Image"))
             ReDim _ImgData(CInt(Math.Ceiling(_Viewer.ActualWidth)) * CInt(Math.Ceiling(_Viewer.ActualHeight)) - 1)
             '_Img.CopyPixels(R, _ImgData, 4 * CInt(_Viewer.ActualWidth), 0)
-            _RenderThread = New Thread(AddressOf ImGRenderThread)
-
-            _StopRender = False
-            _RenderThread.Start()
+            StartRenderer()
         Catch
         End Try
 
@@ -270,6 +326,7 @@ Public Class MeteoBitmapper
                 End If
                 GetImageData(i)
                 _MaxImageIndex = i
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoDateEnd"))
             Next
 
         Finally
@@ -285,12 +342,41 @@ Public Class MeteoBitmapper
 
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Image"))
         _CurImgIndex += 1
+        _CurDateIndex = _CurDateIndex.AddMinutes(5)
         If _CurImgIndex >= _MaxImageIndex Then
             _CurImgIndex = 0
+            _CurDateIndex = _Date
         End If
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurDateIndex"))
     End Sub
 
+    Public Property Visible As Boolean
+        Get
+            Return _MeteoVisible
+        End Get
+        Set(value As Boolean)
+            If _MeteoVisible <> value Then
+                _MeteoVisible = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Visible"))
+                If value Then
+                    StartRenderer()
+                Else
+                    _StopRender = True
+                    _RefreshTimer.Stop()
+                End If
 
+            End If
+
+        End Set
+
+    End Property
+
+    Private Sub StartRenderer()
+        _RenderThread = New Thread(AddressOf ImGRenderThread)
+
+        _StopRender = False
+        _RenderThread.Start()
+    End Sub
 
 
 End Class

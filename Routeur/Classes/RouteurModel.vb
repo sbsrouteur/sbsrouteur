@@ -214,17 +214,16 @@ Public Class RouteurModel
         End If
 
 
-        If VorHandler.MeteoVisible Then
-            If MeteoMapper IsNot Nothing Then
+        If MeteoMapper IsNot Nothing AndAlso MeteoMapper.Visible Then
 
-                If Now.Subtract(MeteoMapper.Date).TotalMinutes > VacationMinutes Then
-                    MeteoMapper.Date = Now
-                Else
-                    MeteoMapper.StartImgRender()
-                End If
-
+            If Now.Subtract(MeteoMapper.Date).TotalMinutes > VacationMinutes Then
+                MeteoMapper.Date = Now
+            Else
+                MeteoMapper.StartImgRender()
             End If
+
         End If
+
 
     End Sub
 
