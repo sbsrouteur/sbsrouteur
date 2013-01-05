@@ -296,19 +296,37 @@ Public Class DBWrapper
             Dim CurVersion As Integer = GetCurDBVersion()
             Const DBVersion As Integer = 3
 
+            If CurVersion = 0 Then
+                'DBCreation
+                CurVersion = 1
+            End If
+
             If CurVersion < DBVersion Then
                 Using conn As New SQLiteConnection(_DBPath)
                     conn.Open()
                     For i As Integer = CurVersion To DBVersion - 1
 
-                        Try
-                            Using cmd As New SQLiteCommand(GetDBScript(i), conn)
+                        Using cmd As New SQLiteCommand(GetDBScript(i), conn)
+                            Try
                                 cmd.ExecuteNonQuery()
-                            End Using
-                        Catch ex As Exception
-                            Dim i2 As Integer = 0
-                        End Try
 
+                            Catch ex As SQLiteException
+
+                                If ex.ReturnCode = SQLiteErrorCode.Constraint Then
+                                    'rollback the current transaction
+                                    cmd.CommandText = "Rollback transaction"
+                                    cmd.ExecuteNonQuery()
+
+                                    'Duplicate DBDate, wait a bit and try again
+                                    System.Threading.Thread.Sleep(1000)
+
+                                    'Decrease i to re-run this DBVersion update script
+                                    i -= 1
+                                Else
+                                    Throw ex
+                                End If
+                            End Try
+                        End Using
                     Next
                 End Using
 
@@ -469,6 +487,7 @@ Public Class DBWrapper
             End Using
         End Using
     End Sub
+
 
 
 End Class
