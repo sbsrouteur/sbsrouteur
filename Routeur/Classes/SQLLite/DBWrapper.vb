@@ -301,9 +301,14 @@ Public Class DBWrapper
                     conn.Open()
                     For i As Integer = CurVersion To DBVersion - 1
 
-                        Using cmd As New SQLiteCommand(GetDBScript(i), conn)
-                            cmd.ExecuteNonQuery()
-                        End Using
+                        Try
+                            Using cmd As New SQLiteCommand(GetDBScript(i), conn)
+                                cmd.ExecuteNonQuery()
+                            End Using
+                        Catch ex As Exception
+                            Dim i2 As Integer = 0
+                        End Try
+
                     Next
                 End Using
 
@@ -323,7 +328,12 @@ Public Class DBWrapper
         Using Conn As New SQLiteConnection(_DBPath)
             Conn.Open()
             Using cmd As New SQLiteCommand("Select Max(VersionNumber) from DBVersion", Conn)
-                Return CInt(cmd.ExecuteScalar)
+                Dim RetObjet As Object = (cmd.ExecuteScalar)
+                If Not IsDBNull(RetObjet) Then
+                    Return CInt(RetObjet)
+                Else
+                    Return 0
+                End If
             End Using
         End Using
 
