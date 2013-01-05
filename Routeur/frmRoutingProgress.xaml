@@ -4,8 +4,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	x:Class="frmRoutingProgress"
 	x:Name="Window"
-	Title="{Binding Title, Mode=Default}" mc:Ignorable="d"
-	Width="200" Height="62" ResizeMode="NoResize" Icon="Graphics/yacht.ico" WindowStyle="ToolWindow">
+	Title="{Binding Title, Mode=Default}" mc:Ignorable="d" ResizeMode="NoResize" Icon="Graphics/yacht.ico" WindowStyle="ToolWindow">
 
 	<Grid x:Name="LayoutRoot">
 		<Grid.ColumnDefinitions>
@@ -17,7 +16,7 @@
 			<RowDefinition Height="auto"/>
 		</Grid.RowDefinitions>
 		<ProgressBar Grid.ColumnSpan="2" Height="18	" d:Value="23" Value="{Binding ProgressValue, Mode=OneWay}"/>
-		<TextBlock Text="Complete in :" TextWrapping="Wrap" Grid.Row="1"/>
-		<TextBlock Text="{Binding ProgressETA, Mode=Default}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="1"/>
+		<TextBlock Text="Complete in :" TextWrapping="Wrap" Grid.Row="1" Margin="{DynamicResource DefMargin}"/>
+		<TextBlock Text="{Binding ProgressETA, Mode=Default}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="1" Margin="{DynamicResource DefMargin}"/>
 	</Grid>
 </Window>

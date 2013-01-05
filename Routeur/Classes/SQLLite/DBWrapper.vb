@@ -1,6 +1,7 @@
 ﻿Imports System.IO
 Imports System.Data.SQLite
 Imports System.Text
+Imports System.Threading
 
 
 
@@ -11,6 +12,7 @@ Public Class DBWrapper
 
     Private _DBPath As String
     Private Shared _Lock As New Object
+    Private _InitOK As Boolean = False
 
     Public Sub New()
         Dim BaseFile As String = System.IO.Path.Combine(RouteurModel.BaseFileDir, DBName)
@@ -23,7 +25,6 @@ Public Class DBWrapper
                 File.Move(Path.Combine(RouteurModel.BaseFileDir, OldDbName), BaseFile)
             End If
         End If
-
         CheckDBVersionAndUpdate()
 
     End Sub
@@ -59,6 +60,9 @@ Public Class DBWrapper
         Dim Reader As SQLiteDataReader = Nothing
         Try
             Reader = Cmd.ExecuteReader
+            If Reader.HasRows Then
+                _InitOK = True
+            End If
             Return Reader.HasRows
 
         Finally
@@ -81,6 +85,7 @@ Public Class DBWrapper
         If flush Then
             Trans.Commit()
             Conn.Close()
+            _InitOK = True
             Return
         End If
 
@@ -174,6 +179,10 @@ Public Class DBWrapper
 
     Public Function SegmentList(ByVal lon1 As Double, ByVal lat1 As Double, ByVal lon2 As Double, ByVal lat2 As Double, Optional sorted As Boolean = False) As List(Of MapSegment)
 
+        If Not _InitOK Then
+            'Do not try loading coast lines until db is fully inited
+            Return Nothing
+        End If
         Dim RetList As New List(Of MapSegment)
         Dim Start As DateTime = Now
         Static CumDuration As Long = 0
@@ -397,13 +406,13 @@ Public Class DBWrapper
                             PrevLat = Lat
                             PrevLon = Lon
                             LastBearing = TC.LoxoCourse_Deg
-                            If Not firstpoint Then
+                            If Not FirstPoint Then
                                 TC.StartPoint = TC.EndPoint
                                 TC.EndPoint = New Coords(Lat, Lon)
                             Else
                                 FirstPoint = False
                             End If
-                        LastEpoch = Epoch
+                            LastEpoch = Epoch
 
                         End If
                     End While
@@ -440,6 +449,11 @@ Public Class DBWrapper
     End Function
 
     Sub AddTrackPoints(RaceID As Integer, BoatNum As Integer, PtList As List(Of TrackPoint))
+
+        If Not _InitOK Then
+            'DB is not ready, try later
+            Return
+        End If
 
         Static PrevTrack As Integer = -1
         Static prevboat As Integer = -1
