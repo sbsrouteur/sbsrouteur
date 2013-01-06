@@ -376,7 +376,7 @@ Public Class RouteurModel
 
 
         UpdateRaceScale(C1, C2)
-
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoMapper"))
     End Sub
 
     Private Sub InitRaceExclusions()
@@ -491,10 +491,6 @@ Public Class RouteurModel
 
         If Not The2DViewer Is Nothing Then
             The2DViewer.RedrawCanvas()
-        End If
-
-        If Not _MeteoMapper Is Nothing Then 'AndAlso _MeteoMapper.ImageReady Then
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoMapper"))
         End If
 
         If Not MeteoMapper Is Nothing AndAlso Now.Subtract(MeteoMapper.Date).TotalMinutes > VacationMinutes Then
