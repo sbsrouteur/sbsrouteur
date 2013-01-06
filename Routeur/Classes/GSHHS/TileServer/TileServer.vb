@@ -15,9 +15,7 @@ Public Class TileServer
     Private _Renderer As _2D_Viewer
 
     Private _VLM_TILE_SERVER As String = RouteurModel.Base_Game_Url
-    Private _UseFallBackServer As Boolean = False
-    Private Const FALLBACK_SERVER_URL As String = "http://trunk.vlmtest.paparazzia.info/"
-
+    
     Private _TileBuildList As New SortedList(Of String, TileInfo)
     Private _queryCount As Long = 0
     Private _HitCount As Long = 0
@@ -85,19 +83,10 @@ Public Class TileServer
         Try
 restart_download:
             FileError = False
-            'WC.DownloadFile("http://tile.openstreetmap.org/" & TI.Z & "/" & TI.TX & "/" & TI.TY & ".png", TI.FileName)
-            If Not _UseFallBackServer Then
-                WC.DownloadFile(_VLM_TILE_SERVER & "/cache/gshhstiles/" & TI.Z & "/" & TI.TX & "/" & TI.TY & ".png", TI.FileName)
-            Else
-                WC.DownloadFile(FALLBACK_SERVER_URL & "/cache/gshhstiles/" & TI.Z & "/" & TI.TX & "/" & TI.TY & ".png", TI.FileName)
-
-            End If
-
-        Catch ex2 As WebException When ex2.Message.Contains("404")
-            _UseFallBackServer = True
-            GoTo restart_download
+            WC.DownloadFile(_VLM_TILE_SERVER & "/cache/gshhstiles/" & TI.Z & "/" & TI.TX & "/" & TI.TY & ".png", TI.FileName)
+            
         Catch ex As Exception
-            'MessageBox.Show(ex.Message, "Failed to get tile " & TI.FileName)
+            MessageBox.Show(ex.Message, "Failed to get tile " & TI.FileName)
             FileError = True
         End Try
 
