@@ -190,6 +190,7 @@ Public Class DBWrapper
         Static HitCount As Long = 0
         Static HitCountNZ As Long = 0
         Static TotalHitCount As Long = 0
+        Static HitCountError As Long = 0
         Try
 
 
@@ -232,6 +233,7 @@ Public Class DBWrapper
                         HitCount += 1
                         Return RetList
                     Catch ex As Exception
+                        HitCountError += 1
                     Finally
 
                         If Reader IsNot Nothing Then
@@ -256,9 +258,10 @@ Public Class DBWrapper
             Count += 1
             If HitCount <> 0 Then
                 Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgHitCount) = TotalHitCount / HitCount
+                Routeur.Stats.SetStatValue(Stats.StatID.RIndex_ExceptionRatio) = HitCountError / HitCount
             End If
             If HitCountNZ <> 0 Then
-                Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgHitCountNonZero) = TotalHitCount / HitCountNZ
+                Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgHitCountNonZero) = HitCount / HitCountNZ
             End If
 
         End Try

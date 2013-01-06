@@ -33,6 +33,7 @@ Public Class Stats
         RIndex_AvgQueryTimeMS
         RIndex_AvgHitCount
         RIndex_AvgHitCountNonZero
+        RIndex_ExceptionRatio
         ISO_ReachPointMS
         ISO_ReachPointMeteoWaitMS
         ISO_ReachPointAvgLoopCount
