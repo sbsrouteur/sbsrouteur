@@ -31,7 +31,7 @@ Public Class MeteoBitmapper
     Private Property _MeteoVisible As Boolean = False
     Private Property _EndDate As DateTime
     Private Property _CurDateIndex As DateTime
-    Private Property _Animate As Boolean = True
+    Private Property _Animate As Boolean = False
 
     Private Class MeteoData
         Property Dir As Double
@@ -55,101 +55,102 @@ Public Class MeteoBitmapper
         _meteo = Meteo
         _Viewer = Viewer
         _RefreshTimer = New DispatcherTimer(New TimeSpan(0, 0, 0, 0, 30), DispatcherPriority.ApplicationIdle, AddressOf OnBitmapTimerRefresh, D)
-
+        _RefreshTimer.Stop()
     End Sub
 
 
     Public ReadOnly Property Image As WriteableBitmap
         Get
             Dim Start As DateTime = Now
-            Try
-                Dim W As Integer = CInt(Math.Ceiling(_Viewer.ActualWidth))
-                Dim H As Integer = CInt(Math.Ceiling(_Viewer.ActualHeight))
-                Dim ImgStride As Integer = CInt(W * ((PixelFormats.Pbgra32.BitsPerPixel) / 8))
-                Dim R As New Int32Rect(0, 0, CInt(W), CInt(H))
-                Dim CPt(3) As Point
-                CPt(0) = New Point(0, -20)
-                CPt(1) = New Point(-5, 5)
-                CPt(2) = New Point(0, 0)
-                CPt(3) = New Point(5, 5)
-                Dim d(3) As Double
+                Try
+                    Dim W As Integer = CInt(Math.Ceiling(_Viewer.ActualWidth))
+                    Dim H As Integer = CInt(Math.Ceiling(_Viewer.ActualHeight))
+                    Dim ImgStride As Integer = CInt(W * ((PixelFormats.Pbgra32.BitsPerPixel) / 8))
+                    Dim R As New Int32Rect(0, 0, CInt(W), CInt(H))
+                    Dim CPt(3) As Point
+                    CPt(0) = New Point(0, -20)
+                    CPt(1) = New Point(-5, 5)
+                    CPt(2) = New Point(0, 0)
+                    CPt(3) = New Point(5, 5)
+                    Dim d(3) As Double
 
-                For n As Integer = 0 To 3
-                    d(n) = Sqrt(CPt(n).X * CPt(n).X + CPt(n).Y * CPt(n).Y)
-                Next
-                Debug.Assert(Thread.CurrentThread.ManagedThreadId = _Viewer.Dispatcher.Thread.ManagedThreadId)
+                    For n As Integer = 0 To 3
+                        d(n) = Sqrt(CPt(n).X * CPt(n).X + CPt(n).Y * CPt(n).Y)
+                    Next
+                    Debug.Assert(Thread.CurrentThread.ManagedThreadId = _Viewer.Dispatcher.Thread.ManagedThreadId)
 
-                If _Img Is Nothing OrElse _Img.Width <> W OrElse _Img.Height <> H Then
-                    _Img = New WriteableBitmap(W, H, 96, 96, PixelFormats.Pbgra32, Nothing)
-                End If
+                    If _Img Is Nothing OrElse _Img.Width <> W OrElse _Img.Height <> H Then
+                        _Img = New WriteableBitmap(W, H, 96, 96, PixelFormats.Pbgra32, Nothing)
+                    End If
 
-                Using _Img.GetBitmapContext
-                    '_Img.WritePixels(R, _ImgData, ImgStride, 0)
-                    Dim ImgIndex As Integer = _CurImgIndex
-                    _Img.Clear()
-                    _Img.Lock()
-                    Using bmp As New System.Drawing.Bitmap(_Img.PixelWidth, _Img.PixelHeight,
-                     _Img.BackBufferStride, System.Drawing.Imaging.PixelFormat.Format32bppArgb,
-                         _Img.BackBuffer)
-                        Using g As Graphics = System.Drawing.Graphics.FromImage(bmp)
-                            g.TextRenderingHint = Text.TextRenderingHint.AntiAliasGridFit
-                            For x As Integer = 0 To NbX - 1
-                                For y As Integer = 0 To NbY - 1
+                    Using _Img.GetBitmapContext
+                        '_Img.WritePixels(R, _ImgData, ImgStride, 0)
+                        Dim ImgIndex As Integer = _CurImgIndex
+                        _Img.Clear()
+                        _Img.Lock()
+                        Using bmp As New System.Drawing.Bitmap(_Img.PixelWidth, _Img.PixelHeight,
+                         _Img.BackBufferStride, System.Drawing.Imaging.PixelFormat.Format32bppArgb,
+                             _Img.BackBuffer)
+                            Using g As Graphics = System.Drawing.Graphics.FromImage(bmp)
+                                g.TextRenderingHint = Text.TextRenderingHint.AntiAliasGridFit
+                                For x As Integer = 0 To NbX - 1
+                                    For y As Integer = 0 To NbY - 1
 
-                                    If _MeteoCache(ImgIndex) IsNot Nothing AndAlso _MeteoCache(ImgIndex)(x + NbX * y) IsNot Nothing AndAlso _MeteoCache(ImgIndex)(x + NbX * y).Strength <> -1 Then
-                                        Dim pt(3) As Point
-                                        Dim Scale As Double = Math.Log(_MeteoCache(ImgIndex)(x + NbX * y).Strength + 1)
-                                        Dim WindColor As Integer = WindColors.GetColor(_MeteoCache(ImgIndex)(x + NbX * y).Strength)
+                                        If _MeteoCache(ImgIndex) IsNot Nothing AndAlso _MeteoCache(ImgIndex)(x + NbX * y) IsNot Nothing AndAlso _MeteoCache(ImgIndex)(x + NbX * y).Strength <> -1 Then
+                                            Dim pt(3) As Point
+                                            Dim Scale As Double = Math.Log(_MeteoCache(ImgIndex)(x + NbX * y).Strength + 1)
+                                            Dim WindColor As Integer = WindColors.GetColor(_MeteoCache(ImgIndex)(x + NbX * y).Strength)
 
-                                        For n As Integer = 0 To 3
-                                            'Scale Arrow
-                                            pt(n) = New Point(CInt(CPt(n).X * Scale), CInt(CPt(n).Y * Scale))
+                                            For n As Integer = 0 To 3
+                                                'Scale Arrow
+                                                pt(n) = New Point(CInt(CPt(n).X * Scale), CInt(CPt(n).Y * Scale))
 
-                                            'Rotate
-                                            Dim a As Double = Atan2(pt(n).Y, pt(n).X) - _MeteoCache(ImgIndex)(x + NbX * y).Dir
-                                            pt(n).X = CInt(d(n) * Cos(a))
-                                            pt(n).Y = CInt(d(n) * Sin(a))
+                                                'Rotate
+                                                Dim a As Double = Atan2(pt(n).Y, pt(n).X) - _MeteoCache(ImgIndex)(x + NbX * y).Dir
+                                                pt(n).X = CInt(d(n) * Cos(a))
+                                                pt(n).Y = CInt(d(n) * Sin(a))
 
-                                            'Offset
-                                            pt(n).X = CInt(pt(n).X + (W / (NbX - 1) * x))
-                                            pt(n).Y = CInt(pt(n).Y + (H / (NbY - 1) * y))
-                                        Next
+                                                'Offset
+                                                pt(n).X = CInt(pt(n).X + (W / (NbX - 1) * x))
+                                                pt(n).Y = CInt(pt(n).Y + (H / (NbY - 1) * y))
+                                            Next
 
-                                        Using br As New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(WindColor))
-                                            g.FillPolygon(br, pt)
-                                        End Using
-                                        Dim TxtPt As New Point(CInt((W / (NbX - 1) * x)), CInt(H / (NbY - 1) * y + 20))
-                                        Dim DString As String = (-(_MeteoCache(ImgIndex)(x + NbX * y).Dir / Math.PI * 180 - 180)).ToString("0°")
-                                        g.DrawString(_MeteoCache(ImgIndex)(x + NbX * y).Strength.ToString("0.0"), _MeteoFont, Brushes.Black, TxtPt)
-                                        TxtPt = New Point(CInt((W / (NbX - 1) * x)) - 20, CInt(H / (NbY - 1) * y + 20))
-                                        g.DrawString(DString, _MeteoFont, Brushes.Black, TxtPt)
+                                            Using br As New System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(WindColor))
+                                                g.FillPolygon(br, pt)
+                                            End Using
+                                            Dim TxtPt As New Point(CInt((W / (NbX - 1) * x)), CInt(H / (NbY - 1) * y + 20))
+                                            Dim DString As String = (-(_MeteoCache(ImgIndex)(x + NbX * y).Dir / Math.PI * 180 - 180)).ToString("0°")
+                                            g.DrawString(_MeteoCache(ImgIndex)(x + NbX * y).Strength.ToString("0.0"), _MeteoFont, Brushes.Black, TxtPt)
+                                            TxtPt = New Point(CInt((W / (NbX - 1) * x)) - 20, CInt(H / (NbY - 1) * y + 20))
+                                            g.DrawString(DString, _MeteoFont, Brushes.Black, TxtPt)
 
-                                    End If
+                                        End If
 
+                                    Next
                                 Next
-                            Next
 
-                            If Route IsNot Nothing Then
-                                For Each RoutePoint In Route
-                                    If Abs(Now.AddMinutes(5 * ImgIndex).Subtract(RoutePoint.T).TotalMinutes) < 5 Then
-                                        Dim Pt1 As New Point
-                                        Pt1.X = CInt(_Viewer.LonToCanvas(RoutePoint.P.N_Lon_Deg)) - 2
-                                        Pt1.Y = CInt(_Viewer.LatToCanvas(RoutePoint.P.Lat_Deg)) - 2
-                                        g.DrawEllipse(Pens.Red, Pt1.X, Pt1.Y, 4, 4)
-                                        Exit For
-                                    End If
-                                Next
-                            End If
+                                If Route IsNot Nothing Then
+                                    For Each RoutePoint In Route
+                                        If Abs(Now.AddMinutes(5 * ImgIndex).Subtract(RoutePoint.T).TotalMinutes) < 5 Then
+                                            Dim Pt1 As New Point
+                                            Pt1.X = CInt(_Viewer.LonToCanvas(RoutePoint.P.N_Lon_Deg)) - 2
+                                            Pt1.Y = CInt(_Viewer.LatToCanvas(RoutePoint.P.Lat_Deg)) - 2
+                                            g.DrawEllipse(Pens.Red, Pt1.X, Pt1.Y, 4, 4)
+                                            Exit For
+                                        End If
+                                    Next
+                                End If
+                            End Using
                         End Using
+
+                        _Img.Unlock()
+
                     End Using
 
-                    _Img.Unlock()
+                Catch ex As Exception
+                    Dim i As Integer = 0
+                End Try
 
-                End Using
-
-            Catch ex As Exception
-                Dim i As Integer = 0
-            End Try
 
             'ImageReady = False
             Console.WriteLine("ImageRender in " & Now.Subtract(Start).TotalMilliseconds)
@@ -311,7 +312,10 @@ Public Class MeteoBitmapper
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Image"))
             ReDim _ImgData(CInt(Math.Ceiling(_Viewer.ActualWidth)) * CInt(Math.Ceiling(_Viewer.ActualHeight)) - 1)
             '_Img.CopyPixels(R, _ImgData, 4 * CInt(_Viewer.ActualWidth), 0)
-            StartRenderer()
+            _RenderThread = New Thread(AddressOf ImGRenderThread)
+
+            _StopRender = False
+            _RenderThread.Start()
         Catch
         End Try
 
@@ -359,7 +363,8 @@ Public Class MeteoBitmapper
                 _MeteoVisible = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Visible"))
                 If value Then
-                    StartRenderer()
+                    StartImgRender()
+
                 Else
                     _StopRender = True
                     _RefreshTimer.Stop()
@@ -370,13 +375,5 @@ Public Class MeteoBitmapper
         End Set
 
     End Property
-
-    Private Sub StartRenderer()
-        _RenderThread = New Thread(AddressOf ImGRenderThread)
-
-        _StopRender = False
-        _RenderThread.Start()
-    End Sub
-
 
 End Class
