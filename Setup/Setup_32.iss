@@ -34,7 +34,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug_64\Routeur.exe; DestDir: {pf32}\sbs\Routeur\Routeur; Flags: ignoreversion; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug\Routeur.exe; DestDir: {pf32}\sbs\Routeur\Routeur; Flags: ignoreversion; 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygjasper-1-701-1.dll; DestDir: {pf32}\sbs\Routeur\Grib2; 
 Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygjpeg-62.dll; DestDir: {pf32}\sbs\Routeur\Grib2; 
