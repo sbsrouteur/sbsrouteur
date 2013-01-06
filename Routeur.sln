@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75BB53F8-F77E-4E33-A943-F5ABE2DD4354}"
 	ProjectSection(SolutionItems) = preProject
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
@@ -8,8 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Routeur_32", "Routeur\Routeur_32.vbproj", "{AA398C30-64B7-4250-8966-1AF443B6F4BE}"
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{BEAD68B8-4092-479A-8BB7-F04537FD2098}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestRouteur", "TestRouteur\TestRouteur.vbproj", "{8D083CB3-744D-42AA-B29A-84D88AB20415}"
 EndProject
@@ -42,18 +40,6 @@ Global
 		{AA398C30-64B7-4250-8966-1AF443B6F4BE}.Release|Win32.ActiveCfg = Release|x86
 		{AA398C30-64B7-4250-8966-1AF443B6F4BE}.Release|x86.ActiveCfg = Release|Any CPU
 		{AA398C30-64B7-4250-8966-1AF443B6F4BE}.Release|x86.Build.0 = Release|Any CPU
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Debug|Any CPU.ActiveCfg = Debug
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Debug|Any CPU.Build.0 = Debug
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Debug|Mixed Platforms.ActiveCfg = Debug
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Debug|Win32.ActiveCfg = Debug
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Debug|Win32.Build.0 = Debug
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Debug|x86.ActiveCfg = Debug
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Debug|x86.Build.0 = Debug
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Release|Any CPU.ActiveCfg = Release
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Release|Mixed Platforms.ActiveCfg = Release
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Release|Win32.ActiveCfg = Release
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Release|Win32.Build.0 = Release
-		{BEAD68B8-4092-479A-8BB7-F04537FD2098}.Release|x86.ActiveCfg = Release
 		{8D083CB3-744D-42AA-B29A-84D88AB20415}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8D083CB3-744D-42AA-B29A-84D88AB20415}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D083CB3-744D-42AA-B29A-84D88AB20415}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
