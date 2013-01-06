@@ -12,7 +12,7 @@ Public Class DBWrapper
 
     Private _DBPath As String
     Private Shared _Lock As New Object
-    Private _InitOK As Boolean = False
+    Private Shared _InitOK As Boolean = False
 
     Public Sub New()
         Dim BaseFile As String = System.IO.Path.Combine(RouteurModel.BaseFileDir, DBName)
