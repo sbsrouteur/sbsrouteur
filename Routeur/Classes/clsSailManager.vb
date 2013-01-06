@@ -153,7 +153,7 @@ Public Class clsSailManager
             F = MaxWindSpeedMultiplied
         End If
 
-#Const POLAR_STAT = 0
+#Const POLAR_STAT = 1
 #If POLAR_STAT = 1 Then
         Static NbCall As Long = 0
         Static NbCallCached As Long = 0
@@ -270,9 +270,17 @@ Public Class clsSailManager
 
     Public Sub InitPolar()
 
-        'Dim th As New System.Threading.Thread(AddressOf InitPolarThread)
-        'th.Start()
-        InitPolarThread(Nothing)
+        For WindStrength As Integer = 0 To MaxWindSpeedMultiplied
+
+
+            For alpha As Integer = 0 To 180 * POLAR_ANGLE_MULTIPLIER
+                _Polar(alpha, WindStrength) = 65535
+            Next
+        Next
+
+        Dim th As New System.Threading.Thread(AddressOf InitPolarThread)
+        th.Start()
+        'InitPolarThread(Nothing)
     End Sub
 
     Private Sub InitPolarThread(ByVal StartInfo As Object)
