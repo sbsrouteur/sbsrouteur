@@ -11,7 +11,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{48BFBA13-794B-46BA-B7C9-C5E53289DBA0}
+AppID={{1520F400-7692-4C1B-926F-AE4701DA0A1B}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -24,8 +24,8 @@ DefaultGroupName={#MyAppName}
 OutputDir=C:\Projets\01_Perso\HG_Routeur-google_code\Setup\Setup_32
 OutputBaseFilename=RouteurSetup
 SetupIconFile=C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\Graphics\Yacht.ico
-Compression=lzma
-SolidCompression=yes
+Compression=lzma/Max
+SolidCompression=true
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
