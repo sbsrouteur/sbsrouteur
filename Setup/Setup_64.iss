@@ -22,7 +22,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 OutputDir=C:\Projets\01_Perso\HG_Routeur-google_code\Setup\Setup_64
-OutputBaseFilename=RouteurSetup
+OutputBaseFilename=RouteurSetup64
 SetupIconFile=C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\Graphics\Yacht.ico
 Compression=lzma
 SolidCompression=yes
@@ -46,7 +46,7 @@ Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_c.b; 
 Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_i.b; DestDir: {pf64}\sbs\Routeur\Gshhs; 
 Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_l.b; DestDir: {pf64}\sbs\Routeur\Gshhs; 
 Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug_64\WriteableBitmapEx.Wpf.dll; DestDir: {pf64}\sbs\Routeur\Routeur; 
-Source: "C:\Program Files\System.Data.SQLite\2010\GAC\System.Data.SQLite.dll"; DestDir: {pf64}\sbs\Routeur\Routeur; 
+Source: "C:\Program Files\System.Data.SQLite\2010\bin\System.Data.SQLite.dll"; DestDir: {pf64}\sbs\Routeur\Routeur; 
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
