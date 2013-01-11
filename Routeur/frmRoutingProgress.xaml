@@ -6,7 +6,7 @@
 	x:Name="Window"
 	Title="{Binding Title, Mode=Default}" mc:Ignorable="d"  Icon="Graphics/yacht.ico" WindowStyle="ToolWindow" Height="79" ResizeMode="NoResize">
 
-	<Grid x:Name="LayoutRoot" Width="{Binding Title.ActualWidth, ElementName=Window}">
+	<Grid x:Name="LayoutRoot">
 		
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto"/>
