@@ -237,6 +237,7 @@ Public Class MeteoBitmapper
                 If Not _Animate Then
                     _CurImgIndex = NewIndex
                 End If
+                onpropertychanged("CurDateIndex")
                 onpropertychanged("Image")
             End If
 
@@ -251,6 +252,7 @@ Public Class MeteoBitmapper
             Dim NewIndex As Integer = CInt(New DateTime(value).Subtract(_Date).TotalMinutes / 5)
             If NewIndex <> _CurImgIndex Then
                 CurDateIndex = New DateTime(value)
+
                 onpropertychanged("Image")
             End If
 
@@ -286,6 +288,13 @@ Public Class MeteoBitmapper
             Return _Date.AddMinutes(5 * _MaxImageIndex)
         End Get
     End Property
+
+    Public ReadOnly Property MeteoHorizon As Integer
+        Get
+            Return CInt(_MaxImageIndex / 12)
+        End Get
+    End Property
+
 
 
     Public Property Route As ObservableCollection(Of clsrouteinfopoints)
@@ -331,6 +340,7 @@ Public Class MeteoBitmapper
                 GetImageData(i)
                 _MaxImageIndex = i
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoDateEnd"))
+                onpropertychanged("MeteoHorizon")
             Next
 
         Finally
