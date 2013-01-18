@@ -324,7 +324,7 @@ Module WS_Wrapper
                 End If
             End If
 
-            If QryEndEpoch >= EpochNow Then
+            If QryEndEpoch >= EpochNow Or LastEpoch < QryStartEpoch Then
                 TrackComplete = True
             Else
                 QryStartEpoch = LastEpoch + 1
