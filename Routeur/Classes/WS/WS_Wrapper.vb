@@ -1,6 +1,7 @@
 ﻿Imports System.Net
 Imports System.IO
 Imports System.Web
+Imports System.Threading.Tasks
 
 Module WS_Wrapper
 
@@ -42,7 +43,7 @@ Module WS_Wrapper
 
     Public Function GetRaceInfo(ByVal RAN As String) As String
 
-        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/raceinfo.php?forcefmt=json&idrace=" & RAN
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo.php?forcefmt=json&idrace=" & RAN
         Dim Retstring As String = ""
         Try
             Retstring = RequestPage(URL)
@@ -299,14 +300,17 @@ Module WS_Wrapper
         Dim RetList As New List(Of TrackPoint)
         Dim LastEpoch As Long = StartEpoch
 
-        While Not TrackComplete
-            Dim URL As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/tracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & QryStartEpoch & "&endtime=" & QryEndEpoch
-            Dim Retstring As String = ""
-            Retstring = RequestPage(URL)
-            RetJSon = JSonParser.Parse(Retstring)
-            Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
-            If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
-                CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
+        'Get SmartTracks List
+        Dim URL1 As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/smarttracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & QryStartEpoch & "&endtime=" & EpochNow
+        Dim Retstring1 As String = ""
+        Retstring1 = RequestPage(URL1)
+        RetJSon = JSonParser.Parse(Retstring1)
+        Dim Success1 As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
+        If Success1 AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
+            CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks_url") Then
+
+            'Grab current non cached track points
+            If CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
 
                 Dim Track As List(Of Object) = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks"), List(Of Object))
                 Dim NbTracks As Integer = JSonHelper.GetJSonIntValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "nb_tracks")
@@ -324,14 +328,53 @@ Module WS_Wrapper
                 End If
             End If
 
-            If QryEndEpoch >= EpochNow Or LastEpoch < QryStartEpoch Then
-                TrackComplete = True
-            Else
-                QryStartEpoch = LastEpoch + 1
-                QryEndEpoch = Math.Min(QryStartEpoch + 48 * 3600, EpochNow)
-            End If
+            'Grab cached track points from tracks_cacheurl
+            Dim Urls = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks_url"), List(Of Object))
 
-        End While
+            For Each Url In Urls
+
+                If Url IsNot Nothing Then
+                    Dim retstring As String = RequestPage(RouteurModel.Base_Game_Url & "/cache/tracks/" & CStr(Url))
+                    RetJSon = JSonParser.Parse(retstring)
+
+                    Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
+                    If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
+                        CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
+
+                        Dim Track As List(Of Object) = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks"), List(Of Object))
+                        Dim NbTracks As Integer = JSonHelper.GetJSonIntValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "nb_tracks")
+                        If NbTracks > 0 Then
+                            For Each Pos As List(Of Object) In Track
+
+                                Dim P As New TrackPoint
+                                P.Epoch = CLng(Pos(0))
+                                If P.Epoch > QryStartEpoch Then
+                                    P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
+                                    RetList.Add(P)
+                                    LastEpoch = P.Epoch
+                                End If
+                            Next
+                        End If
+                    End If
+                End If
+            Next
+
+        End If
+        'While Not TrackComplete
+        '    Dim URL As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/tracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & QryStartEpoch & "&endtime=" & QryEndEpoch
+        '    Dim Retstring As String = ""
+        '    Retstring = RequestPage(URL)
+        '    RetJSon = JSonParser.Parse(Retstring)
+
+
+        '    If QryEndEpoch >= EpochNow Or LastEpoch < QryStartEpoch Then
+        '        TrackComplete = True
+        '    Else
+        '        QryStartEpoch = LastEpoch + 1
+        '        QryEndEpoch = Math.Min(QryStartEpoch + 48 * 3600, EpochNow)
+        '    End If
+
+        'End While
         Return RetList
 
     End Function
@@ -348,7 +391,7 @@ Module WS_Wrapper
             End If
             _Cookies = New CookieContainer
         End If
-        Dim URL As String = RouteurModel.BASE_GAME_URL & "/ws/playerinfo/fleet_private.php"
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/playerinfo/fleet_private.php"
         Dim Retstring As String = ""
         Try
             Retstring = RequestPage(URL)
@@ -531,7 +574,7 @@ Module WS_Wrapper
 
 
 
-    
+
 
 
 
