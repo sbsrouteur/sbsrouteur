@@ -43,23 +43,16 @@ Public Class RouteurModel
     Public Const PenWidth As Double = 0.3
 
 #If TESTING = 1 Then
-    Public Const S11_SERVER As String = "http://testing.virtual-loup-de-mer.org"
-    Public Const S10_SERVER As String = "http://testing.virtual-loup-de-mer.org"
+    Public Const S10_SERVER As String = "testing.virtual-loup-de-mer.org"
 #Else
-    Public Const S11_SERVER As String = "http://www.virtual-loup-de-mer.org"
-    Public Const S10_SERVER As String = "http://virtual-loup-de-mer.org"
+    Public Const S10_SERVER As String = "virtual-loup-de-mer.org"
 
 #End If
-
-    Private Shared _Servers As String() = New String() {S10_SERVER, S11_SERVER}
-    'Private Shared _BASE_GAME_URL As String = S11_SERVER
 
     Public Shared VacationMinutes As Double = 5
     Public Shared MapLevel As String = "l"
 
     Private Shared _P_Info(0) As clsPlayerInfo
-
-
 
     Public Shared START_LON As Double = 1.186
     Public Shared START_LAT As Double = 46.142
@@ -393,17 +386,15 @@ Public Class RouteurModel
 
     Public Shared ReadOnly Property Base_Game_Url() As String
         Get
-            'Return S10_SERVER
-            If _Servers Is Nothing Then
-                Return S10_SERVER
-            End If
-            Static index As Integer = 0
+            Return "http://" & S10_SERVER
+            
+        End Get
+    End Property
 
-            index += 1
-            If index > 50000 Then
-                index = 0
-            End If
-            Return _Servers(index Mod _Servers.Length)
+    Public Shared ReadOnly Property Cached_Base_Game_Url(CacheIndex As Integer) As String
+        Get
+            Return "http://c" & CacheIndex & "." & S10_SERVER
+
         End Get
     End Property
 
