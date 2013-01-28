@@ -297,8 +297,9 @@ Module WS_Wrapper
         Dim QryStartEpoch As Long = StartEpoch
         Dim QryEndEpoch As Long = Math.Min(StartEpoch + 48 * 3600, EpochNow)
         Dim TrackComplete As Boolean = False
-        Dim RetList As New List(Of TrackPoint)
+        Dim RetDict As New Dictionary(Of Long, TrackPoint)
         Dim LastEpoch As Long = StartEpoch
+        Dim StartDate As DateTime = Now
 
         'Get SmartTracks List
         Dim URL1 As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/smarttracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & QryStartEpoch & "&endtime=" & EpochNow
@@ -319,9 +320,9 @@ Module WS_Wrapper
 
                         Dim P As New TrackPoint
                         P.Epoch = CLng(Pos(0))
-                        If P.Epoch > QryStartEpoch Then
+                        If P.Epoch > QryStartEpoch AndAlso Not RetDict.ContainsKey(P.Epoch) Then
                             P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
-                            RetList.Add(P)
+                            RetDict.Add(P.Epoch, P)
                             LastEpoch = P.Epoch
                         End If
                     Next
@@ -348,9 +349,9 @@ Module WS_Wrapper
 
                                 Dim P As New TrackPoint
                                 P.Epoch = CLng(Pos(0))
-                                If P.Epoch > QryStartEpoch Then
+                                If P.Epoch > QryStartEpoch AndAlso Not RetDict.ContainsKey(P.Epoch) Then
                                     P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
-                                    RetList.Add(P)
+                                    RetDict.Add(P.Epoch, P)
                                     LastEpoch = P.Epoch
                                 End If
                             Next
@@ -375,7 +376,8 @@ Module WS_Wrapper
         '    End If
 
         'End While
-        Return RetList
+        Console.Write("Track read : " & Now.Subtract(StartDate).TotalMilliseconds)
+        Return New List(Of TrackPoint)(RetDict.Values)
 
     End Function
 
