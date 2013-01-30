@@ -453,6 +453,7 @@ Public Class DBWrapper
 
     Sub AddTrackPoints(RaceID As Integer, BoatNum As Integer, PtList As List(Of TrackPoint))
 
+        Dim Start As DateTime = Now
         If Not _InitOK Then
             'DB is not ready, try later
             Return
@@ -465,7 +466,7 @@ Public Class DBWrapper
 
         Using con As New SQLiteConnection(_DBPath)
             con.Open()
-
+            Dim Trans As SQLiteTransaction
             Using cmd As New SQLiteCommand(con)
 
                 If PrevTrack <> RaceID OrElse prevboat <> BoatNum Then
@@ -486,23 +487,37 @@ Public Class DBWrapper
                     cmd.CommandText = ""
                 End If
                 Dim PtIndex As Integer = 1
+                Dim sb As New StringBuilder
                 For Each Pt As TrackPoint In PtList
-                    cmd.CommandText &= vbCrLf & "insert into Trackpoints(RefTrack,pointdate,lon,lat) values(" & CurRace & ",'" & Pt.Epoch &
+                    sb.Append(vbCrLf & "insert into Trackpoints(RefTrack,pointdate,lon,lat) values(" & CurRace & ",'" & Pt.Epoch &
                                         "' , " & Pt.P.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "," &
-                                         Pt.P.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ");"
-                    If PtIndex Mod 100 = 0 Then
+                                         Pt.P.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ");")
+                    If PtIndex Mod 1000 = 0 Then
+                        cmd.CommandText = sb.ToString
+                        Dim reqstart As DateTime = Now
+                        Trans = con.BeginTransaction()
                         cmd.ExecuteNonQuery()
-                        cmd.CommandText = ""
+                        Trans.Commit()
+                        Debug.WriteLine("ExecuteQuery 1000 inserts : " & Now.Subtract(reqstart).TotalMilliseconds & "ms")
+                        sb.Clear()
                         PtIndex = 1
                     Else
                         PtIndex += 1
                     End If
                 Next
                 If cmd.CommandText <> "" Then
+                    cmd.CommandText = sb.ToString
+                    Dim reqstart As DateTime = Now
+                    Trans = con.BeginTransaction()
                     cmd.ExecuteNonQuery()
+                    Trans.Commit()
+                    Debug.WriteLine("ExecuteQuery end inserts : " & Now.Subtract(reqstart).TotalMilliseconds & "ms")
+
                 End If
             End Using
         End Using
+
+        Debug.WriteLine("Track loaded " & Now.Subtract(Start).TotalMilliseconds & "ms pts: " & PtList.Count)
     End Sub
 
 
