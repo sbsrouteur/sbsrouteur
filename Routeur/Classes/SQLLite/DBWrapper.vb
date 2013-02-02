@@ -195,6 +195,10 @@ Public Class DBWrapper
 
 
             Dim M As New MapSegment(lon1, lat1, lon2, lat2)
+            Dim RestartOnLockException As Boolean = False
+
+RestartPoint:
+
             Using Con As New SQLiteConnection(_DBPath)
                 Con.Open()
 
@@ -234,6 +238,7 @@ Public Class DBWrapper
                         Return RetList
                     Catch ex As Exception
                         HitCountError += 1
+                        RestartOnLockException = True
                     Finally
 
                         If Reader IsNot Nothing Then
@@ -246,6 +251,11 @@ Public Class DBWrapper
                         Con.Close()
                     End Try
                 End Using
+
+                If RestartOnLockException Then
+                    RestartOnLockException = False
+                    GoTo RestartPoint
+                End If
 
                 Return Nothing
 
