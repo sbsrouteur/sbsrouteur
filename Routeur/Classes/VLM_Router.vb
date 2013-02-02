@@ -91,6 +91,7 @@ Public Class VLM_Router
     Private _AllureDuration As Double = 0
     Private _AllureRoute As New ObservableCollection(Of clsrouteinfopoints)
     Private _PilototoRoute As New ObservableCollection(Of clsrouteinfopoints)
+    Private _PilototoRoutePoints As IList(Of Coords)
     Private _LastGridRouteStart As New DateTime(0)
 
 
@@ -812,6 +813,13 @@ Public Class VLM_Router
         End Set
     End Property
 
+    Public ReadOnly Property PilototoRoutePoints As IList(Of Coords)
+        Get
+            Return _PilototoRoutePoints
+        End Get
+    End Property
+
+
     Public ReadOnly Property PilototoRouteView() As RouteViewModel
         Get
             Return New RouteViewModel(_PlayerInfo.NumBoat, _Pilototo, RouteViewModel.NB_MAX_POINTS_PILOTOTO)
@@ -991,14 +999,29 @@ Public Class VLM_Router
         Dim CurBoatSpeed As Double
         Dim Db As New DBWrapper
         Dim ReachedWP As Boolean = False
+        Dim PrevOrderDate As Long = 0
 
         Db.MapLevel = MapLevel
+
+        'Clear Pilototo route points
+        _PilototoRoutePoints = Nothing
 
         While Not CancelRequest
 
             ' Get last applicable pilote order
             Dim NextOrder = (From O In Route Where O IsNot Nothing AndAlso O.ActionDate <= CurDate.AddMinutes(RouteurModel.VacationMinutes) Select O Order By O.ActionDate Descending).FirstOrDefault
 
+            If PrevOrderDate <> NextOrder.ActionDate.Ticks Then
+                If PrevOrderDate <> 0 Then
+                    'Add PrevOrder position
+                    'Add Current position in the pilototo points list
+                    If _PilototoRoutePoints Is Nothing Then
+                        _PilototoRoutePoints = New List(Of Coords)
+                    End If
+                    _PilototoRoutePoints.Add(New Coords(CurPos))
+                End If
+                PrevOrderDate = NextOrder.ActionDate.Ticks
+            End If
             If NextOrder Is Nothing Then
                 Return RetRoute
             End If
@@ -1058,6 +1081,7 @@ Public Class VLM_Router
                             'UserWP.UseRaceWP = True
                             CType(NextOrder.RouteValue, RoutePointWPValue).UseRaceWP = True
                         End If
+
                     End If
 
             End Select

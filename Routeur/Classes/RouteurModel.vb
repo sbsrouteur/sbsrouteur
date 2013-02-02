@@ -885,6 +885,7 @@ Public Class RouteurModel
 
                 P.Path = VorHandler.Track
                 P.Routes = Rtes
+                P.PilototoPoints = VorHandler.PilototoRoutePoints
                 P.EstimateRouteIndex = 6
                 P.Opponents = VorHandler.Opponents
                 P.ClearGrid = _ClearGrid

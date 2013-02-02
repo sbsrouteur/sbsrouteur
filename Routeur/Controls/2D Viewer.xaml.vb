@@ -542,31 +542,6 @@ Render1:
                     Next
                 Next
 #End If
-                'If False AndAlso Not ManagedRoutes Is Nothing Then
-                '    _RoutesBmp.Clear()
-                '    'Dim StartRoutes As DateTime = Now
-                '    For Each route In ManagedRoutes
-
-                '        If route.Visible Then
-                '            Dim Pe As New Pen(route.ColorBrush, 1)
-                '            For i As Integer = 1 To route.Route.Count - 1
-
-                '                Dim PrevPt As Point
-                '                Dim CurPt As Point
-                '                PrevPt.X = LonToCanvas(route.Route(i - 1).P.Lon_Deg)
-                '                PrevPt.Y = LatToCanvas(route.Route(i - 1).P.Lat_Deg)
-                '                CurPt.X = LonToCanvas(route.Route(i).P.Lon_Deg)
-                '                CurPt.Y = LatToCanvas(route.Route(i).P.Lat_Deg)
-
-                '                SafeDrawLine(DC, route.Route(i - 1).P, route.Route(i).P, Pen, PrevPt, CurPt)
-
-                '            Next
-                '        End If
-                '    Next
-                '    DC.Close()
-                '    _RoutesBmp.Render(D)
-                '    DC = D.RenderOpen
-                'End If
 
 #If DBG_SEGMENTS = 1 Then
             Dim db As New DBWrapper
@@ -688,17 +663,6 @@ Render1:
                 Console.WriteLine("Update path IsoChrones Done " & Now.Subtract(Start).ToString)
 #End If
 
-                'Using _OpponentsBmp.GetBitmapContext
-
-                'If ClearBoats OrElse _EraseBoatMap Then
-                '_OpponentsBmp.Clear()
-                '_EraseBoatMap = False
-                'If Not Opponents Is Nothing Then
-                'For Each op In Opponents
-                ' op.Value.Drawn = False
-                'Next
-                'End If
-                'End If
 
                 If Not PathInfo.Opponents Is Nothing Then
                     SyncLock PathInfo.Opponents
@@ -737,9 +701,6 @@ Render1:
 #End If
 
 
-                '_RBmp.Blit(New Rect(0, 0, ActualWidth, ActualHeight), _OpponentsBmp, New Rect(0, 0, ActualWidth, ActualHeight))
-                '_RBmp.Blit(New Rect(0, 0, ActualWidth, ActualHeight), _ISOBmp, New Rect(0, 0, ActualWidth, ActualHeight))
-
 #If DBG_UPDATE_PATH = 1 Then
                 Console.WriteLine("Update path BM Rendered " & Now.Subtract(Start).ToString)
 #End If
@@ -748,8 +709,6 @@ Render1:
                 '
                 ' Draw the recorded path
                 '
-
-
                 ShownPoints = 0
                 If PathInfo.Path IsNot Nothing Then
                     PrevSide = 0
@@ -784,12 +743,6 @@ Render1:
                                 Ignored += 1
                             End If
                         End If
-
-                        'If ShownPoints Mod 100 = 0 And ShownPoints > 0 Then
-                        '    DC.Close()
-                        '    _RBmp.Render(D)
-                        '    DC = D.RenderOpen
-                        'End If
 
                     Next
                 End If
@@ -843,15 +796,25 @@ Render1:
                         PenNumber += 1
                         PenNumber = PenNumber Mod routePen.Count
 
-                        'If ShownPoints Mod 100 = 0 And ShownPoints > 0 Then
-                        '    DC.Close()
-                        '    _RBmp.Render(D)
-                        '    DC = D.RenderOpen
-                        'End If
-                        'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Exit For
                     Next
                     'Catch
                     'End Try
+                End If
+
+                ' Draw pilototo route change points
+                If Not PathInfo.PilototoPoints Is Nothing Then
+                    'Try
+                    PenNumber = 0
+                    For Each P In PathInfo.PilototoPoints
+
+                        If Not P Is Nothing Then
+
+                            SafeDrawEllipse(_RBmp, P, routePen(PenNumber), 3, 3)
+                                    
+                        End If
+
+                    Next
+
                 End If
 
 #If DBG_UPDATE_PATH = 1 Then
@@ -865,9 +828,7 @@ Render1:
 #If DBG_UPDATE_PATH = 1 Then
                 Console.WriteLine("Update path Render Done " & Now.Subtract(Start).ToString)
 #End If
-                'Monitor.Exit(Me)
-                'Console.WriteLine("Update path complete in " & Now.Subtract(Start).TotalMilliseconds)
-                'End If
+
             End Using
         Catch ex As Exception
 
