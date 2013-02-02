@@ -335,7 +335,12 @@ Module WS_Wrapper
             Parallel.For(0, Urls.Count, Sub(UrlIndex As Integer)
                                             Dim Url = Urls(UrlIndex)
                                             If Url IsNot Nothing Then
+#If TESTING = 0 Then
                                                 Dim retstring As String = RequestPage(RouteurModel.Cached_Base_Game_Url((UrlIndex Mod NB_CACHE) + 1) & "/cache/tracks/" & CStr(Url))
+#Else
+                                                Dim retstring As String = RequestPage(RouteurModel.Base_Game_Url & "/cache/tracks/" & CStr(Url))
+#End If
+
                                                 RetJSon = JSonParser.Parse(retstring)
 
                                                 Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
