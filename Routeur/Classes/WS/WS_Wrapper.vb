@@ -331,34 +331,38 @@ Module WS_Wrapper
 
             'Grab cached track points from tracks_cacheurl
             Dim Urls = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks_url"), List(Of Object))
+            Const NB_CACHE = 4
+            Parallel.For(0, Urls.Count, Sub(UrlIndex As Integer)
+                                            Dim Url = Urls(UrlIndex)
+                                            If Url IsNot Nothing Then
+                                                Dim retstring As String = RequestPage(RouteurModel.Cached_Base_Game_Url((UrlIndex Mod NB_CACHE) + 1) & "/cache/tracks/" & CStr(Url))
+                                                RetJSon = JSonParser.Parse(retstring)
 
-            For Each Url In Urls
+                                                Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
+                                                If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
+                                                    CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
 
-                If Url IsNot Nothing Then
-                    Dim retstring As String = RequestPage(RouteurModel.Base_Game_Url & "/cache/tracks/" & CStr(Url))
-                    RetJSon = JSonParser.Parse(retstring)
+                                                    Dim Track As List(Of Object) = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks"), List(Of Object))
+                                                    Dim NbTracks As Integer = JSonHelper.GetJSonIntValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "nb_tracks")
+                                                    If NbTracks > 0 Then
+                                                        SyncLock RetDict
+                                                            For Each Pos As List(Of Object) In Track
 
-                    Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
-                    If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
-                        CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
+                                                                Dim P As New TrackPoint
+                                                                P.Epoch = CLng(Pos(0))
+                                                                If P.Epoch > QryStartEpoch AndAlso Not RetDict.ContainsKey(P.Epoch) Then
+                                                                    P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
+                                                                    RetDict.Add(P.Epoch, P)
+                                                                    LastEpoch = P.Epoch
+                                                                End If
+                                                            Next
+                                                        End SyncLock
+                                                    End If
+                                                End If
+                                            End If
+                                        End Sub
+            )
 
-                        Dim Track As List(Of Object) = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks"), List(Of Object))
-                        Dim NbTracks As Integer = JSonHelper.GetJSonIntValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "nb_tracks")
-                        If NbTracks > 0 Then
-                            For Each Pos As List(Of Object) In Track
-
-                                Dim P As New TrackPoint
-                                P.Epoch = CLng(Pos(0))
-                                If P.Epoch > QryStartEpoch AndAlso Not RetDict.ContainsKey(P.Epoch) Then
-                                    P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
-                                    RetDict.Add(P.Epoch, P)
-                                    LastEpoch = P.Epoch
-                                End If
-                            Next
-                        End If
-                    End If
-                End If
-            Next
 
         End If
         'While Not TrackComplete
