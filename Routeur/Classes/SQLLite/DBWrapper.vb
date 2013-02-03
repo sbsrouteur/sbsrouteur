@@ -515,7 +515,7 @@ RestartPoint:
                         PtIndex += 1
                     End If
                 Next
-                If cmd.CommandText <> "" Then
+                If sb.ToString <> "" Then
                     cmd.CommandText = sb.ToString
                     Dim reqstart As DateTime = Now
                     Trans = con.BeginTransaction()
