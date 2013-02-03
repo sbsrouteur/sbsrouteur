@@ -19,10 +19,11 @@ Public Class VLMBoatInfo
     Private _MPO As String  'mapPrefOpponents' (liste), ie concurrents à suivre
     Private _ETA As String  'Date estimée d'arrivé, seulement si pas de wp perso (string)
     Private _IDU As Integer 'numéro de bateau (int)
-    Private _NWP As Integer  'numéro du prochain waypoing (int)
+    Private _NWP As Integer 'numéro du prochain waypoing (int)
     Private _PIM As RoutePointView.EnumRouteMode
-    Private _NUP As Integer  'nombre de secondes jusqu'à la prochaine VAC (int)
-    Private _LUP As Integer  'Last update
+    Private _NOW As Integer ' Current Epoch on server
+    Private _NUP As Integer 'nombre de secondes jusqu'à la prochaine VAC (int)
+    Private _LUP As Integer 'Last update
     Private _MWD As String  'mapX' (int), ie taille largeur en pixel
     Private _MHT As String  'mapY' (int), ie taille hauteur en pixel
     Private _MAG As String  'mapAge' (int), ie age des trajectoires
@@ -182,6 +183,17 @@ Public Class VLMBoatInfo
             OnPropertyChanged("LUP")
         End Set
     End Property
+
+    Public Property NOW() As Integer
+        Get
+            Return _NOW
+        End Get
+        Set(ByVal value As Integer)
+            _NOW = value
+            OnPropertyChanged("NOW")
+        End Set
+    End Property
+
     Public Property NUP() As Integer
         Get
             Return _NUP
@@ -191,6 +203,7 @@ Public Class VLMBoatInfo
             OnPropertyChanged("NUP")
         End Set
     End Property
+
     Public Property NWP() As Integer
         Get
             Return _NWP

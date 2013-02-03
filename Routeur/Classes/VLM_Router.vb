@@ -2198,7 +2198,7 @@ Public Class VLM_Router
         _WayPointDest.Lon_Deg = RetUser.WPLON
 
         If RetUser.LOC = 0 Then
-            RetUser.LUP = CInt(Now.Subtract(New DateTime(1970, 1, 1)).TotalSeconds)
+            RetUser.LUP = CInt(RetUser.NOW - RouteurModel.VacationMinutes * 60 + RetUser.NUP)
         End If
 
 
