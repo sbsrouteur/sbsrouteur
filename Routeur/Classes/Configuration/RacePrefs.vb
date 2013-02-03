@@ -46,7 +46,7 @@ Public Class RacePrefs
     Private _FastRouteShortMeteo As Boolean = False
     Private _FastRouteShortPolar As Boolean = False
     Private _SaveRoute As Boolean = False
-    Private _RouteurMode As RouterMode = RouterMode.MIX_DTF_SPEED
+    Private _RouteurMode As RouterMode = RouterMode.ISO
 
     'IsoChrones Prefs
     Private _IsoLookupAngle As Double
