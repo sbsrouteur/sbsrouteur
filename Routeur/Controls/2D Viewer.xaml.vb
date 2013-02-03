@@ -416,6 +416,10 @@ Render1:
             Dim PrevPoint2 As New Point(LonToCanvas(PrevP.N_Lon_Deg + 360 * MapSpan), LatToCanvas(PrevP.Lat_Deg))
             Dim NewP2 As New Point(LonToCanvas(P.N_Lon_Deg + 360 * MapSpan), LatToCanvas(P.Lat_Deg))
 
+            If OutOfCanvas(PrevPoint2) AndAlso outofcanvas(NewP2) Then
+                Continue For
+            End If
+
             If (PrevP.N_Lon * P.N_Lon < 0 AndAlso Math.Abs(P.N_Lon - PrevP.N_Lon) >= Math.PI) Then
                 Dim Pint As Point
                 Dim DLon As Double
@@ -1227,6 +1231,13 @@ Render1:
             End If
         End Set
     End Property
+
+    Private Function OutOfCanvas(Point As Point) As Boolean
+
+        Return (Point.X < 0 OrElse Point.X > ActualWidth) AndAlso
+            (Point.Y < 0 OrElse Point.Y > ActualHeight)
+
+    End Function
 
 
 
