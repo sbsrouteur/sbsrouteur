@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "sbsRouteur"
-#define MyAppVersion "0.33"
+#define MyAppVersion "0.34"
 #define MyAppPublisher "sbsRouteur"
 #define MyAppURL "http://code.google.com/p/sbsrouteur/"
 #define MyAppExeName "Routeur.exe"
