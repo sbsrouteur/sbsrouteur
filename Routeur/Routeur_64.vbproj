@@ -620,9 +620,7 @@
   <ItemGroup>
     <Resource Include="Graphics\RaceList.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Classes\bsp_optimizer\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>rem editbin /LARGEADDRESSAWARE "$(TargetPath)"</PostBuildEvent>
