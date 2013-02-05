@@ -233,10 +233,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EasyNavControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Controls\PathResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -331,9 +327,6 @@
     <Compile Include="Controls\2D Viewer.xaml.vb">
       <DependentUpon>2D Viewer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EasyNavControl.xaml.vb">
-      <DependentUpon>EasyNavControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="RouteurMain.xaml.vb">
       <DependentUpon>RouteurMain.xaml</DependentUpon>
     </Compile>
@@ -406,8 +399,6 @@
     <Compile Include="Classes\ListMgr\CoordsComparer.vb" />
     <Compile Include="Classes\ListMgr\ICoords.vb" />
     <Compile Include="Classes\MenuCommands\CommandManager.vb" />
-    <Compile Include="Classes\Meteo\MeteoDrawer.vb" />
-    <Compile Include="Classes\Path\PathUtils.vb" />
     <Compile Include="Classes\Polygon\Polygon.vb" />
     <Compile Include="Classes\Polygon\PolygonEnumerator.vb" />
     <Compile Include="Classes\ProgressContext.vb" />

@@ -241,45 +241,6 @@ Public Class RecordedRoute
         End Set
     End Property
 
-    <XmlIgnore()> _
-    Public ReadOnly Property Shape() As Shapes.Path
-        Get
-            If Not Visible Then
-                Return Nothing
-            End If
-            Dim Ret As New Shapes.Path
-            Ret.Stroke = ColorBrush
-            Ret.StrokeThickness = 1
-            Dim sb As New StringBuilder
-
-            Try
-                For Each Pt In Route
-                    If sb.Length = 0 Then
-                        sb.Append(" M ")
-                    Else
-                        sb.Append(" L ")
-                    End If
-
-                    sb.Append(GetCoordsString(Model.The2DViewer.LonToCanvas(Pt.P.Lon_Deg), Model.The2DViewer.LatToCanvas(Pt.P.Lat_Deg)))
-
-                Next
-
-
-                Dim PC As New PathFigureCollectionConverter
-
-                Dim PG As New PathGeometry
-                PG.Figures = CType(PC.ConvertFromString(sb.ToString), PathFigureCollection)
-                Ret.Data = PG
-
-            Catch ex As Exception
-                'Swallow the exception. try looging if anyone around
-                RaiseEvent Log("Exception in Shape " & ex.Message & " : " & ex.StackTrace)
-            End Try
-
-            Return Ret
-        End Get
-    End Property
-
     Public Property Visible() As Boolean
         Get
             Return _Visible
