@@ -282,7 +282,6 @@
 				<CheckBox x:Name="chkDrawBoats" Height="Auto" Content="Draw Boats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawOpponnents, Mode=Default}" HorizontalAlignment="Left"/>
 				<CheckBox x:Name="chkDrawReals" Height="Auto" Content="Draw RealBoats Map" VerticalAlignment="Center" IsChecked="{Binding VorHandler.DrawReals, Mode=Default}" HorizontalAlignment="Left"/>
 				<CheckBox x:Name="chkGridRoute1" Content="Show Stats" VerticalAlignment="Center"/>
-				<CheckBox Content="Show EasyNav Boat" IsChecked="{Binding ShowEasyNav, Mode=Default}" VerticalAlignment="Center" />
 				<Button Content="Refresh Pilototo" Click="ReloadPilototo" Visibility="Visible" IsEnabled="{Binding VorHandler.EnableManualRefresh, Mode=Default}"/>
 				<Separator/>
 				<MenuItem Header="Zoom">
@@ -384,7 +383,6 @@
 								</ItemsControl.ItemsPanel>
 							</ItemsControl>
 							<Path x:Name="track24h" Stroke="Red" Data="{Binding Track24h, ElementName=NavControl}" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" />
-							<Routeur:EasyNavControl x:Name="NavControl" Width="Auto" Height="Auto" d:LayoutOverrides="GridBox" BoatType="{Binding VorHandler.UserInfo.POL}" ClsSailManager="{Binding Mode=OneWay}" MeteoStrength="{Binding VorHandler.UserInfo.TWS}" MeteoDir="{Binding VorHandler.UserInfo.TWA}" BoatBearing="{Binding VorHandler.UserInfo.HDG}" BoatLon="{Binding VorHandler.UserInfo.LON}" Renderer="{Binding The2DViewer}" BoatLat="{Binding VorHandler.UserInfo.LON}" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" BoatDest="{Binding VorHandler.CurrentDest}" />
 						</Canvas>
 						
 						<!--<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
