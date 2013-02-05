@@ -304,7 +304,7 @@ Module WS_Wrapper
         'Get SmartTracks List
         Dim URL1 As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/smarttracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & QryStartEpoch & "&endtime=" & EpochNow
         Dim Retstring1 As String = ""
-        Retstring1 = RequestPage(URL1)
+        Retstring1 = RequestPage(URL1, False)
         RetJSon = JSonParser.Parse(Retstring1)
         Dim Success1 As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
         If Success1 AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
@@ -336,7 +336,7 @@ Module WS_Wrapper
                                             Dim Url = Urls(UrlIndex)
                                             If Url IsNot Nothing Then
                                                 '#If TESTING = 0 Then
-                                                Dim retstring As String = RequestPage(RouteurModel.Cached_Base_Game_Url((UrlIndex Mod NB_CACHE) + 1) & "/tracks/" & CStr(Url))
+                                                Dim retstring As String = RequestPage(RouteurModel.Cached_Base_Game_Url((UrlIndex Mod NB_CACHE) + 1) & "/tracks/" & CStr(Url), False)
                                                 '#Else
                                                 'Dim retstring As String = RequestPage(RouteurModel.Base_Game_Url & "/cache/tracks/" & CStr(Url))
                                                 '#End If
@@ -477,7 +477,7 @@ Module WS_Wrapper
     End Function
 
 
-    Private Function RequestPage(ByVal URL As String) As String
+    Private Function RequestPage(ByVal URL As String, Optional UseAuth As Boolean = True) As String
 
         Try
             Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(URL), HttpWebRequest)
@@ -487,7 +487,9 @@ Module WS_Wrapper
             Dim rs As System.IO.StreamReader
             Dim Response As String
             Http.UserAgent = GetRouteurUserAgent()
-            Http.CookieContainer = _Cookies
+            If UseAuth Then
+                Http.CookieContainer = _Cookies
+            End If
             Http.Accept = "application/json"
             wr = Http.GetResponse()
             rs = New System.IO.StreamReader(wr.GetResponseStream())
