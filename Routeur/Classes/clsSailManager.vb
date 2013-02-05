@@ -352,7 +352,13 @@ Public Class clsSailManager
             For Each sail In clsSailManager.Sails
                 SailIndex = GetSailIndex(sail)
                 'Dim s As New System.IO.StreamReader(_WebClient.OpenRead(SailRequestString(sail)).re)
+#If GEN_TCV = 0 Then
                 ResponseString = _WebClient.DownloadString(SailRequestString(sail, BoatType))
+#Else
+                Using S As New StreamReader("TCV.csv")
+                    ResponseString = S.ReadToEnd
+                End Using
+#End If
                 'ResponseString = s.ReadToEnd
 
                 ParseSailString(SailIndex, ResponseString)
