@@ -1,0 +1,85 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	xmlns:local="clr-namespace:Routeur"
+	xmlns:System="clr-namespace:System;assembly=mscorlib"
+	x:Class="WindDisplay"
+	x:Name="UserControl">
+	<UserControl.Resources>
+		
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="7DigResources.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+			<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+		
+			<System:String x:Key="FmtDig">0.0</System:String>
+			<ImageBrush x:Key="AluBrush" ImageSource="..\..\Graphics\Aluminium1.jpg" Stretch="UniformToFill"/>
+		
+		</ResourceDictionary>
+		
+	</UserControl.Resources>
+
+	<Grid x:Name="LayoutRoot">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="20"/>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="20"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="20"/>
+			<RowDefinition/>
+			<RowDefinition Height="20"/>
+		</Grid.RowDefinitions>
+		<Rectangle Grid.ColumnSpan="3" RadiusX="13" RadiusY="13" StrokeThickness="31" Stroke="{DynamicResource AluBrush}" Grid.RowSpan="3" />
+		<Rectangle RadiusX="13" RadiusY="13" StrokeThickness="13" MinWidth="0.3" Grid.ColumnSpan="3" Grid.RowSpan="3" >
+			<Rectangle.Stroke>
+				<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" MappingMode="RelativeToBoundingBox">
+					<LinearGradientBrush.RelativeTransform>
+						<TransformGroup>
+							<ScaleTransform CenterX="0.5" CenterY="0.5"/>
+							<SkewTransform CenterX="0.5" CenterY="0.5"/>
+							<RotateTransform Angle="149" CenterX="0.5" CenterY="0.5"/>
+							<TranslateTransform/>
+						</TransformGroup>
+					</LinearGradientBrush.RelativeTransform>
+					<GradientStop Color="#88FFFFFF" Offset="0"/>
+					<GradientStop Color="#54080000" Offset="1"/>
+				</LinearGradientBrush>
+			</Rectangle.Stroke>
+		</Rectangle>
+		<Grid Grid.Row="1" Grid.Column="1">
+			<Grid.Background>
+				<ImageBrush ImageSource="..\..\Graphics\LCD.png"/>
+			</Grid.Background>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" MinWidth="87.037"/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+				<RowDefinition Height="Auto" MinHeight="25"/>
+			</Grid.RowDefinitions>
+		
+			<TextBlock Text="Wind Dir" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16"/>
+			<TextBlock Text="Wind Strength" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="1"/>
+			<TextBlock Text="Wind Angle" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="2"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.TWD, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" StringFormat="{DynamicResource FmtDig}"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.TWS, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="1" StringFormat="{DynamicResource FmtDig}"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.TWA, Mode=Default}" Grid.Column="1" d:LayoutOverrides="GridBox" Grid.Row="2" StringFormat="{DynamicResource FmtDig}"/>
+			<TextBlock Text="Boat Speed" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="3"/>
+			<TextBlock Text="Boat Bearing" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16" Grid.Row="4"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.BSP, Mode=Default}" Grid.Column="1" Grid.Row="3" d:LayoutOverrides="GridBox" StringFormat="{DynamicResource FmtDig}"/>
+			<local:NumberDisplay Value="{Binding VorHandler.UserInfo.HDG, Mode=Default}" Grid.Column="1" Grid.Row="5" d:LayoutOverrides="GridBox" ContentStringFormat="" StringFormat="{DynamicResource FmtDig}"/>
+			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" Grid.Row="2" Effect="{DynamicResource DigitShadow}" StrokeThickness="2" Margin="1" Visibility="{Binding VorHandler.UserInfo.isTWA, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+			<Rectangle Stroke="{DynamicResource DefaultBgDigit}" StrokeThickness="2" Margin="1" Effect="{DynamicResource DigitShadow}" Grid.Row="6" Visibility="{Binding VorHandler.UserInfo.isHDG, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+	
+		</Grid>
+	</Grid>
+</UserControl>

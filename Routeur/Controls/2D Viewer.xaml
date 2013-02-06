@@ -1,0 +1,20 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:Routeur" 
+	xmlns:System="clr-namespace:System;assembly=mscorlib" 
+	mc:Ignorable="d"
+	x:Class="_2D_Viewer"
+	x:Name="UserControl"
+	d:DesignWidth="640" d:DesignHeight="480" SizeChanged="OnMapSizeChanged">
+	
+	
+	<Grid x:Name="BackBuffer" >
+		<Image x:Name="BackDropBuffer"  Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Margin="0" Canvas.Left="0" VerticalAlignment="Top" HorizontalAlignment="Left" />
+		<Image x:Name="MeteoBuffer"  Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Margin="0" Canvas.Left="0" VerticalAlignment="Top" HorizontalAlignment="Left" />
+		<Image x:Name="IsoBuffer"  Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Margin="0" Canvas.Left="0" VerticalAlignment="Top" HorizontalAlignment="Left" />
+		<Image x:Name="RenderBuffer"  Canvas.Top="0" MouseMove="MouseOverMap" Stretch="None" Margin="0" Canvas.Left="0" VerticalAlignment="Top" HorizontalAlignment="Left" />
+	</Grid>
+</UserControl>

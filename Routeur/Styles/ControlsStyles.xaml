@@ -1,0 +1,95 @@
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+	xmlns:local="clr-namespace:Routeur"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<!-- Les entrées du dictionnaire de ressources sont définies ici. -->
+	<Thickness x:Key="DefMargin">3</Thickness>		
+
+	<local:TextToColorConverter x:Key="TextToColorConverter"/>
+
+	<local:TimeSpanColorConverter x:Key="TimeSpanColorConverter"/>
+
+	<Style TargetType="{x:Type TextBlock}" >
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+	</Style>
+	
+	<Style TargetType="{x:Type GroupBox}" >
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+	</Style>
+	
+	<Style TargetType ="{x:Type TextBox}" >
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+	</Style>
+	
+	<Style x:Key="DefaultButton" TargetType ="{x:Type Button}" >
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+	</Style>
+
+	<Style TargetType ="{x:Type CheckBox}" >
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+	</Style>
+
+	<Style TargetType ="{x:Type ComboBox}" >
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+	</Style>
+
+	<Style TargetType ="{x:Type Slider}" >
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+	</Style>
+
+    <Style TargetType ="{x:Type Image}" >
+        <Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+    </Style>
+
+
+    <Style x:Key="DoubleFormatCheckTextBox" TargetType ="{x:Type TextBox}" > 
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+		<Setter Property="Background">
+			<Setter.Value>
+        		<Binding 
+					Path="Text" 
+					Converter="{StaticResource TextToColorConverter}"
+					RelativeSource="{RelativeSource self}"
+				/>
+		     </Setter.Value>
+		 </Setter>
+	</Style>
+	
+    <Style x:Key="TimeSpanFormatCheckTextBox" TargetType ="{x:Type TextBox}" > 
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+		<Setter Property="Background">
+			<Setter.Value>
+        		<Binding 
+					Path="Text" 
+					Converter="{StaticResource TimeSpanColorConverter}"
+					RelativeSource="{RelativeSource self}"
+				/>
+		     </Setter.Value>
+		 </Setter>
+	</Style>
+    
+	<ControlTemplate x:Key="TrashButton" TargetType="{x:Type Button}">
+    	<Grid>
+    		<Button >
+    			<Image Height="Auto" Source="/Routeur;Component/Graphics/Trash_48.png" Margin="{DynamicResource DefMargin}"/>
+    		</Button>
+    	</Grid>
+    </ControlTemplate>
+	
+    <ControlTemplate x:Key="UploadButton" TargetType="{x:Type Button}">
+    	<Grid>
+    		<Button >
+    			<Image Height="Auto" Source="/Routeur;Component/Graphics/Up_48.png" Margin="{DynamicResource DefMargin}"/>
+    		</Button>
+    	</Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="AddNewButton" TargetType="{x:Type Button}">
+    	<Grid>
+    		<Button >
+    			<Image Height="Auto" Source="/Routeur;Component/Graphics/Share-plus-48.png" Margin="{DynamicResource DefMargin}"/>
+    		</Button>
+    	</Grid>
+    </ControlTemplate>
+
+</ResourceDictionary>
