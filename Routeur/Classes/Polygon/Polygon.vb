@@ -1,14 +1,30 @@
-﻿Public Class Polygon
+﻿'This file is part of Routeur.
+'Copyright (C) 2011  sbsRouteur(at)free.fr
+
+'Routeur is free software: you can redistribute it and/or modify
+'it under the terms of the GNU General Public License as published by
+'the Free Software Foundation, either version 3 of the License, or
+'(at your option) any later version.
+
+'Routeur is distributed in the hope that it will be useful,
+'but WITHOUT ANY WARRANTY; without even the implied warranty of
+'MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+'GNU General Public License for more details.
+
+'You should have received a copy of the GNU General Public License
+'along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+
+Public Class Polygon
 
     Implements IList(Of Coords)
 
     Private Const BASE_ARRAY_SIZE As Integer = 1750
-    
+
     Private Class CoordsList
         Private _Coords(BASE_ARRAY_SIZE - 1) As Coords
         Private _NextList As CoordsList = Nothing
 
-        
+
         Public Function Length() As Long
             If _NextList Is Nothing Then
                 Return BASE_ARRAY_SIZE
@@ -64,7 +80,7 @@
     Private _Count As Integer = 0
 
     Private Sub CheckSlotIndex(ByVal SlotIndex As Integer)
-        
+
         If _Data Is Nothing Then
             _Data = New CoordsList
         End If
