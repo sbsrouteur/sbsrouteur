@@ -15,16 +15,13 @@
 	<Image x:Key="UploadIcon" Source="/Routeur;Component/Graphics/Up_48.png" />
 			
 	<DataTemplate x:Key="RoutePointActionsTemplate">
-		<Grid>
+		<!--<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*"/>
 				<ColumnDefinition Width="*"/>
 				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
 			<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-48.png" Width="48" Height="48" VerticalAlignment="Center"/>
-			<!--<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Content="Delete" Grid.Column="1" Height="48"  'Template="{DynamicResource TrashButton}" Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" VerticalAlignment="Center"/>
-			<Button HorizontalAlignment="Center" Margin="{DynamicResource DefMargin}" Content="Update" Grid.Column="2" Template="{DynamicResource UploadButton}" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Height="48" VerticalAlignment="Center"/>
-			-->
 			<Button HorizontalAlignment="Center" Margin="{StaticResource DefMargin}" Grid.Column="1" Height="48" Click="DeletePoint"  Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" VerticalAlignment="Center" >
 				<ContentControl>
 					<Image Source="/Routeur;Component/Graphics/Trash_48.png"/>
@@ -35,7 +32,20 @@
 					<Image Source="/Routeur;Component/Graphics/Up_48.png"/>
 				</ContentControl>
 			</Button>
-		</Grid>
+		</Grid>-->
+		<StackPanel Orientation="Horizontal">
+			<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-48.png" Width="48" Height="48" VerticalAlignment="Center"/>
+			<Button HorizontalAlignment="Center" Margin="{StaticResource DefMargin}" Grid.Column="1" Height="48" Click="DeletePoint"  Width="48" IsEnabled="{Binding CanDelete, Mode=Default}" ToolTip="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" VerticalAlignment="Center" >
+				<ContentControl>
+					<Image Source="/Routeur;Component/Graphics/Trash_48.png"/>
+				</ContentControl>
+			</Button>
+			<Button HorizontalAlignment="Center" Margin="{StaticResource DefMargin}"  Grid.Column="2" Click="UploadChanges" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Height="48" VerticalAlignment="Center">
+				<ContentControl>
+					<Image Source="/Routeur;Component/Graphics/Up_48.png"/>
+				</ContentControl>
+			</Button>
+		</StackPanel>
 		
 		<DataTemplate.Triggers>
 			<DataTrigger Binding="{Binding IsPending}" Value="false">
