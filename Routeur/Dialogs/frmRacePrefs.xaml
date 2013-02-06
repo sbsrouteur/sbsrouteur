@@ -1,0 +1,67 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d" xmlns:local="clr-namespace:Routeur"
+	x:Class="frmRouterPrefs"
+	x:Name="Window"
+	Title="Race Preferences"
+	Width="640" Height="480" Icon="/Routeur;Component/Graphics/maps-on-surface.ico">
+	<Window.Resources>
+		<local:TextToNumberConverter x:Key="TextToNumberConverter"/>
+	</Window.Resources>
+
+
+	<Grid x:Name="LayoutRoot">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" MinHeight="24"/>
+			<RowDefinition Height="Auto" MinHeight="24"/>
+			<RowDefinition Height="Auto" MinHeight="24"/>
+			<RowDefinition Height="*" MinHeight="24"/>
+			<RowDefinition Height="auto" MinHeight="24"/>
+			<RowDefinition Height="Auto" MinHeight="14.319"/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" MinWidth="134.537"/>
+			<ColumnDefinition Width="0.5*"/>
+			<ColumnDefinition Width="0.5*"/>
+		</Grid.ColumnDefinitions>
+		<GridSplitter Width="4" Grid.RowSpan="5" Margin="0,5,0,-5">
+			<GridSplitter.Effect>
+				<DropShadowEffect/>
+			</GridSplitter.Effect>
+		</GridSplitter>
+		<TextBlock x:Name="textBlock" TextWrapping="Wrap"><Run Text="GridGrain"/></TextBlock>
+		<TextBox Text="{Binding GridGrain, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=Default}" TextWrapping="Wrap" Grid.Column="1"  TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}" Grid.ColumnSpan="2"/>
+		<TextBlock Text="Map Level	" Grid.Row="1" />
+		<TextBlock TextWrapping="Wrap"><Run Text="GridGrain"/></TextBlock>
+		<TextBox Text="{Binding EllipseExtFactor, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay}" TextWrapping="Wrap" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+		<TextBlock Grid.Row="2" TextWrapping="Wrap"><Run Text="Ellipse Ext. Factor"/></TextBlock>
+		<TextBlock  Grid.Row="3" Text="Race Zone Extension"/>
+		<TextBlock  Grid.Row="4" Text="NO 60°S Exclusion Zone"/>
+		<CheckBox  Grid.Row="4" Grid.Column="1" IsChecked="{Binding NoExclusionZone}" />
+		<ComboBox ItemsSource="{Binding ListMapLevels, Mode=Default}" Grid.Column="1" Grid.Row="1" SelectedValue="{Binding MapLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" />
+		<Grid Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="100"/>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="100"/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" MinHeight="24"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="Auto" MinHeight="24"/>
+			</Grid.RowDefinitions>
+			<Image VerticalAlignment="Center" Source="/Routeur;Component/Graphics/Earth_Map.jpg" Stretch="UniformToFill" Grid.Row="1" Grid.ColumnSpan="3"/>
+			<TextBox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding NorthOffset, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ToolTip="Extension to North" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+			<TextBox HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding WestOffset, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.RowSpan="3" ToolTip="Extension to West" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+			<TextBox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding SouthOffset, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.Row="3" ToolTip="Extension to South" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+			<TextBox Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Text="{Binding EastOffset, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.RowSpan="3" ToolTip="Extension to East" TextAlignment="Center" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
+			
+		</Grid>
+		<StackPanel Grid.Row="6" Grid.Column="2" Orientation="Horizontal" Margin="24,0,0,0" d:LayoutOverrides="Width, GridBox">
+			<Button x:Name="cmdCancel" Content="Cancel" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="-3.136,0.62" Width="100" Height="42.172" Click="cmdCancelClick" Style="{DynamicResource DefaultButton}"/>
+			<Button x:Name="cmdOK" Content="OK" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdOKClick" Style="{DynamicResource DefaultButton}"/>
+		</StackPanel>
+	</Grid>
+</Window>
