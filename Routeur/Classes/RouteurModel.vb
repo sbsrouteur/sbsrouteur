@@ -456,6 +456,26 @@ Public Class RouteurModel
         End Get
     End Property
 
+    Public ReadOnly Property IsGenTCV As Boolean
+        Get
+#If GEN_TCV Then
+            Return True
+#Else
+            return false
+#End If
+        End Get
+    End Property
+
+    Public ReadOnly Property IsTesting As Boolean
+        Get
+#If TESTING Then
+            Return True
+#Else
+            return false
+#End If
+        End Get
+    End Property
+
 
     Public Property IsoRouterActive() As Boolean
         Get

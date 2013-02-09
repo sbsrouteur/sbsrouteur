@@ -272,6 +272,8 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
     	</Grid.ColumnDefinitions>
     	<Menu HorizontalAlignment="Stretch" Width="Auto" Grid.RowSpan="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="2,1,-2,-1">
             <!--<CheckBox Content="Autorouting" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=comboBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding AutoRouting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ShowAutorouting, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" VerticalAlignment="Center"/>-->
+			<TextBlock  Text="GEN_TCV!!!" Visibility="{Binding IsGenTCV, Converter={StaticResource BooleanToVisibilityConverter}}" FontSize="26.667" Foreground="#FFFD0000" VerticalAlignment="Center"/>
+			<TextBlock Text="TESTING" Visibility="{Binding IsTesting, Converter={StaticResource BooleanToVisibilityConverter}}" FontSize="12" Foreground="#FFFD0000" VerticalAlignment="Center"/>
 			<MenuItem Header="Actions" VerticalAlignment="Center">
 	            <CheckBox x:Name="chkNoObstacle" Content="Ignore Obstacles" VerticalAlignment="Center" IsChecked="{Binding NoObstacle, Mode=Default}"/>
 				<Separator/>
@@ -290,7 +292,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 					ItemsSource="{Binding P_Info, Mode=OneWay}" SelectedItem="{Binding CurPlayer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Nick"/>
 				<Separator />
 				<TextBlock Text="{Binding RacePrefs.MapLevel, Mode=OneWay, StringFormat=MapLevel \{0\}}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
-				<Separator />
+					<Separator />
 				<MenuItem Header="Freeze Pilototo Route and Assess computation Errors" />
 			</MenuItem>
 			<MenuItem Header="Display" VerticalAlignment="Center">
