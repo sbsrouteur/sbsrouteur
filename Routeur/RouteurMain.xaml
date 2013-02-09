@@ -290,7 +290,6 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 					ItemsSource="{Binding P_Info, Mode=OneWay}" SelectedItem="{Binding CurPlayer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Nick"/>
 				<Separator />
 				<TextBlock Text="{Binding RacePrefs.MapLevel, Mode=OneWay, StringFormat=MapLevel \{0\}}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
-				<TextBlock Text="{Binding RacePrefs.GridGrain, Mode=OneWay, StringFormat=GridGrain \{0:F2\}}" IsEnabled="False" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
 				<Separator />
 				<MenuItem Header="Freeze Pilototo Route and Assess computation Errors" />
 			</MenuItem>
