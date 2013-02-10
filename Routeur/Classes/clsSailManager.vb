@@ -1,4 +1,20 @@
-﻿Imports System.Math
+﻿'This file is part of Routeur.
+'Copyright (C) 2010-2013  sbsRouteur(at)free.fr
+
+'Routeur is free software: you can redistribute it and/or modify
+'it under the terms of the GNU General Public License as published by
+'the Free Software Foundation, either version 3 of the License, or
+'(at your option) any later version.
+
+'Routeur is distributed in the hope that it will be useful,
+'but WITHOUT ANY WARRANTY; without even the implied warranty of
+'MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+'GNU General Public License for more details.
+
+'You should have received a copy of the GNU General Public License
+'along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+
+Imports System.Math
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 Imports System.Collections.Generic
@@ -11,30 +27,22 @@ Public Class clsSailManager
     Private Const POLAR_ANGLE_MULTIPLIER As Integer = 10
     Private Const POLAR_SPEED_MULTIPLIER As Integer = 100
     Private Const POLAR_BSP_MULTIPLIER As Integer = 1000
-
+    Private Const MAXWINDSPEED As Integer = 70
     Private Const MaxWindSpeedMultiplied As Integer = 60 * POLAR_SPEED_MULTIPLIER
 
     Public Enum EnumSail As Integer
         OneSail = 0
-        JIB = 1
-        SPI = 2
-        JIB2 = 4
-        GENOA = 8
-        CODE_0 = 16
-        LIGHT_SPI = 32
-        HEAVY_SPY = 64
+
+        MaxSailIndex = 0
     End Enum
 
-    Private Const NB_SAILS As Integer = 7
 
-    'Public Shared Sails() As EnumSail = New EnumSail() {EnumSail.CODE_0, EnumSail.GENOA, EnumSail.HEAVY_SPY, EnumSail.JIB, EnumSail.JIB2, EnumSail.LIGHT_SPI, EnumSail.SPI}
-    'Public Shared Sails() As EnumSail = New EnumSail() {EnumSail.JIB, EnumSail.SPI}
     Public Shared Sails() As EnumSail = New EnumSail() {EnumSail.OneSail}
 
     'Dim SailComparer As New SailAngleKey
-    Private _SailPolars(6, 180)() As Double
+    Private _SailPolars(EnumSail.MaxSailIndex, 180)() As Double
     Private _SailLoaded As Boolean = False
-    Private _WindLut(70) As Integer
+    Private _WindLut(MAXWINDSPEED) As Integer
 
     Private _PolarLut(,,) As Double
     Private _WindList()() As Integer
@@ -51,33 +59,12 @@ Public Class clsSailManager
 
 
 
-    Private Function GetSailIndex(ByVal SailMode As EnumSail) As Integer
-
-        'If SailMode = EnumSail.GENOA Then
-        '    Return 3
-        'ElseIf SailMode > EnumSail.GENOA Then
-        '    'Upper 3
-        '    If SailMode = EnumSail.LIGHT_SPI Then
-        '        Return 5
-        '    ElseIf SailMode = EnumSail.HEAVY_SPY Then
-        '        Return 6
-        '    Else
-        '        Return 4
-        '    End If
-        'Else
-        'Lower 3
-        If SailMode = EnumSail.JIB Then
-            Return 1
-        ElseIf SailMode = EnumSail.SPI Then
+    ReadOnly Property GetSailIndex(ByVal SailMode As EnumSail) As Integer
+        Get
             Return 0
-        Else
-            Return 2
-        End If
-
-        'End If
-    End Function
-
-
+        End Get
+    End Property
+        
     Private Function GetArrayIndex(ByVal A() As Integer, ByVal Value As Double, ByVal ValueBelow As Boolean) As Integer
 
         'Dim RetIndex As Integer = 0
@@ -560,9 +547,9 @@ Public Class clsSailManager
         Dim i As Integer
         Dim j As Integer
 
-        For i = 0 To 6
+        For i = 0 To EnumSail.MaxSailIndex
             For j = 0 To 180
-                ReDim _SailPolars(i, j)(70) 'New Dictionary(Of Integer, Double)
+                ReDim _SailPolars(i, j)(70)
             Next
 
         Next
@@ -571,9 +558,9 @@ Public Class clsSailManager
             _WindLut(i) = -1
         Next
 
-        ReDim _NbWinds(NB_SAILS - 1)
-        ReDim _TWAList(NB_SAILS - 1)
-        ReDim _WindList(NB_SAILS - 1)
+        ReDim _NbWinds(EnumSail.MaxSailIndex)
+        ReDim _TWAList(EnumSail.MaxSailIndex)
+        ReDim _WindList(EnumSail.MaxSailIndex)
 
         For i = 0 To 180 * POLAR_ANGLE_MULTIPLIER
             For j = 0 To 60 * POLAR_SPEED_MULTIPLIER

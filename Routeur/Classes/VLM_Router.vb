@@ -1,4 +1,20 @@
-﻿Imports System.Net
+﻿'This file is part of Routeur.
+'Copyright (C) 2010-2013  sbsRouteur(at)free.fr
+
+'Routeur is free software: you can redistribute it and/or modify
+'it under the terms of the GNU General Public License as published by
+'the Free Software Foundation, either version 3 of the License, or
+'(at your option) any later version.
+
+'Routeur is distributed in the hope that it will be useful,
+'but WITHOUT ANY WARRANTY; without even the implied warranty of
+'MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+'GNU General Public License for more details.
+
+'You should have received a copy of the GNU General Public License
+'along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+
+Imports System.Net
 Imports System.Xml.Serialization
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
@@ -1686,7 +1702,7 @@ Public Class VLM_Router
                 LastTrackEpoch = CLng(StartDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds) - 3600
             End If
             Dim Cnv As New EpochToUTCDateConverter
-            Dim LastTrackDate As DateTime = New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(LastTrackEpoch)
+            Dim LastTrackDate As DateTime = New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(LastTrackEpoch).ToLocalTime
             Try
                 If Now.Subtract(LastTrackDate).TotalMinutes >= _PlayerInfo.RaceInfo.vacfreq Then
                     Dim PtList As List(Of TrackPoint) = WS_Wrapper.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat, CLng(LastTrackDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1)).TotalSeconds + 1))
