@@ -1,4 +1,20 @@
-﻿Public Class CoordsComparer
+﻿'This file is part of Routeur.
+'Copyright (C) 2010-2013  sbsRouteur(at)free.fr
+
+'Routeur is free software: you can redistribute it and/or modify
+'it under the terms of the GNU General Public License as published by
+'the Free Software Foundation, either version 3 of the License, or
+'(at your option) any later version.
+
+'Routeur is distributed in the hope that it will be useful,
+'but WITHOUT ANY WARRANTY; without even the implied warranty of
+'MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+'GNU General Public License for more details.
+
+'You should have received a copy of the GNU General Public License
+'along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+
+Public Class CoordsComparer
     'Implements IComparer(Of Coords)
     'Implements IEqualityComparer(Of Coords)
     Private Shared COORD_COMPARE_GRAIN As Double = 1 / RouteurModel.GridGrain * 16
@@ -14,18 +30,18 @@
             Return 1
         ElseIf x.Lat > y.Lat Then
             Return 1
-            ElseIf x.Lat < y.Lat Then
+        ElseIf x.Lat < y.Lat Then
+            Return -1
+        Else
+            If x.Lon > y.Lon Then
+                Return 1
+            ElseIf x.Lon < y.Lon Then
                 Return -1
             Else
-                If x.Lon > y.Lon Then
-                    Return 1
-                ElseIf x.Lon < y.Lon Then
-                    Return -1
-                Else
-                    Return 0
+                Return 0
 
-                End If
             End If
+        End If
     End Function
 
     Public Shared Function Equals1(ByVal x As ICoords, ByVal y As ICoords) As Boolean 'Implements System.Collections.Generic.IEqualityComparer(Of Coords).Equals

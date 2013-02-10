@@ -1,4 +1,21 @@
-﻿<Window
+﻿<!--
+ This file is part of Routeur.
+Copyright (C) 2010-2013  sbsRouteur(at)free.fr
+
+Routeur is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Routeur is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
+
+<Window
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" 
@@ -255,6 +272,8 @@
     	</Grid.ColumnDefinitions>
     	<Menu HorizontalAlignment="Stretch" Width="Auto" Grid.RowSpan="1" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="2,1,-2,-1">
             <!--<CheckBox Content="Autorouting" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=comboBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding AutoRouting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ShowAutorouting, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" VerticalAlignment="Center"/>-->
+			<TextBlock  Text="GEN_TCV!!!" Visibility="{Binding IsGenTCV, Converter={StaticResource BooleanToVisibilityConverter}}" FontSize="26.667" Foreground="#FFFD0000" VerticalAlignment="Center"/>
+			<TextBlock Text="TESTING" Visibility="{Binding IsTesting, Converter={StaticResource BooleanToVisibilityConverter}}" FontSize="12" Foreground="#FFFD0000" VerticalAlignment="Center"/>
 			<MenuItem Header="Actions" VerticalAlignment="Center">
 	            <CheckBox x:Name="chkNoObstacle" Content="Ignore Obstacles" VerticalAlignment="Center" IsChecked="{Binding NoObstacle, Mode=Default}"/>
 				<Separator/>
@@ -273,8 +292,7 @@
 					ItemsSource="{Binding P_Info, Mode=OneWay}" SelectedItem="{Binding CurPlayer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Nick"/>
 				<Separator />
 				<TextBlock Text="{Binding RacePrefs.MapLevel, Mode=OneWay, StringFormat=MapLevel \{0\}}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
-				<TextBlock Text="{Binding RacePrefs.GridGrain, Mode=OneWay, StringFormat=GridGrain \{0:F2\}}" IsEnabled="False" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />					
-				<Separator />
+					<Separator />
 				<MenuItem Header="Freeze Pilototo Route and Assess computation Errors" />
 			</MenuItem>
 			<MenuItem Header="Display" VerticalAlignment="Center">
@@ -382,7 +400,6 @@
 									</ItemsPanelTemplate>
 								</ItemsControl.ItemsPanel>
 							</ItemsControl>
-							<Path x:Name="track24h" Stroke="Red" Data="{Binding Track24h, ElementName=NavControl}" Visibility="{Binding ShowEasyNav, Converter={StaticResource BooleanToVisibilityConverter}}" />
 						</Canvas>
 						
 						<!--<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
