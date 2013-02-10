@@ -24,7 +24,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 	x:Class="frmRouteViewer"
 	x:Name="Window"
 	Title="Route Editor"
-	Width="640" Height="480" Icon="/Routeur;Component/Graphics/blackboard.ico" WindowStartupLocation="CenterOwner">
+	Width="640" Height="480" Icon="/Routeur;Component/Graphics/blackboard.ico" WindowStartupLocation="CenterOwner" MouseMove="MouseMoveHandler">
 	
 	<Window.Resources>
 	
@@ -35,9 +35,14 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 			</ResourceDictionary.MergedDictionaries>
 			
 			<DataTemplate x:Key="RoutePointActionDateTemplate">
-				<Grid>
+				<StackPanel Orientation="Horizontal">
 					<DatePicker Margin="{DynamicResource DefMargin}"/>
-				</Grid>
+					<Button>
+						<ContentControl>
+							<Image Source="/Routeur;component/Graphics/Target-32.png" Width="16" Margin="{DynamicResource DefMargin}" MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag"/>
+						</ContentControl>
+					</Button>
+				</StackPanel>
 			</DataTemplate>
 			
 			<DataTemplate x:Key="RoutePointItemTemplate">
@@ -56,32 +61,19 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 			<RowDefinition Height="50*" MinHeight="50"/>
 			<RowDefinition Height="Auto" MinHeight="52.836"/>
 		</Grid.RowDefinitions>
-		<!--<DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.ColumnSpan="2">
-			<DataGrid.Columns>
-				<DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
-				<DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
-				<DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
-				<DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
-			</DataGrid.Columns>
-		</DataGrid>
-		-->
+		
 		<ListView Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  VerticalContentAlignment="Center" Grid.ColumnSpan="2">
 			<ListView.View>
 				<GridView>
 					<GridView.Columns>
-						<GridViewColumn  Header="Date" DisplayMemberBinding="{Binding ActionDate, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" CellTemplate="{StaticResource RoutePointActionDateTemplate}" />
+						<GridViewColumn  Header="Date" CellTemplate="{DynamicResource RoutePointActionDateTemplate}" />
 						<GridViewColumn Header="Mode" />
 						<GridViewColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
 						<GridViewColumn Header="Action" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
 					</GridView.Columns>
 				</GridView>
 			</ListView.View>
-			<!--<ListView.Columns>
-				<DataGridTextColumn Header="Date" Binding="{Binding ActionDate, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
-				<DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
-				<DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
-				<DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
-			</ListView.Columns>-->
+			
 		</ListView>
 		
 		<DockPanel x:Name="PnlControlButtons" LastChildFill="False" Grid.Row="1" d:LayoutOverrides="Height, GridBox" Grid.Column="1" HorizontalAlignment="Right">
