@@ -28,6 +28,7 @@ Partial Public Class frmRouteViewer
 
     Private _Model As RouteurModel
     Private WithEvents _RouteViewModel As RouteViewModel
+    Private _MouseCaptured As Boolean = False
 
     Public Event RequestRouteReload()
 
@@ -94,6 +95,24 @@ Partial Public Class frmRouteViewer
         End If
     End Sub
 
-   
+    Private Sub StartDateDrag(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
+        _MouseCaptured = CaptureMouse()
+        'Mouse.Capture(Me.Owner, CaptureMode.Element)
+        Debug.WriteLine(Now & " captured")
+    End Sub
+
+    Private Sub EndDateDrag(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
+        ReleaseMouseCapture()
+        Debug.WriteLine(Now & " Released")
+    End Sub
+
+    Private Sub MouseMoveHandler(ByVal sender As Object, ByVal e As System.Windows.Input.MouseEventArgs)
+        'TODO: Add event handler implementation here.
+        If _MouseCaptured Then
+            Debug.WriteLine(Now)
+        End If
+    End Sub
+
+
 
 End Class
