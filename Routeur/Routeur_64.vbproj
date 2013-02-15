@@ -76,7 +76,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug_64\</OutputPath>
-    <DefineConstants>ID="VLM", GRID_STAT=1, TESTING=1,NO_TILES=0,GEN_TCV=0</DefineConstants>
+    <DefineConstants>ID="VLM", GRID_STAT=1, TESTING=0,NO_TILES=0,GEN_TCV=0</DefineConstants>
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314,42353,42354,42355</NoWarn>
     <DebugType>full</DebugType>
