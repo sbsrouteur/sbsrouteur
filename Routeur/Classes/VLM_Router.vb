@@ -1696,6 +1696,7 @@ Public Class VLM_Router
             Dim IdRace As Integer = CInt(_PlayerInfo.RaceInfo.idraces)
             Dim db As New DBWrapper(DBWrapper.GetMapLevel(prefs.MapLevel))
             Dim LastTrackEpoch As Long = db.GetLastTrackDate(IdRace, _PlayerInfo.NumBoat)
+            Static LastRequest As DateTime = New DateTime(0)
             If LastTrackEpoch = 0 Then
                 'If no data, then use race start epoch
                 Dim StartDate As New DateTime(_PlayerInfo.RaceInfo.deptime.Ticks, DateTimeKind.Local)
@@ -1704,9 +1705,13 @@ Public Class VLM_Router
             Dim Cnv As New EpochToUTCDateConverter
             Dim LastTrackDate As DateTime = New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(LastTrackEpoch).ToLocalTime
             Try
-                If Now.Subtract(LastTrackDate).TotalMinutes >= _PlayerInfo.RaceInfo.vacfreq Then
+                Dim Dte As DateTime = New Date(Max(LastTrackDate.Ticks, LastRequest.Ticks))
+                If Now.Subtract(Dte).TotalMinutes >= _PlayerInfo.RaceInfo.vacfreq Then
                     Dim PtList As List(Of TrackPoint) = WS_Wrapper.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat, CLng(LastTrackDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1)).TotalSeconds + 1))
                     db.AddTrackPoints(IdRace, _PlayerInfo.NumBoat, PtList)
+                    'Round current time to last vac update
+                    Dim RefDate As DateTime = Now
+                    LastRequest = New DateTime(RefDate.Ticks - RefDate.Ticks Mod (_PlayerInfo.RaceInfo.vacfreq * 60))
                 End If
             Catch ex As Exception
                 AddLog("Get Trackproperty exception : " & ex.ToString)
