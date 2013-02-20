@@ -1112,4 +1112,24 @@ Public Class RouteurModel
         Cron.Start()
     End Sub
 
+    Sub HandleCapture(frmRouteViewer As frmRouteViewer, MouseCaptureMode As frmRouteViewer.CaptureInfoRequest, p As Point)
+
+        Select Case MouseCaptureMode
+            Case Routeur.frmRouteViewer.CaptureInfoRequest.RouteDate
+
+                NotifyEstimateDateUnderMouse(frmRouteViewer, p)
+        End Select
+    End Sub
+
+    Private Sub NotifyEstimateDateUnderMouse(frm As frmRouteViewer, P As Point)
+
+        If VorHandler IsNot Nothing Then
+            Dim RoutePointInfo As clsrouteinfopoints = Nothing
+            Dim C As New Coords(CanvasToCoords(P))
+            If VorHandler.GetRoutePointAtCoords(VorHandler.PilototoRoute, C, RoutePointInfo) Then
+                frm.NotifyMousePositionInfo(RoutePointInfo.T, frmRouteViewer.CaptureInfoRequest.RouteDate)
+            End If
+        End If
+    End Sub
+
 End Class
