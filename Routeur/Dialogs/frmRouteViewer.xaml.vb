@@ -29,6 +29,20 @@ Partial Public Class frmRouteViewer
     Private _Model As RouteurModel
     Private WithEvents _RouteViewModel As RouteViewModel
     Private _MouseCaptured As Boolean = False
+    Private _UpdatePoint As RoutePointView
+
+    Public Enum CaptureInfoRequest As Integer
+
+        None = 0
+        RouteDate = 1
+        BearingToPoint = 2
+        AngleToPoint = 3
+
+    End Enum
+
+
+    Public Event StartMouseCapture(Info As CaptureInfoRequest)
+
 
     Public Event RequestRouteReload()
 
@@ -36,6 +50,8 @@ Partial Public Class frmRouteViewer
         MyBase.New()
 
         Me.InitializeComponent()
+
+        AddHandler Mouse.LostMouseCaptureEvent, AddressOf OnMouseCaptureLost
 
         ' Insérez le code requis pour la création d’objet sous ce point.
     End Sub
@@ -95,22 +111,40 @@ Partial Public Class frmRouteViewer
         End If
     End Sub
 
-    Private Sub StartDateDrag(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
-        _MouseCaptured = CaptureMouse()
-        'Mouse.Capture(Me.Owner, CaptureMode.Element)
-        Debug.WriteLine(Now & " captured")
+    Private Sub StartDateDrag(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
+        If TypeOf (CType(sender, Image).DataContext) Is RoutePointView Then
+            RaiseEvent StartMouseCapture(CaptureInfoRequest.RouteDate)
+            Debug.WriteLine(Now & " captured")
+            _MouseCaptured = CaptureMouse()
+
+            _UpdatePoint = CType(CType(sender, Image).DataContext, RoutePointView)
+        End If
     End Sub
 
     Private Sub EndDateDrag(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
-        ReleaseMouseCapture()
+        
         Debug.WriteLine(Now & " Released")
     End Sub
 
     Private Sub MouseMoveHandler(ByVal sender As Object, ByVal e As System.Windows.Input.MouseEventArgs)
         'TODO: Add event handler implementation here.
         If _MouseCaptured Then
-            Debug.WriteLine(Now)
+            Debug.WriteLine("capture move" & Now)
         End If
+    End Sub
+
+    Sub StopCapture()
+        _MouseCaptured = False
+    End Sub
+
+    Sub NotifyMousePositionInfo(p1 As Date, captureInfoRequest As CaptureInfoRequest)
+        If _MouseCaptured AndAlso Not _UpdatePoint Is Nothing Then
+            _UpdatePoint.ActionDate = p1
+        End If
+    End Sub
+
+    Private Sub OnMouseCaptureLost()
+        Throw New NotImplementedException
     End Sub
 
 

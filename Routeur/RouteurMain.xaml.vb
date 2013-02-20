@@ -41,6 +41,9 @@ Partial Public Class RouteurMain
     Private _DragStartPoint As Point
     Private _LastDraggedPoint As Point
 
+    Private _MouseCapture As Boolean = False
+    Private _MouseCaptureMode As frmRouteViewer.CaptureInfoRequest = frmRouteViewer.CaptureInfoRequest.None
+
     Private WithEvents _RouteForm As frmRouteViewer
     Private WithEvents _frmControlDeck As New frmControlDeck
 
@@ -616,5 +619,32 @@ Partial Public Class RouteurMain
 
         WS_Wrapper.GetTrack(RaceId, BoatNum, 1)
 
+    End Sub
+
+    Private Sub _RouteForm_StartMouseCapture(Info As frmRouteViewer.CaptureInfoRequest) Handles _RouteForm.StartMouseCapture
+
+        _MouseCapture = True
+        _MouseCaptureMode = Info
+
+    End Sub
+
+    Private Sub RouteurMain_MouseLeftButtonUp(sender As Object, e As MouseButtonEventArgs) Handles Me.MouseLeftButtonUp
+
+        If _MouseCapture AndAlso _RouteForm IsNot Nothing Then
+            _RouteForm.StopCapture()
+            _MouseCapture = False
+        End If
+    End Sub
+
+    Private Sub RouteurMain_MouseMove(sender As Object, e As MouseEventArgs) Handles Me.MouseMove
+
+
+    End Sub
+
+    Private Sub RouteurMain_PreviewMouseMove(sender As Object, e As MouseEventArgs) Handles Me.PreviewMouseMove
+        If _MouseCapture Then
+            Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+            M.HandleCapture(_RouteForm, _MouseCaptureMode, e.GetPosition(Me))
+        End If
     End Sub
 End Class

@@ -24,7 +24,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 	x:Class="frmRouteViewer"
 	x:Name="Window"
 	Title="Route Editor"
-	Width="640" Height="480" Icon="/Routeur;Component/Graphics/blackboard.ico" WindowStartupLocation="CenterOwner" MouseMove="MouseMoveHandler">
+	Width="640" Height="480" Icon="/Routeur;Component/Graphics/blackboard.ico" WindowStartupLocation="CenterOwner">
 	
 	<Window.Resources>
 	
@@ -36,8 +36,8 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 			
 			<DataTemplate x:Key="RoutePointActionDateTemplate">
 				<StackPanel Orientation="Horizontal">
-					<DatePicker Margin="{DynamicResource DefMargin}"/>
-					<Button>
+					<TextBlock  Text="{Binding ActionDate}" Margin="{DynamicResource DefMargin}"/>
+					<Button MouseEnter="MouseMoveHandler" MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag">
 						<ContentControl>
 							<Image Source="/Routeur;component/Graphics/Target-32.png" Width="16" Margin="{DynamicResource DefMargin}" MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag"/>
 						</ContentControl>

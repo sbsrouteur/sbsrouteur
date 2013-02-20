@@ -27,6 +27,7 @@ Public Class VLM_Router
     Implements INotifyPropertyChanged
 
     Public Const KEY_ROUTE_THIS_POINT As String = "This Point: "
+    Public Const KEY_ROUTE_ESTIMATE As String = "Pilototo: "
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
     Public Event bruted()
@@ -2339,7 +2340,7 @@ Public Class VLM_Router
         End While
     End Function
 
-    Private Function GetRoutePointAtCoords(ByVal Points As ObservableCollection(Of clsrouteinfopoints), ByVal TargetC As Coords, ByRef RetC As clsrouteinfopoints) As Boolean
+    Public Function GetRoutePointAtCoords(ByVal Points As ObservableCollection(Of clsrouteinfopoints), ByVal TargetC As Coords, ByRef RetC As clsrouteinfopoints) As Boolean
 
         Dim TC As New TravelCalculator() With {.StartPoint = TargetC}
         Dim CurDist As Double = Double.MaxValue
@@ -2413,7 +2414,7 @@ Public Class VLM_Router
 
 
         If GetRoutePointAtCoords(PilototoRoute, C, RetC) Then
-            P = New RoutePointInfo("Pilototo Route", RetC)
+            P = New RoutePointInfo(KEY_ROUTE_ESTIMATE, RetC)
             RoutePoints.Add(P)
         End If
 
