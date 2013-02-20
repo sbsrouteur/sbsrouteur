@@ -1700,8 +1700,9 @@ Public Class VLM_Router
                 'If no data, then use race start epoch
                 Dim StartDate As New DateTime(_PlayerInfo.RaceInfo.deptime.Ticks, DateTimeKind.Local)
                 LastTrackEpoch = CLng(StartDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds) - 3600
+
             End If
-            Dim Cnv As New EpochToUTCDateConverter
+
             Dim LastTrackDate As DateTime = New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(LastTrackEpoch).ToLocalTime
             Try
                 If Now.Subtract(LastTrackDate).TotalMinutes >= _PlayerInfo.RaceInfo.vacfreq Then
@@ -1714,6 +1715,10 @@ Public Class VLM_Router
 
             _Track = db.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat)
 
+            If _Track.Count = 0 Then
+                'No track, race has not started or boat is just engaged
+                _Track.Add(New Coords(_UserInfo.LAT, _UserInfo.LON))
+            End If
             Return _Track
 
 
