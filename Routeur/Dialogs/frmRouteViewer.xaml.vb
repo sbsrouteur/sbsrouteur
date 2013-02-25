@@ -51,8 +51,6 @@ Partial Public Class frmRouteViewer
 
         Me.InitializeComponent()
 
-        AddHandler Mouse.LostMouseCaptureEvent, AddressOf OnMouseCaptureLost
-
         ' Insérez le code requis pour la création d’objet sous ce point.
     End Sub
 
