@@ -5,3 +5,4 @@ Routeur/obj/*
 Setup/Setup_??/*
 *.suo
 *.vbproj.user
+Routeur/bin/Debug64/*
