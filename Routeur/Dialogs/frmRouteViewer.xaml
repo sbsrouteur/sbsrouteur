@@ -62,19 +62,14 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 			<RowDefinition Height="Auto" MinHeight="52.836"/>
 		</Grid.RowDefinitions>
 		
-		<ListView Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  VerticalContentAlignment="Center" Grid.ColumnSpan="2">
-			<ListView.View>
-				<GridView>
-					<GridView.Columns>
-						<GridViewColumn  Header="Date" CellTemplate="{DynamicResource RoutePointActionDateTemplate}" />
-						<GridViewColumn Header="Mode" />
-						<GridViewColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
-						<GridViewColumn Header="Action" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
-					</GridView.Columns>
-				</GridView>
-			</ListView.View>
-			
-		</ListView>
+		<DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.ColumnSpan="2">
+			<DataGrid.Columns>
+				<DataGridTemplateColumn Header="Date" CellTemplate="{DynamicResource RoutePointActionDateTemplate}"/>
+				<DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
+				<DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
+				<DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
+			</DataGrid.Columns>			
+		</DataGrid>
 		
 		<DockPanel x:Name="PnlControlButtons" LastChildFill="False" Grid.Row="1" d:LayoutOverrides="Height, GridBox" Grid.Column="1" HorizontalAlignment="Right">
 			<StackPanel Orientation="Horizontal">
