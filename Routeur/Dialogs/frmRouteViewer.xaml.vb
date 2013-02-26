@@ -30,6 +30,7 @@ Partial Public Class frmRouteViewer
     Private WithEvents _RouteViewModel As RouteViewModel
     Private _MouseCaptured As Boolean = False
     Private _UpdatePoint As RoutePointView
+    Private _VacSecs As Integer = 900
 
     Public Enum CaptureInfoRequest As Integer
 
@@ -39,9 +40,6 @@ Partial Public Class frmRouteViewer
         AngleToPoint = 3
 
     End Enum
-
-
-    Public Event StartMouseCapture(Info As CaptureInfoRequest)
 
 
     Public Event RequestRouteReload()
@@ -59,12 +57,14 @@ Partial Public Class frmRouteViewer
         Close()
     End Sub
 
-    Public Sub New(ByVal Model As RouteurModel)
+    Public Sub New(ByVal Model As RouteurModel, VacMins As Integer)
 
-        Me.new()
+        Me.New()
         _RouteViewModel = Model.GetPilototoRoute
         DataContext = _RouteViewModel
         _Model = Model
+        _VacSecs = VacMins * 60
+
     End Sub
 
     'Private Sub RoutePointDelete(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
@@ -111,9 +111,9 @@ Partial Public Class frmRouteViewer
 
     Private Sub StartDateDrag(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
         If TypeOf (CType(sender, Image).DataContext) Is RoutePointView Then
-            RaiseEvent StartMouseCapture(CaptureInfoRequest.RouteDate)
+
             Debug.WriteLine(Now & " captured")
-            _MouseCaptured = CaptureMouse()
+            _MouseCaptured = CType(sender, UIElement).CaptureMouse()
 
             _UpdatePoint = CType(CType(sender, Image).DataContext, RoutePointView)
         End If
@@ -122,12 +122,17 @@ Partial Public Class frmRouteViewer
     Private Sub EndDateDrag(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
         
         Debug.WriteLine(Now & " Released")
+        _MouseCaptured = False
+        ReleaseMouseCapture()
+
     End Sub
 
     Private Sub MouseMoveHandler(ByVal sender As Object, ByVal e As System.Windows.Input.MouseEventArgs)
         'TODO: Add event handler implementation here.
         If _MouseCaptured Then
-            Debug.WriteLine("capture move" & Now)
+            Dim P As Point = e.GetPosition(_Model.The2DViewer)
+            Debug.WriteLine(Now & " moving " & P.ToString)
+            _Model.HandleCapture(Me, CaptureInfoRequest.RouteDate, P)
         End If
     End Sub
 
@@ -137,13 +142,11 @@ Partial Public Class frmRouteViewer
 
     Sub NotifyMousePositionInfo(p1 As Date, captureInfoRequest As CaptureInfoRequest)
         If _MouseCaptured AndAlso Not _UpdatePoint Is Nothing Then
-            _UpdatePoint.ActionDate = p1
+            _UpdatePoint.ActionDate = New DateTime(CLng(p1.Ticks - ((p1.Ticks / TimeSpan.TicksPerSecond) Mod _VacSecs) + _VacSecs / 2))
         End If
     End Sub
 
-    Private Sub OnMouseCaptureLost()
-        Throw New NotImplementedException
-    End Sub
+
 
 
 
