@@ -142,7 +142,7 @@ Partial Public Class frmRouteViewer
 
     Sub NotifyMousePositionInfo(p1 As Date, captureInfoRequest As CaptureInfoRequest)
         If _MouseCaptured AndAlso Not _UpdatePoint Is Nothing Then
-            _UpdatePoint.ActionDate = New DateTime(CLng(p1.Ticks - ((p1.Ticks / TimeSpan.TicksPerSecond) Mod _VacSecs) + _VacSecs / 2))
+            _UpdatePoint.ActionDate = New DateTime(CLng(p1.Ticks - (((p1.Ticks / TimeSpan.TicksPerSecond) Mod _VacSecs) + _VacSecs / 2) * TimeSpan.TicksPerSecond))
         End If
     End Sub
 
