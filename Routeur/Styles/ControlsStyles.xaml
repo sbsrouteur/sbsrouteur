@@ -108,5 +108,13 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
     		</Button>
     	</Grid>
     </ControlTemplate>
+	
+	<ControlTemplate x:Key="RefreshButton" TargetType="{x:Type Button}">
+    	<Grid>
+    		<Button >
+    			<Image Height="Auto" Source="/Routeur;component/Graphics/Refresh.ico" Margin="{DynamicResource DefMargin}"/>
+    		</Button>
+    	</Grid>
+    </ControlTemplate>
 
 </ResourceDictionary>

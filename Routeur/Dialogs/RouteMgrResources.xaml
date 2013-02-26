@@ -123,7 +123,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 				<CheckBox Grid.Column="2" Content="Set bearing at WP" IsChecked="{Binding RouteValue.SetBearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 				<TextBox Grid.Row="1" Grid.Column="2" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" Visibility="{Binding RouteValue.SetBearingAtWP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Text="{Binding RouteValue.BearingAtWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource DoubleFormatCheckTextBox}" Width="60" HorizontalAlignment="Left"/>
 				<!-- Events  MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" -->
-				<Image x:Name="image" Source="..\Graphics\Target-32.png" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" Stretch="Fill" Width="23" Height="23" ToolTip="Drag le to target point" HorizontalAlignment="Right" Margin="0,28.96,8,7.96" Grid.Column="2" Grid.Row="1"/>
+				<Image x:Name="image" Source="..\Graphics\Target-32.png" MouseLeftButtonDown="StartTargetCaptureGrab" MouseLeftButtonUp="EndTargetCaptureGrab" MouseMove="AlternateDestCapture" Stretch="Fill" Width="23" Height="24" ToolTip="Drag to target point" HorizontalAlignment="Right" Margin="0,28.96,8,7.96" Grid.Column="2" Grid.Row="1"/>
 				<Grid Grid.Row="2" Visibility="{Binding RouteValue.UseCustomWP, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="0.343*"/>

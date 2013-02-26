@@ -36,12 +36,8 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 			
 			<DataTemplate x:Key="RoutePointActionDateTemplate">
 				<StackPanel Orientation="Horizontal">
-					<TextBlock  Text="{Binding ActionDate}" Margin="{DynamicResource DefMargin}"/>
-					<Button MouseEnter="MouseMoveHandler" MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag">
-						<ContentControl>
-							<Image Source="/Routeur;component/Graphics/Target-32.png" Width="16" Margin="{DynamicResource DefMargin}" MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag"/>
-						</ContentControl>
-					</Button>
+					<TextBox  Text="{Binding ActionDate}" Margin="{DynamicResource DefMargin}" MinWidth="55" VerticalAlignment="Top" Style="{DynamicResource TimeSpanFormatCheckTextBox}"/>
+					<Image MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag" MouseMove="MouseMoveHandler" Source="/Routeur;component/Graphics/Target-32.png" Width="24" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" />
 				</StackPanel>
 			</DataTemplate>
 			
@@ -64,7 +60,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 		
 		<DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.ColumnSpan="2">
 			<DataGrid.Columns>
-				<DataGridTemplateColumn Header="Date" CellTemplate="{DynamicResource RoutePointActionDateTemplate}"/>
+				<DataGridTemplateColumn Header="Date" CellTemplate="{StaticResource RoutePointActionDateTemplate}"/>
 				<DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
 				<DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
 				<DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
@@ -76,6 +72,8 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 				<Button x:Name="cmdClose" Content="Close" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdCloseClick" Style="{DynamicResource DefaultButton}" Margin="0"/>
 			</StackPanel>
 		</DockPanel>
-		<Button Margin="3,3,3,0" ToolTip="Add New Point" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource AddNewButton}" Click="AddNewPoint" d:LayoutOverrides="Height" Grid.Row="1" Visibility="{Binding CanAddPoints, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+		<Button Margin="{DynamicResource DefMargin}" ToolTip="Add New Point" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource AddNewButton}" Click="AddNewPoint" d:LayoutOverrides="Height" Grid.Row="1" Visibility="{Binding CanAddPoints, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+		<Button Margin="{DynamicResource DefMargin}" ToolTip="Add New Point" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource RefreshButton}" Click="AddNewPoint" d:LayoutOverrides="Height" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" IsEnabled="False"/>
+		
 	</Grid>
 </Window>

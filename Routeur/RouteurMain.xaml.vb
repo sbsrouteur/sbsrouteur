@@ -40,6 +40,8 @@ Partial Public Class RouteurMain
     Private _ZoomCanvas As Boolean = False
     Private _DragStartPoint As Point
     Private _LastDraggedPoint As Point
+    Private _PrevWidth As Double = 0
+    Private _PrevHeight As Double = 0
 
     Private _MouseCapture As Boolean = False
     Private _MouseCaptureMode As frmRouteViewer.CaptureInfoRequest = frmRouteViewer.CaptureInfoRequest.None
@@ -131,6 +133,15 @@ Partial Public Class RouteurMain
         If M.The2DViewer Is Nothing Then
             Return
         End If
+
+        Dim dh As Double = Math.Abs(_PrevWidth - VOR2DViewer.ActualWidth)
+        Dim dw As Double = Math.Abs(_PrevHeight - VOR2DViewer.ActualHeight)
+
+        If dh <= 1 AndAlso dw <= 1 Then
+            Return
+        End If
+        _PrevWidth = VOR2DViewer.ActualWidth
+        _PrevHeight = VOR2DViewer.ActualHeight
 
         Dim Pos1 As New Point(0, 0)
         Dim Pos2 As New Point(Me.VOR2DViewer.ActualWidth, Me.VOR2DViewer.ActualHeight)
@@ -409,7 +420,7 @@ Partial Public Class RouteurMain
         If _RouteForm Is Nothing Then
             Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
 
-            _RouteForm = New frmRouteViewer(M)
+            _RouteForm = New frmRouteViewer(M, M.VorHandler.PlayerInfo.RaceInfo.vacfreq)
             _RouteForm.Owner = Me
 
         End If
@@ -621,30 +632,4 @@ Partial Public Class RouteurMain
 
     End Sub
 
-    Private Sub _RouteForm_StartMouseCapture(Info As frmRouteViewer.CaptureInfoRequest) Handles _RouteForm.StartMouseCapture
-
-        _MouseCapture = True
-        _MouseCaptureMode = Info
-
-    End Sub
-
-    Private Sub RouteurMain_MouseLeftButtonUp(sender As Object, e As MouseButtonEventArgs) Handles Me.MouseLeftButtonUp
-
-        If _MouseCapture AndAlso _RouteForm IsNot Nothing Then
-            _RouteForm.StopCapture()
-            _MouseCapture = False
-        End If
-    End Sub
-
-    Private Sub RouteurMain_MouseMove(sender As Object, e As MouseEventArgs) Handles Me.MouseMove
-
-
-    End Sub
-
-    Private Sub RouteurMain_PreviewMouseMove(sender As Object, e As MouseEventArgs) Handles Me.PreviewMouseMove
-        If _MouseCapture Then
-            Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
-            M.HandleCapture(_RouteForm, _MouseCaptureMode, e.GetPosition(Me))
-        End If
-    End Sub
 End Class
