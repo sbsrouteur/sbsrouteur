@@ -134,6 +134,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Classes\Configuration\AppPrefs.vb" />
+    <Compile Include="Classes\Configuration\ConverterStockBrushes.vb" />
+    <Compile Include="Classes\Configuration\DateTimeColorConverter.vb" />
     <Compile Include="Classes\Converters\DateDeltaConverter.vb" />
     <Compile Include="Classes\Converters\EpochToDateConverter.vb" />
     <Compile Include="Classes\Converters\InvertedBooleanToVisibilityConverter.vb" />

@@ -25,7 +25,9 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 	<local:TextToColorConverter x:Key="TextToColorConverter"/>
 
 	<local:TimeSpanColorConverter x:Key="TimeSpanColorConverter"/>
-
+	
+	<local:DateTimeColorConverter x:Key="DateTimeColorConverter"/>
+	
 	<Style TargetType="{x:Type TextBlock}" >
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 	</Style>
@@ -79,6 +81,19 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
         		<Binding 
 					Path="Text" 
 					Converter="{StaticResource TimeSpanColorConverter}"
+					RelativeSource="{RelativeSource self}"
+				/>
+		     </Setter.Value>
+		 </Setter>
+	</Style>
+	
+	<Style x:Key="DateTimeFormatCheckTextBox" TargetType ="{x:Type TextBox}" > 
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+		<Setter Property="Background">
+			<Setter.Value>
+        		<Binding 
+					Path="Text" 
+					Converter="{StaticResource DateTimeColorConverter}"
 					RelativeSource="{RelativeSource self}"
 				/>
 		     </Setter.Value>
