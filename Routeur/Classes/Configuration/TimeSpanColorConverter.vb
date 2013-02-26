@@ -17,9 +17,6 @@
 Public Class TimeSpanColorConverter
     Implements IValueConverter
 
-    Private Shared BrushOK As New SolidColorBrush(New Color() With {.A = &HFF, .R = &H7A, .G = &HFF, .B = &HAE})
-    Private Shared BrushNOK As New SolidColorBrush(New Color() With {.A = &HFF, .R = &HFF, .G = &H7A, .B = &H7A})
-
     Public Function Convert(ByVal value As Object, ByVal targetType As System.Type, ByVal parameter As Object, ByVal culture As System.Globalization.CultureInfo) As Object Implements System.Windows.Data.IValueConverter.Convert
 
         'Return System.Drawing.Color.Pink
