@@ -36,7 +36,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 			
 			<DataTemplate x:Key="RoutePointActionDateTemplate">
 				<StackPanel Orientation="Horizontal">
-					<TextBox  Text="{Binding ActionDate}" Margin="{DynamicResource DefMargin}" MinWidth="55" VerticalAlignment="Top" Style="{DynamicResource TimeSpanFormatCheckTextBox}"/>
+					<TextBox  Text="{Binding ActionDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="{DynamicResource DefMargin}" MinWidth="55" VerticalAlignment="Top" Style="{DynamicResource DateTimeFormatCheckTextBox}"/>
 					<Image MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag" MouseMove="MouseMoveHandler" Source="/Routeur;component/Graphics/Target-32.png" Width="24" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" />
 				</StackPanel>
 			</DataTemplate>
