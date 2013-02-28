@@ -6,3 +6,4 @@ Setup/Setup_??/*
 *.suo
 *.vbproj.user
 Routeur/bin/Debug64/*
+Setup/Setup/*
