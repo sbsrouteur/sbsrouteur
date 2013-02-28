@@ -19,7 +19,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf64}\sbs\Routeur
+DefaultDirName={pf}\sbs\Routeur
 DefaultGroupName={#MyAppName}
 OutputDir=C:\Projets\01_Perso\HG_Routeur-google_code\Setup\Setup_64
 OutputBaseFilename=RouteurSetup64_{#MyAppVersion}
@@ -32,38 +32,53 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: Redists; Description: "Install redistribuables"; 
+Name: Redists; Description: "Install redistribuables"; Flags: checkedonce; 
 
 [Files]
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug_64\Routeur.exe; DestDir: {pf64}\sbs\Routeur\Routeur; Flags: ignoreversion; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug\Routeur.exe; DestDir: {pf}\sbs\Routeur\Routeur; Flags: ignoreversion; 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 ;Grib2
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygjasper-1-701-1.dll; DestDir: {pf64}\sbs\Routeur\Grib2; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygjpeg-62.dll; DestDir: {pf64}\sbs\Routeur\Grib2; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygpng12.dll; DestDir: {pf64}\sbs\Routeur\Grib2; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygwin1.dll; DestDir: {pf64}\sbs\Routeur\Grib2; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygz.dll; DestDir: {pf64}\sbs\Routeur\Grib2; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\wgrib2.exe; DestDir: {pf64}\sbs\Routeur\Grib2; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_c.b; DestDir: {pf64}\sbs\Routeur\Gshhs; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_i.b; DestDir: {pf64}\sbs\Routeur\Gshhs; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_l.b; DestDir: {pf64}\sbs\Routeur\Gshhs; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug_64\WriteableBitmapEx.Wpf.dll; DestDir: {pf64}\sbs\Routeur\Routeur; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug\WriteableBitmapEx.Wpf.dll; DestDir: {pf64}\sbs\Routeur\Routeur;
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygjasper-1-701-1.dll; DestDir: {pf}\sbs\Routeur\Grib2; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygjpeg-62.dll; DestDir: {pf}\sbs\Routeur\Grib2; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygpng12.dll; DestDir: {pf}\sbs\Routeur\Grib2; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygwin1.dll; DestDir: {pf}\sbs\Routeur\Grib2; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\cygz.dll; DestDir: {pf}\sbs\Routeur\Grib2; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\wgrib2.exe; DestDir: {pf}\sbs\Routeur\Grib2; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_c.b; DestDir: {pf}\sbs\Routeur\Gshhs; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_i.b; DestDir: {pf}\sbs\Routeur\Gshhs; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_l.b; DestDir: {pf}\sbs\Routeur\Gshhs; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug_64\WriteableBitmapEx.Wpf.dll; DestDir: {pf}\sbs\Routeur\Routeur; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug\WriteableBitmapEx.Wpf.dll; DestDir: {pf}\sbs\Routeur\Routeur;
 
 ;SQLite 
-Source: "C:\Program Files (x86)\System.Data.SQLite\2010\bin\System.Data.SQLite.dll"; DestDir: {pf64}\sbs\Routeur\Routeur; 
-Source: "C:\Program Files\System.Data.SQLite\2010\bin\SQLite.Interop.dll"; DestDir: {pf64}\sbs\Routeur\Routeur\x64; 
+Source: "C:\Program Files (x86)\System.Data.SQLite\2010\bin\System.Data.SQLite.dll"; DestDir: {pf}\sbs\Routeur\Routeur; 
+Source: "C:\Program Files\System.Data.SQLite\2010\bin\SQLite.Interop.dll"; DestDir: {pf}\sbs\Routeur\Routeur\x64; 
+Source: "C:\Program Files (x86)\System.Data.SQLite\2010\bin\SQLite.Interop.dll"; DestDir: {pf}\sbs\Routeur\Routeur\x86; 
+
 
 ;VC 2010 Redists
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Setup\Redist\vcredist_x64.exe; DestDir: {tmp}; Flags: deleteafterinstall 64bit; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Setup\Redist\vcredist_x64.exe; DestDir: {tmp}; Flags: deleteafterinstall 64bit; Check: IsX64;
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Setup\Redist\vcredist_x86.exe; DestDir: {tmp}; Flags: deleteafterinstall 32bit; Check: IsX86;
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{pf64}\sbs\Routeur\Routeur\{#MyAppExeName}"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{pf64}\sbs\Routeur\Routeur\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{group}\{#MyAppName}"; Filename: "{pf}\sbs\Routeur\Routeur\{#MyAppExeName}"
+Name: "{commondesktop}\{#MyAppName}"; Filename: "{pf}\sbs\Routeur\Routeur\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: {tmp}\vcredist_x64.exe; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait skipifsilent RunAsCurrentUser; 
-Filename: "{pf64}\sbs\Routeur\Routeur\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
+Filename: {tmp}\vcredist_x64.exe; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait skipifsilent RunAsCurrentUser 64bit; Tasks: Redists;  Check: IsX64;
+Filename: {tmp}\vcredist_x86.exe; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait skipifsilent RunAsCurrentUser 32bit; Tasks: Redists;  Check: IsX86;
+Filename: "{pf}\sbs\Routeur\Routeur\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Dirs]
+
+[code]
+function IsX64: Boolean;
+begin
+  Result := Is64BitInstallMode and (ProcessorArchitecture = paX64);
+end;
+
+function IsX86: Boolean;
+begin
+  Result := (Is64BitInstallMode=false) and (ProcessorArchitecture = paX86);
+end;
+
