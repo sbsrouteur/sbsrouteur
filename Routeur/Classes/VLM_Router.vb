@@ -1092,8 +1092,9 @@ Public Class VLM_Router
                         'Way point has been reached, change nextorder to  bearing mode if there is an @
                         ' change to use racewp otherwise
                         If UserWP.SetBearingAtWP Then
-                            NextOrder.RouteValue = New RoutePointDoubleValue With {.Value = UserWP.BearingAtWP}
                             NextOrder.RouteMode = EnumRouteMode.Bearing
+                            NextOrder.RouteValue = New RoutePointDoubleValue With {.Value = UserWP.BearingAtWP}
+
                         Else
                             'UserWP.UseRaceWP = True
                             CType(NextOrder.RouteValue, RoutePointWPValue).UseRaceWP = True
