@@ -3030,23 +3030,29 @@ Public Class VLM_Router
             End If
 
             If prefs.UseCustomStart Then
-                StartCoords = prefs.RouteStart
+                If prefs.RouteStart IsNot Nothing Then
+                    StartCoords = prefs.RouteStart
+                Else
+                    MessageBox.Show("Alternate start selected without specifying start coordinates. Using Current pos for start point")
+                    prefs.UseCustomDest = False
+                    StartCoords = start
+                End If
             Else
                 StartCoords = start
             End If
 
-            If prefs.UseCustomStartDate Then
-                StartDate = prefs.CustomStartDate
+                If prefs.UseCustomStartDate Then
+                    StartDate = prefs.CustomStartDate
+                End If
+
+                _iso.StartIsoRoute(StartCoords, EndCoords1, EndCoords2, StartDate, prefs)
+                'End If
+
+            ElseIf Not _iso Is Nothing Then
+                _iso.StopRoute()
+                RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces).AutoRestartRouter = False
+                Return False
             End If
-
-            _iso.StartIsoRoute(StartCoords, EndCoords1, EndCoords2, StartDate, prefs)
-            'End If
-
-        ElseIf Not _iso Is Nothing Then
-            _iso.StopRoute()
-            RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces).AutoRestartRouter = False
-            Return False
-        End If
 
         Return True
     End Function
