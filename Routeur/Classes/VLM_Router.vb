@@ -140,8 +140,7 @@ Public Class VLM_Router
     Private Shared _Sails As New clsSailManager
 
     Private _EnableManualRefresh As Boolean = True
-    Private _ManualRefreshCount As Integer = 0
-
+    
     Private _BearingETA As DateTime
     Private _MenuBearing As Double
     Private _MenuWindAngleValid As Boolean
@@ -2496,10 +2495,6 @@ Public Class VLM_Router
 
     Public Sub getboatinfo(ByVal Force As Boolean)
 
-        If Force And _ManualRefreshCount < RouteurModel.VacationMinutes * 4 Then
-            EnableManualRefresh = False
-            _ManualRefreshCount += 1
-        End If
         getboatinfo(Meteo, Force)
     End Sub
 
@@ -2520,9 +2515,8 @@ Public Class VLM_Router
             Return
         End If
 
-        If Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.[Date]).TotalMinutes < RouteurModel.VacationMinutes Then
+        If Not _UserInfo Is Nothing Then
             EnableManualRefresh = True
-            _ManualRefreshCount = 0
         End If
 
         Try
