@@ -1099,7 +1099,7 @@ Public Class VLM_Router
                             'UserWP.UseRaceWP = True
                             CType(NextOrder.RouteValue, RoutePointWPValue).UseRaceWP = True
                         End If
-
+                        ReachedWP = False
                     End If
 
             End Select
