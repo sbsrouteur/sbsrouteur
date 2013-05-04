@@ -138,7 +138,7 @@ Partial Public Class WindInfoControl
         _Refresh.Stop()
         If MeteoProvider IsNot Nothing AndAlso WindDate.Ticks <> 0 AndAlso WindPos IsNot Nothing Then
             Dim Mi As MeteoInfo = MeteoProvider.GetMeteoToDate(WindPos, WindDate, True, True)
-            If Mi IsNot Nothing Then
+            If Mi IsNot Nothing AndAlso MeteoInfo IsNot Nothing Then
                 MeteoInfo.Strength = Mi.Strength
                 MeteoInfo.Dir = Mi.Dir
             End If
