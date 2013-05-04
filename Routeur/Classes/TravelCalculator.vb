@@ -56,7 +56,11 @@ Public Class TravelCalculator
 
             Dim tc As Double = Atan2(Lon1 - Lon2, Log(Tan(Lat2 / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))) Mod (2 * PI)
 
-            Return ((tc / PI * 180) + 360) Mod 360
+            Dim ret As Double = ((tc / PI * 180) + 360) Mod 360
+            If Double.IsNaN(ret) Then
+                Dim i As Integer = 0
+            End If
+            Return ret
 
         End Get
     End Property
@@ -118,7 +122,11 @@ Public Class TravelCalculator
             'Dim c As Double = Cos(tc)
             'Dim s As Double = Sin(tc)
             'tc = Atan2(s, -c)
-            Return (720 - (tc / PI * 180)) Mod 360
+
+            Dim ret As Double = (720 - (tc / PI * 180)) Mod 360
+            If Double.IsNaN(ret) Then
+                Dim i As Integer = 0
+            End If
 
 
         End Get
