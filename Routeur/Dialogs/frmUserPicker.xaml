@@ -80,7 +80,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 				</GroupBox>
 				</Grid>
 				<DataTemplate.Triggers >
-					<DataTrigger  Binding="{Binding IsRacing}" Value="x:false">
+					<DataTrigger  Binding="{Binding IsRacing}" Value="x:False">
 						<Setter TargetName="RaceListButton" Property="Visibility" Value="Collapsed" >	
 						</Setter>
 					</DataTrigger>
