@@ -75,6 +75,7 @@ Public Class IsoChrone
 
     Public ReadOnly Property IndexFromAngle(ByVal Angle As Double) As Integer
         Get
+            Debug.Assert(Not Double.IsNaN(Angle))
             Dim RetValue As Integer = CInt(Math.Floor((Angle + 360) / _AngleStep))
             Return RetValue Mod _Data.Length
         End Get

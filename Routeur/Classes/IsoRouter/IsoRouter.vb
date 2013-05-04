@@ -239,6 +239,7 @@ Public Class IsoRouter
                                              tc.EndPoint = P.P
                                              P.DistFromPos = tc.SurfaceDistance
                                              P.CapFromPos = tc.LoxoCourse_Deg
+                                             Debug.Assert(Not Double.IsNaN(P.CapFromPos))
                                              P.Cap = alpha
                                              'alpha2 = P.CapFromPos 'tc.LoxoCourse_Deg
                                              tc.StartPoint = rp.P
