@@ -1779,10 +1779,11 @@ Public Class VLM_Router
             Static LastLat As Double
             Static LastLon As Double
 
-            If _PlannedRoute.Count = 0 OrElse LastLat <> _UserInfo.LAT OrElse LastLon <> _UserInfo.LON Then
+            If _PlannedRoute.Count = 0 OrElse LastLat <> _UserInfo.Position.Lat_Deg OrElse LastLon <> _UserInfo.Position.Lon_Deg Then
                 Dim P As clsrouteinfopoints
-                LastLat = _UserInfo.LAT
-                LastLon = _UserInfo.LON
+                LastLat = _UserInfo.Position.Lat_Deg
+                LastLon = _UserInfo.Position.Lon_Deg
+
                 Dim CurPos As New Coords(LastLat, LastLon)
                 _PlannedRoute.Clear()
                 Dim FirstPoint As Boolean = True
@@ -2171,8 +2172,8 @@ Public Class VLM_Router
 
 
         RouteurModel.CurWP = RetUser.NWP
-        RetUser.LON /= 1000
-        RetUser.LAT /= 1000
+        RetUser.LON /= 1000.0
+        RetUser.LAT /= 1000.0
 
 
         Lup = RetUser.LUP
