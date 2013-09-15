@@ -20,6 +20,7 @@ Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 Imports System.Math
 Imports Routeur.RoutePointView
+Imports System.IO
 
 Public Class VLM_Router
 
@@ -140,7 +141,7 @@ Public Class VLM_Router
     Private Shared _Sails As New clsSailManager
 
     Private _EnableManualRefresh As Boolean = True
-    
+
     Private _BearingETA As DateTime
     Private _MenuBearing As Double
     Private _MenuWindAngleValid As Boolean
@@ -939,13 +940,18 @@ Public Class VLM_Router
 
     Private Sub BuildOrthoToP(userPosition As Coords, P As clsrouteinfopoints, PlannedRoute As ObservableCollection(Of clsrouteinfopoints))
 
+        Using sr As New StreamWriter(".\BuildOrtho.txt", True)
+            sr.WriteLine(Now.ToString & vbTab & userPosition.ToString & vbTab & P.ToString)
+            sr.Close()
+        End Using
         Dim TC As New TravelCalculator
         TC.StartPoint = userPosition
         TC.EndPoint = P.P
         Dim L As Double = TC.LoxoCourse_Deg
         Dim O As Double = TC.OrthoCourse_Deg
 
-        If Abs(L - O) < 0.5 OrElse 360 - Abs(L - O) < 1 Then
+        If True Or Abs(L - O) < 0.5 OrElse 360 - Abs(L - O) < 1 Then
+            'PlannedRoute.Add(New clsrouteinfopoints With {.P = userPosition})
             PlannedRoute.Add(P)
             Return
         Else
@@ -1663,7 +1669,7 @@ Public Class VLM_Router
             Return
         End If
         If Not System.Threading.Thread.CurrentThread Is Application.Current.Dispatcher.Thread Then
-            Application.Current.Dispatcher.BeginInvoke(SelfDlg, New Object() {Pv, Value, e, RefreshBoatInfo, meteo})
+            Application.Current.Dispatcher.BeginInvoke(SelfDlg, New Object() {Pv, Value, e, RefreshBoatInfo, Meteo})
 
         Else
 
@@ -2592,7 +2598,7 @@ Public Class VLM_Router
                 'RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrow"))
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateStart"))
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoArrowDateEnd"))
-                
+
             Else
                 AddLog("No Meteo data !!")
             End If
@@ -3042,18 +3048,18 @@ Public Class VLM_Router
                 StartCoords = start
             End If
 
-                If prefs.UseCustomStartDate Then
-                    StartDate = prefs.CustomStartDate
-                End If
-
-                _iso.StartIsoRoute(StartCoords, EndCoords1, EndCoords2, StartDate, prefs)
-                'End If
-
-            ElseIf Not _iso Is Nothing Then
-                _iso.StopRoute()
-                RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces).AutoRestartRouter = False
-                Return False
+            If prefs.UseCustomStartDate Then
+                StartDate = prefs.CustomStartDate
             End If
+
+            _iso.StartIsoRoute(StartCoords, EndCoords1, EndCoords2, StartDate, prefs)
+            'End If
+
+        ElseIf Not _iso Is Nothing Then
+            _iso.StopRoute()
+            RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces).AutoRestartRouter = False
+            Return False
+        End If
 
         Return True
     End Function
@@ -3130,7 +3136,7 @@ Public Class VLM_Router
 
     End Sub
 
-    
+
     Public Shared Function WindAngle(ByVal Cap As Double, ByVal Wind As Double) As Double
 
         Dim I As Double = 0
