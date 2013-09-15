@@ -628,14 +628,14 @@ Render1:
                                     Dim CurP As Coords
                                     For index = 0 To MaxIndex
                                         If Not HideIsochronesLines Then
-                                            If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
-                                                CurP = iso.Data(index).P
+                                            If Not iso.PointSet(index) Is Nothing AndAlso Not iso.PointSet(index).P Is Nothing Then
+                                                CurP = iso.PointSet(index).P
                                                 P1.X = LonToCanvas(CurP.Lon_Deg)
                                                 P1.Y = LatToCanvas(CurP.Lat_Deg)
 
                                                 If Not FirstPoint Then 'And index - PrevIndex < 4 Then
-                                                    If iso.Data(index).WindStrength <> 0 Then
-                                                        SafeDrawLine(_ISOBmp, PrevP, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)))
+                                                    If iso.PointSet(index).WindStrength <> 0 Then
+                                                        SafeDrawLine(_ISOBmp, PrevP, CurP, WindBrushes(CInt(iso.PointSet(index).WindStrength)))
                                                     End If
                                                 End If
                                                 'PrevIndex = index
@@ -649,9 +649,9 @@ Render1:
                                         End If
 
                                         If Not HideIsochronesDots Then
-                                            If Not iso.Data(index) Is Nothing AndAlso Not iso.Data(index).P Is Nothing Then
-                                                CurP = iso.Data(index).P
-                                                SafeDrawEllipse(_ISOBmp, CurP, WindBrushes(CInt(iso.Data(index).WindStrength)), 2, 2)
+                                            If Not iso.PointSet(index) Is Nothing AndAlso Not iso.PointSet(index).P Is Nothing Then
+                                                CurP = iso.PointSet(index).P
+                                                SafeDrawEllipse(_ISOBmp, CurP, WindBrushes(CInt(iso.PointSet(index).WindStrength)), 2, 2)
                                             End If
                                         End If
                                     Next

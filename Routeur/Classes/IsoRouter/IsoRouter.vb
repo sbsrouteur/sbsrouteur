@@ -81,27 +81,21 @@ Public Class IsoRouter
         If Iso Is Nothing Then
             Dim TcInit As New TravelCalculator With {.StartPoint = _StartPoint.P}
             'Special Case for startpoint
-            RetIsoChrone = New IsoChrone(_AngleStep)
+            RetIsoChrone = New IsoChrone(_SailManager)
             For alpha = 0 To 360 - _AngleStep Step _AngleStep
                 P1 = ReachPoint(_StartPoint, alpha, _VacLength)
                 If Not P1 Is Nothing Then
-                    TcInit.EndPoint = P1.P
-                    P1.DistFromPos = TcInit.SurfaceDistance
-                    P1.Cap = alpha
-                    Index1 = RetIsoChrone.IndexFromAngle(alpha)
-                    OldP1 = RetIsoChrone.Data(Index1)
-                    If OldP1 Is Nothing OrElse P1.DTF < OldP1.DTF Then
+                    
+                        RetIsoChrone.AddPoint(P1)
 
-                        RetIsoChrone.Data(Index1) = P1
 
-                    End If
                 End If
             Next
 
         Else
-            
+            RetIsoChrone = New IsoChrone(_SailManager)
             Dim StartIndex As Integer = 0
-            Dim CurStep As TimeSpan
+            Dim CurStep As TimeSpan = _VacLength
             Dim FirstIndex As Integer = -1
             'Dim _IsoSegs As New List(Of MapSegment)
             Dim PrevPoint As Coords = Nothing
@@ -111,52 +105,52 @@ Public Class IsoRouter
             Dim SumSpeed As Double = 0
             Dim NbSpeed As Double = 0
 
-            For i = 0 To Iso.Data.Length - 1
-                If Iso.Data(i) IsNot Nothing Then
-                    MaxDist = Math.Max(MaxDist, Iso.Data(i).DistFromPos)
-                    MaxSpeed = Math.Max(MaxSpeed, Iso.Data(i).Speed)
-                    SumSpeed += Iso.Data(i).Speed
-                    NbSpeed += 1
-                End If
-            Next
+            'For i = 0 To Iso.Data.Length - 1
+            '    If Iso.Data(i) IsNot Nothing Then
+            '        MaxDist = Math.Max(MaxDist, Iso.Data(i).DistFromPos)
+            '        MaxSpeed = Math.Max(MaxSpeed, Iso.Data(i).Speed)
+            '        SumSpeed += Iso.Data(i).Speed
+            '        NbSpeed += 1
+            '    End If
+            'Next
 
-            Dim AvgSpeed As Double = SumSpeed / NbSpeed
+            '            Dim AvgSpeed As Double = SumSpeed / NbSpeed
 
-            For StartIndex = 0 To Iso.Data.Length - 1
-                If Not Iso.Data(StartIndex) Is Nothing Then
-                    Dim Ticks As Long = Iso.Data(StartIndex).T.Subtract(_StartPoint.T).Ticks
+            '            For StartIndex = 0 To Iso.Data.Length - 1
+            '                If Not Iso.Data(StartIndex) Is Nothing Then
+            '                    Dim Ticks As Long = Iso.Data(StartIndex).T.Subtract(_StartPoint.T).Ticks
 
-                   
-                    If RetIsoChrone Is Nothing Then
-                        Dim VacCount As Long = CLng(Ticks / (RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute))
-                        Dim DFP As Double = Iso.Data(StartIndex).DistFromPos + 1
-                        'TODO Add param for min angle
-                        Dim AStep As Double = Math.Max(0.1, 5 - 1 * Math.Log10(DFP)) 'Math.min((36 + 1.05 * VacCount),
-                        RetIsoChrone = New IsoChrone(AStep)
-                    End If
 
-                    'If Ticks > TimeSpan.TicksPerHour * 48 Then
-                    '    CurStep = _IsoStep_48
-                    '    'AStep = _AngleStep '/ 4
-                    'ElseIf Ticks > TimeSpan.TicksPerHour * 24 Then
-                    '    CurStep = _IsoStep_24
-                    '    'AStep = _AngleStep '/ 2
-                    'Else
-                    '    'AStep = _AngleStep
-                    '    CurStep = _IsoStep
-                    'End If
+            '                    If RetIsoChrone Is Nothing Then
+            '                        Dim VacCount As Long = CLng(Ticks / (RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute))
+            '                        Dim DFP As Double = Iso.Data(StartIndex).DistFromPos + 1
+            '                        'TODO Add param for min angle
+            '                        Dim AStep As Double = Math.Max(0.1, 5 - 1 * Math.Log10(DFP)) 'Math.min((36 + 1.05 * VacCount),
+            '                        RetIsoChrone = New IsoChrone(AStep)
+            '                    End If
 
-                    'Dim NbMinutes As Double = New TimeSpan(CLng(2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / MaxSpeed * 0.6 * TimeSpan.TicksPerHour)).TotalMinutes
-                    Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / MaxSpeed * TimeSpan.TicksPerHour)).TotalMinutes
-                    NbMinutes = Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes) * RouteurModel.VacationMinutes
-                    CurStep = New TimeSpan(0, CInt(NbMinutes), 0)
-#If DBG_ISO = 1 Then
-                    Console.WriteLine("Iso Starting for " & RetIsoChrone.Data.Length - 1 & " point, duration:" & CurStep.ToString & " AngleStep : " & _AngleStep)
-#End If
+            '                    'If Ticks > TimeSpan.TicksPerHour * 48 Then
+            '                    '    CurStep = _IsoStep_48
+            '                    '    'AStep = _AngleStep '/ 4
+            '                    'ElseIf Ticks > TimeSpan.TicksPerHour * 24 Then
+            '                    '    CurStep = _IsoStep_24
+            '                    '    'AStep = _AngleStep '/ 2
+            '                    'Else
+            '                    '    'AStep = _AngleStep
+            '                    '    CurStep = _IsoStep
+            '                    'End If
 
-                    Exit For
-                End If
-            Next
+            '                    'Dim NbMinutes As Double = New TimeSpan(CLng(2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / MaxSpeed * 0.6 * TimeSpan.TicksPerHour)).TotalMinutes
+            '                    Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / MaxSpeed * TimeSpan.TicksPerHour)).TotalMinutes
+            '                    NbMinutes = Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes) * RouteurModel.VacationMinutes
+            '                    CurStep = New TimeSpan(0, CInt(NbMinutes), 0)
+            '#If DBG_ISO = 1 Then
+            '                    Console.WriteLine("Iso Starting for " & RetIsoChrone.Data.Length - 1 & " point, duration:" & CurStep.ToString & " AngleStep : " & _AngleStep)
+            '#End If
+
+            '                    Exit For
+            '                End If
+            '            Next
 
             
             Dim tc2 As New TravelCalculator
@@ -164,14 +158,14 @@ Public Class IsoRouter
             tc2.EndPoint = GSHHS_Reader.PointToSegmentIntersect(_StartPoint.P, _DestPoint1, _DestPoint2)
             MaxEllipseDist = tc2.SurfaceDistance * _EllipseExt
 
-            Parallel.For(StartIndex, Iso.Data.Length,
+            Parallel.For(StartIndex, Iso.PointSet.Count - 1,
                          Sub(Pindex As Integer)
                              Dim tcfn1 As New TravelCalculator
                              Dim CurDest As Coords
                              Dim rp As clsrouteinfopoints
 
-                             If Not Iso.Data(Pindex) Is Nothing Then
-                                 rp = Iso.Data(Pindex)
+                             If Not Iso.PointSet(Pindex) Is Nothing Then
+                                 rp = Iso.PointSet(Pindex)
 
                                  Dim Ortho As Double
                                  tcfn1.StartPoint = rp.P
@@ -187,16 +181,16 @@ Public Class IsoRouter
                                  Dim TcAngleTrim As New TravelCalculator()
                                  Dim MinSearch As Double = 180
                                  Dim MaxSearch As Double = 180
-                                 Dim PrevIndex As Integer = (Pindex + Iso.Data.Length - 1) Mod Iso.Data.Length
-                                 Dim NextIndex As Integer = (Pindex + 1) Mod Iso.Data.Length
-                                 If Iso.Data(PrevIndex) IsNot Nothing Then
-                                     TcAngleTrim.EndPoint = Iso.Data(PrevIndex).P
+                                 Dim PrevIndex As Integer = (Pindex + Iso.PointSet.Count - 1) Mod Iso.PointSet.Count
+                                 Dim NextIndex As Integer = (Pindex + 1) Mod Iso.PointSet.Count
+                                 If Iso.PointSet(PrevIndex) IsNot Nothing Then
+                                     TcAngleTrim.EndPoint = Iso.PointSet(PrevIndex).P
                                      TcAngleTrim.StartPoint = rp.P
                                      MinSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
                                  End If
-                                 If Iso.Data(NextIndex) IsNot Nothing Then
+                                 If Iso.PointSet(NextIndex) IsNot Nothing Then
                                      TcAngleTrim.StartPoint = rp.P
-                                     TcAngleTrim.EndPoint = Iso.Data(NextIndex).P
+                                     TcAngleTrim.EndPoint = Iso.PointSet(NextIndex).P
                                      MaxSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
                                  End If
 
@@ -230,48 +224,52 @@ Public Class IsoRouter
                                      P = ReachPoint(rp, alpha, CurStep)
 
                                      If Not P Is Nothing Then
+                                         tc.StartPoint = _StartPoint.P
+                                         tc.EndPoint = P.P
+                                         P.DistFromPos = tc.SurfaceDistance
+                                         P.CapFromPos = tc.LoxoCourse_Deg
+                                         RetIsoChrone.AddPoint(P)
+                                         'Dim IntersectPrevIso As Boolean = False
 
-                                         Dim IntersectPrevIso As Boolean = False
+                                         'If Not IntersectPrevIso AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) Then
 
-                                         If Not IntersectPrevIso AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) Then
+                                         '    tc.StartPoint = _StartPoint.P
+                                         '    tc.EndPoint = P.P
+                                         '    P.DistFromPos = tc.SurfaceDistance
+                                         '    P.CapFromPos = tc.LoxoCourse_Deg
+                                         '    Debug.Assert(Not Double.IsNaN(P.CapFromPos))
+                                         '    P.Cap = alpha
+                                         '    'alpha2 = P.CapFromPos 'tc.LoxoCourse_Deg
+                                         '    tc.StartPoint = rp.P
+                                         '    P.Speed = tc.SurfaceDistance / CurStep.TotalHours
 
-                                             tc.StartPoint = _StartPoint.P
-                                             tc.EndPoint = P.P
-                                             P.DistFromPos = tc.SurfaceDistance
-                                             P.CapFromPos = tc.LoxoCourse_Deg
-                                             Debug.Assert(Not Double.IsNaN(P.CapFromPos))
-                                             P.Cap = alpha
-                                             'alpha2 = P.CapFromPos 'tc.LoxoCourse_Deg
-                                             tc.StartPoint = rp.P
-                                             P.Speed = tc.SurfaceDistance / CurStep.TotalHours
+                                         '    Index = RetIsoChrone.IndexFromAngle(P.CapFromPos)
+                                         '    'Dim ANew As Double = RetIsoChrone.AngleFromIndex(Index)
+                                         '    'Debug.Assert(Math.Abs(ANew - alpha2) < RetIsoChrone.Data.Length / 630)
+                                         '    SpinLockEnter(RetIsoChrone, Index)
+                                         '    'SyncLock RetIsoChrone.Locks(Index)
+                                         '    OldP = RetIsoChrone.Data(Index)
+                                         '    If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
+                                         '        Dim IgnorePoint As Boolean = False
+                                         '        If _IsoChrones.Count > 3 Then
+                                         '            For i = _IsoChrones.Count - 3 To Math.Max(0, _IsoChrones.Count - 100) Step -1
+                                         '                Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(P.CapFromPos))
+                                         '                If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
+                                         '                    IgnorePoint = True
+                                         '                    Exit For
+                                         '                End If
 
-                                             Index = RetIsoChrone.IndexFromAngle(P.CapFromPos)
-                                             'Dim ANew As Double = RetIsoChrone.AngleFromIndex(Index)
-                                             'Debug.Assert(Math.Abs(ANew - alpha2) < RetIsoChrone.Data.Length / 630)
-                                             SpinLockEnter(RetIsoChrone, Index)
-                                             'SyncLock RetIsoChrone.Locks(Index)
-                                             OldP = RetIsoChrone.Data(Index)
-                                             If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
-                                                 Dim IgnorePoint As Boolean = False
-                                                 If _IsoChrones.Count > 3 Then
-                                                     For i = _IsoChrones.Count - 3 To Math.Max(0, _IsoChrones.Count - 100) Step -1
-                                                         Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(P.CapFromPos))
-                                                         If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
-                                                             IgnorePoint = True
-                                                             Exit For
-                                                         End If
+                                         '            Next
+                                         '        End If
+                                         '        If Not IgnorePoint Then
+                                         '            RetIsoChrone.Data(Index) = P
+                                         '        End If
 
-                                                     Next
-                                                 End If
-                                                 If Not IgnorePoint Then
-                                                     RetIsoChrone.Data(Index) = P
-                                                 End If
+                                         '    End If
 
-                                             End If
-
-                                             'End SyncLock
-                                             SpinLockExit(RetIsoChrone, Index)
-                                         End If
+                                         '    'End SyncLock
+                                         '    SpinLockExit(RetIsoChrone, Index)
+                                         'End If
 
                                      End If
 
@@ -292,26 +290,28 @@ Public Class IsoRouter
 
             'Clean up bad points
             If RetIsoChrone IsNot Nothing Then
-                Dim CurDest As Coords
-                If _DestPoint2 IsNot Nothing Then
-                    CurDest = GSHHS_Reader.PointToSegmentIntersect(_StartPoint.P, _DestPoint1, _DestPoint2)
-                Else
-                    CurDest = _DestPoint1
-                End If
 
-                For Index1 = 0 To RetIsoChrone.Data.Count - 1
-                    If RetIsoChrone.Data(Index1) IsNot Nothing Then
-                        tc2.StartPoint = RetIsoChrone.Data(Index1).P
-                        tc2.EndPoint = _StartPoint.P
-                        Dim EllipseDist As Double = tc2.SurfaceDistance
-                        tc2.EndPoint = CurDest
-                        EllipseDist += tc2.SurfaceDistance
+                RetIsoChrone.CleanUp()
+                'Dim CurDest As Coords
+                'If _DestPoint2 IsNot Nothing Then
+                '    CurDest = GSHHS_Reader.PointToSegmentIntersect(_StartPoint.P, _DestPoint1, _DestPoint2)
+                'Else
+                '    CurDest = _DestPoint1
+                'End If
 
-                        If EllipseDist > MaxEllipseDist Then
-                            RetIsoChrone.Data(Index1) = Nothing
-                        End If
-                    End If
-                Next
+                'For Index1 = 0 To RetIsoChrone.PointSet.Count - 1
+                '    If RetIsoChrone.Data(Index1) IsNot Nothing Then
+                '        tc2.StartPoint = RetIsoChrone.Data(Index1).P
+                '        tc2.EndPoint = _StartPoint.P
+                '        Dim EllipseDist As Double = tc2.SurfaceDistance
+                '        tc2.EndPoint = CurDest
+                '        EllipseDist += tc2.SurfaceDistance
+
+                '        If EllipseDist > MaxEllipseDist Then
+                '            RetIsoChrone.Data(Index1) = Nothing
+                '        End If
+                '    End If
+                'Next
                 'Console.WriteLine("Iso complete2 " & Now.Subtract(IsoStart).ToString)
             End If
 
@@ -354,7 +354,7 @@ Public Class IsoRouter
 
 #If DBG_ISO = 1 Then
             If CurIsoChrone IsNot Nothing Then
-                Console.WriteLine("Isochrone computed in " & IsoDuratoin & " rate : " & IsoDuratoin / CurIsoChrone.Data.Length)
+                Console.WriteLine("Isochrone computed in " & IsoDuratoin & " rate : " & IsoDuratoin / CurIsoChrone.PointSet.Count)
             End If
             'Console.WriteLine("IsoDone" & Now.Subtract(LoopStart).TotalMilliseconds)
 #End If
@@ -363,7 +363,7 @@ Public Class IsoRouter
             P = _CurBest
             If Not CurIsoChrone Is Nothing Then
                 _IsoChrones.AddLast(CurIsoChrone)
-                For Each rp As clsrouteinfopoints In CurIsoChrone.Data
+                For Each rp As clsrouteinfopoints In CurIsoChrone.PointSet
                     If Not rp Is Nothing Then
                         If rp.ImproveDTF(P) Then
                             P = rp
@@ -386,12 +386,12 @@ Public Class IsoRouter
                 RouteComplete = True
             ElseIf P IsNot Nothing AndAlso P.DTF < Dist * 0.01 Then
                 RouteComplete = True
-            ElseIf Not CurIsoChrone.Data(Loxo) Is Nothing Then
-                TC.EndPoint = CurIsoChrone.Data(Loxo).P
-                If TC.SurfaceDistance >= Dist Then
-                    RouteComplete = True
+                'ElseIf Not CurIsoChrone.Data(Loxo) Is Nothing Then
+                '    TC.EndPoint = CurIsoChrone.Data(Loxo).P
+                '    If TC.SurfaceDistance >= Dist Then
+                '        RouteComplete = True
 
-                End If
+                '    End If
             End If
             If Now.Subtract(LastUpdate).TotalSeconds > 2 Then
                 RaiseEvent PropertyChanged(Me, RouteurModel.PropTmpRoute)
@@ -416,6 +416,8 @@ Public Class IsoRouter
         Static HitCount As Long = 1
         Static LoopCount As Long = 0
         Dim StartTick As DateTime = Now
+
+        Debug.Assert(Duration.Ticks > 0)
 
         Try
             If Start Is Nothing OrElse Start.P Is Nothing Then
@@ -475,6 +477,10 @@ Public Class IsoRouter
                     'TC.StartPoint = TC.EndPoint
 
                 Next
+                If MI Is Nothing Then
+                    Dim i2 As Integer = 0
+                End If
+
             Else
                 CurDate = Start.T
                 MI = Nothing
@@ -500,6 +506,7 @@ Public Class IsoRouter
                 TotalDist = Speed * Duration.TotalHours
                 TC.StartPoint = TC.ReachDistance(TotalDist, Cap)
                 CurDate = CurDate.Add(Duration)
+
             End If
             TC.EndPoint = TC.StartPoint
             TC.StartPoint = Start.P
@@ -580,15 +587,15 @@ Public Class IsoRouter
         Dim RP As clsrouteinfopoints = Nothing
         Try
             For Each iso As IsoChrone In _IsoChrones
-                Dim index As Integer = iso.IndexFromAngle(Loxo)
+                'Dim index As Integer = iso.IndexFromAngle(Loxo)
 
-                If Not iso.Data(index) Is Nothing Then
-                    TC.StartPoint = iso.Data(index).P
-                    If TC.SurfaceDistance < 4 * PixelSize Then
-                        RP = iso.Data(index)
-                        Exit For
-                    End If
-                End If
+                'If Not iso.Data(index) Is Nothing Then
+                '    TC.StartPoint = iso.Data(index).P
+                '    If TC.SurfaceDistance < 4 * PixelSize Then
+                '        RP = iso.Data(index)
+                '        Exit For
+                '    End If
+                'End If
             Next
 
         Catch ex As Exception
@@ -659,25 +666,25 @@ Public Class IsoRouter
         End Get
     End Property
 
-    Private Sub SpinLockEnter(Iso As IsoChrone, Index As Integer)
+    'Private Sub SpinLockEnter(Iso As IsoChrone, Index As Integer)
 
-        Dim GotLock As Boolean = False
-        
-        Do
-            Iso.Locks(Index).Enter(GotLock)
-            If Not GotLock Then
-                Thread.Sleep(1)
-            End If
+    '    Dim GotLock As Boolean = False
 
-        Loop Until GotLock
-        
-    End Sub
+    '    Do
+    '        Iso.Locks(Index).Enter(GotLock)
+    '        If Not GotLock Then
+    '            Thread.Sleep(1)
+    '        End If
 
-    Private Sub SpinLockExit(Iso As IsoChrone, Index As Integer)
-        If Iso.Locks(Index).IsHeldByCurrentThread Then
-            Iso.Locks(Index).Exit()
-        End If
-    End Sub
+    '    Loop Until GotLock
+
+    'End Sub
+
+    'Private Sub SpinLockExit(Iso As IsoChrone, Index As Integer)
+    '    If Iso.Locks(Index).IsHeldByCurrentThread Then
+    '        Iso.Locks(Index).Exit()
+    '    End If
+    'End Sub
 
 
 

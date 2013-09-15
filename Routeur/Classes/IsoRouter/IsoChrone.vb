@@ -19,50 +19,21 @@ Imports System.Threading
 
 Public Class IsoChrone
 
-    Private _Locks() As SpinLock
-    Private _Data() As clsrouteinfopoints
+    'Private _Data() As clsrouteinfopoints
+    Private _PointSet As New LinkedList(Of clsrouteinfopoints)
     Private _Drawn As Boolean = False
     Private _IsoChroneLock As New Object
+    Private _SailManager As clsSailManager
 
 
     Private _AngleStep As Double
 
-    Public Sub New(ByVal AngleStep As Double)
-        _AngleStep = AngleStep
-        ReDim _Data(MaxIndex)
-        ReDim _Locks(MaxIndex)
-        Dim I As Integer
-        For i = 0 To MaxIndex
-            _Locks(i) = New SpinLock
-        Next
+    Public Sub New(ByVal Manager As clsSailManager)
+        _SailManager = Manager
+        
     End Sub
 
-    Public Property Data() As clsrouteinfopoints()
-        Get
-            Return _Data
-        End Get
-        Set(ByVal value As clsrouteinfopoints())
-            _Data = value
-        End Set
-    End Property
-
-    Public Property Data(ByVal Angle As Double) As clsrouteinfopoints
-        Get
-            Return _Data(IndexFromAngle(Angle))
-        End Get
-        Set(ByVal value As clsrouteinfopoints)
-            _Data(IndexFromAngle(Angle)) = value
-        End Set
-    End Property
-
-    Public Property Data(ByVal index As Integer) As clsrouteinfopoints
-        Get
-            Return _Data(index)
-        End Get
-        Set(ByVal value As clsrouteinfopoints)
-            _Data(index) = value
-        End Set
-    End Property
+    
 
     Public Property Drawn() As Boolean
         Get
@@ -73,29 +44,78 @@ Public Class IsoChrone
         End Set
     End Property
 
-    Public ReadOnly Property IndexFromAngle(ByVal Angle As Double) As Integer
+    ReadOnly Property PointSet As LinkedList(Of clsrouteinfopoints)
         Get
-            Debug.Assert(Not Double.IsNaN(Angle))
-            Dim RetValue As Integer = CInt(Math.Floor((Angle + 360) / _AngleStep))
-            Return RetValue Mod _Data.Length
+            Return _PointSet
         End Get
+
     End Property
 
-    Public ReadOnly Property AngleFromIndex(ByVal Index As Integer) As Double
-        Get
-            Return Index * _AngleStep
-        End Get
-    End Property
+    Function MaxIndex() As Integer
+        Return _PointSet.Count
+    End Function
 
-    Public ReadOnly Property Locks(index As Integer) As SpinLock
-        Get
-            Return _Locks(index)
-        End Get
-    End Property
-    Public ReadOnly Property MaxIndex() As Integer
-        Get
-            Return CInt(Math.Floor((360 - _AngleStep) / _AngleStep))
-        End Get
-    End Property
+    Sub AddPoint(P1 As clsrouteinfopoints)
+        SyncLock (_IsoChroneLock)
+            _PointSet.AddLast(P1)
+        End SyncLock
+    End Sub
+
+    Sub CleanUp()
+
+        Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
+        Dim Discard As Boolean
+        Dim PrevPoint As clsrouteinfopoints = Nothing
+        For Each Point In (From P In _PointSet Order By P.CapFromPos)
+            Discard = False
+RestartLoop:
+            For Each Point2 In _NextPointSet
+                If Point2.CapFromPos < Point.CapFromPos Then
+                    PrevPoint = Point2
+                End If
+                If Math.Abs(Point2.CapFromPos - Point.CapFromPos) < 1 Then
+                    If Point2.DistFromPos > Point.DistFromPos Then
+                        Discard = CheckPointIsBehind(Point2, Point)
+                        If Discard Then
+                            Exit For
+                        End If
+                    Else
+                        Discard = CheckPointIsBehind(Point, Point2)
+                        If Discard Then
+                            _NextPointSet.Remove(Point2)
+                            GoTo RestartLoop
+                        End If
+                    End If
+                    
+                End If
+            Next
+
+            If Not Discard Then
+                If PrevPoint Is Nothing Then
+                    _NextPointSet.AddLast(Point)
+                Else
+                    _NextPointSet.AddAfter(_NextPointSet.Find(PrevPoint), Point)
+
+                End If
+            End If
+
+        Next
+        Dim i As Integer = 0
+    End Sub
+
+    Private Function CheckPointIsBehind(StartPt As clsrouteinfopoints, EndPt As clsrouteinfopoints) As Boolean
+        Dim Tc As New TravelCalculator With {.StartPoint = StartPt.P, .EndPoint = EndPt.P}
+        Dim WD As Double = WindAngle(Tc.LoxoCourse_Deg, StartPt.WindDir)
+        Dim MinAngle As Double
+        Dim MaxAngle As Double
+        _SailManager.GetCornerAngles(StartPt.WindStrength, MinAngle, MaxAngle)
+        If WD > MaxAngle Or WD < MinAngle Then
+            Return True
+        Else
+            Return False
+        End If
+    End Function
+
+    
 
 End Class
