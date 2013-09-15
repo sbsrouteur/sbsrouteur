@@ -127,10 +127,10 @@ Partial Public Class _2D_Viewer
 
     Public Function LatToCanvas(ByVal V As Double) As Double
 
-        V = V / 180 * PI
+        V = V / 180.0 * PI
         V = Log(Tan(V) + 1 / Cos(V))
-        V = V / PI * 180
-        Return ActualHeight / 2 - (V - LatOffset) * Scale
+        V = V / PI * 180.0
+        Return ActualHeight / 2.0 - (V - LatOffset) * Scale
 
     End Function
 
@@ -140,7 +140,7 @@ Partial Public Class _2D_Viewer
         'If CenterMapOnAnteMeridien AndAlso V < 0 Then
         'Return ActualWidth / 2 + (V - LonOffset + 360) * Scale
         'Else
-        Return ActualWidth / 2 + (V - LonOffset) * Scale
+        Return ActualWidth / 2.0 + (V - LonOffset) * Scale
         'End If
 
     End Function
