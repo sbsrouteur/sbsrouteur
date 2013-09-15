@@ -1,0 +1,38 @@
+﻿<!--
+ This file is part of Routeur.
+Copyright (C) 2010-2013  sbsRouteur(at)free.fr
+
+Routeur is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Routeur is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
+
+<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	x:Class="frmRoutingProgress"
+	x:Name="Window"
+	Title="{Binding Title, Mode=Default}" mc:Ignorable="d"  Icon="Graphics/yacht.ico" WindowStyle="ToolWindow" Height="79" ResizeMode="NoResize">
+
+	<Grid x:Name="LayoutRoot">
+		
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+		</Grid.RowDefinitions>
+		<ProgressBar Grid.ColumnSpan="2" Height="18	" d:Value="23" Value="{Binding ProgressValue, Mode=OneWay}" Margin="{DynamicResource DefMargin}"/>
+		<StackPanel Orientation="Horizontal" Grid.Row="1" >
+			<TextBlock Text="Complete in :" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}"/>
+			<TextBlock Text="{Binding ProgressETA, Mode=Default}" TextWrapping="Wrap" Margin="{DynamicResource DefMargin}"/>
+		</StackPanel>
+	</Grid>
+</Window>

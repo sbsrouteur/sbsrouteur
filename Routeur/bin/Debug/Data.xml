@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Points>
+  <Point Name="P1" Lat="0.286" Lon = "0.614"/>
+  <Point Name="Dest" Lat = "0.458" Lon = "0.622" />
+  <Point Name="Les Sables" Lat = "1.458" Lon = "1.622"/>
+    
+</Points>
