@@ -61,32 +61,40 @@ Public Class IsoChrone
         End SyncLock
     End Sub
 
+    
+
     Sub CleanUp()
 
         Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
         Dim Discard As Boolean
         Dim PrevPoint As clsrouteinfopoints = Nothing
+        Dim MinDist As Double = 1000000.0
+
+        For Each Point In _PointSet
+            If Point.DistFromPos < MinDist Then
+                MinDist = Point.DistFromPos
+            End If
+        Next
+
+        Dim MinAngle As Double = 1 / CLng(MinDist)
+        If MinAngle < 1 Then
+            MinAngle = 1
+        End If
+
         For Each Point In (From P In _PointSet Order By P.CapFromPos)
             Discard = False
 RestartLoop:
             For Each Point2 In _NextPointSet
-                If Point2.CapFromPos < Point.CapFromPos Then
-                    PrevPoint = Point2
+
+                If CheckPointIsBehind(Point2, Point) Then
+                    Discard = True
+                    Exit For
                 End If
-                If Math.Abs(Point2.CapFromPos - Point.CapFromPos) < 1 Then
-                    If Point2.DistFromPos > Point.DistFromPos Then
-                        Discard = CheckPointIsBehind(Point2, Point)
-                        If Discard Then
-                            Exit For
-                        End If
-                    Else
-                        Discard = CheckPointIsBehind(Point, Point2)
-                        If Discard Then
-                            _NextPointSet.Remove(Point2)
-                            GoTo RestartLoop
-                        End If
-                    End If
-                    
+
+                If CheckPointIsBehind(Point, Point2) Then
+                    Dim Node = _NextPointSet.Find(Point2)
+                    _NextPointSet.Remove(Node)
+                    GoTo RestartLoop
                 End If
             Next
 
@@ -100,12 +108,16 @@ RestartLoop:
             End If
 
         Next
+        _PointSet.Clear()
+        For Each Point In (From P In _NextPointSet Order By P.CapFromPos)
+            _PointSet.AddLast(Point)
+        Next
         Dim i As Integer = 0
     End Sub
 
     Private Function CheckPointIsBehind(StartPt As clsrouteinfopoints, EndPt As clsrouteinfopoints) As Boolean
         Dim Tc As New TravelCalculator With {.StartPoint = StartPt.P, .EndPoint = EndPt.P}
-        Dim WD As Double = WindAngle(Tc.LoxoCourse_Deg, StartPt.WindDir)
+        Dim WD As Double = WindAngle(Tc.LoxoCourse_Deg, StartPt.CapFromPos)
         Dim MinAngle As Double
         Dim MaxAngle As Double
         _SailManager.GetCornerAngles(StartPt.WindStrength, MinAngle, MaxAngle)
