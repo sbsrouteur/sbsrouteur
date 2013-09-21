@@ -81,38 +81,25 @@ Public Class IsoChrone
             MinAngle = 1
         End If
 
+        Dim Poly As New List(Of DotSpatial.Topology.Coordinate)
         For Each Point In (From P In _PointSet Order By P.CapFromPos)
-            Discard = False
-RestartLoop:
-            For Each Point2 In _NextPointSet
+            Poly.Add(New DotSpatial.Topology.Coordinate(Point.P.Lon_Deg, Point.P.Lat_Deg))
+        Next
 
-                If CheckPointIsBehind(Point2, Point) Then
-                    Discard = True
-                    Exit For
-                End If
+        Dim Polygon As New DotSpatial.Topology.Polygon(Poly)
+        Dim G As DotSpatial.Topology.IGeometry = Polygon.al
+        Debug.Print(CStr(G.Coordinates.Count))
 
-                If CheckPointIsBehind(Point, Point2) Then
-                    Dim Node = _NextPointSet.Find(Point2)
-                    _NextPointSet.Remove(Node)
-                    GoTo RestartLoop
-                End If
-            Next
-
-            If Not Discard Then
-                If PrevPoint Is Nothing Then
-                    _NextPointSet.AddLast(Point)
-                Else
-                    _NextPointSet.AddAfter(_NextPointSet.Find(PrevPoint), Point)
-
-                End If
+        For Each coord In G.Coordinates
+            Dim P = (From pt In _PointSet Where pt.P.Lon_Deg = coord.X And pt.P.Lat_Deg = coord.Y).FirstOrDefault
+            If P IsNot Nothing Then
+                _NextPointSet.AddLast(P)
             End If
+        Next
 
-        Next
         _PointSet.Clear()
-        For Each Point In (From P In _NextPointSet Order By P.CapFromPos)
-            _PointSet.AddLast(Point)
-        Next
-        Dim i As Integer = 0
+        _PointSet = _NextPointSet
+        Return
     End Sub
 
     Private Function CheckPointIsBehind(StartPt As clsrouteinfopoints, EndPt As clsrouteinfopoints) As Boolean
