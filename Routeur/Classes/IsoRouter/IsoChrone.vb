@@ -24,13 +24,14 @@ Public Class IsoChrone
     Private _Drawn As Boolean = False
     Private _IsoChroneLock As New Object
     Private _SailManager As clsSailManager
-
+    Private _StartPoint As Coords
 
     Private _AngleStep As Double
 
-    Public Sub New(ByVal Manager As clsSailManager)
+    Public Sub New(ByVal Manager As clsSailManager, StartPoint As Coords)
         _SailManager = Manager
-        
+        _StartPoint = StartPoint
+
     End Sub
 
     
@@ -66,65 +67,44 @@ Public Class IsoChrone
     Sub CleanUp()
 
         Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
-        Dim Discard As Boolean
         Dim PrevPoint As clsrouteinfopoints = Nothing
-        Dim MinDist As Double = 1000000.0
-
-        For Each Point In _PointSet
-            If Point.DistFromPos < MinDist Then
-                MinDist = Point.DistFromPos
-            End If
-        Next
-
-        Dim MinAngle As Double = 1 / CLng(MinDist)
-        If MinAngle < 1 Then
-            MinAngle = 1
-        End If
-
-        Dim Poly As New List(Of DotSpatial.Topology.Coordinate)
+        Dim NextPoint As clsrouteinfopoints = Nothing
         For Each Point In (From P In _PointSet Order By P.CapFromPos)
-            Poly.Add(New DotSpatial.Topology.Coordinate(Point.P.Lon_Deg, Point.P.Lat_Deg))
-        Next
-
-        Dim Polygon As New DotSpatial.Topology.Polygon(Poly)
-        Dim G As DotSpatial.Topology.IGeometry = Polygon.ConvexHull
-        Debug.Print(CStr(G.Coordinates.Count))
-
-        Dim PrevP As DotSpatial.Topology.Coordinate = Nothing
-        For Each coord In G.Coordinates
-            Dim P = (From pt In _PointSet Where pt.P.Lon_Deg = coord.X And pt.P.Lat_Deg = coord.Y).FirstOrDefault
-            If P IsNot Nothing Then
-                If PrevP Is Nothing Then
-                    _NextPointSet.AddLast(P)
-
-                Else
-                    Dim Tc As New TravelCalculator With {.StartPoint = New Coords(PrevP), .EndPoint = New Coords(coord)}
-                    Dim MidPoint As Coords = Tc.ReachDistance(Tc.SurfaceDistance / 2, Tc.LoxoCourse_Deg)
-                    Dim Dist As Double = Tc.SurfaceDistance
-                    Tc.StartPoint = MidPoint
-
-                    Dim Started As Boolean = False
-                    For Each PolyPoint In Poly
-                        If Not Started Then
-                            Started = PolyPoint.X = PrevP.X AndAlso PolyPoint.Y = PrevP.Y
-                        Else
-                            If PolyPoint.X = coord.X AndAlso PolyPoint.Y = coord.Y Then
-                                Exit For
-                            End If
-
-                            Tc.EndPoint = New Coords(PolyPoint)
-                            If Tc.SurfaceDistance < Dist Then
-                                Dim P2 = (From pt In _PointSet Where pt.P.Lon_Deg = PolyPoint.X And pt.P.Lat_Deg = PolyPoint.Y).FirstOrDefault
-                                If P2 IsNot Nothing Then
-                                    _NextPointSet.AddLast(P2)
-                                End If
-                            End If
-                        End If
-                    Next
-                End If
-                PrevP = coord
+            If NextPoint IsNot Nothing AndAlso Point.P.Lon <> NextPoint.P.Lon AndAlso Point.P.Lat <> NextPoint.P.Lat Then
+                Continue For
+            ElseIf NextPoint IsNot Nothing AndAlso Point.P.Lon = NextPoint.P.Lon AndAlso Point.P.Lat = NextPoint.P.Lat Then
+                PrevPoint = Point
+                Continue For
             End If
-            
+
+            If PrevPoint IsNot Nothing Then
+                Dim tc As New TravelCalculator With {.StartPoint = PrevPoint.P, .EndPoint = Point.P}
+                Dim TC2 As New TravelCalculator With {.StartPoint = Point.P}
+                Dim MinDist As Double = Double.NaN
+                Dim MinAngle As Double = Double.NaN
+                Dim CurNextPoint As clsrouteinfopoints = Nothing
+                Dim NewDist As Double = Double.NaN
+                Dim NewAngle As Double = Double.NaN
+                For Each Point2 In (From P In _PointSet Order By P.CapFromPos)
+                    TC2.EndPoint = Point2.P
+                    NewDist = TC2.SurfaceDistance
+                    NewAngle = WindAngle(tc.LoxoCourse_Deg, TC2.LoxoCourse_Deg)
+                    If NewDist = 0 Then
+                        Continue For
+                    End If
+                    If Double.IsNaN(MinAngle) OrElse (MinAngle > NewAngle And MinDist > NewDist) Then
+                        MinAngle = NewAngle
+                        MinDist = TC2.SurfaceDistance
+                        CurNextPoint = Point2
+                    End If
+                Next
+
+                NextPoint = CurNextPoint
+                _NextPointSet.AddLast(CurNextPoint)
+
+            Else
+                PrevPoint = Point
+            End If
         Next
 
         _PointSet.Clear()

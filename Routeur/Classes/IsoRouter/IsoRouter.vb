@@ -81,7 +81,7 @@ Public Class IsoRouter
         If Iso Is Nothing Then
             Dim TcInit As New TravelCalculator With {.StartPoint = _StartPoint.P}
             'Special Case for startpoint
-            RetIsoChrone = New IsoChrone(_SailManager)
+            RetIsoChrone = New IsoChrone(_SailManager, _StartPoint.P)
             For alpha = 0 To 360 - _AngleStep Step _AngleStep
                 P1 = ReachPoint(_StartPoint, alpha, _VacLength)
                 If Not P1 Is Nothing Then
@@ -93,7 +93,7 @@ Public Class IsoRouter
             Next
 
         Else
-            RetIsoChrone = New IsoChrone(_SailManager)
+            RetIsoChrone = New IsoChrone(_SailManager, _StartPoint.P)
             Dim StartIndex As Integer = 0
             Dim CurStep As TimeSpan = _VacLength
             Dim FirstIndex As Integer = -1
@@ -382,7 +382,7 @@ Public Class IsoRouter
                 '    RouteComplete = True
             End If
 
-            If CurIsoChrone Is Nothing Then
+            If CurIsoChrone Is Nothing OrElse CurIsoChrone.PointSet.Count = 0 Then
                 RouteComplete = True
             ElseIf P IsNot Nothing AndAlso P.DTF < Dist * 0.01 Then
                 RouteComplete = True
