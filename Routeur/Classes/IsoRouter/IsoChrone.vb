@@ -87,14 +87,44 @@ Public Class IsoChrone
         Next
 
         Dim Polygon As New DotSpatial.Topology.Polygon(Poly)
-        Dim G As DotSpatial.Topology.IGeometry = Polygon.al
+        Dim G As DotSpatial.Topology.IGeometry = Polygon.ConvexHull
         Debug.Print(CStr(G.Coordinates.Count))
 
+        Dim PrevP As DotSpatial.Topology.Coordinate = Nothing
         For Each coord In G.Coordinates
             Dim P = (From pt In _PointSet Where pt.P.Lon_Deg = coord.X And pt.P.Lat_Deg = coord.Y).FirstOrDefault
             If P IsNot Nothing Then
-                _NextPointSet.AddLast(P)
+                If PrevP Is Nothing Then
+                    _NextPointSet.AddLast(P)
+
+                Else
+                    Dim Tc As New TravelCalculator With {.StartPoint = New Coords(PrevP), .EndPoint = New Coords(coord)}
+                    Dim MidPoint As Coords = Tc.ReachDistance(Tc.SurfaceDistance / 2, Tc.LoxoCourse_Deg)
+                    Dim Dist As Double = Tc.SurfaceDistance
+                    Tc.StartPoint = MidPoint
+
+                    Dim Started As Boolean = False
+                    For Each PolyPoint In Poly
+                        If Not Started Then
+                            Started = PolyPoint.X = PrevP.X AndAlso PolyPoint.Y = PrevP.Y
+                        Else
+                            If PolyPoint.X = coord.X AndAlso PolyPoint.Y = coord.Y Then
+                                Exit For
+                            End If
+
+                            Tc.EndPoint = New Coords(PolyPoint)
+                            If Tc.SurfaceDistance < Dist Then
+                                Dim P2 = (From pt In _PointSet Where pt.P.Lon_Deg = PolyPoint.X And pt.P.Lat_Deg = PolyPoint.Y).FirstOrDefault
+                                If P2 IsNot Nothing Then
+                                    _NextPointSet.AddLast(P2)
+                                End If
+                            End If
+                        End If
+                    Next
+                End If
+                PrevP = coord
             End If
+            
         Next
 
         _PointSet.Clear()
