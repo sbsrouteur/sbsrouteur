@@ -43,6 +43,11 @@ Public Class Coords
     Private _n_lon As Double
     Private _n_lon_deg As Double
     Private _Lon_Deg As Double
+    
+    Sub New(PrevP As DotSpatial.Topology.Coordinate)
+        Me.Lat_Deg = PrevP.Y
+        Me.Lon_Deg = PrevP.X
+    End Sub
     'Private _HashCode As Long = 0
 
 
