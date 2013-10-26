@@ -71,8 +71,6 @@ Public Class IsoRouter
 
         Dim RetIsoChrone As IsoChrone = Nothing
         Dim P1 As clsrouteinfopoints
-        Dim Index1 As Integer
-        Dim OldP1 As clsrouteinfopoints
         Dim ReachPointDuration As Long = 0
         Dim ReachPointCount As Long = 0
         Dim MaxEllipseDist As Double
@@ -214,9 +212,7 @@ Public Class IsoRouter
                                      Dim alpha As Double = (MinAngle + _AngleStep * AlphaIndex) Mod 360
                                      Dim P As clsrouteinfopoints
                                      Dim tc As New TravelCalculator
-                                     Dim Index As Integer
-                                     Dim OldP As clsrouteinfopoints
-
+                                    
                                      'If WindAngle(alpha, rp.Cap) > 140 Then
                                      '    Return
                                      'End If
