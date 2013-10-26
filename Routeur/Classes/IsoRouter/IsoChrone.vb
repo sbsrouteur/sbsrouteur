@@ -67,44 +67,66 @@ Public Class IsoChrone
 
     Sub CleanUp()
 
-        Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
         Dim PrevPoint As clsrouteinfopoints = Nothing
         Dim NextPoint As clsrouteinfopoints = Nothing
         Dim Count As Integer = 0
         Dim Ignored As Integer = 0
         Dim WorkSet As New LinkedList(Of clsrouteinfopoints)
-        WorkSet = _PointSet
+        WorkSet = New LinkedList(Of clsrouteinfopoints)(_PointSet)
+
+        Dim coordslist As New List(Of DotSpatial.Topology.Coordinate)
+        Dim Angles(WorkSet.Count - 1) As Double
+        Dim Dists(WorkSet.Count - 1) As Double
+        Dim FilteredDist(WorkSet.Count - 1) As Double
+        Dim TrimFactor As Double = 0.8
+        WorkSet = New LinkedList(Of clsrouteinfopoints)(From P In WorkSet Order By P.CapFromPos)
+        Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
+        Dim PrevCount As Integer = 0
         Do
-            Dim polygon As Topology.Polygon
-            Dim coordslist As New List(Of DotSpatial.Topology.Coordinate)
-            Ignored = 0
-            Count = 1
-            polygon = New Topology.Polygon(coordslist)
-            coordslist.Add(New Topology.Coordinate(_StartPoint.Lat, _StartPoint.Lon))
-            For Each Point In (From P In WorkSet Order By P.CapFromPos)
+            PrevCount = _NextPointSet.Count
+            _NextPointSet.Clear()
+            Dim Index As Integer = 0
 
-                If Count < 2 Then
-                    _NextPointSet.AddLast(Point)
-                    coordslist.Add(New Topology.Coordinate(Point.P.Lat, Point.P.Lon))
-                    Count += 1
-                Else
-
-                    'If point is in hull, ignore it
-                    If polygon.Contains(New Topology.Point(Point.P.Lat, Point.P.Lon)) Then
-                        Ignored += 1
-                    Else
-                        _NextPointSet.AddLast(Point)
-                        coordslist.Add(New Topology.Coordinate(Point.P.Lat, Point.P.Lon))
-                        Count += 1
-                    End If
-                End If
+            'Using sr As New IO.StreamWriter("c:\temp\dists.csv")
+            For Each Point In WorkSet
+                Dists(Index) = Point.DistFromPos
+                Angles(Index) = Point.CapFromPos
+                Index += 1
 
             Next
-            WorkSet.Clear()
-            WorkSet = _NextPointSet
-        Loop Until Ignored = 0
-        _PointSet.Clear()
-        _PointSet = _NextPointSet
+
+
+            Dim factor As Double
+
+            For Index = 0 To Dists.Length - 1
+                FilteredDist(Index) = 0
+                factor = 0
+                Dim PrevD As Double = 0
+                Dim NextD As Double = 0
+                Dim MaxD As Double = 0
+
+                For i As Integer = -2 To 2
+                    FilteredDist(Index) += Dists((Index + i + Dists.Length) Mod Dists.Length) * (2 ^ (2 - Math.Abs(i)))
+                    factor += (2 ^ (2 - Math.Abs(i)))
+                Next
+                FilteredDist(Index) /= factor
+                'sr.WriteLine(Angles(Index).ToString & ";" & Dists(Index).ToString & ";" & FilteredDist(Index).ToString)
+            Next
+            'sr.Close()
+            'End Using
+
+            Index = 0
+            For Each Point In WorkSet
+                If (Math.Abs(Angles(Index) - Angles((Index + 1) Mod (Angles.Count - 1))) > 1) OrElse (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
+                    _NextPointSet.AddLast(Point)
+                End If
+                Index += 1
+            Next
+            WorkSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
+            ReDim Dists(WorkSet.Count - 1)
+            ReDim FilteredDist(WorkSet.Count - 1)
+        Loop Until _NextPointSet.Count <= 200 Or _NextPointSet.Count = PrevCount
+        _PointSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
         Return
     End Sub
 
