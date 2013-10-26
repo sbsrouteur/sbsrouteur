@@ -16,6 +16,7 @@
 
 Imports Routeur.VLM_Router
 Imports System.Threading
+Imports DotSpatial
 
 Public Class IsoChrone
 
@@ -34,7 +35,7 @@ Public Class IsoChrone
 
     End Sub
 
-    
+
 
     Public Property Drawn() As Boolean
         Get
@@ -62,51 +63,46 @@ Public Class IsoChrone
         End SyncLock
     End Sub
 
-    
+
 
     Sub CleanUp()
 
         Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
         Dim PrevPoint As clsrouteinfopoints = Nothing
         Dim NextPoint As clsrouteinfopoints = Nothing
-        For Each Point In (From P In _PointSet Order By P.CapFromPos)
-            If NextPoint IsNot Nothing AndAlso Point.P.Lon <> NextPoint.P.Lon AndAlso Point.P.Lat <> NextPoint.P.Lat Then
-                Continue For
-            ElseIf NextPoint IsNot Nothing AndAlso Point.P.Lon = NextPoint.P.Lon AndAlso Point.P.Lat = NextPoint.P.Lat Then
-                PrevPoint = Point
-                Continue For
-            End If
+        Dim Count As Integer = 0
+        Dim Ignored As Integer = 0
+        Dim WorkSet As New LinkedList(Of clsrouteinfopoints)
+        WorkSet = _PointSet
+        Do
+            Dim polygon As Topology.Polygon
+            Dim coordslist As New List(Of DotSpatial.Topology.Coordinate)
+            Ignored = 0
+            Count = 1
+            polygon = New Topology.Polygon(coordslist)
+            coordslist.Add(New Topology.Coordinate(_StartPoint.Lat, _StartPoint.Lon))
+            For Each Point In (From P In WorkSet Order By P.CapFromPos)
 
-            If PrevPoint IsNot Nothing Then
-                Dim tc As New TravelCalculator With {.StartPoint = PrevPoint.P, .EndPoint = Point.P}
-                Dim TC2 As New TravelCalculator With {.StartPoint = Point.P}
-                Dim MinDist As Double = Double.NaN
-                Dim MinAngle As Double = Double.NaN
-                Dim CurNextPoint As clsrouteinfopoints = Nothing
-                Dim NewDist As Double = Double.NaN
-                Dim NewAngle As Double = Double.NaN
-                For Each Point2 In (From P In _PointSet Order By P.CapFromPos)
-                    TC2.EndPoint = Point2.P
-                    NewDist = TC2.SurfaceDistance
-                    NewAngle = WindAngle(tc.LoxoCourse_Deg, TC2.LoxoCourse_Deg)
-                    If NewDist = 0 Then
-                        Continue For
+                If Count < 2 Then
+                    _NextPointSet.AddLast(Point)
+                    coordslist.Add(New Topology.Coordinate(Point.P.Lat, Point.P.Lon))
+                    Count += 1
+                Else
+
+                    'If point is in hull, ignore it
+                    If polygon.Contains(New Topology.Point(Point.P.Lat, Point.P.Lon)) Then
+                        Ignored += 1
+                    Else
+                        _NextPointSet.AddLast(Point)
+                        coordslist.Add(New Topology.Coordinate(Point.P.Lat, Point.P.Lon))
+                        Count += 1
                     End If
-                    If Double.IsNaN(MinAngle) OrElse (MinAngle > NewAngle And MinDist > NewDist) Then
-                        MinAngle = NewAngle
-                        MinDist = TC2.SurfaceDistance
-                        CurNextPoint = Point2
-                    End If
-                Next
+                End If
 
-                NextPoint = CurNextPoint
-                _NextPointSet.AddLast(CurNextPoint)
-
-            Else
-                PrevPoint = Point
-            End If
-        Next
-
+            Next
+            WorkSet.Clear()
+            WorkSet = _NextPointSet
+        Loop Until Ignored = 0
         _PointSet.Clear()
         _PointSet = _NextPointSet
         Return
@@ -125,6 +121,6 @@ Public Class IsoChrone
         End If
     End Function
 
-    
+
 
 End Class
