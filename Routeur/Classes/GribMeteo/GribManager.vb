@@ -1063,6 +1063,10 @@ Public Class GribManager
             f2.Close()
             '_Process.Dispose()
 
+            If S.Trim = "" Then
+                Return False
+            End If
+
             Dim lines() As String = S.Split(CChar(vbLf))
 
             'Check gribdate
