@@ -22,7 +22,7 @@ Imports System.Threading.Tasks
 
 Public Class IsoRouter
     Implements INotifyPropertyChanged
-    
+
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
     Public Event Log(ByVal msg As String)
     Public Event RouteComplete()
@@ -49,7 +49,7 @@ Public Class IsoRouter
     Private IsoRouterLock As New Object
     Private _DB As DBWrapper
     Private _MapLevel As Integer
-    
+
 #Const DBG_ISO = 1
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal VacLength As TimeSpan, MapLevel As Integer, EllipseExcent As Double)
@@ -83,8 +83,14 @@ Public Class IsoRouter
             For alpha = 0 To 360 - _AngleStep Step _AngleStep
                 P1 = ReachPoint(_StartPoint, alpha, _VacLength)
                 If Not P1 Is Nothing Then
-                    
-                        RetIsoChrone.AddPoint(P1)
+
+                    Dim tc As New TravelCalculator
+                    tc.StartPoint = _StartPoint.P
+                    tc.EndPoint = P1.P
+                    P1.DistFromPos = tc.SurfaceDistance
+                    P1.CapFromPos = tc.LoxoCourse_Deg
+
+                    RetIsoChrone.AddPoint(P1)
 
 
                 End If
@@ -103,14 +109,14 @@ Public Class IsoRouter
             Dim SumSpeed As Double = 0
             Dim NbSpeed As Double = 0
 
-            'For i = 0 To Iso.Data.Length - 1
-            '    If Iso.Data(i) IsNot Nothing Then
-            '        MaxDist = Math.Max(MaxDist, Iso.Data(i).DistFromPos)
-            '        MaxSpeed = Math.Max(MaxSpeed, Iso.Data(i).Speed)
-            '        SumSpeed += Iso.Data(i).Speed
-            '        NbSpeed += 1
-            '    End If
-            'Next
+            For i = 0 To Iso.PointSet.Count - 1
+                If Iso.PointSet(i) IsNot Nothing Then
+                    MaxDist = Math.Max(MaxDist, Iso.PointSet(i).DistFromPos)
+                    MaxSpeed = Math.Max(MaxSpeed, Iso.PointSet(i).Speed)
+                    SumSpeed += Iso.PointSet(i).Speed
+                    NbSpeed += 1
+                End If
+            Next
 
             '            Dim AvgSpeed As Double = SumSpeed / NbSpeed
 
@@ -138,10 +144,10 @@ Public Class IsoRouter
             '                    '    CurStep = _IsoStep
             '                    'End If
 
-            '                    'Dim NbMinutes As Double = New TimeSpan(CLng(2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / MaxSpeed * 0.6 * TimeSpan.TicksPerHour)).TotalMinutes
-            '                    Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / MaxSpeed * TimeSpan.TicksPerHour)).TotalMinutes
-            '                    NbMinutes = Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes) * RouteurModel.VacationMinutes
-            '                    CurStep = New TimeSpan(0, CInt(NbMinutes), 0)
+            'Dim NbMinutes As Double = New TimeSpan(CLng(2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / MaxSpeed * 0.6 * TimeSpan.TicksPerHour)).TotalMinutes
+            Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / 360 / MaxSpeed * TimeSpan.TicksPerHour)).TotalMinutes
+            NbMinutes = Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes) * RouteurModel.VacationMinutes
+            CurStep = New TimeSpan(0, CInt(NbMinutes), 0)
             '#If DBG_ISO = 1 Then
             '                    Console.WriteLine("Iso Starting for " & RetIsoChrone.Data.Length - 1 & " point, duration:" & CurStep.ToString & " AngleStep : " & _AngleStep)
             '#End If
@@ -150,7 +156,7 @@ Public Class IsoRouter
             '                End If
             '            Next
 
-            
+
             Dim tc2 As New TravelCalculator
             tc2.StartPoint = _StartPoint.P
             tc2.EndPoint = GSHHS_Reader.PointToSegmentIntersect(_StartPoint.P, _DestPoint1, _DestPoint2)
@@ -212,7 +218,7 @@ Public Class IsoRouter
                                      Dim alpha As Double = (MinAngle + _AngleStep * AlphaIndex) Mod 360
                                      Dim P As clsrouteinfopoints
                                      Dim tc As New TravelCalculator
-                                    
+
                                      'If WindAngle(alpha, rp.Cap) > 140 Then
                                      '    Return
                                      'End If
