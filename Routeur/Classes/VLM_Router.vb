@@ -950,7 +950,7 @@ Public Class VLM_Router
         Dim L As Double = TC.LoxoCourse_Deg
         Dim O As Double = TC.OrthoCourse_Deg
 
-        If True Or Abs(L - O) < 0.5 OrElse 360 - Abs(L - O) < 1 Then
+        If Abs(L - O) < 0.5 OrElse 360 - Abs(L - O) < 1 Then
             'PlannedRoute.Add(New clsrouteinfopoints With {.P = userPosition})
             PlannedRoute.Add(P)
             Return
