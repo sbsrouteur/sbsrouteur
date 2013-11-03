@@ -130,6 +130,9 @@ Partial Public Class _2D_Viewer
         V = V / 180.0 * PI
         V = Log(Tan(V) + 1 / Cos(V))
         V = V / PI * 180.0
+        If Double.IsNaN(V) Then
+            Dim i As Integer = 0
+        End If
         Return ActualHeight / 2.0 - (V - LatOffset) * Scale
 
     End Function

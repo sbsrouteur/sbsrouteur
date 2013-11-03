@@ -26,6 +26,7 @@ Public Class IsoChrone
     Private _IsoChroneLock As New Object
     Private _SailManager As clsSailManager
     Private _StartPoint As Coords
+    Private _Iso_IndexLut(35) As Integer
 
     Private _AngleStep As Double
 
@@ -127,6 +128,20 @@ Public Class IsoChrone
             ReDim FilteredDist(WorkSet.Count - 1)
         Loop Until _NextPointSet.Count <= 200 Or _NextPointSet.Count = PrevCount
         _PointSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
+
+        'Create IndexLut for IsoChrone
+        Dim CurIndex As Integer = 0
+        Dim PointIndex As Integer = 0
+        _Iso_IndexLut(0) = 0
+        Dim Tc As New TravelCalculator With {.StartPoint = _StartPoint}
+        For Each Point In _PointSet
+            Tc.EndPoint = Point.P
+            If Tc.LoxoCourse_Deg >= 10 * CurIndex Then
+                _Iso_IndexLut(CurIndex) = PointIndex
+                CurIndex += 1
+            End If
+            PointIndex += 1
+        Next
         Return
     End Sub
 
@@ -141,6 +156,37 @@ Public Class IsoChrone
         Else
             Return False
         End If
+    End Function
+
+    Function IndexFromAngle(Loxo As Double) As Integer
+
+        Dim StartIndex As Integer = CInt(Loxo / 10)
+
+        If CDbl(StartIndex) = Loxo / 10 Then
+            Return StartIndex
+        End If
+
+        Dim PointIndex As Integer
+        Dim AngleError As Double = Double.MaxValue
+        Dim Tc As New TravelCalculator
+        Try
+            Tc.StartPoint = _StartPoint
+
+            For PointIndex = StartIndex To _PointSet.Count - 1
+                Tc.EndPoint = _PointSet(PointIndex).P
+                If Math.Abs(Loxo - Tc.LoxoCourse_Deg) < AngleError Then
+                    AngleError = Math.Abs(Loxo - Tc.LoxoCourse_Deg)
+                Else
+                    Return PointIndex
+                End If
+            Next
+
+            Return 0
+        Finally
+            Tc.StartPoint = Nothing
+            Tc.EndPoint = Nothing
+        End Try
+
     End Function
 
 
