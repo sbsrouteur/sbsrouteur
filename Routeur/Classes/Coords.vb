@@ -57,9 +57,22 @@ Public Class Coords
         End Get
         Set(ByVal value As Double)
             _Lat = value
-            _n_lat = _Lat Mod (PI / 2)
             _Lat_Deg = value / PI * 180
-            _n_lat_deg = _Lat_Deg Mod (90)
+
+            If Math.Abs(_Lat_Deg) > 90 Then
+
+                If _Lat_Deg >= 0 Then
+                    _n_lat_deg = 90 - (_Lat_Deg - 90)
+                    _n_lat = (PI / 2) - (_Lat - (PI / 2))
+                Else
+                    _n_lat_deg = -90 - (_Lat_Deg + 90)
+                    _n_lat = -(PI / 2) - (_Lat + (PI / 2))
+                End If
+
+            Else
+                _n_lat_deg = _Lat_Deg
+            End If
+
         End Set
     End Property
 
@@ -142,6 +155,13 @@ Public Class Coords
     Public ReadOnly Property N_Lat As Double Implements ICoords.N_Lat
         Get
             Return _n_lat
+        End Get
+    End Property
+
+    <XmlIgnore()> _
+    Public ReadOnly Property N_Lat_Deg As Double
+        Get
+            Return _n_lat_deg
         End Get
     End Property
 
@@ -300,7 +320,7 @@ Public Class Coords
 
     Public Function GetHashCode1() As Long Implements ICoords.GetHashCode
         Return CoordsComparer.GetHashCode1(Me)
-        
+
     End Function
 End Class
 
