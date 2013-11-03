@@ -589,15 +589,15 @@ Public Class IsoRouter
         Dim RP As clsrouteinfopoints = Nothing
         Try
             For Each iso As IsoChrone In _IsoChrones
-                'Dim index As Integer = iso.IndexFromAngle(Loxo)
+                Dim index As Integer = iso.IndexFromAngle(Loxo)
 
-                'If Not iso.Data(index) Is Nothing Then
-                '    TC.StartPoint = iso.Data(index).P
-                '    If TC.SurfaceDistance < 4 * PixelSize Then
-                '        RP = iso.Data(index)
-                '        Exit For
-                '    End If
-                'End If
+                If Not iso.PointSet(index) Is Nothing Then
+                    TC.StartPoint = iso.PointSet(index).P
+                    If TC.SurfaceDistance < 4 * PixelSize Then
+                        RP = iso.PointSet(index)
+                        Exit For
+                    End If
+                End If
             Next
 
         Catch ex As Exception
