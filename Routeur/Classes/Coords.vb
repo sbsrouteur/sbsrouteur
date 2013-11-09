@@ -71,6 +71,7 @@ Public Class Coords
 
             Else
                 _n_lat_deg = _Lat_Deg
+                _n_lat = _Lat
             End If
 
         End Set
