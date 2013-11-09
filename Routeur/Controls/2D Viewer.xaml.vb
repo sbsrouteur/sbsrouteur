@@ -429,8 +429,8 @@ Render1:
     Private Sub SafeDrawLine(Bmp As WriteableBitmap, ByVal PrevP As Coords, ByVal P As Coords, ByVal Color As Integer)
         Dim MapSpan As Integer
         For MapSpan = -1 To 1
-            Dim PrevPoint2 As New Point(LonToCanvas(PrevP.N_Lon_Deg + 360 * MapSpan), LatToCanvas(PrevP.Lat_Deg))
-            Dim NewP2 As New Point(LonToCanvas(P.N_Lon_Deg + 360 * MapSpan), LatToCanvas(P.Lat_Deg))
+            Dim PrevPoint2 As New Point(LonToCanvas(PrevP.N_Lon_Deg + 360 * MapSpan), LatToCanvas(PrevP.N_Lat_Deg))
+            Dim NewP2 As New Point(LonToCanvas(P.N_Lon_Deg + 360 * MapSpan), LatToCanvas(P.N_Lat_Deg))
 
             If OutOfCanvas(PrevPoint2) AndAlso outofcanvas(NewP2) Then
                 Continue For
@@ -451,7 +451,7 @@ Render1:
                 End If
 
                 'Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
-                Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * DLon / LonSpan)
+                Pint.Y = LatToCanvas(PrevP.N_Lat_Deg + (P.N_Lat_Deg - PrevP.N_Lat_Deg) * DLon / LonSpan)
                 Bmp.DrawLine(CInt(PrevPoint2.X), CInt(PrevPoint2.Y), CInt(Pint.X), CInt(Pint.Y), Color)
 
                 If P.N_Lon < 0 Then
@@ -1174,9 +1174,9 @@ Render1:
 
     Private Sub SafeDrawEllipse(Bmp As WriteableBitmap, CurP As Coords, Color As Integer, XAxis As Integer, YAxis As Integer)
         Dim P1_X As Integer
-        Dim P1_Y As Integer = CInt(LatToCanvas(CurP.Lat_Deg) - (YAxis / 2))
+        Dim P1_Y As Integer = CInt(LatToCanvas(CurP.N_Lat_Deg) - (YAxis / 2))
         Dim P2_X As Integer
-        Dim P2_Y As Integer = CInt(LatToCanvas(CurP.Lat_Deg) + (YAxis / 2))
+        Dim P2_Y As Integer = CInt(LatToCanvas(CurP.N_Lat_Deg) + (YAxis / 2))
 
         If P1_Y = P2_Y Then
             P2_Y += 1
