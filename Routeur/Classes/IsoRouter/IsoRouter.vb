@@ -182,32 +182,32 @@ Public Class IsoRouter
                                  Ortho = tcfn1.OrthoCourse_Deg
                                  tcfn1.EndPoint = _StartPoint.P
 
-                                 Dim TcAngleTrim As New TravelCalculator()
-                                 Dim MinSearch As Double = 180
-                                 Dim MaxSearch As Double = 180
-                                 Dim PrevIndex As Integer = (Pindex + Iso.PointSet.Count - 1) Mod Iso.PointSet.Count
-                                 Dim NextIndex As Integer = (Pindex + 1) Mod Iso.PointSet.Count
-                                 If Iso.PointSet(PrevIndex) IsNot Nothing Then
-                                     TcAngleTrim.EndPoint = Iso.PointSet(PrevIndex).P
-                                     TcAngleTrim.StartPoint = rp.P
-                                     MinSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                                 End If
-                                 If Iso.PointSet(NextIndex) IsNot Nothing Then
-                                     TcAngleTrim.StartPoint = rp.P
-                                     TcAngleTrim.EndPoint = Iso.PointSet(NextIndex).P
-                                     MaxSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                                 End If
+                                 'Dim TcAngleTrim As New TravelCalculator()
+                                 'Dim MinSearch As Double = 180
+                                 'Dim MaxSearch As Double = 180
+                                 'Dim PrevIndex As Integer = (Pindex + Iso.PointSet.Count - 1) Mod Iso.PointSet.Count
+                                 'Dim NextIndex As Integer = (Pindex + 1) Mod Iso.PointSet.Count
+                                 'If Iso.PointSet(PrevIndex) IsNot Nothing Then
+                                 '    TcAngleTrim.EndPoint = Iso.PointSet(PrevIndex).P
+                                 '    TcAngleTrim.StartPoint = rp.P
+                                 '    MinSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                                 'End If
+                                 'If Iso.PointSet(NextIndex) IsNot Nothing Then
+                                 '    TcAngleTrim.StartPoint = rp.P
+                                 '    TcAngleTrim.EndPoint = Iso.PointSet(NextIndex).P
+                                 '    MaxSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                                 'End If
 
-                                 Dim MinAngle As Double = Ortho + MinSearch
-                                 Dim maxAngle As Double = Ortho + MaxSearch
+                                 Dim MinAngle As Double = 0 'Ortho + MinSearch
+                                 Dim maxAngle As Double = 0 ' Ortho + MaxSearch
 
-                                 If MinAngle > maxAngle Then
-                                     maxAngle += 360
-                                 End If
+                                 'If MinAngle > maxAngle Then
+                                 '    maxAngle += 360
+                                 'End If
 
                                  tcfn1.StartPoint = _StartPoint.P
-                                 'MinAngle = 0
-                                 'MaxAngle = 360
+                                 MinAngle = 0
+                                 maxAngle = 360
                                  Dim StepCount As Integer = CInt(Math.Floor((maxAngle - MinAngle) / _AngleStep) + 1)
 #If DBG_ISO = 1 Then
                                  'Console.WriteLine("StepCount " & StepCount & " @ " & Pindex)
