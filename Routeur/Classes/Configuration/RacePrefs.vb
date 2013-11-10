@@ -105,7 +105,7 @@ Public Class RacePrefs
                 RetValue = CType(Ser.Deserialize(SR), RacePrefs)
                 xmlloaded = True
             Catch ex As Exception
-                MessageBox.Show("Error loading race info, fauling back to default. Check race preferences!!" & vbCrLf & ex.Message)
+                MessageBox.Show("Error loading race info, falling back to default. Check race preferences!!" & vbCrLf & ex.Message)
             Finally
                 If Not SR Is Nothing Then
                     SR.Close()
