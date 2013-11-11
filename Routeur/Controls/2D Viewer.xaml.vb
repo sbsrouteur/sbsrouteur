@@ -425,10 +425,6 @@ Render1:
         End Try
     End Sub
 
-    Private Delegate Sub UpdatePathDelegate(ByVal PathString As String, ByVal Routes As ObservableCollection(Of VLM_Router.clsrouteinfopoints)(), ByVal Opponents As Dictionary(Of String, BoatInfo), _
-                                                 ByVal ClearGrid As Boolean, ByVal ClearBoats As Boolean, ByVal IsoChrones As LinkedList(Of IsoChrone), ByVal WPs As List(Of VLM_RaceWaypoint), ByVal ManagedRoutes As IList(Of RecordedRoute))
-
-
     Private Sub SafeDrawLine(Bmp As WriteableBitmap, ByVal PrevP As Coords, ByVal P As Coords, ByVal Color As Integer)
         Dim MapSpan As Integer
         For MapSpan = -1 To 1
