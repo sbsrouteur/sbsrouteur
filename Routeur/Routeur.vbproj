@@ -340,7 +340,7 @@
     </Compile>
     <Reference Include="WriteableBitmapEx.Wpf, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Refs\WriteableBitmapEx_v1.0.5.0\WPF\WriteableBitmapEx.Wpf.dll</HintPath>
+      <HintPath>Refs\WriteableBitmapEx_v1.0.8.0\WPF\WriteableBitmapEx.Wpf.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
