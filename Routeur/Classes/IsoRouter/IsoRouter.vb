@@ -19,6 +19,7 @@ Imports Routeur.VLM_Router
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 Imports System.Threading.Tasks
+Imports DotSpatial.Topology
 
 Public Class IsoRouter
     Implements INotifyPropertyChanged
@@ -162,6 +163,13 @@ Public Class IsoRouter
             tc2.EndPoint = GSHHS_Reader.PointToSegmentIntersect(_StartPoint.P, _DestPoint1, _DestPoint2)
             MaxEllipseDist = tc2.SurfaceDistance * _EllipseExt
 
+            Dim IsoLine As New LinkedList(Of Coordinate)
+            Dim IsoPoly As New DotSpatial.Topology.Polygon(IsoLine)
+            For Each P In Iso.PointSet
+                IsoLine.AddLast(New Coordinate(P.P.Lon, P.P.Lat))
+            Next
+
+
             Parallel.For(StartIndex, Iso.PointSet.Count - 1,
                          Sub(Pindex As Integer)
                              Dim tcfn1 As New TravelCalculator
@@ -218,60 +226,34 @@ Public Class IsoRouter
                                      Dim alpha As Double = (MinAngle + _AngleStep * AlphaIndex) Mod 360
                                      Dim P As clsrouteinfopoints
                                      Dim tc As New TravelCalculator
-
+                                     Dim EllipsisDit As Double = 0
                                      'If WindAngle(alpha, rp.Cap) > 140 Then
                                      '    Return
                                      'End If
 
                                      P = ReachPoint(rp, alpha, CurStep)
 
-                                     If Not P Is Nothing Then
+                                     If P IsNot Nothing Then
+                                         tc.StartPoint = _StartPoint.P
+                                         tc.EndPoint = P.P
+                                         EllipsisDit += tc.SurfaceDistance
+                                         'TODO Handle case of segment dest...
+                                         'If _DestPoint2 Is Nothing Then
+                                         tc.StartPoint = _DestPoint1
+                                         EllipsisDit += tc.SurfaceDistance
+                                         'Else
+                                         '    GSHHS_Utils()
+                                         'End If
+                                         tc.StartPoint = Nothing
+                                         tc.EndPoint = Nothing
+                                     End If
+
+                                     If Not P Is Nothing AndAlso EllipsisDit <= _EllipseExt * _StartPoint.DTF AndAlso Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
                                          tc.StartPoint = _StartPoint.P
                                          tc.EndPoint = P.P
                                          P.DistFromPos = tc.SurfaceDistance
                                          P.CapFromPos = tc.LoxoCourse_Deg
                                          RetIsoChrone.AddPoint(P)
-                                         'Dim IntersectPrevIso As Boolean = False
-
-                                         'If Not IntersectPrevIso AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) Then
-
-                                         '    tc.StartPoint = _StartPoint.P
-                                         '    tc.EndPoint = P.P
-                                         '    P.DistFromPos = tc.SurfaceDistance
-                                         '    P.CapFromPos = tc.LoxoCourse_Deg
-                                         '    Debug.Assert(Not Double.IsNaN(P.CapFromPos))
-                                         '    P.Cap = alpha
-                                         '    'alpha2 = P.CapFromPos 'tc.LoxoCourse_Deg
-                                         '    tc.StartPoint = rp.P
-                                         '    P.Speed = tc.SurfaceDistance / CurStep.TotalHours
-
-                                         '    Index = RetIsoChrone.IndexFromAngle(P.CapFromPos)
-                                         '    'Dim ANew As Double = RetIsoChrone.AngleFromIndex(Index)
-                                         '    'Debug.Assert(Math.Abs(ANew - alpha2) < RetIsoChrone.Data.Length / 630)
-                                         '    SpinLockEnter(RetIsoChrone, Index)
-                                         '    'SyncLock RetIsoChrone.Locks(Index)
-                                         '    OldP = RetIsoChrone.Data(Index)
-                                         '    If OldP Is Nothing OrElse P.Improve(OldP, _DTFRatio, _StartPoint, _Meteo, _DestPoint1, _DestPoint2, _RouterPrefs.RouteurMode) Then
-                                         '        Dim IgnorePoint As Boolean = False
-                                         '        If _IsoChrones.Count > 3 Then
-                                         '            For i = _IsoChrones.Count - 3 To Math.Max(0, _IsoChrones.Count - 100) Step -1
-                                         '                Dim PrevP = _IsoChrones(i).Data(_IsoChrones(i).IndexFromAngle(P.CapFromPos))
-                                         '                If PrevP IsNot Nothing AndAlso PrevP.DistFromPos > P.DistFromPos Then
-                                         '                    IgnorePoint = True
-                                         '                    Exit For
-                                         '                End If
-
-                                         '            Next
-                                         '        End If
-                                         '        If Not IgnorePoint Then
-                                         '            RetIsoChrone.Data(Index) = P
-                                         '        End If
-
-                                         '    End If
-
-                                         '    'End SyncLock
-                                         '    SpinLockExit(RetIsoChrone, Index)
-                                         'End If
 
                                      End If
 
@@ -287,34 +269,13 @@ Public Class IsoRouter
                              tcfn1.StartPoint = Nothing
                              tcfn1 = Nothing
                          End Sub)
-            'Console.WriteLine("Iso complete " & Now.Subtract(IsoStart).ToString)
-
+            
 
             'Clean up bad points
             If RetIsoChrone IsNot Nothing Then
 
                 RetIsoChrone.CleanUp()
-                'Dim CurDest As Coords
-                'If _DestPoint2 IsNot Nothing Then
-                '    CurDest = GSHHS_Reader.PointToSegmentIntersect(_StartPoint.P, _DestPoint1, _DestPoint2)
-                'Else
-                '    CurDest = _DestPoint1
-                'End If
-
-                'For Index1 = 0 To RetIsoChrone.PointSet.Count - 1
-                '    If RetIsoChrone.Data(Index1) IsNot Nothing Then
-                '        tc2.StartPoint = RetIsoChrone.Data(Index1).P
-                '        tc2.EndPoint = _StartPoint.P
-                '        Dim EllipseDist As Double = tc2.SurfaceDistance
-                '        tc2.EndPoint = CurDest
-                '        EllipseDist += tc2.SurfaceDistance
-
-                '        If EllipseDist > MaxEllipseDist Then
-                '            RetIsoChrone.Data(Index1) = Nothing
-                '        End If
-                '    End If
-                'Next
-                'Console.WriteLine("Iso complete2 " & Now.Subtract(IsoStart).ToString)
+                
             End If
 
             tc2.EndPoint = Nothing
