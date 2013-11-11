@@ -204,7 +204,10 @@ Public Class RouteurModel
                                 The2DViewer.ActualHeight / Math.Abs(C1.Lat_Deg - C2.Lat_Deg))
         End If
 
-        _LatOffset = (C1.Mercator_Y_Deg + C2.Mercator_Y_Deg) / 2
+        Dim y1 As Double = C1.Mercator_Y_Deg
+        Dim y2 As Double = C2.Mercator_Y_Deg
+
+        _LatOffset = (y1 + y2) / 2
        
         Debug.Assert(Scale <> 0)
 
