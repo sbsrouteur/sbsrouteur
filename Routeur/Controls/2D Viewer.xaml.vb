@@ -451,7 +451,7 @@ Render1:
 
                 'Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
                 Pint.Y = LatToCanvas(PrevP.N_Lat_Deg + (P.N_Lat_Deg - PrevP.N_Lat_Deg) * DLon / LonSpan)
-                Bmp.DrawLine(CInt(PrevPoint2.X), CInt(PrevPoint2.Y), CInt(Pint.X), CInt(Pint.Y), Color)
+                Bmp.DrawLine(CInt(Math.Floor(PrevPoint2.X)), CInt(Math.Floor(PrevPoint2.Y)), CInt(Math.Ceiling(Pint.X)), CInt(Math.Ceiling(Pint.Y)), Color)
 
                 If P.N_Lon < 0 Then
                     Pint.X = LonToCanvas(-179.99 + 360 * MapSpan)
@@ -1182,13 +1182,17 @@ Render1:
         End If
 
         For mapspan As Integer = -1 To 1
-            P1_X = CInt(LonToCanvas(CurP.Lon_Deg + 360 * mapspan) - (XAxis / 2))
-            P2_X = CInt(LonToCanvas(CurP.Lon_Deg + 360 * mapspan) + (XAxis / 2))
-            If P1_X = P2_X Then
-                P2_X += 1
-            End If
+            Try
+                P1_X = CInt(LonToCanvas(CurP.Lon_Deg + 360 * mapspan) - (XAxis / 2))
+                P2_X = CInt(LonToCanvas(CurP.Lon_Deg + 360 * mapspan) + (XAxis / 2))
+                If P1_X = P2_X Then
+                    P2_X += 1
+                End If
 
-            Bmp.DrawEllipse(P1_X, P1_Y, P2_X, P2_Y, Color)
+                Bmp.DrawEllipse(P1_X, P1_Y, P2_X, P2_Y, Color)
+            Catch ex As OverflowException
+                'Ignore overflow exceptions (overzooming causes them)
+            End Try
         Next
 
     End Sub
