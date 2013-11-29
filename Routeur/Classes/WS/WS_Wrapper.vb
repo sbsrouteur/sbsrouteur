@@ -27,7 +27,7 @@ Module WS_Wrapper
 
     Public Function GetBoatInfo(ByVal Player As clsPlayerInfo) As Dictionary(Of String, Object)
 
-        If _LastPassword <> Player.Password OrElse _LastUser <> Player.Email Then
+        If _LastPassword <> Player.Password OrElse _LastUser.ToLowerInvariant <> Player.Email.ToLowerInvariant Then
 
             _LastPassword = Player.Password
             _LastUser = Player.Email
@@ -503,7 +503,7 @@ Module WS_Wrapper
             Dim rs As System.IO.StreamReader
             Dim Response As String
             Http.UserAgent = GetRouteurUserAgent()
-            If UseAuth Then
+            If UseAuth OrElse _Cookies IsNot Nothing Then
                 Http.CookieContainer = _Cookies
             End If
             Http.Accept = "application/json"
