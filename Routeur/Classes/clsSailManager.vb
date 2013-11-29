@@ -140,7 +140,7 @@ Public Class clsSailManager
             F = MaxWindSpeedMultiplied
         End If
 
-#Const POLAR_STAT = 1
+#Const POLAR_STAT = 0
 #If POLAR_STAT = 1 Then
         Static NbCall As Long = 0
         Static NbCallCached As Long = 0
