@@ -1011,7 +1011,11 @@ Render1:
         End Get
         Set(ByVal value As Double)
             Debug.Assert(Not Double.IsNaN(value))
-            _LatOffset = value
+            If Double.IsNaN(value) Then
+                _LatOffset = 0
+            Else
+                _LatOffset = value
+            End If
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LatOffset"))
         End Set
     End Property
