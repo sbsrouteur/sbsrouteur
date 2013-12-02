@@ -2218,7 +2218,7 @@ Public Class VLM_Router
         'RetUser.date = New DateTime(1970, 1, 1).AddHours(-GribManager.ZULU_OFFSET).AddSeconds(Lup)
         RouteurModel.CurWP = RetUser.NWP
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPList"))
-        If RetUser.POS.IndexOf("/"c) >= 0 Then
+        If RetUser.POS IsNot Nothing AndAlso RetUser.POS.IndexOf("/"c) >= 0 Then
             RetUser.POS = RetUser.POS.Substring(0, RetUser.POS.IndexOf("/"c))
         End If
 
