@@ -593,7 +593,7 @@ Public Class VLM_Router
                 PosError = True
             End If
 
-            If Abs(mi.Strength - _UserInfo.TWS) > MAX_ERROR_WIND OrElse Abs(mi.Dir - _UserInfo.TWA) > MAX_ERROR_WIND Then
+            If Abs(mi.Strength - _UserInfo.TWS) > MAX_ERROR_WIND OrElse Abs(mi.Dir - _UserInfo.TWD) > MAX_ERROR_WIND Then
                 WindError = True
             End If
 
@@ -611,7 +611,7 @@ Public Class VLM_Router
             End If
 
             If WindError Then
-                AddLog(("XTR Error after " & Now.Subtract(_XTRStart).ToString & " Wind error " & (mi.Dir - .WindDir).ToString("f3") & "° " & (mi.Strength - .WindStrength).ToString("f3") & "kts"))
+                AddLog(("XTR Error after " & Now.Subtract(_XTRStart).ToString & " Wind error " & (mi.Dir - _UserInfo.TWD).ToString("f3") & "° " & (mi.Strength - _UserInfo.TWS).ToString("f3") & "kts"))
             End If
 
             If Not PosError And Not WindError And Not BoatSpeedError Then
