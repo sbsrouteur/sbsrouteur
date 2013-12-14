@@ -307,7 +307,7 @@ Module WS_Wrapper
         End If
     End Function
 
-    Public Function GetTrack(RaceId As Integer, BoatNum As Integer, StartEpoch As Long) As List(Of TrackPoint)
+    Public Function GetTrack(RaceId As Integer, BoatNum As Integer, StartEpoch As Long, MyTrack As Boolean) As List(Of TrackPoint)
         Dim RetJSon As New Dictionary(Of String, Object)
         Dim EpochNow As Long = CLng(Now.ToUniversalTime.Subtract(New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
         Dim QryStartEpoch As Long = StartEpoch
@@ -317,90 +317,74 @@ Module WS_Wrapper
         Dim LastEpoch As Long = StartEpoch
         Dim StartDate As DateTime = Now
 
-        'Get SmartTracks List
-        Dim URL1 As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/smarttracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & QryStartEpoch & "&endtime=" & EpochNow
-        Dim Retstring1 As String = ""
-        Retstring1 = RequestPage(URL1, False)
-        RetJSon = JSonParser.Parse(Retstring1)
-        Dim Success1 As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
-        If Success1 AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
-            CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks_url") Then
+        If Not MyTrack Then
+            'Get SmartTracks List
+            Dim URL1 As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/smarttracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & QryStartEpoch & "&endtime=" & EpochNow
+            Dim Retstring1 As String = ""
+            Retstring1 = RequestPage(URL1, False)
+            RetJSon = JSonParser.Parse(Retstring1)
+            Dim Success1 As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
+            If Success1 AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
+                CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks_url") Then
 
-            'Grab current non cached track points
-            If CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
+                'Grab current non cached track points
+                If CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
 
-                Dim Track As List(Of Object) = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks"), List(Of Object))
-                Dim NbTracks As Integer = JSonHelper.GetJSonIntValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "nb_tracks")
-                If NbTracks > 0 Then
-                    For Each Pos As List(Of Object) In Track
+                    Dim Track As List(Of Object) = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks"), List(Of Object))
+                    Dim NbTracks As Integer = JSonHelper.GetJSonIntValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "nb_tracks")
+                    If NbTracks > 0 Then
+                        For Each Pos As List(Of Object) In Track
 
-                        Dim P As New TrackPoint
-                        P.Epoch = CLng(Pos(0))
-                        If P.Epoch > QryStartEpoch AndAlso Not RetDict.ContainsKey(P.Epoch) Then
-                            P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
-                            RetDict.Add(P.Epoch, P)
-                            LastEpoch = P.Epoch
-                        End If
-                    Next
+                            Dim P As New TrackPoint
+                            P.Epoch = CLng(Pos(0))
+                            If P.Epoch > QryStartEpoch AndAlso Not RetDict.ContainsKey(P.Epoch) Then
+                                P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
+                                RetDict.Add(P.Epoch, P)
+                                LastEpoch = P.Epoch
+                            End If
+                        Next
+                    End If
                 End If
-            End If
 
-            'Grab cached track points from tracks_cacheurl
-            Dim Urls = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks_url"), List(Of Object))
-            Const NB_CACHE = 4
-            Parallel.For(0, Urls.Count, Sub(UrlIndex As Integer)
-                                            Dim Url = Urls(UrlIndex)
-                                            If Url IsNot Nothing Then
+                'Grab cached track points from tracks_cacheurl
+                Dim Urls = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks_url"), List(Of Object))
+                Const NB_CACHE = 4
+                Parallel.For(0, Urls.Count, Sub(UrlIndex As Integer)
+                                                Dim Url = Urls(UrlIndex)
+                                                If Url IsNot Nothing Then
 #If TESTING = 0 Then
-                                                Dim retstring As String = RequestPage(RouteurModel.Cached_Base_Game_Url((UrlIndex Mod NB_CACHE) + 1) & "/tracks/" & CStr(Url), False)
+                                                    Dim retstring As String = RequestPage(RouteurModel.Cached_Base_Game_Url((UrlIndex Mod NB_CACHE) + 1) & "/tracks/" & CStr(Url), False)
 #Else
                                                 Dim retstring As String = RequestPage(RouteurModel.Base_Game_Url & "/cache/tracks/" & CStr(Url))
 #End If
 
-                                                RetJSon = JSonParser.Parse(retstring)
+                                                    RetJSon = JSonParser.Parse(retstring)
 
-                                                Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
-                                                If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
-                                                    CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
-
-                                                    Dim Track As List(Of Object) = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks"), List(Of Object))
-                                                    Dim NbTracks As Integer = JSonHelper.GetJSonIntValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "nb_tracks")
-                                                    If NbTracks > 0 Then
-                                                        SyncLock RetDict
-                                                            For Each Pos As List(Of Object) In Track
-
-                                                                Dim P As New TrackPoint
-                                                                P.Epoch = CLng(Pos(0))
-                                                                If P.Epoch > QryStartEpoch AndAlso Not RetDict.ContainsKey(P.Epoch) Then
-                                                                    P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
-                                                                    RetDict.Add(P.Epoch, P)
-                                                                    LastEpoch = P.Epoch
-                                                                End If
-                                                            Next
-                                                        End SyncLock
-                                                    End If
+                                                    ReadJSonTrack(RetJSon, RetDict, QryStartEpoch)
                                                 End If
-                                            End If
-                                        End Sub
-            )
+                                            End Sub
+                )
 
 
+            End If
+        Else
+
+            While Not TrackComplete
+                Dim URL As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/tracks_private.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & QryStartEpoch & "&endtime=" & QryEndEpoch
+                Dim Retstring As String = ""
+                Retstring = RequestPage(URL)
+                RetJSon = JSonParser.Parse(Retstring)
+
+                LastEpoch = ReadJSonTrack(RetJSon, RetDict, QryStartEpoch)
+                If QryEndEpoch >= EpochNow Or LastEpoch < QryStartEpoch Then
+                    TrackComplete = True
+                Else
+                    QryStartEpoch = LastEpoch + 1
+                    QryEndEpoch = Math.Min(QryStartEpoch + 48 * 3600, EpochNow)
+                End If
+
+            End While
         End If
-        'While Not TrackComplete
-        '    Dim URL As String = RouteurModel.Base_Game_Url & "/ws/boatinfo/tracks.php?idu=" & BoatNum & "&idr=" & RaceId & "&starttime=" & QryStartEpoch & "&endtime=" & QryEndEpoch
-        '    Dim Retstring As String = ""
-        '    Retstring = RequestPage(URL)
-        '    RetJSon = JSonParser.Parse(Retstring)
-
-
-        '    If QryEndEpoch >= EpochNow Or LastEpoch < QryStartEpoch Then
-        '        TrackComplete = True
-        '    Else
-        '        QryStartEpoch = LastEpoch + 1
-        '        QryEndEpoch = Math.Min(QryStartEpoch + 48 * 3600, EpochNow)
-        '    End If
-
-        'End While
         Console.Write("Track read : " & Now.Subtract(StartDate).TotalMilliseconds)
         Return New List(Of TrackPoint)(RetDict.Values)
 
@@ -599,6 +583,36 @@ Module WS_Wrapper
         _LastUser = Boat.Email
 
         Return WS_Wrapper.PostBoatSetup(Boat.IDU, verb, GetStringFromJsonObject(Request))
+    End Function
+
+    Private Function ReadJSonTrack(RetJSon As Dictionary(Of String, Object), RetDict As Dictionary(Of Long, TrackPoint), StartEpoch As Long) As Long
+
+        Dim RetEpoch As Long = StartEpoch
+        Dim Success As Boolean = JSonHelper.GetJSonBoolValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "success")
+        If Success AndAlso RetJSon.ContainsKey(JSONDATA_BASE_OBJECT_NAME) AndAlso _
+            CType(RetJSon(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object)).ContainsKey("tracks") Then
+
+            Dim Track As List(Of Object) = CType(JSonHelper.GetJSonObjectValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "tracks"), List(Of Object))
+            Dim NbTracks As Integer = JSonHelper.GetJSonIntValue(RetJSon(JSONDATA_BASE_OBJECT_NAME), "nb_tracks")
+            If NbTracks > 0 Then
+                SyncLock RetDict
+                    For Each Pos As List(Of Object) In Track
+
+                        Dim P As New TrackPoint
+                        P.Epoch = CLng(Pos(0))
+                        If P.Epoch > StartEpoch AndAlso Not RetDict.ContainsKey(P.Epoch) Then
+                            P.P = New Coords(CDbl(Pos(1)) / 1000, CDbl(Pos(2)) / 1000)
+                            RetDict.Add(P.Epoch, P)
+                            If P.Epoch >= RetEpoch Then
+                                RetEpoch = P.Epoch
+                            End If
+                        End If
+                    Next
+                End SyncLock
+            End If
+
+            Return RetEpoch
+        End If
     End Function
 
 

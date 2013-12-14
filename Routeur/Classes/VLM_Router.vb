@@ -1715,7 +1715,7 @@ Public Class VLM_Router
             Try
                 Dim Dte As DateTime = New Date(Max(LastTrackDate.Ticks, LastRequest.Ticks))
                 If Now.Subtract(Dte).TotalMinutes >= _PlayerInfo.RaceInfo.vacfreq Then
-                    Dim PtList As List(Of TrackPoint) = WS_Wrapper.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat, CLng(LastTrackDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1)).TotalSeconds + 1))
+                    Dim PtList As List(Of TrackPoint) = WS_Wrapper.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat, CLng(LastTrackDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1)).TotalSeconds + 1), True)
                     db.AddTrackPoints(IdRace, _PlayerInfo.NumBoat, PtList)
                     'Round current time to last vac update
                     Dim RefDate As DateTime = Now
