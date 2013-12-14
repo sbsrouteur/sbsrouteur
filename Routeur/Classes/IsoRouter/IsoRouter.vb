@@ -106,6 +106,7 @@ Public Class IsoRouter
             Dim PrevPoint As Coords = Nothing
             Dim CurPoint As Coords = Nothing
             Dim MaxDist As Double = 0
+            Dim MinDist As Double = Double.MaxValue
             Dim MaxSpeed As Double = 0
             Dim SumSpeed As Double = 0
             Dim NbSpeed As Double = 0
@@ -113,6 +114,7 @@ Public Class IsoRouter
             For i = 0 To Iso.PointSet.Count - 1
                 If Iso.PointSet(i) IsNot Nothing Then
                     MaxDist = Math.Max(MaxDist, Iso.PointSet(i).DistFromPos)
+                    MinDist = Math.Min(MinDist, Iso.PointSet(i).DistFromPos)
                     MaxSpeed = Math.Max(MaxSpeed, Iso.PointSet(i).Speed)
                     SumSpeed += Iso.PointSet(i).Speed
                     NbSpeed += 1
@@ -232,15 +234,19 @@ Public Class IsoRouter
                                      'End If
 
                                      P = ReachPoint(rp, alpha, CurStep)
-
+                                     Dim CurDist As Double = 0
+                                     Dim LoxoCourse As Double = 0
                                      If P IsNot Nothing Then
                                          tc.StartPoint = _StartPoint.P
                                          tc.EndPoint = P.P
+                                         CurDist = tc.SurfaceDistance
+                                         LoxoCourse = tc.LoxoCourse_Deg
                                          EllipsisDit += tc.SurfaceDistance
                                          'TODO Handle case of segment dest...
                                          'If _DestPoint2 Is Nothing Then
                                          tc.StartPoint = _DestPoint1
                                          EllipsisDit += tc.SurfaceDistance
+
                                          'Else
                                          '    GSHHS_Utils()
                                          'End If
@@ -248,11 +254,15 @@ Public Class IsoRouter
                                          tc.EndPoint = Nothing
                                      End If
 
-                                     If Not P Is Nothing AndAlso EllipsisDit <= _EllipseExt * _StartPoint.DTF AndAlso Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
-                                         tc.StartPoint = _StartPoint.P
-                                         tc.EndPoint = P.P
-                                         P.DistFromPos = tc.SurfaceDistance
-                                         P.CapFromPos = tc.LoxoCourse_Deg
+                                     If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= _EllipseExt * _StartPoint.DTF AndAlso Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
+                                         'tc.StartPoint = _StartPoint.P
+                                         'tc.EndPoint = P.P
+                                         P.DistFromPos = CurDist 'tc.SurfaceDistance
+
+                                         If P.DistFromPos < MinDist Then
+                                             Dim i As Integer = 0
+                                         End If
+                                         P.CapFromPos = LoxoCourse ' tc.LoxoCourse_Deg
                                          RetIsoChrone.AddPoint(P)
 
                                      End If
