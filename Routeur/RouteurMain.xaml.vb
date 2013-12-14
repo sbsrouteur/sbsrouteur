@@ -628,7 +628,7 @@ Partial Public Class RouteurMain
             Return
         End If
 
-        WS_Wrapper.GetTrack(RaceId, BoatNum, 1)
+        WS_Wrapper.GetTrack(RaceId, BoatNum, 1, False)
 
     End Sub
 
