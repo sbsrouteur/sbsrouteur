@@ -1192,8 +1192,9 @@ Render1:
                 If P1_X = P2_X Then
                     P2_X += 1
                 End If
-
-                Bmp.DrawEllipse(P1_X, P1_Y, P2_X, P2_Y, Color)
+                If Not OutOfCanvas(New Point(P1_X, P1_Y)) AndAlso Not OutOfCanvas(New Point(P2_X, P2_Y)) Then
+                    Bmp.DrawEllipse(P1_X, P1_Y, P2_X, P2_Y, Color)
+                End If
             Catch ex As OverflowException
                 'Ignore overflow exceptions (overzooming causes them)
             End Try
@@ -1257,7 +1258,7 @@ Render1:
 
     Private Function OutOfCanvas(Point As Point) As Boolean
 
-        Return (Point.X < 0 OrElse Point.X > ActualWidth) AndAlso
+        Return (Point.X < 0 OrElse Point.X > ActualWidth) OrElse
             (Point.Y < 0 OrElse Point.Y > ActualHeight)
 
     End Function
