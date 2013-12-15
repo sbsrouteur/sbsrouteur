@@ -596,7 +596,11 @@ Render1:
                 ' Draw IsoChrones
                 '
                 If Not _EraseIsoChrones Then
+
+                    Dim tc As New TravelCalculator
+                    tc.StartPoint = New Coords(PathInfo.Path(PathInfo.Path.Count - 1))
                     Dim StartIsochrone As DateTime = Now
+                    Dim PrevLoxo As Double = 0
                     'Try
                     If WindBrushes Is Nothing Then
                         ReDim WindBrushes(70)
@@ -625,6 +629,7 @@ Render1:
                                     Dim index As Integer
                                     'Dim PrevIndex As Integer
                                     Dim CurP As Coords
+                                    PrevLoxo = 0
                                     For index = 0 To MaxIndex
                                         If Not HideIsochronesLines Then
                                             If Not iso.PointSet(index) Is Nothing AndAlso Not iso.PointSet(index).P Is Nothing Then
@@ -632,6 +637,12 @@ Render1:
                                                 P1.X = LonToCanvas(CurP.Lon_Deg)
                                                 P1.Y = LatToCanvas(CurP.Lat_Deg)
 
+                                                tc.EndPoint = CurP
+                                                Dim NewLoxo As Double = tc.LoxoCourse_Deg
+                                                If Abs(PrevLoxo - NewLoxo) > 3 Then
+                                                    FirstPoint = True
+                                                End If
+                                                PrevLoxo = NewLoxo
                                                 If Not FirstPoint Then 'And index - PrevIndex < 4 Then
                                                     If iso.PointSet(index).WindStrength <> 0 Then
                                                         SafeDrawLine(_ISOBmp, PrevP, CurP, WindBrushes(CInt(iso.PointSet(index).WindStrength)))
@@ -664,7 +675,9 @@ Render1:
                             Next
                         End Using
                     End If
-
+                    tc.EndPoint = Nothing
+                    tc.StartPoint = Nothing
+                    tc = Nothing
                     'Catch ex As Exception
                     'Finally
                     'End Try
