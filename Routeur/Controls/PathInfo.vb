@@ -28,6 +28,10 @@ Public Class PathInfo
     Public Property WPs As List(Of VLM_RaceWaypoint)
     Public Property ManagedRoutes As IList(Of RecordedRoute)
 
+#If DBG_ISO_POINT_SET Then
+    Public Property DbgIsoNumber As Integer = 0
+#End If
+
     Property TrackColor As Color
 
 End Class

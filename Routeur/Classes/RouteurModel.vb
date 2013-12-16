@@ -932,6 +932,9 @@ Public Class RouteurModel
                 P.WPs = CurPlayer.RaceInfo.races_waypoints
                 P.ManagedRoutes = _RouteManager.VisibleRoutes
                 P.TrackColor = VorHandler.PlayerInfo.TrackColor
+#If DBG_ISO_POINT_SET Then
+                P.DbgIsoNumber = _VorHandler.DbgIsoNumber
+#End If
                 The2DViewer.UpdatePath(P)
                 _ClearGrid = False
                 _ClearBoats = False

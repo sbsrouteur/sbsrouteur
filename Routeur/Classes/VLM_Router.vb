@@ -111,6 +111,9 @@ Public Class VLM_Router
     Private _PilototoRoute As New ObservableCollection(Of clsrouteinfopoints)
     Private _PilototoRoutePoints As IList(Of Coords)
     Private _LastGridRouteStart As New DateTime(0)
+#If DBG_ISO_POINT_SET Then
+    Private _DbgIsoNumber As Integer = 0
+#End If
 
 
     Private _BoatUnderMouse As New ObservableCollection(Of BoatInfo)
@@ -3109,6 +3112,17 @@ Public Class VLM_Router
         ''
     End Sub
 
+#If DBG_ISO_POINT_SET Then
+    Public Property DbgIsoNumber As Integer
+        Get
+            Return _DbgIsoNumber
+        End Get
+        Set(value As Integer)
+            _DbgIsoNumber = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("DbgIsoNumber"))
+        End Set
+    End Property
+#End If
 
     Public Sub DebugTest()
         'Return
