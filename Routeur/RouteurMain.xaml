@@ -270,7 +270,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
             <ColumnDefinition Width="0.53*"/>
             <ColumnDefinition Width="0.128*"/>
         </Grid.ColumnDefinitions>
-        <Menu HorizontalAlignment="Right" Width="632" Grid.RowSpan="2" Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" Margin="0,1,-2,124">
+        <Menu Grid.ColumnSpan="3" DataContext="{DynamicResource RouteurModel}" >
             <!--<CheckBox Content="Autorouting" Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=comboBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsChecked="{Binding AutoRouting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ShowAutorouting, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" VerticalAlignment="Center"/>-->
             <TextBlock  Text="GEN_TCV!!!" Visibility="{Binding IsGenTCV, Converter={StaticResource BooleanToVisibilityConverter}}" FontSize="26.667" Foreground="#FFFD0000" VerticalAlignment="Center"/>
             <TextBlock Text="TESTING" Visibility="{Binding IsTesting, Converter={StaticResource BooleanToVisibilityConverter}}" FontSize="12" Foreground="#FFFD0000" VerticalAlignment="Center"/>
@@ -336,7 +336,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
             <ComboBox     Height="26.92" ItemsSource="{Binding WPList, Mode=Default}" ToolTip="Route to this WP" SelectedIndex="{Binding VorHandler.CurUserWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"     />
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureAngle, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Allure " Style="{DynamicResource DoubleFormatCheckTextBox}"/>
             <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.AllureDuration, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Durée de la trajectoire" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
-            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.DbgIsoNumber, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Debug N° ISO" />
+            <TextBox Margin="0,2.04,0,2.92" Width="73" Text="{Binding VorHandler.DbgIsoNumber, Converter={StaticResource TextToNumberConverter}, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" ToolTip="Debug N° ISO" Style="{DynamicResource DoubleFormatCheckTextBox}"/>
 
 
         </Menu>
