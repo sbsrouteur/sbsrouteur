@@ -81,6 +81,8 @@ Public Class IsoChrone
 
     Sub CleanUp()
 
+        Const MAX_ISO_POINT As Integer = 360
+
         Dim PrevPoint As clsrouteinfopoints = Nothing
         Dim NextPoint As clsrouteinfopoints = Nothing
         Dim Count As Integer = 0
@@ -93,6 +95,9 @@ Public Class IsoChrone
         Dim Dists(WorkSet.Count - 1) As Double
         Dim FilteredDist(WorkSet.Count - 1) As Double
         Dim TrimFactor As Double = 0.8
+        If WorkSet.Count = 0 Then
+            Dim i As Integer = 0
+        End If
         WorkSet = New LinkedList(Of clsrouteinfopoints)(From P In WorkSet Order By P.CapFromPos)
 
 #If DBG_ISO_POINT_SET Then
@@ -101,68 +106,74 @@ Public Class IsoChrone
         Next
 #End If
 
-            Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
-            Dim PrevCount As Integer = 0
-            Do
-                PrevCount = _NextPointSet.Count
-                _NextPointSet.Clear()
-                Dim Index As Integer = 0
+        Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
+        Dim PrevCount As Integer = 0
+        Do
+            PrevCount = _NextPointSet.Count
+            _NextPointSet.Clear()
+            Dim Index As Integer = 0
+            Dim MaxDists(MAX_ISO_POINT - 1) As Double
 
-                'Using sr As New IO.StreamWriter("c:\temp\dists.csv")
-                For Each Point In WorkSet
-                    Dists(Index) = Point.DistFromPos
-                    Angles(Index) = Point.CapFromPos
-                    Index += 1
+            'Using sr As New IO.StreamWriter("c:\temp\dists.csv")
+            For Each Point In WorkSet
+                'Dists(Index) = Point.DistFromPos
+                'Angles(Index) = Point.CapFromPos
+                MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Math.Max(Point.DistFromPos, MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT))
+                Index += 1
 
-                Next
-
-
-                Dim factor As Double
-
-                For Index = 0 To Dists.Length - 1
-                    FilteredDist(Index) = 0
-                    factor = 0
-                    Dim PrevD As Double = 0
-                    Dim NextD As Double = 0
-                    Dim MaxD As Double = 0
-
-                    For i As Integer = -2 To 2
-                        FilteredDist(Index) += Dists((Index + i + Dists.Length) Mod Dists.Length) * (2 ^ (2 - Math.Abs(i)))
-                        factor += (2 ^ (2 - Math.Abs(i)))
-                    Next
-                    FilteredDist(Index) /= factor
-                    'sr.WriteLine(Angles(Index).ToString & ";" & Dists(Index).ToString & ";" & FilteredDist(Index).ToString)
-                Next
-                'sr.Close()
-                'End Using
-
-                Index = 0
-                For Each Point In WorkSet
-                    If (Math.Abs(Angles(Index) - Angles((Index + 1) Mod (Angles.Count - 1))) > 1) OrElse (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
-                        _NextPointSet.AddLast(Point)
-                    End If
-                    Index += 1
-                Next
-                WorkSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
-                ReDim Dists(WorkSet.Count - 1)
-                ReDim FilteredDist(WorkSet.Count - 1)
-            Loop Until _NextPointSet.Count <= 200 Or _NextPointSet.Count = PrevCount
-            _PointSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
-
-            'Create IndexLut for IsoChrone
-            Dim CurIndex As Integer = 0
-            Dim PointIndex As Integer = 0
-            _Iso_IndexLut(0) = 0
-            Dim Tc As New TravelCalculator With {.StartPoint = _StartPoint}
-            For Each Point In _PointSet
-                Tc.EndPoint = Point.P
-                If Tc.LoxoCourse_Deg >= 10 * CurIndex Then
-                    _Iso_IndexLut(CurIndex) = PointIndex
-                    CurIndex += 1
-                End If
-                PointIndex += 1
             Next
-            Return
+
+
+            'Dim factor As Double
+
+            'For Index = 0 To Dists.Length - 1
+            '    FilteredDist(Index) = 0
+            '    factor = 0
+            '    Dim PrevD As Double = 0
+            '    Dim NextD As Double = 0
+            '    Dim MaxD As Double = 0
+
+            '    For i As Integer = -2 To 2
+            '        FilteredDist(Index) += Dists((Index + i + Dists.Length) Mod Dists.Length) '* (2 ^ (2 - Math.Abs(i)))
+            '        factor += 1 '(2 ^ (2 - Math.Abs(i)))
+            '    Next
+            '    FilteredDist(Index) /= factor
+            '    'sr.WriteLine(Angles(Index).ToString & ";" & Dists(Index).ToString & ";" & FilteredDist(Index).ToString)
+            'Next
+            'sr.Close()
+            'End Using
+
+            Index = 0
+
+            For Each Point In WorkSet
+                'If ((((Angles(Index) - Angles((Index + 1) Mod (Angles.Count - 1)) + 360) Mod 360)) > 1) OrElse (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
+                'If (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
+                If MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Point.DistFromPos Then
+                    _NextPointSet.AddLast(Point)
+
+                End If
+                Index += 1
+            Next
+            WorkSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
+            ReDim Dists(WorkSet.Count - 1)
+            ReDim FilteredDist(WorkSet.Count - 1)
+        Loop Until _NextPointSet.Count <= MAX_ISO_POINT Or _NextPointSet.Count = PrevCount
+        _PointSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
+
+        'Create IndexLut for IsoChrone
+        Dim CurIndex As Integer = 0
+        Dim PointIndex As Integer = 0
+        _Iso_IndexLut(0) = 0
+        Dim Tc As New TravelCalculator With {.StartPoint = _StartPoint}
+        For Each Point In _PointSet
+            Tc.EndPoint = Point.P
+            If Tc.LoxoCourse_Deg >= 10 * CurIndex Then
+                _Iso_IndexLut(CurIndex) = PointIndex
+                CurIndex += 1
+            End If
+            PointIndex += 1
+        Next
+        Return
     End Sub
 
     Private Function CheckPointIsBehind(StartPt As clsrouteinfopoints, EndPt As clsrouteinfopoints) As Boolean
