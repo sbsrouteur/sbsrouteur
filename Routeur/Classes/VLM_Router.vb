@@ -2790,7 +2790,7 @@ Public Class VLM_Router
             End If
 
             VMG = _UserInfo.BSP * Math.Cos((_UserInfo.HDG - CurrentRoute.LoxoCourse_Deg) / 180 * Math.PI)
-            If VMG <> 0 Then
+            If Math.Abs(VMG) > 0.01 Then
                 ETA = Now.AddHours(CurrentRoute.SurfaceDistance / VMG)
             Else
                 ETA = Now
