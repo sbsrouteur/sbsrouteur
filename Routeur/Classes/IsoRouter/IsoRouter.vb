@@ -558,15 +558,17 @@ Public Class IsoRouter
         TC.EndPoint = C
         Dim Loxo As Double = TC.LoxoCourse_Deg
         Dim RP As clsrouteinfopoints = Nothing
+        Dim DistToPoint As Double = Double.MaxValue
         Try
             For Each iso As IsoChrone In _IsoChrones
                 Dim index As Integer = iso.IndexFromAngle(Loxo)
 
                 If Not iso.PointSet(index) Is Nothing Then
                     TC.StartPoint = iso.PointSet(index).P
-                    If TC.SurfaceDistance < 4 * PixelSize Then
+                    If TC.SurfaceDistance < DistToPoint Then
                         RP = iso.PointSet(index)
-                        Exit For
+                        DistToPoint = TC.SurfaceDistance
+
                     End If
                 End If
             Next
