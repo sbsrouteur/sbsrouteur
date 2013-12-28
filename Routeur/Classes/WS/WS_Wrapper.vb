@@ -376,7 +376,7 @@ Module WS_Wrapper
                 RetJSon = JSonParser.Parse(Retstring)
 
                 LastEpoch = ReadJSonTrack(RetJSon, RetDict, QryStartEpoch)
-                If QryEndEpoch >= EpochNow Or LastEpoch < QryStartEpoch Then
+                If QryEndEpoch >= EpochNow Or LastEpoch <= QryStartEpoch Then
                     TrackComplete = True
                 Else
                     QryStartEpoch = LastEpoch + 1
