@@ -52,7 +52,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 		</Grid>-->
 		<StackPanel Orientation="Horizontal">
 			<Image x:Name="PendingStatus" Source="/Routeur;Component/Graphics/kalarm-48.png" Width="48" Height="48" VerticalAlignment="Center"/>
-			<Button HorizontalAlignment="Center" Margin="{StaticResource DefMargin}"  Grid.Column="2" Click="UploadChanges" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}" Height="48" VerticalAlignment="Center">
+			<Button HorizontalAlignment="Center" Margin="{StaticResource DefMargin}"  Grid.Column="2" Click="UploadChanges" Width="48" IsEnabled="{Binding NeedUpdate, Mode=Default}" ToolTip="Upload" Height="48" VerticalAlignment="Center">
 				<ContentControl>
 					<Image Source="/Routeur;Component/Graphics/Up_48.png"/>
 				</ContentControl>
