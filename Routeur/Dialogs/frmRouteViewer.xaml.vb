@@ -146,6 +146,11 @@ Partial Public Class frmRouteViewer
         End If
     End Sub
 
+    Private Sub RefreshPilototoList(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+        _RouteViewModel = _Model.GetPilototoRoute
+        DataContext = _RouteViewModel
+    End Sub
+
 
 
 
