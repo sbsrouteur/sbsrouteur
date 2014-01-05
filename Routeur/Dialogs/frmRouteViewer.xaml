@@ -73,7 +73,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 			</StackPanel>
 		</DockPanel>
 		<Button Margin="{DynamicResource DefMargin}" ToolTip="Add New Point" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource AddNewButton}" Click="AddNewPoint" d:LayoutOverrides="Height" Grid.Row="1" Visibility="{Binding CanAddPoints, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
-		<Button Margin="{DynamicResource DefMargin}" ToolTip="Add New Point" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource RefreshButton}" Click="AddNewPoint" d:LayoutOverrides="Height" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" IsEnabled="False"/>
+		<Button Margin="{DynamicResource DefMargin}" ToolTip="Reload List from server" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource RefreshButton}" Click="RefreshPilototoList" d:LayoutOverrides="Height" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" />
 		
 	</Grid>
 </Window>
