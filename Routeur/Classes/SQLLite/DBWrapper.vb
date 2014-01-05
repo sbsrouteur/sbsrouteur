@@ -401,8 +401,8 @@ RestartPoint:
 
     End Function
 
-    Function GetTrack(RaceID As Integer, BoatId As Integer) As List(Of Coords)
-        Dim Retlist As New List(Of Coords)
+    Function GetTrack(RaceID As Integer, BoatId As Integer) As LinkedList(Of Coords)
+        Dim Retlist As New LinkedList(Of Coords)
         Dim LastEpoch As Long = 0
         Dim TC As New TravelCalculator
         Dim FirstPoint As Boolean = True
@@ -431,7 +431,7 @@ RestartPoint:
                             TC.StartPoint = New Coords(Lat, Lon)
                         End If
                         If Not SkipPoint Then
-                            Retlist.Add(New Coords(Lon, Lat))
+                            Retlist.AddLast(New Coords(Lon, Lat))
                             PrevLat = Lat
                             PrevLon = Lon
                             LastBearing = TC.LoxoCourse_Deg

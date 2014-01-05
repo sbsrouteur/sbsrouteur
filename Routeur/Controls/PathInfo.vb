@@ -17,7 +17,7 @@
 Imports System.Collections.ObjectModel
 
 Public Class PathInfo
-    Public Property Path As List(Of Coords)
+    Public Property Path As LinkedList(Of Coords)
     Public Property Routes As IList(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints))
     Public Property PilototoPoints As IList(Of Coords)
     Public Property EstimateRouteIndex As Integer
@@ -27,6 +27,7 @@ Public Class PathInfo
     Public Property IsoChrones As LinkedList(Of IsoChrone)
     Public Property WPs As List(Of VLM_RaceWaypoint)
     Public Property ManagedRoutes As IList(Of RecordedRoute)
+    Public Property RoutingBorder As LinkedList(Of Coords)
 
 #If DBG_ISO_POINT_SET Then
     Public Property DbgIsoNumber As Integer = 0

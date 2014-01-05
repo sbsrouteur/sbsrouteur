@@ -100,7 +100,7 @@ Public Class VLM_Router
     Private WithEvents _RoutingRestart As New Timers.Timer
     Private _RoutingRestartPending As Boolean = False
     Private _IsoRoutingRestartPending As Boolean = False
-    Private Shared _Track As List(Of Coords)
+    Private Shared _Track As LinkedList(Of Coords)
     Private _DrawOpponnents As Boolean = False
     Private _DrawReals As Boolean = False
     Private _CurUserWP As Integer = 0
@@ -1692,7 +1692,7 @@ Public Class VLM_Router
         End If
     End Sub
 
-    Public ReadOnly Property Track() As List(Of Coords)
+    Public ReadOnly Property Track() As LinkedList(Of Coords)
         Get
             'If Not _Track Is Nothing AndAlso _Track.Length > 0 Then
             '    Dim C As New Coords(UserInfo.Position)
@@ -1732,7 +1732,7 @@ Public Class VLM_Router
 
             If _Track.Count = 0 Then
                 'No track, race has not started or boat is just engaged
-                _Track.Add(New Coords(_UserInfo.LAT, _UserInfo.LON))
+                _Track.AddLast(New Coords(_UserInfo.LAT, _UserInfo.LON))
             End If
             Return _Track
 
