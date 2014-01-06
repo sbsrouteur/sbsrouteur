@@ -104,6 +104,7 @@ Public Class VLM_Router
     Private _DrawOpponnents As Boolean = False
     Private _DrawReals As Boolean = False
     Private _CurUserWP As Integer = 0
+    Private _IsoRoutingBorder As New LinkedList(Of Coords)
 
     Private _AllureAngle As Double = 0
     Private _AllureDuration As Double = 0
@@ -781,6 +782,37 @@ Public Class VLM_Router
             Return Nothing
         End Get
     End Property
+
+    Function IsoRoutingBorder() As LinkedList(Of Coords)
+        Static LastExt As Double = 0
+        Dim StartTick As DateTime = Now
+        If True Or RacePrefs.GetRaceInfo(PlayerInfo.RaceInfo.idraces).EllipseExtFactor <> LastExt Then
+            LastExt = RacePrefs.GetRaceInfo(PlayerInfo.RaceInfo.idraces).EllipseExtFactor
+
+            Dim Start As Coords = Nothing
+            Dim End1 As Coords = Nothing
+            Dim End2 As Coords = Nothing
+            GetIsoRoutingStartandEndCoords(RacePrefs.GetRaceInfo(PlayerInfo.RaceInfo.idraces), Start, End1, End2)
+            If End2 IsNot Nothing Then
+                End1 = GSHHS_Reader.PointToSegmentIntersect(Start, End1, End2)
+            End If
+            Dim tc As New TravelCalculator With {.StartPoint = UserInfo.Position, .EndPoint = End1}
+            Dim d As Double = tc.SurfaceDistance
+            Dim Center As Coords = tc.ReachDistanceOrtho(d / 2)
+            Dim a As Double = d * (LastExt - 1 / 2)
+            Dim f As Double = d / 2
+            Dim Phi As Double = tc.OrthoCourse_Deg
+            Dim e As Double = f / a
+
+            For theta As Double = 0 To 360 Step 5
+                Dim R As Double = a * (1 - e * e) / (1 - e * Cos((theta - Phi) / 180 * Math.PI))
+                Dim c As Coords = tc.ReachDistance(R, theta)
+                _IsoRoutingBorder.AddLast(c)
+            Next
+        End If
+        Console.WriteLine("IsoBorder computed in " & Now.Subtract(StartTick).TotalMilliseconds)
+        Return _IsoRoutingBorder
+    End Function
 
     Public ReadOnly Property Meteo() As GribManager
         Get
@@ -2993,9 +3025,10 @@ Public Class VLM_Router
         If StartRouting Then
             Dim prefs As RacePrefs
             Dim StartDate As DateTime
-            Dim StartCoords As Coords
-            Dim EndCoords1 As Coords
-            Dim EndCoords2 As Coords
+            Dim StartCoords As Coords = Nothing
+            Dim EndCoords1 As Coords = Nothing
+            Dim EndCoords2 As Coords = Nothing
+
             If Not AutoRestart Then
                 Dim frm As New frmRouterConfiguration(Owner, _PlayerInfo.RaceInfo.idraces)
 
@@ -3010,13 +3043,7 @@ Public Class VLM_Router
 
             _iso = New IsoRouter(_UserInfo.POL, Sails, Meteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, New TimeSpan(0, _PlayerInfo.RaceInfo.vacfreq, 0), _
                                  DBWrapper.GetMapLevel(prefs.MapLevel), prefs.EllipseExtFactor)
-            Dim WP As Integer
-
-            If CurUserWP = 0 Then
-                WP = RouteurModel.CurWP
-            Else
-                WP = _CurUserWP
-            End If
+            
 
 
 
@@ -3027,29 +3054,10 @@ Public Class VLM_Router
             End If
 
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ClearGrid"))
-            Dim start As New Coords(New Coords(_UserInfo.Position))
             'Dim Dest As Coords = GSHHS_Reader.PointToSegmentIntersect(start, _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0) _
             '                                                                     , _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1))
 
-            If prefs.UseCustomDest Then
-                EndCoords1 = prefs.RouteDest
-                EndCoords2 = Nothing
-            Else
-                EndCoords1 = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0)
-                EndCoords2 = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1)
-            End If
-
-            If prefs.UseCustomStart Then
-                If prefs.RouteStart IsNot Nothing Then
-                    StartCoords = prefs.RouteStart
-                Else
-                    MessageBox.Show("Alternate start selected without specifying start coordinates. Using Current pos for start point")
-                    prefs.UseCustomDest = False
-                    StartCoords = start
-                End If
-            Else
-                StartCoords = start
-            End If
+            GetIsoRoutingStartandEndCoords(prefs, StartCoords, EndCoords1, EndCoords2)
 
             If prefs.UseCustomStartDate Then
                 StartDate = prefs.CustomStartDate
@@ -3264,6 +3272,40 @@ Public Class VLM_Router
         End If
 
     End Sub
+
+    Private Sub GetIsoRoutingStartandEndCoords(Prefs As RacePrefs, ByRef StartCoords As Coords, ByRef EndCoords1 As Coords, ByRef EndCoords2 As Coords)
+
+        Dim WP As Integer
+        Dim start As New Coords(_UserInfo.Position)
+
+        If CurUserWP = 0 Then
+            WP = RouteurModel.CurWP
+        Else
+            WP = _CurUserWP
+        End If
+
+        If prefs.UseCustomDest Then
+            EndCoords1 = prefs.RouteDest
+            EndCoords2 = Nothing
+        Else
+            EndCoords1 = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0)
+            EndCoords2 = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1)
+        End If
+
+        If prefs.UseCustomStart Then
+            If prefs.RouteStart IsNot Nothing Then
+                StartCoords = prefs.RouteStart
+            Else
+                MessageBox.Show("Alternate start selected without specifying start coordinates. Using Current pos for start point")
+                prefs.UseCustomDest = False
+                StartCoords = start
+            End If
+        Else
+            StartCoords = start
+        End If
+    End Sub
+
+   
 
 
 

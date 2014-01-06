@@ -469,10 +469,11 @@ Render1:
         Next
     End Sub
 
-    Public Sub UpdatePath(PathInfo As PathInfo)
+    Public Function UpdatePath(PathInfo As PathInfo) As Boolean
 
         Dim Start As DateTime = Now
         Dim CurPos As New Coords
+        Dim Ret As Boolean = True
 
 #If DBG_UPDATE_PATH = 1 Then
         Console.WriteLine("Update path start " & Now.Subtract(Start).ToString)
@@ -487,6 +488,7 @@ Render1:
             Dim PrevPoint As Point
             Static Pen As Integer = &HFF000000
             Static PathPen As Integer = CInt(CLng(PathInfo.TrackColor.R) + (CLng(PathInfo.TrackColor.G) << 8) + (CLng(PathInfo.TrackColor.B) << 16)) Or &HFF000000
+            Static IsoBorderPen As Integer = &HFFFFCC00
             Static opponentPenPassUp As Integer = &HFF00CC00
             Static opponentPenPassDown As Integer = &HFFFF0000
             Static opponentPenNeutral As Integer = &HFF0000FF
@@ -501,8 +503,6 @@ Render1:
             Dim PenNumber As Integer = 0
             Dim CrossLine As Boolean = False
 
-            Dim PrevSide As Double
-            'Dim b As Byte
             Dim ShownPoints As Integer
             Static LimitDate As New DateTime(3000, 1, 1)
             Dim OpponentMap As Boolean = False
@@ -639,48 +639,49 @@ Render1:
                                         Next
                                     End If
 #End If
-                                        For index = 0 To MaxIndex
-                                            If Not HideIsochronesLines Then
-                                                If Not iso.PointSet(index) Is Nothing AndAlso Not iso.PointSet(index).P Is Nothing Then
-                                                    CurP = iso.PointSet(index).P
-                                                    P1.X = LonToCanvas(CurP.Lon_Deg)
-                                                    P1.Y = LatToCanvas(CurP.Lat_Deg)
+                                    For index = 0 To MaxIndex
+                                        If Not HideIsochronesLines Then
+                                            If Not iso.PointSet(index) Is Nothing AndAlso Not iso.PointSet(index).P Is Nothing Then
+                                                CurP = iso.PointSet(index).P
+                                                P1.X = LonToCanvas(CurP.Lon_Deg)
+                                                P1.Y = LatToCanvas(CurP.Lat_Deg)
 
-                                                    tc.EndPoint = CurP
-                                                    Dim NewLoxo As Double = tc.LoxoCourse_Deg
-                                                    If Abs(PrevLoxo - NewLoxo) > 3 Then
-                                                        FirstPoint = True
-                                                    End If
-                                                    PrevLoxo = NewLoxo
-                                                    If Not FirstPoint Then 'And index - PrevIndex < 4 Then
-                                                        If iso.PointSet(index).WindStrength <> 0 Then
-                                                            SafeDrawLine(_ISOBmp, PrevP, CurP, WindBrushes(CInt(iso.PointSet(index).WindStrength)))
-                                                        End If
-                                                    End If
-                                                    'PrevIndex = index
-                                                    PrevP.Lon = CurP.Lon
-                                                    PrevP.Lat = CurP.Lat
-                                                    PrevPoint = P1
-                                                    FirstPoint = False
-                                                Else
+                                                tc.EndPoint = CurP
+                                                Dim NewLoxo As Double = tc.LoxoCourse_Deg
+                                                If Abs(PrevLoxo - NewLoxo) > 3 Then
                                                     FirstPoint = True
                                                 End If
-                                            End If
-
-                                            If Not HideIsochronesDots Then
-                                                If Not iso.PointSet(index) Is Nothing AndAlso Not iso.PointSet(index).P Is Nothing Then
-                                                    CurP = iso.PointSet(index).P
-                                                    SafeDrawEllipse(_ISOBmp, CurP, WindBrushes(CInt(iso.PointSet(index).WindStrength)), 2, 2)
+                                                PrevLoxo = NewLoxo
+                                                If Not FirstPoint Then 'And index - PrevIndex < 4 Then
+                                                    If iso.PointSet(index).WindStrength <> 0 Then
+                                                        SafeDrawLine(_ISOBmp, PrevP, CurP, WindBrushes(CInt(iso.PointSet(index).WindStrength)))
+                                                    End If
                                                 End If
+                                                'PrevIndex = index
+                                                PrevP.Lon = CurP.Lon
+                                                PrevP.Lat = CurP.Lat
+                                                PrevPoint = P1
+                                                FirstPoint = False
+                                            Else
+                                                FirstPoint = True
                                             End If
-                                        Next
-                                        FirstPoint = True
-                                        iso.Drawn = True
-                                    End If
+                                        End If
 
-                                    'If Now.Subtract(Start).TotalMilliseconds > 100 Then
-                                    'Exit For
-                                    'End If
+                                        If Not HideIsochronesDots Then
+                                            If Not iso.PointSet(index) Is Nothing AndAlso Not iso.PointSet(index).P Is Nothing Then
+                                                CurP = iso.PointSet(index).P
+                                                SafeDrawEllipse(_ISOBmp, CurP, WindBrushes(CInt(iso.PointSet(index).WindStrength)), 2, 2)
+                                            End If
+                                        End If
+                                    Next
+                                    FirstPoint = True
+                                    iso.Drawn = True
+                                End If
+
+                                If Now.Subtract(Start).TotalMilliseconds > 100 Then
+                                    Ret = False
+                                    Exit For
+                                End If
                             Next
                         End Using
                     End If
@@ -750,43 +751,9 @@ Render1:
                 '
                 ' Draw the recorded path
                 '
-                ShownPoints = 0
-                If PathInfo.Path IsNot Nothing Then
-                    PrevSide = 0
-                    Dim Ignorepoints As Integer = 0 'Coords.Count - 99
-                    Dim Ignored As Integer = 0
-                    Dim Pnt As New Coords
-                    For Each C As Coords In PathInfo.Path
-                        If C IsNot Nothing Then
-                            If Ignored >= Ignorepoints Then
+                DrawPath(_RBmp, PathInfo.Path, PathPen)
+                DrawPath(_RBmp, PathInfo.RoutingBorder, IsoBorderPen)
 
-                                P1.X = LonToCanvas(C.Lon_Deg)
-                                P1.Y = LatToCanvas(C.Lat_Deg)
-
-                                CurPos.Lon_Deg = C.Lon_Deg
-                                CurPos.Lat_Deg = C.Lat_Deg
-
-                                CrossLine = (Val(C.Lon_Deg) - PrevSide) > 180
-                                If ShownPoints > 0 Then
-
-                                    Pnt.Lon_Deg = C.Lon_Deg
-                                    Pnt.Lat_Deg = C.Lat_Deg
-
-                                    SafeDrawLine(_RBmp, PrevP, Pnt, PathPen)
-                                End If
-                                PrevP.Lon_Deg = C.Lon_Deg
-                                PrevP.Lat_Deg = C.Lat_Deg
-                                PrevPoint = P1
-                                PrevSide = C.Lon_Deg
-                                'End If
-                                ShownPoints += 1
-                            Else
-                                Ignored += 1
-                            End If
-                        End If
-
-                    Next
-                End If
                 'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
 #If DBG_UPDATE_PATH = 1 Then
                 Console.WriteLine("Update path Path Done " & Now.Subtract(Start).ToString)
@@ -851,7 +818,7 @@ Render1:
                         If Not P Is Nothing Then
 
                             SafeDrawEllipse(_RBmp, P, routePen(PenNumber), 3, 3)
-                                    
+
                         End If
 
                     Next
@@ -879,9 +846,9 @@ Render1:
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Drawn"))
             Stats.SetStatValue(Stats.StatID.DRAW_FPS) = 1 / Now.Subtract(Start).TotalSeconds
         End Try
+        Return Ret
 
-
-    End Sub
+    End Function
 
 
 
@@ -1284,6 +1251,44 @@ Render1:
             (Point.Y < 0 OrElse Point.Y > ActualHeight)
 
     End Function
+
+    Private Sub DrawPath(RBmp As WriteableBitmap, Path As LinkedList(Of Coords), PenColor As Integer)
+
+        Dim P1 As Point
+        Dim PrevPoint As Point
+
+        If Path IsNot Nothing Then
+            Dim Pnt As New Coords
+            Dim CurPos As New Coords
+            Dim PrevP As Coords = Nothing
+
+            For Each C As Coords In Path
+                If C IsNot Nothing Then
+
+                    P1.X = LonToCanvas(C.Lon_Deg)
+                    P1.Y = LatToCanvas(C.Lat_Deg)
+
+                    CurPos.Lon_Deg = C.Lon_Deg
+                    CurPos.Lat_Deg = C.Lat_Deg
+
+                    If PrevP IsNot Nothing Then
+
+                        Pnt.Lon_Deg = C.Lon_Deg
+                        Pnt.Lat_Deg = C.Lat_Deg
+
+                        SafeDrawLine(_RBmp, PrevP, Pnt, PenColor)
+                    Else
+                        PrevP = New Coords
+                    End If
+                    PrevP.Lon_Deg = C.Lon_Deg
+                    PrevP.Lat_Deg = C.Lat_Deg
+                    PrevPoint = P1
+                    
+                End If
+
+            Next
+        End If
+    End Sub
 
 
 
