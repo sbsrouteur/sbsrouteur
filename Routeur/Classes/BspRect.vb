@@ -103,6 +103,10 @@ Public Class BspRect
             Static CacheHitCount As Long = 0
             Static CumDuration As Long = 0
             Dim start As DateTime = Now
+
+            If Double.IsNaN(Center.N_Lon_Deg) OrElse Double.IsNaN(Center.N_Lat_Deg) Then
+                Return Nothing
+            End If
             Try
                 Dim X As Integer = CInt(Math.Floor((Center.N_Lon_Deg + 180) / (360 / 2 ^ MAX_TREE_Z)))
                 Dim Y As Integer = CInt(Math.Floor((Center.N_Lat / PI * 180 + 90) / (180 / 2 ^ MAX_TREE_Z)))
