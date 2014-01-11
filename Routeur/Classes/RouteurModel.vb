@@ -938,6 +938,7 @@ Public Class RouteurModel
                 P.DbgIsoNumber = _VorHandler.DbgIsoNumber
 #End If
                 If Not The2DViewer.UpdatePath(P) Then
+                    tmrRefresh.Interval = New TimeSpan(TimeSpan.TicksPerMillisecond * 100)
                     tmrRefresh.Start()
                 End If
                 _ClearGrid = False
