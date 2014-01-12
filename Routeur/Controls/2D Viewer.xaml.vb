@@ -751,8 +751,11 @@ Render1:
                 '
                 ' Draw the recorded path
                 '
-                DrawPath(_RBmp, PathInfo.Path, PathPen)
-                DrawPath(_RBmp, PathInfo.RoutingBorder, IsoBorderPen)
+                DrawPath(_RBmp, PathInfo.Path, PathPen, False)
+
+                '
+                ' Draw the isochrone border estimate
+                DrawPath(_RBmp, PathInfo.RoutingBorder, IsoBorderPen, False)
 
                 'If Now.Subtract(Start).TotalMilliseconds > MAX_DRAW_MS Then Return
 #If DBG_UPDATE_PATH = 1 Then
@@ -770,35 +773,14 @@ Render1:
                     For Each R In PathInfo.Routes
 
                         If Not R Is Nothing Then
-                            FirstPoint = True
+                            Dim Path As New LinkedList(Of Coords)
                             For Each P In R
-
-                                If Not P Is Nothing AndAlso Not P.P Is Nothing Then
-                                    P1.X = LonToCanvas(P.P.Lon_Deg)
-                                    P1.Y = LatToCanvas(P.P.Lat_Deg)
-                                    If FirstPoint Then
-                                        PrevP.Lon = CurPos.Lon
-                                        PrevP.Lat = CurPos.Lat
-                                        PrevPoint.X = LonToCanvas(CurPos.Lon_Deg)
-                                        PrevPoint.Y = LatToCanvas(CurPos.Lat_Deg)
-                                        SafeDrawLine(_RBmp, PrevP, P.P, routePen(PenNumber))
-
-                                        FirstPoint = False
-                                    Else
-                                        Dim Pe As Integer = routePen(PenNumber)
-                                        SafeDrawLine(_RBmp, PrevP, P.P, Pe)
-                                    End If
-                                    If RouteIndex = PathInfo.EstimateRouteIndex Then
-                                        SafeDrawEllipse(_RBmp, P.P, routePen(PenNumber), 2, 2)
-                                    End If
-                                    PrevP.Lon = P.P.Lon
-                                    PrevP.Lat = P.P.Lat
-                                    PrevPoint = P1
-
-                                End If
-                                CurWP += 1
+                                Path.AddLast(P.P)
                             Next
-                            ShownPoints += 1
+                            DrawPath(_RBmp, Path, routePen(PenNumber), RouteIndex = PathInfo.EstimateRouteIndex)
+                            Path.Clear()
+                            Path = Nothing
+                            
                         End If
                         RouteIndex += 1
                         PenNumber += 1
@@ -1252,7 +1234,7 @@ Render1:
 
     End Function
 
-    Private Sub DrawPath(RBmp As WriteableBitmap, Path As LinkedList(Of Coords), PenColor As Integer)
+    Private Sub DrawPath(RBmp As WriteableBitmap, Path As LinkedList(Of Coords), PenColor As Integer, WithPointCircles As Boolean)
 
         Dim P1 As Point
         Dim PrevPoint As Point
@@ -1277,13 +1259,17 @@ Render1:
                         Pnt.Lat_Deg = C.Lat_Deg
 
                         SafeDrawLine(_RBmp, PrevP, Pnt, PenColor)
+                        If WithPointCircles Then
+                            SafeDrawEllipse(_RBmp, Pnt, PenColor, 2, 2)
+                        End If
                     Else
                         PrevP = New Coords
                     End If
                     PrevP.Lon_Deg = C.Lon_Deg
                     PrevP.Lat_Deg = C.Lat_Deg
                     PrevPoint = P1
-                    
+
+
                 End If
 
             Next
