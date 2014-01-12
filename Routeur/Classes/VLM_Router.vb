@@ -2791,15 +2791,6 @@ Public Class VLM_Router
 
             _UserInfo = value
 
-            If _UserInfo.Position Is Nothing Then
-                Throw New NotImplementedException("UserInfo.position is nothing")
-                UserInfo.Position = New Coords
-                UserInfo.Position.Lon_Deg = RouteurModel.START_LON
-                UserInfo.Position.Lat_Deg = RouteurModel.START_LAT
-                '_UserInfo.date = Now
-                'UserInfo(Meteo) = _UserInfo
-            End If
-
             LastDataDate = _UserInfo.[Date] 'DateConverter.GetDate(_UserInfo.position.date)
 
             If Now.Subtract(LastDataDate).TotalHours > 1 Then
