@@ -798,16 +798,16 @@ Public Class VLM_Router
             End If
             Dim tc As New TravelCalculator With {.StartPoint = Start, .EndPoint = End1}
             Dim d As Double = tc.SurfaceDistanceLoxo
-            Dim Center As Coords = tc.ReachDistanceOrtho(d / 2)
+            Dim Center As Coords = tc.ReachDistanceLoxo(d / 2, tc.OrthoCourse_Deg)
             Dim a As Double = d * LastExt / 2 ' * (LastExt - 1 / 2)
             Dim f As Double = d / 2
-            Dim Phi As Double = tc.LoxoCourse_Deg
+            Dim Phi As Double = tc.LoxoCourse_Deg - 90
             Dim e As Double = f / a
 
             _IsoRoutingBorder.Clear()
             For theta As Double = 0 To 360 Step 5
                 Dim R As Double = a * (1 - e * e) / (1 + e * Cos((theta - Phi) / 180 * Math.PI))
-                Dim c As Coords = tc.ReachDistanceortho(R, theta)
+                Dim c As Coords = tc.ReachDistanceortho(R, theta - 90)
                 _IsoRoutingBorder.AddLast(c)
             Next
         End If
