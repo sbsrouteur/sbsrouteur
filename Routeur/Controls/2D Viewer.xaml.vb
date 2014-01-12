@@ -772,7 +772,7 @@ Render1:
                     For Each R In PathInfo.Routes
 
                         If Not R Is Nothing Then
-                            If RouteIndex = PathInfo.EstimateRouteIndex Then
+                            If RouteIndex = PathInfo.EstimateRouteIndex OrElse RouteIndex = PathInfo.WPRouteIndex Then
                                 DrawPath(_RBmp, R, routePen(PenNumber), RouteIndex = PathInfo.EstimateRouteIndex, PathInfo.CurrentPos)
                             Else
                                 DrawPath(_RBmp, R, routePen(PenNumber), False)
@@ -1235,10 +1235,14 @@ Render1:
     Private Sub DrawPath(RBmp As WriteableBitmap, R As ObservableCollection(Of VLM_Router.clsrouteinfopoints), PenColor As Integer, WithPointCircles As Boolean, Optional CurrentPos As Coords = Nothing)
 
         Dim Path As New LinkedList(Of Coords)
+        If CurrentPos IsNot Nothing Then
+            Path.AddLast(CurrentPos)
+        End If
         For Each P In R
+
             Path.AddLast(P.P)
         Next
-        DrawPath(RBmp, Path, PenColor, WithPointCircles, CurrentPos)
+        DrawPath(RBmp, Path, PenColor, WithPointCircles)
         Path.Clear()
         Path = Nothing
 

@@ -21,6 +21,7 @@ Public Class PathInfo
     Public Property Routes As IList(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints))
     Public Property PilototoPoints As IList(Of Coords)
     Public Property EstimateRouteIndex As Integer
+    Public Property WPRouteIndex As Integer
     Public Property Opponents As Dictionary(Of String, BoatInfo)
     Public Property ClearGrid As Boolean
     Public Property ClearBoats As Boolean
