@@ -38,8 +38,7 @@ Public Class IsoRouter
     Private _CancelRequested As Boolean
 
     Private _StartPoint As clsrouteinfopoints
-    Private _DestPoint1 As Coords
-    Private _DestPoint2 As Coords
+    Private _DestPoint As Coords
     Private _TC As New TravelCalculator
     Private _Meteo As GribManager
     Private _SailManager As clsSailManager
@@ -74,7 +73,7 @@ Public Class IsoRouter
         Dim P1 As clsrouteinfopoints
         Dim ReachPointDuration As Long = 0
         Dim ReachPointCount As Long = 0
-        Dim MaxEllipseDist As Double
+        Dim MaxEllipsisDist As Double
 
 
         If Iso Is Nothing Then
@@ -110,6 +109,12 @@ Public Class IsoRouter
             Dim MaxSpeed As Double = 0
             Dim SumSpeed As Double = 0
             Dim NbSpeed As Double = 0
+
+            Dim TcEllipsis As New TravelCalculator With {.StartPoint = _StartPoint.P, .EndPoint = _DestPoint}
+            MaxEllipsisDist = TcEllipsis.SurfaceDistance * _EllipseExt
+            TcEllipsis.StartPoint = Nothing
+            TcEllipsis.EndPoint = Nothing
+            TcEllipsis = Nothing
 
             For i = 0 To Iso.PointSet.Count - 1
                 If Iso.PointSet(i) IsNot Nothing Then
@@ -161,14 +166,13 @@ Public Class IsoRouter
 
 
             Dim tc2 As New TravelCalculator
-            tc2.StartPoint = _StartPoint.P
-            tc2.EndPoint = GSHHS_Reader.PointToSegmentIntersect(_StartPoint.P, _DestPoint1, _DestPoint2)
-            MaxEllipseDist = tc2.SurfaceDistance * _EllipseExt
-
+            
             Dim IsoLine As New LinkedList(Of Coordinate)
             Dim IsoPoly As New DotSpatial.Topology.Polygon(IsoLine)
-            For Each P In Iso.PointSet
-                IsoLine.AddLast(New Coordinate(P.P.Lon, P.P.Lat))
+            For Each Iso In IsoChrones
+                For Each P In Iso.PointSet
+                    IsoLine.AddLast(New Coordinate(P.P.Lon, P.P.Lat))
+                Next
             Next
 
 
@@ -183,11 +187,7 @@ Public Class IsoRouter
 
                                  Dim Ortho As Double
                                  tcfn1.StartPoint = rp.P
-                                 If _DestPoint2 IsNot Nothing Then
-                                     tcfn1.EndPoint = GSHHS_Reader.PointToSegmentIntersect(rp.P, _DestPoint1, _DestPoint2)
-                                 Else
-                                     tcfn1.EndPoint = _DestPoint1
-                                 End If
+                                 tcfn1.EndPoint = _DestPoint
                                  CurDest = tcfn1.EndPoint
                                  Ortho = tcfn1.OrthoCourse_Deg
                                  tcfn1.EndPoint = _StartPoint.P
@@ -241,20 +241,17 @@ Public Class IsoRouter
                                          tc.EndPoint = P.P
                                          CurDist = tc.SurfaceDistance
                                          LoxoCourse = tc.LoxoCourse_Deg
-                                         EllipsisDit += tc.SurfaceDistance
-                                         'TODO Handle case of segment dest...
-                                         'If _DestPoint2 Is Nothing Then
-                                         tc.StartPoint = _DestPoint1
+                                         EllipsisDit = tc.SurfaceDistance
+
+                                         tc.StartPoint = _DestPoint
                                          EllipsisDit += tc.SurfaceDistance
 
-                                         'Else
-                                         '    GSHHS_Utils()
-                                         'End If
                                          tc.StartPoint = Nothing
                                          tc.EndPoint = Nothing
                                      End If
 
-                                     If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= _EllipseExt * _StartPoint.DTF AndAlso Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
+                                     If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= MaxEllipsisDist AndAlso Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
+
                                          'tc.StartPoint = _StartPoint.P
                                          'tc.EndPoint = P.P
                                          P.DistFromPos = CurDist 'tc.SurfaceDistance
@@ -264,7 +261,6 @@ Public Class IsoRouter
                                          End If
                                          P.CapFromPos = LoxoCourse ' tc.LoxoCourse_Deg
                                          RetIsoChrone.AddPoint(P)
-
                                      End If
 
                                      tc.StartPoint = Nothing
@@ -279,13 +275,13 @@ Public Class IsoRouter
                              tcfn1.StartPoint = Nothing
                              tcfn1 = Nothing
                          End Sub)
-            
+
 
             'Clean up bad points
             If RetIsoChrone IsNot Nothing Then
 
                 RetIsoChrone.CleanUp()
-                
+
             End If
 
             tc2.EndPoint = Nothing
@@ -308,7 +304,7 @@ Public Class IsoRouter
         Dim PrevP As clsrouteinfopoints = Nothing
         Dim TC As New TravelCalculator
         TC.StartPoint = _StartPoint.P
-        TC.EndPoint = _DestPoint1
+        TC.EndPoint = _DestPoint
         Dim CurDTF As Double = Double.MaxValue
         Dim LastUpdate As DateTime = Now
 
@@ -516,13 +512,8 @@ Public Class IsoRouter
                     .WindDir = MI.Dir
                     .Loch = TotalDist
                     .LochFromStart = .Loch + Start.LochFromStart
-                    If _DestPoint2 Is Nothing Then
-                        TC.StartPoint = _DestPoint1
+                    TC.StartPoint = _DestPoint
                         .DTF = TC.SurfaceDistance
-                    Else
-                        TC.StartPoint = GSHHS_Reader.PointToSegmentIntersect(.P, _DestPoint1, _DestPoint2)
-                        .DTF = TC.SurfaceDistance
-                    End If
                     .From = Start
                     .Cap = Cap
                 End With
@@ -684,21 +675,17 @@ Public Class IsoRouter
                 .P = New Coords(From)
                 .T = StartDate
                 If WP2 IsNot Nothing Then
-                    _TC.EndPoint = GSHHS_Reader.PointToSegmentIntersect(.P, WP1, WP2)
+                    _DestPoint = GSHHS_Reader.PointToSegmentIntersect(.P, WP1, WP2)
+                Else
+                    _DestPoint = WP1
                 End If
+                _TC.EndPoint = _DestPoint
                 .DTF = _TC.SurfaceDistance
                 .Loch = 0
                 .LochFromStart = 0
                 .WindDir = mi.Dir
                 .WindStrength = mi.Strength
             End With
-
-            _DestPoint1 = New Coords(WP1)
-            If WP2 IsNot Nothing Then
-                _DestPoint2 = New Coords(WP2)
-            Else
-                _DestPoint2 = Nothing
-            End If
 
             _IsoChrones.Clear()
             _IsoRouteThread.Start()
