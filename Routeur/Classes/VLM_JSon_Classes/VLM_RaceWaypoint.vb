@@ -147,7 +147,7 @@ Public Class VLM_RaceWaypoint
             If (wpformat And Enum_WP_TypeMasks.WP_GATE_KIND_MASK) = Enum_WP_TypeMasks.WP_ONE_BUOY OrElse (latitude1 = latitude2 AndAlso longitude1 = longitude2) Then
                 Dim TC As New TravelCalculator
                 TC.StartPoint = WP(0)
-                WP(1) = TC.ReachDistance(1500, 180 + _laisser_au)
+                WP(1) = TC.ReachDistanceortho(1500, 180 + _laisser_au)
                 TC.StartPoint = Nothing
                 TC.EndPoint = Nothing
                 TC = Nothing

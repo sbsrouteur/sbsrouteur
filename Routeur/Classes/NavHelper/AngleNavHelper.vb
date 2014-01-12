@@ -44,7 +44,7 @@ Module AngleNavHelper
         If Dest1 IsNot Nothing AndAlso WPDist <= BoatSpeed / 60 * RouteurModel.VacationMinutes Then
             ReachedWP = True
         End If
-        RetP = TC.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, mi.Dir + WindAngle)
+        RetP = TC.ReachDistanceortho(BoatSpeed / 60 * RouteurModel.VacationMinutes, mi.Dir + WindAngle)
 
 
         TC.StartPoint = Nothing

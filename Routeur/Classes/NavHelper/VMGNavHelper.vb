@@ -62,7 +62,7 @@ Module VMGNavHelper
         If WPDist <= MaxSPeed / 60 * RouteurModel.VacationMinutes Then
             ReachedWP = True
         End If
-        RetP = TC.ReachDistance(MaxSPeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
+        RetP = TC.ReachDistanceortho(MaxSPeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(BestAngle))
 
 
         TC.StartPoint = Nothing

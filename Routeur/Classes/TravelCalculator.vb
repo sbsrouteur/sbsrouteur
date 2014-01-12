@@ -159,17 +159,38 @@ Public Class TravelCalculator
 
     End Property
 
+    Public ReadOnly Property DistanceAngleLoxo() As Double
+
+        Get
+            Dim Lat1 As Double = StartPoint.N_Lat
+            Dim Lat2 As Double = EndPoint.N_Lat
+            Dim Lon1 As Double = -StartPoint.N_Lon
+            Dim Lon2 As Double = -EndPoint.N_Lon
+
+            Dim TOL As Double = 0.000000000000001
+            Dim q As Double
+
+            If (Abs(Lat2 - Lat1) < Sqrt(TOL)) Then
+                q = Cos(Lat1)
+            Else
+                q = (Lat2 - Lat1) / Log(Tan(Lat2 / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))
+            End If
+
+            Return Sqrt((Lat2 - Lat1) ^ 2 + q ^ 2 * (Lon2 - Lon1) ^ 2)
+        End Get
+    End Property
+
 
     Public ReadOnly Property DistanceAngle() As Double
         Get
-            
+
             If StartPoint Is Nothing Or EndPoint Is Nothing Then
                 _DistanceAngle = 0
             ElseIf StartPoint.Lon = EndPoint.N_Lon AndAlso StartPoint.Lat = EndPoint.N_Lon Then
                 _DistanceAngle = 0
             Else
 
-            
+
 
                 Dim dValue As Double = Math.Sin(StartPoint.Lat) * Math.Sin(EndPoint.Lat) + _
                   Math.Cos(StartPoint.Lat) * Math.Cos(EndPoint.Lat) * _
@@ -188,13 +209,44 @@ Public Class TravelCalculator
         End Get
     End Property
 
-    Public Function ReachDistance(ByVal Dist As Double, ByVal tc_deg As Double) As Coords
+    Public Function ReachDistanceortho(ByVal Dist As Double, ByVal tc_deg As Double) As Coords
         Const USE_AVIAT As Boolean = True
         If USE_AVIAT Then
             Return ReachDistanceAviat(Dist, tc_deg)
         Else
             Return ReachDistanceVLM(Dist, tc_deg)
         End If
+    End Function
+
+    Public Function ReachDistanceLoxo(Dist As Double, HeadingDeg As Double) As Coords
+
+        Dim Lat1 As Double = StartPoint.N_Lat
+        Dim Lon1 As Double = -StartPoint.N_Lon
+        Dim d As Double = Dist / Earth_Radius
+        Dim tc As Double = HeadingDeg / 180 * Math.PI
+        Dim Lat As Double
+        Dim lon As Double
+        Dim TOL As Double = 0.000000000000001
+        Dim q As Double
+        Dim dPhi As Double
+        Dim dlon As Double
+
+        Lat = Lat1 + d * Cos(tc)
+        If (Abs(Lat) > PI / 2) Then
+            '"d too large. You can't go this far along this rhumb line!"
+            Return Nothing
+        End If
+        If (Abs(Lat - Lat1) < Sqrt(TOL)) Then
+            q = Cos(Lat1)
+        Else
+            dPhi = Log(Tan(Lat / 2 + PI / 4) / Tan(Lat1 / 2 + PI / 4))
+            q = (Lat - Lat1) / dPhi
+        End If
+        dlon = -d * Sin(tc) / q
+        lon = ((Lon1 + dlon + PI) Mod 2 * PI) - PI
+
+        Return New Coords(CType(Lat, Decimal), CType(lon, Decimal), True)
+
     End Function
 
     Private Function ReachDistanceAviat(ByVal Dist As Double, ByVal tc_deg As Double) As Coords
@@ -235,7 +287,7 @@ Public Class TravelCalculator
     Private Function ReachDistanceVLM(ByVal Dist As Double, ByVal tc_deg As Double) As Coords
         Dim RetCoords As New Coords
 
-        
+
         Dim d As Double = Dist / Earth_Radius
         Dim tc_rad As Double = tc_deg / 180 * PI
 
@@ -278,6 +330,13 @@ Public Class TravelCalculator
             Return DistanceAngle * Earth_Radius
         End Get
     End Property
+
+    Public ReadOnly Property SurfaceDistanceLoxo() As Double
+        Get
+            Return DistanceAngleLoxo * Earth_Radius
+        End Get
+    End Property
+
 
     ''' <summary>
     ''' Cap ortho en °

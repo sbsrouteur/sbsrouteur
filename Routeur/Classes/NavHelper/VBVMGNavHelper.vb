@@ -46,7 +46,7 @@ Module VBVMGNavHelper
 
         ReachedWP = WPDist <= BoatSpeed / 60 * RouteurModel.VacationMinutes
              
-        RetP = TC.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Angle))
+        RetP = TC.ReachDistanceortho(BoatSpeed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Angle))
 
 
         TC.StartPoint = Nothing

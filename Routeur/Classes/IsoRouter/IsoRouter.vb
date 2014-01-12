@@ -441,7 +441,7 @@ Public Class IsoRouter
 
                     Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
                     TotalDist += Speed / 60 * RouteurModel.VacationMinutes
-                    TC.StartPoint = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Cap)
+                    TC.StartPoint = TC.ReachDistanceortho(Speed / 60 * RouteurModel.VacationMinutes, Cap)
                     '    LoopCount += 1
                     'TC.StartPoint = TC.EndPoint
 
@@ -473,7 +473,7 @@ Public Class IsoRouter
 
                 Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
                 TotalDist = Speed * Duration.TotalHours
-                TC.StartPoint = TC.ReachDistance(TotalDist, Cap)
+                TC.StartPoint = TC.ReachDistanceortho(TotalDist, Cap)
                 CurDate = CurDate.Add(Duration)
 
             End If

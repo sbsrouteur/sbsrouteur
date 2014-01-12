@@ -32,7 +32,7 @@ Module OrthoNavHelper
         Dim Cap As Double = TC.OrthoCourse_Deg
         BoatSpeed = Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(Cap, mi.Dir), mi.Strength)
         Dist = BoatSpeed / 60 * RouteurModel.VacationMinutes
-        CurPOS = TC.ReachDistance(Dist, Cap)
+        CurPOS = TC.ReachDistanceortho(Dist, Cap)
         TC.StartPoint = Nothing
         TC.EndPoint = Nothing
         If WPDist <= BoatSpeed / 60 * RouteurModel.VacationMinutes Then
