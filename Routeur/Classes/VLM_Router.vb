@@ -796,17 +796,18 @@ Public Class VLM_Router
             If End2 IsNot Nothing Then
                 End1 = GSHHS_Reader.PointToSegmentIntersect(Start, End1, End2)
             End If
-            Dim tc As New TravelCalculator With {.StartPoint = UserInfo.Position, .EndPoint = End1}
-            Dim d As Double = tc.SurfaceDistance
+            Dim tc As New TravelCalculator With {.StartPoint = Start, .EndPoint = End1}
+            Dim d As Double = tc.SurfaceDistanceLoxo
             Dim Center As Coords = tc.ReachDistanceOrtho(d / 2)
-            Dim a As Double = d * (LastExt - 1 / 2)
+            Dim a As Double = d * LastExt / 2 ' * (LastExt - 1 / 2)
             Dim f As Double = d / 2
-            Dim Phi As Double = tc.OrthoCourse_Deg
+            Dim Phi As Double = tc.LoxoCourse_Deg
             Dim e As Double = f / a
 
+            _IsoRoutingBorder.Clear()
             For theta As Double = 0 To 360 Step 5
-                Dim R As Double = a * (1 - e * e) / (1 - e * Cos((theta - Phi) / 180 * Math.PI))
-                Dim c As Coords = tc.ReachDistance(R, theta)
+                Dim R As Double = a * (1 - e * e) / (1 + e * Cos((theta - Phi) / 180 * Math.PI))
+                Dim c As Coords = tc.ReachDistanceortho(R, theta)
                 _IsoRoutingBorder.AddLast(c)
             Next
         End If
@@ -1029,7 +1030,7 @@ Public Class VLM_Router
                 End If
                 Speed = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, Math.Abs(AllureAngle), Mi.Strength)
                 TC.StartPoint = C
-                C = TC.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + AllureAngle))
+                C = TC.ReachDistanceortho(Speed / 60 * RouteurModel.VacationMinutes, GribManager.CheckAngleInterp(Mi.Dir + AllureAngle))
                 Dte = Dte.AddMinutes(RouteurModel.VacationMinutes)
                 Dim NewP As New clsrouteinfopoints With {.P = New Coords(C), .T = Dte}
                 _AllureRoute.Add(NewP)
@@ -1523,7 +1524,7 @@ Public Class VLM_Router
 
             Dim Speed As Double = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, WindAngle(Bearing, mi.Dir), mi.Strength)
 
-            TC.EndPoint = tc2.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, Bearing)
+            TC.EndPoint = tc2.ReachDistanceortho(Speed / 60 * RouteurModel.VacationMinutes, Bearing)
             tc2.StartPoint = TC.EndPoint
             StartDate = StartDate.AddMinutes(RouteurModel.VacationMinutes)
         End While
@@ -1556,7 +1557,7 @@ Public Class VLM_Router
 
             Dim Speed As Double = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, WindAngle(Bearing, mi.Dir), mi.Strength)
             LastDist = Speed / 60 * RouteurModel.VacationMinutes
-            TC.StartPoint = TC.ReachDistance(LastDist, Bearing)
+            TC.StartPoint = TC.ReachDistanceortho(LastDist, Bearing)
             'tc2.StartPoint = TC.EndPoint
             StartDate = StartDate.AddMinutes(RouteurModel.VacationMinutes)
         End While
@@ -1595,7 +1596,7 @@ Public Class VLM_Router
                 Found = Dist < tc.SurfaceDistance
                 Speed = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, WindAngle(tc.LoxoCourse_Deg, mi.Dir), mi.Strength)
 
-                tc.EndPoint = tc.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, tc.LoxoCourse_Deg)
+                tc.EndPoint = tc.ReachDistanceortho(Speed / 60 * RouteurModel.VacationMinutes, tc.LoxoCourse_Deg)
                 tc.StartPoint = tc.EndPoint
                 CurETA = CurETA.AddMinutes(RouteurModel.VacationMinutes)
             End While
@@ -1655,7 +1656,7 @@ Public Class VLM_Router
                     End If
                     Speed = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, RefAngle, mi.Strength)
 
-                    TC.EndPoint = tc2.ReachDistance(Speed / 60 * RouteurModel.VacationMinutes, RefAngle + mi.Dir)
+                    TC.EndPoint = tc2.ReachDistanceortho(Speed / 60 * RouteurModel.VacationMinutes, RefAngle + mi.Dir)
                     tc2.StartPoint = TC.EndPoint
                     CurETA = CurETA.AddMinutes(RouteurModel.VacationMinutes)
                 End While

@@ -269,6 +269,23 @@ Public Class Coords
 
     End Sub
 
+    Public Sub New(ByVal Lat As Decimal, ByVal Lon As Decimal, UseRads As Boolean)
+        Debug.Assert(Not Double.IsNaN(Lon))
+        Debug.Assert(Not Double.IsNaN(Lat))
+
+        If UseRads Then
+            Me.Lat = Lat
+            Me.Lon = Lon
+
+        Else
+            Me.Lat_Deg = Lat
+            Me.Lon_Deg = Lon
+
+        End If
+
+
+    End Sub
+
     Public Sub New(ByVal Lat_Deg As Integer, ByVal Lat_Min As Integer, ByVal Lat_Sec As Integer, ByVal NS As NORTH_SOUTH, ByVal Lon_Deg As Integer, ByVal Lon_Min As Integer, ByVal Lon_Sec As Integer, ByVal EW As EAST_WEST)
 
         Me.Lat_Deg = (CInt(NS) * (Lat_Deg + Lat_Min / 60 + Lat_Sec / 3600)) ' Mod 180

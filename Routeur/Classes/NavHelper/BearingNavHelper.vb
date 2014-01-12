@@ -34,7 +34,7 @@ Module BearingNavHelper
             Dist += S / 60 * RouteurModel.VacationMinutes
 
         End While
-        CurPOS = TC.ReachDistance(Dist, Bearing)
+        CurPOS = TC.ReachDistanceortho(Dist, Bearing)
         TC.StartPoint = Nothing
         TC.EndPoint = Nothing
         Return CurPOS
@@ -51,7 +51,7 @@ Module BearingNavHelper
 
         BoatSpeed = Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(Bearing, mi.Dir), mi.Strength)
         Dim TC As New TravelCalculator With {.StartPoint = Start}
-        retPos = TC.ReachDistance(BoatSpeed / 60 * RouteurModel.VacationMinutes, Bearing)
+        retPos = TC.ReachDistanceortho(BoatSpeed / 60 * RouteurModel.VacationMinutes, Bearing)
         TC.StartPoint = Nothing
         TC.EndPoint = Nothing
         TC = Nothing

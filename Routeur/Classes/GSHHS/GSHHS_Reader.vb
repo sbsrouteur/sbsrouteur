@@ -834,7 +834,7 @@ Public Class GSHHS_Reader
         Else
             If tcPoint.SurfaceDistance * Cos(Angle / 180 * PI) <= tcSeg.SurfaceDistance Then
                 With tcSeg
-                    .EndPoint = tcSeg.ReachDistance(tcPoint.SurfaceDistance * Cos(Angle / 180 * PI), tcSeg.LoxoCourse_Deg)
+                    .EndPoint = tcSeg.ReachDistanceortho(tcPoint.SurfaceDistance * Cos(Angle / 180 * PI), tcSeg.LoxoCourse_Deg)
                     .StartPoint = P
                     D = .SurfaceDistance
                     .StartPoint = Nothing
@@ -927,7 +927,7 @@ Public Class GSHHS_Reader
             If tcPoint.SurfaceDistance * Cos(Angle / 180 * PI) <= tcSeg.SurfaceDistance Then
                 'Point is in segment
                 With tcSeg
-                    .EndPoint = tcSeg.ReachDistance(tcPoint.SurfaceDistance * Cos(Angle / 180 * PI), tcSeg.LoxoCourse_Deg)
+                    .EndPoint = tcSeg.ReachDistanceortho(tcPoint.SurfaceDistance * Cos(Angle / 180 * PI), tcSeg.LoxoCourse_Deg)
                     RetCoords = New Coords(.EndPoint)
                     .StartPoint = Nothing
                     .EndPoint = Nothing
