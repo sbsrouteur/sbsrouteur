@@ -28,6 +28,7 @@ Public Class PathInfo
     Public Property WPs As List(Of VLM_RaceWaypoint)
     Public Property ManagedRoutes As IList(Of RecordedRoute)
     Public Property RoutingBorder As LinkedList(Of Coords)
+    Public Property CurrentPos As Coords
 
 #If DBG_ISO_POINT_SET Then
     Public Property DbgIsoNumber As Integer = 0

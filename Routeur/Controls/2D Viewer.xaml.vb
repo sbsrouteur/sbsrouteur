@@ -472,7 +472,6 @@ Render1:
     Public Function UpdatePath(PathInfo As PathInfo) As Boolean
 
         Dim Start As DateTime = Now
-        Dim CurPos As New Coords
         Dim Ret As Boolean = True
 
 #If DBG_UPDATE_PATH = 1 Then
@@ -773,8 +772,13 @@ Render1:
                     For Each R In PathInfo.Routes
 
                         If Not R Is Nothing Then
-                            DrawPath(_RBmp, R, routePen(PenNumber), RouteIndex = PathInfo.EstimateRouteIndex)
-                            
+                            If RouteIndex = PathInfo.EstimateRouteIndex Then
+                                DrawPath(_RBmp, R, routePen(PenNumber), RouteIndex = PathInfo.EstimateRouteIndex, PathInfo.CurrentPos)
+                            Else
+                                DrawPath(_RBmp, R, routePen(PenNumber), False)
+
+                            End If
+
                         End If
                         RouteIndex += 1
                         PenNumber += 1
@@ -1228,19 +1232,19 @@ Render1:
 
     End Function
 
-    Private Sub DrawPath(RBmp As WriteableBitmap, R As ObservableCollection(Of VLM_Router.clsrouteinfopoints), PenColor As Integer, WithPointCircles As Boolean)
+    Private Sub DrawPath(RBmp As WriteableBitmap, R As ObservableCollection(Of VLM_Router.clsrouteinfopoints), PenColor As Integer, WithPointCircles As Boolean, Optional CurrentPos As Coords = Nothing)
 
         Dim Path As New LinkedList(Of Coords)
         For Each P In R
             Path.AddLast(P.P)
         Next
-        DrawPath(RBmp, Path, PenColor, WithPointCircles)
+        DrawPath(RBmp, Path, PenColor, WithPointCircles, CurrentPos)
         Path.Clear()
         Path = Nothing
 
     End Sub
 
-    Private Sub DrawPath(RBmp As WriteableBitmap, Path As LinkedList(Of Coords), PenColor As Integer, WithPointCircles As Boolean)
+    Private Sub DrawPath(RBmp As WriteableBitmap, Path As LinkedList(Of Coords), PenColor As Integer, WithPointCircles As Boolean, Optional CurrentPos As Coords = Nothing)
 
         Dim P1 As Point
         Dim PrevPoint As Point
@@ -1249,6 +1253,13 @@ Render1:
             Dim Pnt As New Coords
             Dim CurPos As New Coords
             Dim PrevP As Coords = Nothing
+
+            If CurrentPos IsNot Nothing Then
+                PrevP = CurrentPos
+                PrevPoint = New Point
+                PrevPoint.X = LonToCanvas(PrevP.Lon_Deg)
+                PrevPoint.Y = LatToCanvas(PrevP.Lat_Deg)
+            End If
 
             For Each C As Coords In Path
                 If C IsNot Nothing Then
