@@ -80,8 +80,6 @@ Public Class VLMBoatInfo
     Private _HID As String ' trace cachée (1) ou visible (0)
     Private _VAC As String ' durée de la vacation (en secondes)
 
-    Private _Position As Coords
-
     ''' <summary>
     ''' 'vitesse du bateau (Boat SPeed) (float)
     ''' </summary>
@@ -346,17 +344,11 @@ Public Class VLMBoatInfo
         End Set
     End Property
 
-    Public Property Position As Coords
+    Public ReadOnly Property Position As Coords
         Get
-            If _Position Is Nothing Then
-                _Position = New Coords(LAT, LON)
-            End If
-            Return _Position
+            Return New Coords(LAT, LON)
         End Get
-        Set(value As Coords)
-            _Position = value
-            OnPropertyChanged("Position")
-        End Set
+
     End Property
     Public Property RNK() As Integer
         Get
@@ -368,7 +360,7 @@ Public Class VLMBoatInfo
         End Set
     End Property
 
-    
+
     Public Property TFS As Integer
         Get
             Return _TFS
@@ -379,7 +371,7 @@ Public Class VLMBoatInfo
             OnPropertyChanged("date")
         End Set
     End Property
-        
+
     ''' <summary>
     '''  Time to Update (à partir de NUP) (int)
     ''' </summary>
