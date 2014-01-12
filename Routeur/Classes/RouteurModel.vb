@@ -933,6 +933,7 @@ Public Class RouteurModel
                 P.ManagedRoutes = _RouteManager.VisibleRoutes
                 P.TrackColor = VorHandler.PlayerInfo.TrackColor
                 P.RoutingBorder = VorHandler.IsoRoutingBorder
+                P.CurrentPos = VorHandler.UserInfo.Position
 
 #If DBG_ISO_POINT_SET Then
                 P.DbgIsoNumber = _VorHandler.DbgIsoNumber
