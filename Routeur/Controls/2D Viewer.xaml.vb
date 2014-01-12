@@ -773,13 +773,7 @@ Render1:
                     For Each R In PathInfo.Routes
 
                         If Not R Is Nothing Then
-                            Dim Path As New LinkedList(Of Coords)
-                            For Each P In R
-                                Path.AddLast(P.P)
-                            Next
-                            DrawPath(_RBmp, Path, routePen(PenNumber), RouteIndex = PathInfo.EstimateRouteIndex)
-                            Path.Clear()
-                            Path = Nothing
+                            DrawPath(_RBmp, R, routePen(PenNumber), RouteIndex = PathInfo.EstimateRouteIndex)
                             
                         End If
                         RouteIndex += 1
@@ -1233,6 +1227,18 @@ Render1:
             (Point.Y < 0 OrElse Point.Y > ActualHeight)
 
     End Function
+
+    Private Sub DrawPath(RBmp As WriteableBitmap, R As ObservableCollection(Of VLM_Router.clsrouteinfopoints), PenColor As Integer, WithPointCircles As Boolean)
+
+        Dim Path As New LinkedList(Of Coords)
+        For Each P In R
+            Path.AddLast(P.P)
+        Next
+        DrawPath(RBmp, Path, PenColor, WithPointCircles)
+        Path.Clear()
+        Path = Nothing
+
+    End Sub
 
     Private Sub DrawPath(RBmp As WriteableBitmap, Path As LinkedList(Of Coords), PenColor As Integer, WithPointCircles As Boolean)
 
