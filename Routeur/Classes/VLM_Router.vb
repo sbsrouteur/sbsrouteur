@@ -797,23 +797,45 @@ Public Class VLM_Router
                 End1 = GSHHS_Reader.PointToSegmentIntersect(Start, End1, End2)
             End If
             Dim tc As New TravelCalculator With {.StartPoint = Start, .EndPoint = End1}
-            Dim d As Double = tc.SurfaceDistanceLoxo
-            Dim Center As Coords = tc.ReachDistanceLoxo(d / 2, tc.OrthoCourse_Deg)
-            Dim a As Double = d * LastExt / 2 ' * (LastExt - 1 / 2)
-            Dim f As Double = d / 2
-            Dim Phi As Double = tc.LoxoCourse_Deg - 90
-            Dim e As Double = f / a
+            Dim d As Double = tc.SurfaceDistance
+            'Dim Center As Coords = tc.ReachDistanceortho(d / 2, tc.OrthoCourse_Deg)
+            'Dim a As Double = d * LastExt / 2 ' * (LastExt - 1 / 2)
+            'Dim f As Double = d / 2
+            'Dim Phi As Double = tc.OrthoCourse_Deg - 90
+            'Dim e As Double = f / a
 
             _IsoRoutingBorder.Clear()
             For theta As Double = 0 To 360 Step 5
-                Dim R As Double = a * (1 - e * e) / (1 + e * Cos((theta - Phi) / 180 * Math.PI))
-                Dim c As Coords = tc.ReachDistanceortho(R, theta - 90)
+                'Dim R As Double = a * (1 - e * e) / (1 + e * Cos((theta - Phi) / 180 * Math.PI))
+                Dim c As Coords = FindEllipsisPoint(Start, End1, theta, d * LastExt, 0, d * LastExt) 'c.ReachDistanceortho(R, theta - 90)
+                Dim tc2 As New TravelCalculator
                 _IsoRoutingBorder.AddLast(c)
             Next
         End If
         Console.WriteLine("IsoBorder computed in " & Now.Subtract(StartTick).TotalMilliseconds)
         Return _IsoRoutingBorder
     End Function
+
+    Private Function FindEllipsisPoint(F1 As Coords, F2 As Coords, theta As Double, EllipsisDist As Double, MinDist As Double, MaxDist As Double) As Coords
+
+        Dim Tc As New TravelCalculator With {.StartPoint = F1}
+        If MaxDist - MinDist < 1 Then
+            Return Tc.ReachDistanceortho(MinDist, theta)
+        End If
+        Dim D As Double = 0
+        Tc.EndPoint = Tc.ReachDistanceortho((MaxDist + MinDist) / 2, theta)
+        D += Tc.SurfaceDistance
+        Tc.StartPoint = F2
+        D += Tc.SurfaceDistance
+
+        If D < EllipsisDist Then
+            Return FindEllipsisPoint(F1, F2, theta, EllipsisDist, (MaxDist + MinDist) / 2, MaxDist)
+        Else
+            Return FindEllipsisPoint(F1, F2, theta, EllipsisDist, MinDist, (MaxDist + MinDist) / 2)
+        End If
+
+    End Function
+
 
     Public ReadOnly Property Meteo() As GribManager
         Get
@@ -3296,6 +3318,7 @@ Public Class VLM_Router
             StartCoords = start
         End If
     End Sub
+
 
    
 
