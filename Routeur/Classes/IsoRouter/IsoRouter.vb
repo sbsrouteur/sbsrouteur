@@ -250,7 +250,7 @@ Public Class IsoRouter
                                          tc.EndPoint = Nothing
                                      End If
 
-                                     If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= MaxEllipsisDist AndAlso Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
+                                     If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= MaxEllipsisDist AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
 
                                          'tc.StartPoint = _StartPoint.P
                                          'tc.EndPoint = P.P
