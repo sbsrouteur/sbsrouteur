@@ -92,7 +92,7 @@ Module GSHHS_Utils
     '    End Function
 
     Private Sub DenormalizeSegmentForAnte(S1_P1 As Coords, S1_P2 As Coords)
-        If S1_P1.Lon * S1_P2.Lon < 0 And Abs(S1_P1.Lon * S1_P2.Lon) > Math.PI Then
+        If S1_P1.Lon * S1_P2.Lon < 0 And Abs(S1_P1.Lon - S1_P2.Lon) > Math.PI Then
             If S1_P1.Lon < 0 Then
                 S1_P1.Lon += 2 * PI
             Else
