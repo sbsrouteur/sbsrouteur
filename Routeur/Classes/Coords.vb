@@ -97,9 +97,9 @@ Public Class Coords
                 Dim bp As Integer = 0
             End If
             _Lon = value
-            _n_lon = _Lon Mod (2 * PI)
+            _n_lon = ((_Lon + PI) Mod (2 * PI)) - PI
             _Lon_Deg = value / PI * 180
-            _n_lon_deg = _Lon_Deg Mod 360
+            _n_lon_deg = ((_Lon_Deg + 180) Mod 360) - 180
             If _n_lon > PI Then
                 _n_lon -= 2 * PI
                 _n_lon_deg -= 360
