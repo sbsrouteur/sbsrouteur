@@ -37,7 +37,7 @@ Public Class TravelCalculator
         Get
             If StartPoint Is Nothing OrElse EndPoint Is Nothing Then
                 Return Double.NaN
-            ElseIf StartPoint.N_Lon * EndPoint.N_Lon < 0 AndAlso Abs(StartPoint.N_Lon * EndPoint.N_Lon) > PI Then
+            ElseIf StartPoint.N_Lon * EndPoint.N_Lon < 0 AndAlso Abs(StartPoint.N_Lon - EndPoint.N_Lon) > PI Then
                 Return LoxoCourse_Deg_Aviat_withante
             Else
                 Return LoxoCourse_Deg_Aviat
@@ -128,6 +128,7 @@ Public Class TravelCalculator
                 Dim i As Integer = 0
             End If
 
+            Return ret
 
         End Get
     End Property
