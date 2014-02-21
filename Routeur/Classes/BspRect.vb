@@ -164,57 +164,6 @@ Public Class BspRect
         End Get
     End Property
 
-    'Public ReadOnly Property GetPolygons(ByVal C As Coords, ByVal Polygons As LinkedList(Of Polygon), ByVal gridgrain As Double) As LinkedList(Of Polygon)
-    '    Get
-    '        If _PolyGons Is Nothing AndAlso Abs((P2.Lat - P1.Lat)) > MIN_POLYGON_SPLIT Then
-
-    '            If _SubRects(0) Is Nothing Then
-    '                If Not Split(gridgrain) Then
-    '                    Return Nothing
-    '                End If
-    '            End If
-    '            Return GetChildFromCoords(C).GetPolygons(C, Polygons, gridgrain)
-
-    '        Else
-    '            If _PolyGons Is Nothing Then
-
-    '                Dim P As Polygon
-    '                Dim PolygonIndex As Integer = 0
-    '                Dim Corner As New Coords
-    '                'Build the polygons list using the proper "trimmed " polygons
-    '                _PolyGons = New LinkedList(Of Polygon)
-
-
-    '                For Each P In GSHHS_Reader.AllPolygons
-
-    '                    If PolygonIndex < GSHHS_Reader.ExclusionCount Then
-    '                        'Always add exclusions without clipping
-    '                        _PolyGons.AddLast(P)
-    '                        PolygonIndex += 1
-    '                    Else
-    '                        If P(0) IsNot Nothing Then
-
-    '                            Dim PRet As Polygon = PolyClipper.ClipPolygon(P1, P2, P)
-    '                            If Not PRet Is Nothing AndAlso PRet.Count > 2 Then
-    '                                _PolyGons.AddLast(PRet)
-    '                            End If
-
-    '                        End If
-
-    '                    End If
-
-
-
-    '                Next
-
-    '            End If
-    '            Return _PolyGons
-    '        End If
-    '    End Get
-    'End Property
-
-
-
     Public Property InLand() As inlandstate
 
         Get
@@ -242,7 +191,7 @@ Public Class BspRect
         End Get
     End Property
 
-    Private Function BuildBspCellLine(C1 As Coords, C2 As Coords) As List(Of Coords)
+    Function BuildBspCellLine(C1 As Coords, C2 As Coords) As List(Of Coords)
         Dim RetList As New List(Of Coords)
 
         If C1 = C2 Then
