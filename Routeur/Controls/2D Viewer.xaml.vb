@@ -521,22 +521,9 @@ Render1:
 
             Using _RBmp.GetBitmapContext
 
-
-                '#If NO_TILES = 1 Then
-                '            If _BackDropBmp IsNot Nothing AndAlso _BackDropBmp.IsFrozen Then
-
-
-                '                DC.DrawImage(_BackDropBmp, New Rect(0, 0, actualwidth, actualheight))
-                '            End If
-                '#Else
-                '            DC.DrawImage(_BackDropBmp, New Rect(0, 0, ActualWidth, ActualHeight))
-                '#End If
-
 #If DBG_UPDATE_PATH = 1 Then
                 Console.WriteLine("Update path Tiles Rendered " & Now.Subtract(Start).ToString)
 #End If
-
-
 
                 'debug bsp grid
                 '
@@ -810,6 +797,10 @@ Render1:
                     Next
 
                 End If
+
+                For Each route In PathInfo.ManagedRoutes
+                    DrawPath(_RBmp, route.Path, route.PenColor, True)
+                Next
 
 #If DBG_UPDATE_PATH = 1 Then
                 Console.WriteLine("Update path Routes Done " & Now.Subtract(Start).ToString)
