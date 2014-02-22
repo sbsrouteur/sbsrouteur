@@ -372,45 +372,8 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 
                     <GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
                     <GridSplitter Width="4" Grid.Row="1" d:LayoutOverrides="GridBox"/>
-                    <!--<Canvas Height="Auto" x:Name="BgWeatherObjects" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Grid.Row="1" Grid.Column="1" Grid.RowSpan="7" Margin="0,0,50.22,0">
-						<Canvas x:Name="canvas" Height="1800"  Grid.ColumnSpan="1"  Width="10800"  RenderTransformOrigin="{Binding RenderTransformOrigin, ElementName=VOR2DViewer, Mode=Default}" RenderTransform="{Binding RenderTransform, ElementName=VOR2DViewer, Mode=Default}" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"  >
-							<ItemsControl x:Name="WindMap" ItemsSource="{Binding MapLayer}" ItemTemplate="{DynamicResource MeteoInfoColorBox}">
-								<ItemsControl.ItemsPanel>
-									<ItemsPanelTemplate>
-										<Canvas />
-									</ItemsPanelTemplate>
-								</ItemsControl.ItemsPanel>
-							</ItemsControl>
-						</Canvas>
-					</Canvas>
-					-->
+
                     <Grid Height="Auto" x:Name="_2D_Renderer" Grid.ColumnSpan="5" Grid.RowSpan="8" MouseMove="_2D_Renderer_MouseMoveHandler" Width="Auto"/>
-                    <Canvas Height="Auto" x:Name="_2D_Renderer_NOZoom" Grid.ColumnSpan="5" MouseMove="_2D_Renderer_MouseMoveHandler" SizeChanged="RendererSizeChanged" Visibility="{Binding HideNonMapCanvas, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Window, Mode=Default}" Grid.RowSpan="8" Margin="0,0,50.22,0">
-                        <!--<Grid x:Name="Weather_Map" >
-							<Path Data="{Binding VorHandler.MeteoArrow, IsAsync=false, Mode=Default}" Stroke="Black" Visibility="{Binding VorHandler.MeteoVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
-						</Grid>-->
-                        <Canvas x:Name="WP_RoutingObjects"  >
-
-                            <ItemsControl ItemsSource="{Binding RouteManager.Routes, Mode=Default}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <ContentPresenter Content="{Binding Shape}" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Canvas />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                        </Canvas>
-
-                        <!--<Grid  x:Name="MeteoInfoGrid" Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}" RenderTransformOrigin="0.5,0.5" >
-							<ItemsControl ItemsSource="{Binding VorHandler.MeteoInfoList, Mode=Default}" Width="Auto" Height="Auto" />
-						</Grid>
-						-->
-                        <!--<StackPanel Canvas.Top="{Binding The2DViewer.MouseP.Y, Mode=Default}" Canvas.Left="{Binding The2DViewer.MouseP.X, Mode=Default}"/>-->
-                    </Canvas>
 
                     <Image Grid.Row="1" Source="Graphics\Rosa_dels_vents.png" Stretch="UniformToFill"/>
                     <Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Grid.Row="1" Source="Graphics\Boat_Top.png" Stretch="None">
