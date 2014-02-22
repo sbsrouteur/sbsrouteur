@@ -588,6 +588,12 @@ Render1:
                         Exit For
                     End If
                 Next
+
+                'Dim bsp As List(Of Coords) = GSHHS_Reader._Tree.BuildBspCellLine(C1, C2)
+                'For Each C As Coords In bsp
+                '    SafeDrawEllipse(_RBmp, C, &HFF000000, 25, 25)
+                'Next
+
 #End If
 
 
