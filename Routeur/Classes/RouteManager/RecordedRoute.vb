@@ -70,7 +70,7 @@ Public Class RecordedRoute
         Set(ByVal value As Color)
             _Color = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Color"))
-            OnShapeChange()
+
         End Set
     End Property
 
@@ -91,7 +91,7 @@ Public Class RecordedRoute
             _Color.R = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Color"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ColorR"))
-            OnShapeChange()
+
         End Set
     End Property
 
@@ -104,7 +104,7 @@ Public Class RecordedRoute
             _Color.G = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Color"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ColorG"))
-            OnShapeChange()
+
         End Set
     End Property
 
@@ -117,7 +117,7 @@ Public Class RecordedRoute
             _Color.B = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Color"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ColorB"))
-            OnShapeChange()
+
         End Set
     End Property
 
@@ -197,10 +197,6 @@ Public Class RecordedRoute
         End Set
 
     End Property
-
-    Private Sub OnShapeChange()
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Shape"))
-    End Sub
 
     Public Property RaceID() As String
         Get
@@ -282,7 +278,7 @@ Public Class RecordedRoute
             If Visible <> value Then
                 _Visible = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Visible"))
-                OnShapeChange()
+
             End If
         End Set
 
@@ -293,7 +289,7 @@ Public Class RecordedRoute
         If Route.Contains(P) Then
             RemoveHandler P.QueryRemoveFromRoute, AddressOf OnPointDeleteQuery
             Route.Remove(P)
-            OnShapeChange()
+
         End If
 
     End Sub
