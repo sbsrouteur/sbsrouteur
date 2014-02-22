@@ -784,9 +784,11 @@ Public Class VLM_Router
     End Property
 
     Function IsoRoutingBorder() As LinkedList(Of Coords)
+
         Static LastExt As Double = 0
-        Dim StartTick As DateTime = Now
-        If True Or RacePrefs.GetRaceInfo(PlayerInfo.RaceInfo.idraces).EllipseExtFactor <> LastExt Then
+        Static LastCalc As DateTime = Now
+
+        If Now.Subtract(LastCalc).TotalMinutes > 2 OrElse RacePrefs.GetRaceInfo(PlayerInfo.RaceInfo.idraces).EllipseExtFactor <> LastExt Then
             LastExt = RacePrefs.GetRaceInfo(PlayerInfo.RaceInfo.idraces).EllipseExtFactor
 
             Dim Start As Coords = Nothing
@@ -812,7 +814,6 @@ Public Class VLM_Router
                 _IsoRoutingBorder.AddLast(c)
             Next
         End If
-        Console.WriteLine("IsoBorder computed in " & Now.Subtract(StartTick).TotalMilliseconds)
         Return _IsoRoutingBorder
     End Function
 
