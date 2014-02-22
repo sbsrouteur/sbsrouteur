@@ -405,7 +405,7 @@ Public Class RouteurModel
     Public Shared ReadOnly Property Base_Game_Url() As String
         Get
             Return "http://" & S10_SERVER
-            
+
         End Get
     End Property
 
@@ -464,7 +464,7 @@ Public Class RouteurModel
 #If GEN_TCV Then
             Return True
 #Else
-            return false
+            Return False
 #End If
         End Get
     End Property
@@ -474,7 +474,7 @@ Public Class RouteurModel
 #If TESTING Then
             Return True
 #Else
-            return false
+            Return False
 #End If
         End Get
     End Property
@@ -909,8 +909,8 @@ Public Class RouteurModel
                 routes(4) = VorHandler.TempVMGRoute
                 routes(5) = VorHandler.AllureRoute
                 routes(6) = VorHandler.PilototoRoute
-                
-            
+
+
 
                 Dim Rtes As List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)) = New List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints))(routes)
                 'ReDim Rtes(routes.Length)
