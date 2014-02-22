@@ -120,7 +120,7 @@ Public Class BspRect
                         If _SegmentsArray(X, Y) Is Nothing Then
 
                             Dim TmpSegments = New List(Of MapSegment)
-                            Dim P1 As New Coords(Y * 180 / (2 ^ MAX_TREE_Z) - 90, X * 360 / (2 ^ MAX_TREE_Z) - 180)
+                            Dim P1 As New Coords((Y - 1) * 180 / (2 ^ MAX_TREE_Z) - 90, (X - 1) * 360 / (2 ^ MAX_TREE_Z) - 180)
                             Dim P2 As New Coords((Y + 1) * 180 / (2 ^ MAX_TREE_Z) - 90, (X + 1) * 360 / (2 ^ MAX_TREE_Z) - 180)
 
                             Dim Segs = db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg)

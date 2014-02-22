@@ -96,6 +96,12 @@ Public Class IsoRouter
                 End If
             Next
 
+            Dim tP1 As New Coords(38, 8, 11, Coords.NORTH_SOUTH.N, 118, 2, 13, Coords.EAST_WEST.E)
+            Dim tP2 As New Coords(38, 7, 34, Coords.NORTH_SOUTH.N, 118, 1, 5, Coords.EAST_WEST.E)
+            Dim ret As Boolean = _DB.IntersectMapSegment(tP2, tP1, GSHHS_Reader._Tree)
+            If ret Then
+                MessageBox.Show("intersect")
+            End If
         Else
             RetIsoChrone = New IsoChrone(_SailManager, _StartPoint.P)
             Dim StartIndex As Integer = 0
