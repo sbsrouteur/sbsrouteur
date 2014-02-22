@@ -1,0 +1,136 @@
+﻿==========================================================================
+    Visual Studio Team System : Vue d'ensemble de la création et de l'exécution de tests    
+==========================================================================
+
+Cette vue d'ensemble décrit les fonctionnalités de création et d'exécution de tests dans 
+Visual Studio Team System et Visual Studio Team Edition for Software Testers.
+
+Ouverture de tests
+-------------
+Pour ouvrir un test, ouvrez un projet de test ou un fichier de métadonnées de test
+(fichier portant l'extension .vsmdi) qui contient la définition du test. Vous trouverez des
+projets et des fichiers de métadonnées de test dans l'Explorateur de solutions.
+
+Affichage de tests
+-------------
+Pour afficher les tests mis à votre disposition, ouvrez la fenêtre Affichage de tests. Si
+vous avez installé Team Edition for Software Testers, vous pouvez également
+ouvrir la fenêtre Explorateur de tests pour afficher les tests.
+
+Pour ouvrir la fenêtre Affichage de tests, cliquez sur le menu Test, pointez sur Fenêtres,
+puis cliquez sur Affichage de tests. Pour ouvrir la fenêtre Explorateur de tests (si vous
+avez installé Team Edition for Software Testers), cliquez sur Test, pointez sur Fenêtres,
+puis cliquez sur Explorateur de tests.
+
+Exécution de tests
+-------------
+Vous pouvez exécuter des tests à partir de la fenêtre Affichage de tests et de la fenêtre Explorateur de tests.
+Pour savoir comment ouvrir ces fenêtres, consultez la section Affichage de tests. Pour exécuter un ou plusieurs
+tests affichés dans la fenêtre Affichage de tests, sélectionnez d'abord les
+tests dans cette fenêtre ; pour sélectionner plusieurs tests, maintenez enfoncée
+la touche Maj ou la touche CTRL et cliquez sur les tests. Ensuite, cliquez sur le bouton Exécuter les tests dans la barre d'outils
+de la fenêtre Affichage de tests.
+
+Si vous avez installé Visual Studio Team Edition for Software Testers, vous pouvez
+également utiliser la fenêtre Explorateur de tests pour exécuter les tests. Pour exécuter les tests dans l'Explorateur de tests,
+activez la case à cocher en regard de chaque test que vous souhaitez exécuter. Ensuite, cliquez sur
+le bouton Exécuter les tests dans la barre d'outils de la fenêtre Explorateur de tests.
+
+Affichage des résultats d'un test
+--------------------
+Lorsque vous exécutez un test ou une série de tests, les résultats s'affichent
+dans la fenêtre Résultats des tests. Chaque test de la série s'affiche sur une ligne
+distincte pour vous permettre de déterminer son état. La fenêtre contient une
+barre d'état incorporée dans sa partie supérieure, fournissant des informations
+récapitulatives sur l'intégralité de la série de tests.
+
+Pour afficher des résultats plus détaillés sur un résultat de test particulier,
+double-cliquez dessus dans la fenêtre Résultats des tests. Une fenêtre s'ouvre avec davantage d'informations
+sur ce résultat particulier, par exemple les messages d'erreur spécifiques
+éventuellement retournés par le test.
+
+Modification du mode d'exécution des tests
+-----------------------------------
+Chaque fois que vous exécutez un ou plusieurs tests, différents paramètres
+sont utilisés pour déterminer le mode d'exécution de ces tests. Ces paramètres sont contenus dans un fichier de « configuration
+de série de tests ».
+
+Voici une liste partielle des modifications que vous pouvez apporter 
+à l'aide d'un fichier de configuration de série de tests :
+
+ - Modifier le schéma d'affectation de noms de la série de tests.
+ - Modifier le contrôleur de test sur lequel s'exécutent les tests afin de vous
+   permettre d'exécuter les tests à distance.
+ - Recueillir des données de couverture du code pour le code actuellement testé
+   pour vous permettre de déterminer les lignes de code couvertes par vos tests.
+ - Activer et désactiver le déploiement de tests. 
+ - Spécifier des fichiers supplémentaires à déployer avant l'exécution des tests.
+ - Sélectionner un autre hôte, ASP.NET, pour l'exécution de tests unitaires ASP.NET.
+ - Sélectionner un autre hôte, l'hôte de test Smart Device, pour exécuter des tests unitaires Smart Device.
+ - Définir diverses propriétés pour les agents de test qui exécutent vos tests.
+ - Exécuter des scripts personnalisés au début et à la fin de chaque série de
+   tests afin de pouvoir éventuellement configurer l'environnement de test avec précision à chaque exécution des tests.
+ - Définir les limites de durée des tests et des séries de tests.
+ - Définir la combinaison de navigateurs et le nombre de répétitions des tests
+   Web dans la série de tests.
+
+Par défaut, un fichier de configuration de série de tests est créé à chaque
+génération d'un nouveau projet de test. Pour modifier ce fichier, double-cliquez dessus dans 
+l'Explorateur de solutions, puis modifiez ses paramètres. (Les fichiers de configuration de série de tests
+portent l'extension .testrunconfig.)
+
+Une solution peut contenir plusieurs fichiers de configuration de séries de tests. Seul un de ces
+fichiers, appelé fichier de configuration de série de tests « actif »,
+est utilisé pour déterminer les paramètres actuellement appliqués pour les séries de tests. Vous pouvez
+sélectionner la configuration de série de tests active en cliquant sur 
+Sélectionner une configuration de série de tests active dans le menu Test.
+
+-------------------------------------------------------------------------------
+
+Types de tests
+----------
+À l'aide de Visual Studio Team Edition for Software Testers, vous pouvez créer
+différents types de tests :
+
+Test unitaire : Utilisez un test unitaire pour créer un test programmatique en C++, Visual C#
+ou Visual Basic sur le code source. Un test unitaire appelle les méthodes
+d'une classe en passant les paramètres adaptés, et vérifie que la valeur
+retournée est celle escomptée.
+Il existe trois variantes spécialisées de tests unitaires :
+ - Les tests unitaires pilotés par les données sont créés lors de la configuration d'un test unitaire
+   à appeler à plusieurs reprises pour chaque ligne d'une source de données. Les données de chaque ligne
+   sont utilisées par le test unitaire comme données d'entrée.
+ - Les tests unitaires ASP.NET testent le code contenu dans une application Web
+   ASP.NET.
+ - Les tests unitaires Smart Device sont des tests unitaires déployés sur un appareil
+   de type Smart Device ou un émulateur, puis exécutés par l'hôte de test Smart Device.  
+
+Test Web : Les tests Web sont constitués d'une série ordonnée de requêtes HTTP que
+vous enregistrez dans une session de navigateur à l'aide de Microsoft Internet Explorer. Le test peut fournir
+des informations spécifiques sur les pages ou les sites qu'il demande,
+indiquant par exemple si une page particulière contient ou non une chaîne spécifiée.
+
+Test de chargement : Un test de chargement permet d'encapsuler plusieurs tests non manuels, tels
+que des tests unitaires, Web et génériques, puis de les exécuter simultanément
+à l'aide d'utilisateurs virtuels. L'exécution de ces tests sous charge génère les résultats des tests,
+tels que les performances et d'autres compteurs, dans des tableaux et des graphiques.
+
+Test générique : Un test générique est un programme existant encapsulé pour fonctionner
+comme test dans Visual Studio. Les exemples suivants sont des tests ou des programmes
+que vous pouvez transformer en tests génériques :
+ - Un test existant qui utilise des codes de sortie de processus pour indiquer si
+   le test a réussi ou échoué. 0 indique la réussite et toute autre valeur indique
+   l'échec.
+ - Un programme général permettant d'obtenir une fonctionnalité spécifique pendant un scénario de test.
+ - Un test ou un programme utilisant un fichier XML spécial (appelé « fichier de synthèse
+   des résultats »), pour communiquer des résultats détaillés.
+
+Test manuel : Le type de test manuel est utilisé lorsque les tâches liées aux tests doivent être
+réalisées par un ingénieur chargé des tests et non par un script automatisé.
+
+Test ordonné : Utilisez un test ordonné pour exécuter un jeu de tests dans l'ordre
+que vous spécifiez.
+
+-------------------------------------------------------------------------------
+
+
