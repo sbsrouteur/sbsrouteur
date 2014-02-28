@@ -405,7 +405,7 @@ Public Class RouteurModel
     Public Shared ReadOnly Property Base_Game_Url() As String
         Get
             Return "http://" & S10_SERVER
-            
+
         End Get
     End Property
 
@@ -464,7 +464,7 @@ Public Class RouteurModel
 #If GEN_TCV Then
             Return True
 #Else
-            return false
+            Return False
 #End If
         End Get
     End Property
@@ -474,7 +474,7 @@ Public Class RouteurModel
 #If TESTING Then
             Return True
 #Else
-            return false
+            Return False
 #End If
         End Get
     End Property
@@ -896,11 +896,16 @@ Public Class RouteurModel
     Private Sub tmrRefresh_Elapsed(ByVal sender As Object, ByVal e As EventArgs)
 
         tmrRefresh.IsEnabled = False
+        'Ignore refresh until we start having user informations
+        If VorHandler.PlayerInfo Is Nothing OrElse VorHandler.UserInfo Is Nothing Then
+            Return
+        End If
+
         If System.Threading.Monitor.TryEnter(Me) Then
             If Not The2DViewer Is Nothing And Not _Busy Then
                 _Busy = True
                 Dim routes(6) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
-                
+
                 routes(0) = VorHandler.PlannedRoute
                 routes(1) = VorHandler.BestRouteAtPoint
                 routes(2) = VorHandler.BruteRoute
@@ -908,7 +913,7 @@ Public Class RouteurModel
                 routes(4) = VorHandler.TempVMGRoute
                 routes(5) = VorHandler.AllureRoute
                 routes(6) = VorHandler.PilototoRoute
-                
+
                 Dim Rtes As List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)) = New List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints))(routes)
                 Dim P As New PathInfo
 
@@ -921,10 +926,15 @@ Public Class RouteurModel
                 P.ClearGrid = _ClearGrid
                 P.ClearBoats = _ClearBoats
                 P.IsoChrones = VorHandler.IsoChrones
-                P.WPs = CurPlayer.RaceInfo.races_waypoints
-                P.ManagedRoutes = _RouteManager.VisibleRoutes
+                If CurPlayer IsNot Nothing Then
+                    P.WPs = CurPlayer.RaceInfo.races_waypoints
+                End If
+                P.ManagedRoutes = (From R In _RouteManager.VisibleRoutes Where R.RaceID = VorHandler.PlayerInfo.RaceInfo.idraces).ToList
+
                 P.TrackColor = VorHandler.PlayerInfo.TrackColor
+
                 P.RoutingBorder = VorHandler.IsoRoutingBorder
+
                 P.CurrentPos = VorHandler.UserInfo.Position
 
 #If DBG_ISO_POINT_SET Then

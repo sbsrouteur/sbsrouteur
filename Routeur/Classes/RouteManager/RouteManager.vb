@@ -141,8 +141,8 @@ Public Class RouteManager
     Public Sub Load()
 
         Dim RetValue As RouteManager = Nothing
-        Dim XMLS As New Xml.Serialization.XmlSerializer(GetType(RouteManager))
         Try
+            Dim XMLS As New Xml.Serialization.XmlSerializer(GetType(RouteManager))
             Dim fname As String = RouteurModel.BaseFileDir & "\Routes.xml"
             If System.IO.File.Exists(fname) Then
                 Dim o As New FileStream(fname, FileMode.Open)

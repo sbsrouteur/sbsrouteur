@@ -324,15 +324,17 @@ Public Class RecordedRoute
         S1.Close()
     End Sub
 
+    <XmlIgnore> _
     ReadOnly Property Path As LinkedList(Of Coords)
         Get
             Return _Path
         End Get
     End Property
 
+    <XmlIgnore> _
     ReadOnly Property PenColor() As Integer
         Get
-            Return Color.A << 24 + Color.R << 16 + Color.G << 8 + Color.B
+            Return CInt(Color.A) << 24 Or CInt(Color.R) << 16 Or CInt(Color.G) << 8 Or Color.B
         End Get
     End Property
 
