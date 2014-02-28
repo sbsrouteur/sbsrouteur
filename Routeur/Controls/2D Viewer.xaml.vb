@@ -799,7 +799,9 @@ Render1:
                 End If
 
                 For Each route In PathInfo.ManagedRoutes
-                    DrawPath(_RBmp, route.Path, route.PenColor, True)
+                    If route.Visible Then
+                        DrawPath(_RBmp, route.Path, route.PenColor, True)
+                    End If
                 Next
 
 #If DBG_UPDATE_PATH = 1 Then

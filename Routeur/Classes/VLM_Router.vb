@@ -788,7 +788,9 @@ Public Class VLM_Router
         Static LastExt As Double = 0
         Static LastCalc As DateTime = Now
 
-        If Now.Subtract(LastCalc).TotalMinutes > 2 OrElse RacePrefs.GetRaceInfo(PlayerInfo.RaceInfo.idraces).EllipseExtFactor <> LastExt Then
+
+
+        If PlayerInfo IsNot Nothing AndAlso (Now.Subtract(LastCalc).TotalMinutes > 2 OrElse RacePrefs.GetRaceInfo(PlayerInfo.RaceInfo.idraces).EllipseExtFactor <> LastExt) Then
             LastExt = RacePrefs.GetRaceInfo(PlayerInfo.RaceInfo.idraces).EllipseExtFactor
 
             Dim Start As Coords = Nothing
@@ -1750,14 +1752,11 @@ Public Class VLM_Router
 
     Public ReadOnly Property Track() As LinkedList(Of Coords)
         Get
-            'If Not _Track Is Nothing AndAlso _Track.Length > 0 Then
-            '    Dim C As New Coords(UserInfo.Position)
-            '    Dim CurPos As String = C.Lon_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & "!" & C.Lat_Deg.ToString(System.Globalization.CultureInfo.InvariantCulture) & ";"
-            '    If Not _Track.EndsWith(CurPos) Then
-            '        _Track &= CurPos
-            '    End If
-            '    Return _Track
-            'Else
+            
+            If _PlayerInfo Is Nothing Then
+                Return Nothing
+            End If
+
             Dim prefs As RacePrefs = RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces)
             Dim IdRace As Integer = CInt(_PlayerInfo.RaceInfo.idraces)
             Dim db As New DBWrapper(DBWrapper.GetMapLevel(prefs.MapLevel))
