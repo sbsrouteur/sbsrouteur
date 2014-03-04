@@ -191,11 +191,11 @@ Public Class IsoChrone
 
     Function IndexFromAngle(Loxo As Double) As Integer
 
-        Dim StartIndex As Integer = CInt(Loxo / 10)
+        Dim StartIndex As Integer = 0 ' CInt(Loxo / 10)
 
-        If CDbl(StartIndex) = Loxo / 10 Then
-            Return StartIndex
-        End If
+        'If CDbl(StartIndex) = Loxo / 10 Then
+        '    Return StartIndex
+        'End If
 
         Dim PointIndex As Integer
         Dim AngleError As Double = Double.MaxValue
