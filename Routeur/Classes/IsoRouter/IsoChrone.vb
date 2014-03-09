@@ -208,11 +208,11 @@ Public Class IsoChrone
                 If Math.Abs(Loxo - Tc.LoxoCourse_Deg) < AngleError Then
                     AngleError = Math.Abs(Loxo - Tc.LoxoCourse_Deg)
                 Else
-                    Return PointIndex
+                    Return PointIndex - 1
                 End If
             Next
 
-            Return 0
+            Return _PointSet.Count - 1
         Finally
             Tc.StartPoint = Nothing
             Tc.EndPoint = Nothing
