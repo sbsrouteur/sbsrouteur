@@ -730,7 +730,15 @@ Public Class VLM_Router
         End Get
     End Property
 
-
+    Public ReadOnly Property CurrentSpeedYield As Double
+        Get
+            If _UserInfo IsNot Nothing Then
+                Return _UserInfo.BSP / _Sails.GetBestSpeed(_UserInfo.TWA, _UserInfo.TWS)
+            Else
+                Return 0
+            End If
+        End Get
+    End Property
     Public Property DrawOpponnents() As Boolean
         Get
             Return _DrawOpponnents

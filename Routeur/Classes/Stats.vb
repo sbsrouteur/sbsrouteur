@@ -72,6 +72,7 @@ Public Class Stats
 
     Public Shared WriteOnly Property SetStatValue(ByVal Prop As StatID) As Double
         Set(ByVal value As Double)
+            Return
             Dim Item As StatInfo
             SyncLock _Stats
                 If _Stats.ContainsKey(Prop) Then
