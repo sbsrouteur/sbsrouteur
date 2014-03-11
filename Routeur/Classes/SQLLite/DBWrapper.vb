@@ -350,7 +350,7 @@ RestartPoint:
 
                             Catch ex As SQLiteException
 
-                                If ex.ReturnCode = SQLiteErrorCode.Constraint Then
+                                If ex.ErrorCode = SQLiteErrorCode.Constraint Then
                                     'rollback the current transaction
                                     cmd.CommandText = "Rollback transaction"
                                     cmd.ExecuteNonQuery()
