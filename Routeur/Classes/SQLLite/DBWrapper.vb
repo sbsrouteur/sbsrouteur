@@ -324,15 +324,16 @@ RestartPoint:
 
     End Function
 
+    Shared VersionChecked As Boolean = False
+
     Private Sub CheckDBVersionAndUpdate()
-        Static VersionChecked As Boolean = False
 
         If VersionChecked Then
             Return
         End If
         SyncLock _Lock
             Dim CurVersion As Integer = GetCurDBVersion()
-            Const DBVersion As Integer = 4
+            Const DBVersion As Integer = 5
 
             If CurVersion = 0 Then
                 'DBCreation
