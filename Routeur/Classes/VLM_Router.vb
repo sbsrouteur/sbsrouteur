@@ -1009,10 +1009,10 @@ Public Class VLM_Router
 
     Private Sub BuildOrthoToP(userPosition As Coords, P As clsrouteinfopoints, PlannedRoute As ObservableCollection(Of clsrouteinfopoints))
 
-        Using sr As New StreamWriter(".\BuildOrtho.txt", True)
-            sr.WriteLine(Now.ToString & vbTab & userPosition.ToString & vbTab & P.ToString)
-            sr.Close()
-        End Using
+        'Using sr As New StreamWriter(".\BuildOrtho.txt", True)
+        '    sr.WriteLine(Now.ToString & vbTab & userPosition.ToString & vbTab & P.ToString)
+        '    sr.Close()
+        'End Using
         Dim TC As New TravelCalculator
         TC.StartPoint = userPosition
         TC.EndPoint = P.P
