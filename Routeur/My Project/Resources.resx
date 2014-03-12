@@ -206,4 +206,10 @@ CREATE UNIQUE INDEX IdxTrackPoints
  ON `TrackPoints` (RefTrack,PointDate);
 Commit transaction;</value>
   </data>
+  <data name="UpdateV3ToV4" xml:space="preserve">
+    <value>begin transaction;
+insert into DBVersion (VersionNumber) Values (4);
+Analyze;
+Commit Transaction;</value>
+  </data>
 </root>

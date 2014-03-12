@@ -159,5 +159,17 @@ Namespace My.Resources
                 Return ResourceManager.GetString("UpdateV2ToV3", resourceCulture)
             End Get
         End Property
+        
+        '''<summary>
+        '''  Recherche une chaîne localisée semblable à begin transaction;
+        '''insert into DBVersion (VersionNumber) Values (4);
+        '''Analyze;
+        '''Commit Transaction;.
+        '''</summary>
+        Friend ReadOnly Property UpdateV3ToV4() As String
+            Get
+                Return ResourceManager.GetString("UpdateV3ToV4", resourceCulture)
+            End Get
+        End Property
     End Module
 End Namespace

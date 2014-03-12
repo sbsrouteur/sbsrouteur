@@ -332,7 +332,7 @@ RestartPoint:
         End If
         SyncLock _Lock
             Dim CurVersion As Integer = GetCurDBVersion()
-            Const DBVersion As Integer = 3
+            Const DBVersion As Integer = 4
 
             If CurVersion = 0 Then
                 'DBCreation
