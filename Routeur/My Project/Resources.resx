@@ -212,4 +212,10 @@ insert into DBVersion (VersionNumber) Values (4);
 Analyze;
 Commit Transaction;</value>
   </data>
+  <data name="UpdateV4ToV5" xml:space="preserve">
+    <value>begin transaction;
+insert into DBVersion (VersionNumber) Values (5);
+Create unique Index Idx_Tracks_RaceIDBoatID on Tracks (RaceID,BoatNum);
+Commit Transaction;</value>
+  </data>
 </root>
