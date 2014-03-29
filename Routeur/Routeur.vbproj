@@ -20,7 +20,7 @@
     <SignManifests>true</SignManifests>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <ApplicationIcon>Graphics\Yacht.ico</ApplicationIcon>
-    <ExpressionBlendVersion>4.0.20621.0</ExpressionBlendVersion>
+    <ExpressionBlendVersion>5.0.40218.0</ExpressionBlendVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -160,6 +160,9 @@
     <Compile Include="Classes\TrackPoint.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMShortRaceInfo.vb" />
     <Compile Include="Controls\PathInfo.vb" />
+    <Compile Include="Controls\RoutePointManager.xaml.vb">
+      <DependentUpon>RoutePointManager.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\WindInfoCtrl\WindInfoControl.xaml.vb">
       <DependentUpon>WindInfoControl.xaml</DependentUpon>
     </Compile>
@@ -256,6 +259,10 @@
     <Page Include="Controls\7SegDisplays\SegmentDigit.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\RoutePointManager.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
