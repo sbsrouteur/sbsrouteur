@@ -1,0 +1,11 @@
+syntax: glob
+Routeur/bin/Debug/*
+Routeur/bin/Debug_64/*
+Routeur/obj/*
+Setup/Setup_??/*
+*.suo
+*.vbproj.user
+Routeur/bin/Debug64/*
+Setup/Setup/*
+TestWriteableBitmapEx/bin/*
+TestWriteableBitmapEx/obj/*

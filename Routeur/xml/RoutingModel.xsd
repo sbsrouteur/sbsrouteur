@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="RoutingModel"
+    targetNamespace="http://tempuri.org/RoutingModel.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/RoutingModel.xsd"
+    xmlns:mstns="http://tempuri.org/RoutingModel.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+
+  <xs:element name="Points">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" name="Point">
+          <xs:complexType id="Coords">
+            <xs:attribute name="Name" type="xs:string" use="required" />
+            <xs:attribute name="Lat" type="xs:decimal" use="required" />
+            <xs:attribute name="Lon" type="xs:decimal" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>
