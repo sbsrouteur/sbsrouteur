@@ -18,7 +18,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 <ResourceDictionary
 	xmlns:local="clr-namespace:Routeur"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
-    x:Class="RouteMgr.ResourceClass"
+	x:Class="RouteMgr.ResourceClass"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 	<!-- Les entrées du dictionnaire de ressources sont définies ici. -->
 	
@@ -194,6 +194,15 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 				</Setter>
 			</Style>
 
-
+			<DataTemplate x:Key="RoutePointActionDateTemplate">
+				<StackPanel Orientation="Horizontal">
+					<TextBox  Text="{Binding ActionDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="{DynamicResource DefMargin}" MinWidth="55" VerticalAlignment="Top" Style="{DynamicResource DateTimeFormatCheckTextBox}"/>
+					<Image MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag" MouseMove="MouseMoveHandler" Source="/Routeur;component/Graphics/Target-32.png" Width="24" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" />
+				</StackPanel>
+			</DataTemplate>
+			
+			<DataTemplate x:Key="RoutePointItemTemplate">
+				<Grid></Grid>
+			</DataTemplate>
 			
 </ResourceDictionary>
