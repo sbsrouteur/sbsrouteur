@@ -26,18 +26,22 @@ Public Class IsoChrone
 #If DBG_ISO_POINT_SET Then
     Private _RawPointSet As New LinkedList(Of clsrouteinfopoints)
 #End If
-
+    Private Const NB_MAX_INDEX_ISO_LUT = 36
     Private _Drawn As Boolean = False
     Private _IsoChroneLock As New Object
     Private _SailManager As clsSailManager
     Private _StartPoint As Coords
-    Private _Iso_IndexLut(35) As Integer
+    Private _Iso_IndexLut(NB_MAX_INDEX_ISO_LUT) As Integer
 
     Private _AngleStep As Double
 
     Public Sub New(ByVal Manager As clsSailManager, StartPoint As Coords)
         _SailManager = Manager
         _StartPoint = StartPoint
+
+        For i As Integer = 0 To NB_MAX_INDEX_ISO_LUT
+            _Iso_IndexLut(i) = -1
+        Next
 
     End Sub
 
@@ -95,10 +99,14 @@ Public Class IsoChrone
         Dim Dists(WorkSet.Count - 1) As Double
         Dim FilteredDist(WorkSet.Count - 1) As Double
         Dim TrimFactor As Double = 0.8
+        Dim PrevAngle As Double = -10000
         If WorkSet.Count = 0 Then
             Dim i As Integer = 0
         End If
         WorkSet = New LinkedList(Of clsrouteinfopoints)(From P In WorkSet Order By P.CapFromPos)
+        Dim Start As DateTime = Now
+        Dim StartCount As Integer = WorkSet.Count
+        Dim EndCount As Integer
 
 #If DBG_ISO_POINT_SET Then
         For Each P In WorkSet
@@ -145,12 +153,12 @@ Public Class IsoChrone
 
             Index = 0
 
-            For Each Point In WorkSet
+            For Each Point In (From Pt In WorkSet Order By Pt.CapFromPos)
                 'If ((((Angles(Index) - Angles((Index + 1) Mod (Angles.Count - 1)) + 360) Mod 360)) > 1) OrElse (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
                 'If (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
-                If MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Point.DistFromPos Then
+                If Point.CapFromPos <> PrevAngle AndAlso MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Point.DistFromPos Then
                     _NextPointSet.AddLast(Point)
-
+                    PrevAngle = Point.CapFromPos
                 End If
                 Index += 1
             Next
@@ -161,18 +169,19 @@ Public Class IsoChrone
         _PointSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
 
         'Create IndexLut for IsoChrone
-        Dim CurIndex As Integer = 0
         Dim PointIndex As Integer = 0
         _Iso_IndexLut(0) = 0
-        Dim Tc As New TravelCalculator With {.StartPoint = _StartPoint}
         For Each Point In _PointSet
-            Tc.EndPoint = Point.P
-            If Tc.LoxoCourse_Deg >= 10 * CurIndex Then
-                _Iso_IndexLut(CurIndex) = PointIndex
-                CurIndex += 1
+
+            Dim Index As Integer = CInt(Point.CapFromPos * NB_MAX_INDEX_ISO_LUT / 360)
+            If _Iso_IndexLut(Index) = -1 Then
+                _Iso_IndexLut(Index) = PointIndex
+
             End If
             PointIndex += 1
         Next
+        EndCount = _PointSet.Count
+        Console.WriteLine("CleanUp from " & startcount & " to " & endcount & " in " & Now.Subtract(Start).TotalMilliseconds)
         Return
     End Sub
 
@@ -191,31 +200,28 @@ Public Class IsoChrone
 
     Function IndexFromAngle(Loxo As Double) As Integer
 
-        Dim StartIndex As Integer = CInt(Loxo / 10)
+        Dim StartIndex As Integer = _Iso_IndexLut(CInt(Loxo / 10))
 
-        If CDbl(StartIndex) = Loxo / 10 Then
-            Return StartIndex
+        If StartIndex = -1 Then
+            StartIndex = 0
         End If
 
         Dim PointIndex As Integer
         Dim AngleError As Double = Double.MaxValue
-        Dim Tc As New TravelCalculator
         Try
-            Tc.StartPoint = _StartPoint
 
             For PointIndex = StartIndex To _PointSet.Count - 1
-                Tc.EndPoint = _PointSet(PointIndex).P
-                If Math.Abs(Loxo - Tc.LoxoCourse_Deg) < AngleError Then
-                    AngleError = Math.Abs(Loxo - Tc.LoxoCourse_Deg)
+                Dim LocalError As Double = Math.Abs(Loxo - _PointSet(PointIndex).CapFromPos)
+                If LocalError <= AngleError Then
+                    AngleError = LocalError
                 Else
-                    Return PointIndex
+                    Return PointIndex - 1
                 End If
             Next
 
-            Return 0
+            Return _PointSet.Count - 1
         Finally
-            Tc.StartPoint = Nothing
-            Tc.EndPoint = Nothing
+
         End Try
 
     End Function

@@ -537,10 +537,12 @@ Partial Public Class RouteurMain
 
     Private Sub ShowRouteMgr(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
         Dim frm As New frmRoutesManager
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
-        M.RouteManager.FilterRaceID = M.P_Info(0).RaceInfo.idraces
-        M.RouteManager.Boat = M.VorHandler.UserInfo.POL
-        frm.ShowForm(M.RouteManager, Me)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+        If M.P_Info(0) IsNot Nothing Then
+            M.RouteManager.FilterRaceID = M.P_Info(0).RaceInfo.idraces
+            M.RouteManager.Boat = M.VorHandler.UserInfo.POL
+            frm.ShowForm(M.RouteManager, Me)
+        End If
 
     End Sub
 

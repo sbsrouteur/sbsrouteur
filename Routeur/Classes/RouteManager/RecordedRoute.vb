@@ -45,7 +45,8 @@ Public Class RecordedRoute
     Private _RaceID As String
     Private _RaceName As String
     Private _RouteName As String
-    Private _Route As ObservableCollection(Of RoutePointView)
+    Private WithEvents _Route As ObservableCollection(Of RoutePointView)
+    Private _Path As New LinkedList(Of Coords)
     Private _Visible As Boolean = True
     Private _Color As Color = Color.FromRgb(CByte(Rnd() * 128 + 100), CByte(Rnd() * 128 + 100), CByte(Rnd() * 128 + 100))
     Private Shared _M As RouteurModel
@@ -70,7 +71,7 @@ Public Class RecordedRoute
         Set(ByVal value As Color)
             _Color = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Color"))
-            OnShapeChange()
+
         End Set
     End Property
 
@@ -91,7 +92,7 @@ Public Class RecordedRoute
             _Color.R = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Color"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ColorR"))
-            OnShapeChange()
+
         End Set
     End Property
 
@@ -104,7 +105,7 @@ Public Class RecordedRoute
             _Color.G = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Color"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ColorG"))
-            OnShapeChange()
+
         End Set
     End Property
 
@@ -117,7 +118,7 @@ Public Class RecordedRoute
             _Color.B = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Color"))
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ColorB"))
-            OnShapeChange()
+
         End Set
     End Property
 
@@ -197,10 +198,6 @@ Public Class RecordedRoute
         End Set
 
     End Property
-
-    Private Sub OnShapeChange()
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Shape"))
-    End Sub
 
     Public Property RaceID() As String
         Get
@@ -282,7 +279,7 @@ Public Class RecordedRoute
             If Visible <> value Then
                 _Visible = value
                 RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Visible"))
-                OnShapeChange()
+
             End If
         End Set
 
@@ -293,7 +290,7 @@ Public Class RecordedRoute
         If Route.Contains(P) Then
             RemoveHandler P.QueryRemoveFromRoute, AddressOf OnPointDeleteQuery
             Route.Remove(P)
-            OnShapeChange()
+
         End If
 
     End Sub
@@ -325,6 +322,32 @@ Public Class RecordedRoute
         S1.Write(JSonHelper.GetStringFromJsonObject(Data))
 
         S1.Close()
+    End Sub
+
+    <XmlIgnore> _
+    ReadOnly Property Path As LinkedList(Of Coords)
+        Get
+            Return _Path
+        End Get
+    End Property
+
+    <XmlIgnore> _
+    ReadOnly Property PenColor() As Integer
+        Get
+            Return CInt(Color.A) << 24 Or CInt(Color.R) << 16 Or CInt(Color.G) << 8 Or Color.B
+        End Get
+    End Property
+
+    Private Sub _Route_CollectionChanged(sender As Object, e As Specialized.NotifyCollectionChangedEventArgs) Handles _Route.CollectionChanged
+        RebuildPath()
+
+    End Sub
+
+    Private Sub RebuildPath()
+        _Path.Clear()
+        For Each item In Route
+            _Path.AddLast(item.P)
+        Next
     End Sub
 
 End Class

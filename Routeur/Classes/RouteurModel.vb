@@ -268,6 +268,7 @@ Public Class RouteurModel
 
         _Dispatcher = D
         _RouteManager.Dispatcher = _Dispatcher
+        RouteManager.Dispatcher = _Dispatcher
         Dim frm As New frmUserPicker
         frm.DataContext = Me
         frm.ShowDialog()
@@ -896,11 +897,15 @@ Public Class RouteurModel
     Private Sub tmrRefresh_Elapsed(ByVal sender As Object, ByVal e As EventArgs)
 
         tmrRefresh.IsEnabled = False
+        'Ignore refresh until we start having user informations
+        If VorHandler.PlayerInfo Is Nothing OrElse VorHandler.UserInfo Is Nothing Then
+            Return
+        End If
+
         If System.Threading.Monitor.TryEnter(Me) Then
             If Not The2DViewer Is Nothing And Not _Busy Then
                 _Busy = True
                 Dim routes(6) As ObservableCollection(Of VLM_Router.clsrouteinfopoints)
-                'Static Moorea As ObservableCollection(Of VLM_Router.clsrouteinfopoints) = Nothing
 
                 routes(0) = VorHandler.PlannedRoute
                 routes(1) = VorHandler.BestRouteAtPoint
@@ -913,12 +918,6 @@ Public Class RouteurModel
 
 
                 Dim Rtes As List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)) = New List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints))(routes)
-                'ReDim Rtes(routes.Length)
-                'Dim Index As Integer = 0
-                'For Each Item In routes
-                'Rtes(Index) = New ObservableCollection(Of VLM_Router.clsrouteinfopoints)(Item)
-                'Index += 1
-                'Next
                 Dim P As New PathInfo
 
                 P.Path = VorHandler.Track
@@ -930,10 +929,15 @@ Public Class RouteurModel
                 P.ClearGrid = _ClearGrid
                 P.ClearBoats = _ClearBoats
                 P.IsoChrones = VorHandler.IsoChrones
-                P.WPs = CurPlayer.RaceInfo.races_waypoints
-                P.ManagedRoutes = _RouteManager.VisibleRoutes
+                If CurPlayer IsNot Nothing Then
+                    P.WPs = CurPlayer.RaceInfo.races_waypoints
+                End If
+                P.ManagedRoutes = (From R In _RouteManager.VisibleRoutes Where R.RaceID = VorHandler.PlayerInfo.RaceInfo.idraces).ToList
+
                 P.TrackColor = VorHandler.PlayerInfo.TrackColor
+
                 P.RoutingBorder = VorHandler.IsoRoutingBorder
+
                 P.CurrentPos = VorHandler.UserInfo.Position
 
 #If DBG_ISO_POINT_SET Then
@@ -955,14 +959,6 @@ Public Class RouteurModel
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Stats"))
     End Sub
 
-    'Public ReadOnly Property WPsPath() As String
-    '    Get
-    '        'If _WPPath = "" Then
-    '        'BuildWPPath()
-    '        'End If
-    '        Return _WPPath
-    '    End Get
-    'End Property
     Public Shared ReadOnly Property WPList() As List(Of String)
         Get
             Return _WPList
@@ -1097,10 +1093,6 @@ Public Class RouteurModel
         MyBase.Finalize()
     End Sub
 
-    'Private Sub _MapLayer_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _MapLayer.PropertyChanged
-
-    '    RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MapLayer"))
-    'End Sub
 
     Private Sub InitCron()
 
@@ -1144,5 +1136,6 @@ Public Class RouteurModel
             End If
         End If
     End Sub
+
 
 End Class
