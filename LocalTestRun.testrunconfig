@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRunConfiguration name="Série de tests locale" id="3cc9f6a4-d2ab-41fb-ba24-e845b521b2d3" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Description>Il s'agit d'une configuration de série de tests par défaut pour une série de tests locale.</Description>
+  <TestTypeSpecific />
+</TestRunConfiguration>

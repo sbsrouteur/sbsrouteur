@@ -1,0 +1,68 @@
+﻿<!--
+ This file is part of Routeur.
+Copyright (C) 2010-2013  sbsRouteur(at)free.fr
+
+Routeur is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Routeur is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
+
+<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d" 
+	xmlns:local="clr-namespace:Routeur"
+	x:Class="frmRouteViewer"
+	x:Name="Window"
+	Title="Route Editor"
+	Width="640" Height="480" Icon="/Routeur;Component/Graphics/blackboard.ico" WindowStartupLocation="CenterOwner">
+	
+	<Window.Resources>
+	
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="/Routeur;Component/Styles/ControlsStyles.xaml"/>
+				<ResourceDictionary Source="RouteMgrResources.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+	
+		</ResourceDictionary>
+	</Window.Resources>
+	
+	<Grid x:Name="LayoutRoot">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" MinWidth="71.76"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="50*" MinHeight="50"/>
+			<RowDefinition Height="Auto" MinHeight="52.836"/>
+		</Grid.RowDefinitions>
+		
+		<DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.ColumnSpan="2">
+			<DataGrid.Columns>
+				<DataGridTemplateColumn Header="Date" CellTemplate="{StaticResource RoutePointActionDateTemplate}"/>
+				<DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
+				<DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
+				<DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
+			</DataGrid.Columns>			
+		</DataGrid>
+		
+		<DockPanel x:Name="PnlControlButtons" LastChildFill="False" Grid.Row="1" d:LayoutOverrides="Height, GridBox" Grid.Column="1" HorizontalAlignment="Right">
+			<StackPanel Orientation="Horizontal">
+				<Button x:Name="cmdClose" Content="Close" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdCloseClick" Style="{DynamicResource DefaultButton}" Margin="0"/>
+			</StackPanel>
+		</DockPanel>
+		<Button Margin="{DynamicResource DefMargin}" ToolTip="Add New Point" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource AddNewButton}" Click="AddNewPoint" d:LayoutOverrides="Height" Grid.Row="1" Visibility="{Binding CanAddPoints, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+		<Button Margin="{DynamicResource DefMargin}" ToolTip="Reload List from server" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource RefreshButton}" Click="RefreshPilototoList" d:LayoutOverrides="Height" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" />
+		
+	</Grid>
+</Window>
