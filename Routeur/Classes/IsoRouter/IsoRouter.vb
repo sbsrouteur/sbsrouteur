@@ -159,6 +159,9 @@ Public Class IsoRouter
             '                    'End If
 
             'Dim NbMinutes As Double = New TimeSpan(CLng(2 * Math.PI * MaxDist / RetIsoChrone.Data.Count / MaxSpeed * 0.6 * TimeSpan.TicksPerHour)).TotalMinutes
+            If MaxSpeed = 0 Then
+                Return Nothing
+            End If
             Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / 360 / MaxSpeed * TimeSpan.TicksPerHour)).TotalMinutes
             NbMinutes = Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes) * RouteurModel.VacationMinutes
             CurStep = New TimeSpan(0, CInt(NbMinutes), 0)

@@ -26,7 +26,6 @@ Public Class clsSailManager
 
     Private Const POLAR_ANGLE_MULTIPLIER As Integer = 10
     Private Const POLAR_SPEED_MULTIPLIER As Integer = 100
-    Private Const POLAR_BSP_MULTIPLIER As Integer = 1000
     Private Const MAXWINDSPEED As Integer = 70
     Private Const MaxWindSpeedMultiplied As Integer = 60 * POLAR_SPEED_MULTIPLIER
 
@@ -50,7 +49,7 @@ Public Class clsSailManager
     Private _NbWinds() As Integer
     Private _NbAngles As Integer
 
-    Private _Polar(180 * POLAR_ANGLE_MULTIPLIER, MaxWindSpeedMultiplied) As UInt16
+    Private _Polar(180 * POLAR_ANGLE_MULTIPLIER, MaxWindSpeedMultiplied) As Double
     Private _PolarCorner(MaxWindSpeedMultiplied, 2) As Double
 
     Private Const CORNER_SPEED As Integer = 0
@@ -113,6 +112,13 @@ Public Class clsSailManager
 
     End Function
 
+    Function GetBestSpeed(WindAngle As Double, WindSpeed As Double) As Double
+        If WindAngle >= 90 Then
+
+        End If
+    End Function
+
+
     Public Sub GetCornerAngles(ByVal WindStrength As Double, ByRef MinAngle As Double, ByRef MaxAngle As Double)
 
         If WindStrength > 60 Then
@@ -156,7 +162,7 @@ Public Class clsSailManager
                 NbCallCached += 1
                 Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
 #End If
-                Return _Polar(D, F) / POLAR_BSP_MULTIPLIER
+                Return _Polar(D, F)
             End If
             'End SyncLock
         End If
@@ -241,12 +247,10 @@ Public Class clsSailManager
             RetVal = V1
         End If
 
-        'SyncLock _Polar
-        _Polar(D, F) = CUShort(RetVal * POLAR_BSP_MULTIPLIER)
-        'End SyncLock
-        If RetVal = 15.714 Then
-            Dim Bp As Integer = 0
-        End If
+        SyncLock _Polar
+            _Polar(D, F) = RetVal
+        End SyncLock
+        
 #If POLAR_STAT = 1 Then
         Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
 #End If
@@ -568,6 +572,7 @@ Public Class clsSailManager
             Next
         Next
     End Sub
+
 
 End Class
 

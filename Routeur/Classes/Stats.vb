@@ -72,20 +72,21 @@ Public Class Stats
 
     Public Shared WriteOnly Property SetStatValue(ByVal Prop As StatID) As Double
         Set(ByVal value As Double)
-            Dim Item As StatInfo
-            SyncLock _Stats
-                If _Stats.ContainsKey(Prop) Then
-                    Item = _Stats(Prop)
-                    If Item.Value <> value Then
-                        Item.Value = value
-                        _Changed = True
-                    End If
-                Else
-                    Item = New StatInfo With {.Name = Prop.ToString, .Value = value}
-                    _Changed = True
-                    _Stats.Add(Prop, Item)
-                End If
-            End SyncLock
+            Return
+            'Dim Item As StatInfo
+            'SyncLock _Stats
+            '    If _Stats.ContainsKey(Prop) Then
+            '        Item = _Stats(Prop)
+            '        If Item.Value <> value Then
+            '            Item.Value = value
+            '            _Changed = True
+            '        End If
+            '    Else
+            '        Item = New StatInfo With {.Name = Prop.ToString, .Value = value}
+            '        _Changed = True
+            '        _Stats.Add(Prop, Item)
+            '    End If
+            'End SyncLock
         End Set
     End Property
 
