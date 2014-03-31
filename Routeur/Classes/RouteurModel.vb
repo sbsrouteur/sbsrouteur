@@ -267,7 +267,6 @@ Public Class RouteurModel
     Public Sub Init(ByVal D As Windows.Threading.Dispatcher)
 
         _Dispatcher = D
-        _RouteManager.Dispatcher = _Dispatcher
         RouteManager.Dispatcher = _Dispatcher
         Dim frm As New frmUserPicker
         frm.DataContext = Me
