@@ -1,9 +1,11 @@
-﻿Partial Class RouteMgrResources
+﻿Imports Routeur.frmRouteViewer
+
+Partial Class RouteMgrResources
     Inherits ResourceDictionary
 
     Private _MouseCaptured As Boolean = False
     Private _UpdatePoint As RoutePointView
-
+    Private _VacSecs As Integer = 900
 
     Private Sub StartDateDrag(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
         If TypeOf (CType(sender, Image).DataContext) Is RoutePointView Then
@@ -19,16 +21,16 @@
 
         Debug.WriteLine(Now & " Released")
         _MouseCaptured = False
-        ReleaseMouseCapture()
+        CType(sender, UIElement).ReleaseMouseCapture()
 
     End Sub
 
     Private Sub MouseMoveHandler(ByVal sender As Object, ByVal e As System.Windows.Input.MouseEventArgs)
         'TODO: Add event handler implementation here.
         If _MouseCaptured Then
-            Dim P As Point = e.GetPosition(_Model.The2DViewer)
-            Debug.WriteLine(Now & " moving " & P.ToString)
-            _Model.HandleCapture(Me, CaptureInfoRequest.RouteDate, P)
+            'Dim P As Point = e.GetPosition(_Model.The2DViewer)
+            'Debug.WriteLine(Now & " moving " & P.ToString)
+            '_Model.HandleCapture(Me, CaptureInfoRequest.RouteDate, P)
         End If
     End Sub
 
