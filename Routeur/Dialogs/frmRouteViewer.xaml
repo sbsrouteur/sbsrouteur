@@ -33,17 +33,6 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 				<ResourceDictionary Source="/Routeur;Component/Styles/ControlsStyles.xaml"/>
 				<ResourceDictionary Source="RouteMgrResources.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
-			
-			<DataTemplate x:Key="RoutePointActionDateTemplate">
-				<StackPanel Orientation="Horizontal">
-					<TextBox  Text="{Binding ActionDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="{DynamicResource DefMargin}" MinWidth="55" VerticalAlignment="Top" Style="{DynamicResource DateTimeFormatCheckTextBox}"/>
-					<Image MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag" MouseMove="MouseMoveHandler" Source="/Routeur;component/Graphics/Target-32.png" Width="24" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" />
-				</StackPanel>
-			</DataTemplate>
-			
-			<DataTemplate x:Key="RoutePointItemTemplate">
-				<Grid></Grid>
-			</DataTemplate>
 	
 		</ResourceDictionary>
 	</Window.Resources>

@@ -219,15 +219,13 @@ Public Class RecordedRoute
         End Set
     End Property
 
-
-
-    Public Sub RecomputeRoute(ByVal From As Coords, ByVal Meteo As GribManager, ByVal BoatType As String, ByVal Sails As clsSailManager)
+     Public Sub RecomputeRoute(ByVal From As Coords, ByVal Meteo As GribManager, ByVal BoatType As String, ByVal Sails As clsSailManager)
 
         Dim CurPos As Coords = New Coords(From)
         Dim CurDate As DateTime = Now
         Dim PrevPt As RoutePointView = Nothing
 
-        For Each pt In _Route
+        For Each pt In Route
 
             If pt.ActionDate >= CurDate Then
                 If PrevPt IsNot Nothing Then
@@ -242,9 +240,7 @@ Public Class RecordedRoute
                     End Select
 
                 End If
-
                 PrevPt = pt
-
             End If
 
         Next
@@ -348,6 +344,16 @@ Public Class RecordedRoute
         For Each item In Route
             _Path.AddLast(item.P)
         Next
+    End Sub
+
+    Sub ClearPastPoints()
+
+        Dim DL = (From P In Route Where P.ActionDate < Now).ToList
+
+        For Each P In DL
+            Route.Remove(P)
+        Next
+
     End Sub
 
 End Class
