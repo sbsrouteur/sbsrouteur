@@ -425,13 +425,13 @@ Render1:
         End Try
     End Sub
 
-    Private Sub SafeDrawLine(Bmp As WriteableBitmap, ByVal PrevP As Coords, ByVal P As Coords, ByVal Color As Integer)
+    Private Sub SafeDrawLine(Bmp As WriteableBitmap, ByVal PrevP As Coords, ByVal P As Coords, ByVal Color As Integer, Optional ForceDraw As Boolean = False)
         Dim MapSpan As Integer
         For MapSpan = -1 To 1
             Dim PrevPoint2 As New Point(LonToCanvas(PrevP.N_Lon_Deg + 360 * MapSpan), LatToCanvas(PrevP.N_Lat_Deg))
             Dim NewP2 As New Point(LonToCanvas(P.N_Lon_Deg + 360 * MapSpan), LatToCanvas(P.N_Lat_Deg))
 
-            If OutOfCanvas(PrevPoint2) AndAlso outofcanvas(NewP2) Then
+            If Not ForceDraw AndAlso OutOfCanvas(PrevPoint2) AndAlso OutOfCanvas(NewP2) Then
                 Continue For
             End If
 
@@ -922,7 +922,7 @@ Render1:
                 Else
                     WPPen = FutureGates
                 End If
-                SafeDrawLine(_BackDropBmp, WP.WPs(0)(0), WP.WPs(0)(1), WPPen)
+                SafeDrawLine(_BackDropBmp, WP.WPs(0)(0), WP.WPs(0)(1), WPPen, True)
                 WPIndex += 1
 
             Next
