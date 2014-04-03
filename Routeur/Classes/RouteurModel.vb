@@ -914,6 +914,8 @@ Public Class RouteurModel
                 routes(5) = VorHandler.AllureRoute
                 routes(6) = VorHandler.PilototoRoute
 
+
+
                 Dim Rtes As List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints)) = New List(Of ObservableCollection(Of VLM_Router.clsrouteinfopoints))(routes)
                 Dim P As New PathInfo
 
