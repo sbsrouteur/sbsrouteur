@@ -23,20 +23,25 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 	x:Class="RoutePointManager"
 	x:Name="UserControl"
 	d:DesignWidth="640" d:DesignHeight="480">
-	<UserControl.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="/Routeur;component/Styles/ControlsStyles.xaml"/>
-			</ResourceDictionary.MergedDictionaries>
-		</ResourceDictionary>
-	</UserControl.Resources>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Routeur;component/Styles/ControlsStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
-	<Grid x:Name="LayoutRoot">
-        <WrapPanel>
-            <Button Content="Clear Points until Now" Margin="{DynamicResource DefMargin}" Click="ClearPointsHistory"/>
-            <Button Content="Delete This point" Margin="{DynamicResource DefMargin}" Click="DeleteRoutePointFromRoute"/>
-            <Button Content="Route from here to next Point..." Margin="{DynamicResource DefMargin}" Click="RouteToNextRoutePoint"/>
-            <Button Content="Route from here to Active Race Waypoint..." Margin="{DynamicResource DefMargin}" Click="RouteToActiveRaceWP"/>
-        </WrapPanel>
+    <Grid x:Name="LayoutRoot">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1"/>
+        </Grid.RowDefinitions>
+            <WrapPanel>
+                <Button Content="Clear Points until Now" Margin="{DynamicResource DefMargin}" Click="ClearPointsHistory"/>
+                <Button Content="Delete This point" Margin="{DynamicResource DefMargin}" Click="DeleteRoutePointFromRoute"/>
+                <Button Content="Route from here to next Point..." Margin="{DynamicResource DefMargin}" Click="RouteToNextRoutePoint"/>
+                <Button Content="Route from here to Active Race Waypoint..." Margin="{DynamicResource DefMargin}" Click="RouteToActiveRaceWP"/>
+            </WrapPanel>
+            
     </Grid>
 </UserControl>
