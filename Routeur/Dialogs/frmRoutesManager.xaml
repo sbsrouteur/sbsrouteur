@@ -18,7 +18,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 <Window
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:Routeur="clr-namespace:Routeur" 
+	xmlns:Routeur="clr-namespace:Routeur" 
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	x:Class="frmRoutesManager"
 	x:Name="Window"
@@ -83,7 +83,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 					-->
 				</DataGrid.Columns>
 			</DataGrid>
-            <Routeur:RoutePointManager x:Name="RoutePointManager" Grid.Row="1" ActiveRoutePoints="{Binding SelectedItems, ElementName=dataGrid}" ActiveRoute="{Binding SelectedItem, ElementName=RaceList}"/>
+			<Routeur:RoutePointManager x:Name="RoutePointManager" Grid.Row="1" ActiveRoutePoints="{Binding SelectedItems, ElementName=dataGrid}" ActiveRoute="{Binding SelectedItem, ElementName=RaceList}"/>
 		</Grid>
 		<Grid Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
 			<Grid.ColumnDefinitions>

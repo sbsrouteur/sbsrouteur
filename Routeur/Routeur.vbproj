@@ -159,6 +159,9 @@
     <Compile Include="Classes\SQLLite\MapSegment.vb" />
     <Compile Include="Classes\TrackPoint.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMShortRaceInfo.vb" />
+    <Compile Include="Controls\ctlRoutePointView.xaml.vb">
+      <DependentUpon>ctlRoutePointView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PathInfo.vb" />
     <Compile Include="Controls\RoutePointManager.xaml.vb">
       <DependentUpon>RoutePointManager.xaml</DependentUpon>
@@ -249,6 +252,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ctlRoutePointView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\PathResources.xaml">
       <Generator>MSBuild:Compile</Generator>
