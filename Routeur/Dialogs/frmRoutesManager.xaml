@@ -83,8 +83,8 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 					-->
 				</DataGrid.Columns>
 			</DataGrid>
-			<!--<Routeur:RoutePointManager x:Name="RoutePointManager" Grid.Row="1"   ActiveRoutePoints="{Binding SelectedItems, ElementName=dataGrid}" ActiveRoute="{Binding SelectedItem, ElementName=RaceList}"/>
-            -->
+			<Routeur:RoutePointManager x:Name="RoutePointManager" Grid.Row="1"   ActiveRoutePoints="{Binding SelectedItems, ElementName=dataGrid}" ActiveRoute="{Binding SelectedItem, ElementName=RaceList}"/>
+            
 		</Grid>
 		<Grid Grid.Column="1" DataContext="{Binding SelectedItem, ElementName=RaceList, Mode=Default}">
 			<Grid.ColumnDefinitions>
