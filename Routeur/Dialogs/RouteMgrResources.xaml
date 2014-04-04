@@ -21,16 +21,16 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 	x:Class="RouteMgr.ResourceClass"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 	<!-- Les entrées du dictionnaire de ressources sont définies ici. -->
-	
+
 	<local:EnumRoutePendingBrushConverter x:Key="EnumRoutePendingBrushConverter"/>
 	<local:EnumRouteModeConverter x:Key="EnumRouteModeConverter"/>
 	<local:CoordsConverter x:Key="CoordsConverter"/>
 	<local:RoutePointView  x:Key="RoutePointBaseViewResource"/>
-	
+
 	<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 	<Image x:Key="TrashIcon" Source ="/Routeur;Component/Graphics/Trash_48.png" />
 	<Image x:Key="UploadIcon" Source="/Routeur;Component/Graphics/Up_48.png" />
-			
+
 	<DataTemplate x:Key="RoutePointActionsTemplate">
 		<!--<Grid>
 			<Grid.ColumnDefinitions>
@@ -63,15 +63,15 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 				</ContentControl>
 			</Button>
 		</StackPanel>
-		
+
 		<DataTemplate.Triggers>
 			<DataTrigger Binding="{Binding IsPending}" Value="false">
 				<Setter TargetName="PendingStatus" Property="Source" Value="/Routeur;Component/Graphics/kalarm_disabled-48.png" />
 			</DataTrigger>
 		</DataTemplate.Triggers>
-		
+
 	</DataTemplate>
-	
+
 	<DataTemplate x:Key="RoutePointViewActionsTemplate">
 		<Grid>
 			<Grid.ColumnDefinitions>
@@ -85,17 +85,17 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 					<Image Source="/Routeur;Component/Graphics/Trash_48.png"/>
 				</ContentControl>
 			</Button>
-			
+
 		</Grid>
-		
+
 		<DataTemplate.Triggers>
 			<DataTrigger Binding="{Binding IsPending}" Value="false">
 				<Setter TargetName="PendingStatus" Property="Source" Value="/Routeur;Component/Graphics/kalarm_disabled-48.png" />
 			</DataTrigger>
 		</DataTemplate.Triggers>
-		
+
 	</DataTemplate>
-			
+
 	<DataTemplate x:Key="PointValueTemplate">
 		<Grid>
 			<Grid Visibility="{Binding HasDoubleValue, Mode=Default}">
@@ -137,72 +137,63 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 					<TextBlock Text="Lon." Grid.Row="1" Margin="{DynamicResource DefMargin}"/>
 					<TextBox Grid.Column="1" Text="{Binding RouteValue.WPLat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource DoubleFormatCheckTextBox}" Width="115" HorizontalAlignment="Center" VerticalAlignment="Top"/>
 					<TextBox Grid.Row="2" Text="{Binding RouteValue.WPLon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Style="{DynamicResource DoubleFormatCheckTextBox}" Width="115" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-					
-					
+
+
 				</Grid>
 			</Grid>
 		</Grid>
 	</DataTemplate>
-	
-				<Style x:Key="RouteRowStyle" TargetType="{x:Type DataGridRow}">
-				<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
-				<Setter Property="SnapsToDevicePixels" Value="True"/>
-				<Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
-				<Setter Property="ValidationErrorTemplate">
-					<Setter.Value>
-						<ControlTemplate>
-							<TextBlock Margin="2,0,0,0" VerticalAlignment="Center" Foreground="Red" Text="!"><Run Text="!"/></TextBlock>
-						</ControlTemplate>
-					</Setter.Value>
-				</Setter>
-				<Setter Property="Template">
-					<Setter.Value>
-						<ControlTemplate TargetType="{x:Type DataGridRow}">
-							<Border x:Name="DGR_Border" SnapsToDevicePixels="True" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-								<SelectiveScrollingGrid>
-									<SelectiveScrollingGrid.RowDefinitions>
-										<RowDefinition Height="*"/>
-										<RowDefinition Height="Auto"/>
-									</SelectiveScrollingGrid.RowDefinitions>
-									<SelectiveScrollingGrid.ColumnDefinitions>
-										<ColumnDefinition Width="Auto"/>
-										<ColumnDefinition Width="*"/>
-									</SelectiveScrollingGrid.ColumnDefinitions>
-									<DataGridCellsPresenter Background="{Binding IsPending, Converter={StaticResource EnumRoutePendingBrushConverter}, Mode=Default}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ItemsPanel="{TemplateBinding ItemsPanel}" Grid.Column="1"/>
-									<DataGridDetailsPresenter Visibility="{TemplateBinding DetailsVisibility}" Grid.Column="1" Grid.Row="1">
-										<SelectiveScrollingGrid.SelectiveScrollingOrientation>
-											<Binding Path="AreRowDetailsFrozen" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type DataGrid}}">
-												<Binding.ConverterParameter>
-													<SelectiveScrollingOrientation>Vertical</SelectiveScrollingOrientation>
-												</Binding.ConverterParameter>
-											</Binding>
-										</SelectiveScrollingGrid.SelectiveScrollingOrientation>
-									</DataGridDetailsPresenter>
-									<DataGridRowHeader Grid.RowSpan="2" SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical">
-										<DataGridRowHeader.Visibility>
-											<Binding Path="HeadersVisibility" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type DataGrid}}">
-												<Binding.ConverterParameter>
-													<DataGridHeadersVisibility>Row</DataGridHeadersVisibility>
-												</Binding.ConverterParameter>
-											</Binding>
-										</DataGridRowHeader.Visibility>
-									</DataGridRowHeader>
-								</SelectiveScrollingGrid>
-							</Border>
-						</ControlTemplate>
-					</Setter.Value>
-				</Setter>
-			</Style>
 
-			<DataTemplate x:Key="RoutePointActionDateTemplate">
-				<StackPanel Orientation="Horizontal">
-					<TextBox  Text="{Binding ActionDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="{DynamicResource DefMargin}" MinWidth="55" VerticalAlignment="Top" Style="{DynamicResource DateTimeFormatCheckTextBox}"/>
-					<Image MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag" MouseMove="MouseMoveHandler" Source="/Routeur;component/Graphics/Target-32.png" Width="24" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" />
-				</StackPanel>
-			</DataTemplate>
-			
-			<DataTemplate x:Key="RoutePointItemTemplate">
-				<Grid></Grid>
-			</DataTemplate>
-			
+	<Style x:Key="RouteRowStyle" TargetType="{x:Type DataGridRow}">
+		<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+		<Setter Property="SnapsToDevicePixels" Value="True"/>
+		<Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+		<Setter Property="ValidationErrorTemplate">
+			<Setter.Value>
+				<ControlTemplate>
+					<TextBlock Margin="2,0,0,0" VerticalAlignment="Center" Foreground="Red" Text="!"><Run Text="!"/></TextBlock>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type DataGridRow}">
+					<Border x:Name="DGR_Border" SnapsToDevicePixels="True" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+						<SelectiveScrollingGrid>
+							<SelectiveScrollingGrid.RowDefinitions>
+								<RowDefinition Height="*"/>
+								<RowDefinition Height="Auto"/>
+							</SelectiveScrollingGrid.RowDefinitions>
+							<SelectiveScrollingGrid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto"/>
+								<ColumnDefinition Width="*"/>
+							</SelectiveScrollingGrid.ColumnDefinitions>
+							<DataGridCellsPresenter Background="{Binding IsPending, Converter={StaticResource EnumRoutePendingBrushConverter}, Mode=Default}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ItemsPanel="{TemplateBinding ItemsPanel}" Grid.Column="1"/>
+							<DataGridDetailsPresenter Visibility="{TemplateBinding DetailsVisibility}" Grid.Column="1" Grid.Row="1">
+								<SelectiveScrollingGrid.SelectiveScrollingOrientation>
+									<Binding Path="AreRowDetailsFrozen" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type DataGrid}}">
+										<Binding.ConverterParameter>
+											<SelectiveScrollingOrientation>Vertical</SelectiveScrollingOrientation>
+										</Binding.ConverterParameter>
+									</Binding>
+								</SelectiveScrollingGrid.SelectiveScrollingOrientation>
+							</DataGridDetailsPresenter>
+							<DataGridRowHeader Grid.RowSpan="2" SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical">
+								<DataGridRowHeader.Visibility>
+									<Binding Path="HeadersVisibility" RelativeSource="{RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type DataGrid}}">
+										<Binding.ConverterParameter>
+											<DataGridHeadersVisibility>Row</DataGridHeadersVisibility>
+										</Binding.ConverterParameter>
+									</Binding>
+								</DataGridRowHeader.Visibility>
+							</DataGridRowHeader>
+						</SelectiveScrollingGrid>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+
+
 </ResourceDictionary>

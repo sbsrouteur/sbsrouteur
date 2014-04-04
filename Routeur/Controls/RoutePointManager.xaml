@@ -26,32 +26,22 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Routeur;Component/Styles/ControlsStyles.xaml"/>
-                
+                <ResourceDictionary Source="/Routeur;component/Styles/ControlsStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
         </ResourceDictionary>
-
     </UserControl.Resources>
 
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="12"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1"/>
         </Grid.RowDefinitions>
-        <DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.ColumnSpan="2">
-            <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Date" CellTemplate="{StaticResource RoutePointActionDateTemplate}"/>
-                <DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
-                <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
-                <DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
-            </DataGrid.Columns>
-        </DataGrid>
-        <WrapPanel Grid.Row="1">
-            <Button Content="Clear Points until Now" Margin="{DynamicResource DefMargin}" Click="ClearPointsHistory"/>
-            <Button Content="Delete This point" Margin="{DynamicResource DefMargin}" Click="DeleteRoutePointFromRoute"/>
-            <Button Content="Route from here to next Point..." Margin="{DynamicResource DefMargin}" Click="RouteToNextRoutePoint"/>
-            <Button Content="Route from here to Active Race Waypoint..." Margin="{DynamicResource DefMargin}" Click="RouteToActiveRaceWP"/>
-        </WrapPanel>
+            <WrapPanel>
+                <Button Content="Clear Points until Now" Margin="{DynamicResource DefMargin}" Click="ClearPointsHistory"/>
+                <Button Content="Delete This point" Margin="{DynamicResource DefMargin}" Click="DeleteRoutePointFromRoute"/>
+                <Button Content="Route from here to next Point..." Margin="{DynamicResource DefMargin}" Click="RouteToNextRoutePoint"/>
+                <Button Content="Route from here to Active Race Waypoint..." Margin="{DynamicResource DefMargin}" Click="RouteToActiveRaceWP"/>
+            </WrapPanel>
+            
     </Grid>
 </UserControl>

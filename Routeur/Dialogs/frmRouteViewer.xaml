@@ -25,44 +25,57 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 	x:Name="Window"
 	Title="Route Editor"
 	Width="640" Height="480" Icon="/Routeur;Component/Graphics/blackboard.ico" WindowStartupLocation="CenterOwner">
-	
-	<Window.Resources>
-	
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="/Routeur;Component/Styles/ControlsStyles.xaml"/>
-				<ResourceDictionary Source="RouteMgrResources.xaml"/>
-			</ResourceDictionary.MergedDictionaries>
-	
-		</ResourceDictionary>
-	</Window.Resources>
-	
-	<Grid x:Name="LayoutRoot">
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="Auto" MinWidth="71.76"/>
-			<ColumnDefinition/>
-		</Grid.ColumnDefinitions>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="50*" MinHeight="50"/>
-			<RowDefinition Height="Auto" MinHeight="52.836"/>
-		</Grid.RowDefinitions>
-		
-		<DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.ColumnSpan="2">
-			<DataGrid.Columns>
-				<DataGridTemplateColumn Header="Date" CellTemplate="{StaticResource RoutePointActionDateTemplate}"/>
-				<DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
-				<DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
-				<DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
-			</DataGrid.Columns>			
-		</DataGrid>
-		
-		<DockPanel x:Name="PnlControlButtons" LastChildFill="False" Grid.Row="1" d:LayoutOverrides="Height, GridBox" Grid.Column="1" HorizontalAlignment="Right">
-			<StackPanel Orientation="Horizontal">
-				<Button x:Name="cmdClose" Content="Close" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdCloseClick" Style="{DynamicResource DefaultButton}" Margin="0"/>
-			</StackPanel>
-		</DockPanel>
-		<Button Margin="{DynamicResource DefMargin}" ToolTip="Add New Point" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource AddNewButton}" Click="AddNewPoint" d:LayoutOverrides="Height" Grid.Row="1" Visibility="{Binding CanAddPoints, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
-		<Button Margin="{DynamicResource DefMargin}" ToolTip="Reload List from server" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource RefreshButton}" Click="RefreshPilototoList" d:LayoutOverrides="Height" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" />
-		
-	</Grid>
+
+    <Window.Resources>
+
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Routeur;Component/Styles/ControlsStyles.xaml"/>
+                <ResourceDictionary Source="RouteMgrResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+
+            <DataTemplate x:Key="RoutePointActionDateTemplate">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox  Text="{Binding ActionDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="{DynamicResource DefMargin}" MinWidth="55" VerticalAlignment="Top" Style="{DynamicResource DateTimeFormatCheckTextBox}"/>
+                    <Image MouseLeftButtonDown="StartDateDrag" MouseLeftButtonUp="EndDateDrag" MouseMove="MouseMoveHandler" Source="/Routeur;component/Graphics/Target-32.png" Width="24" Margin="{DynamicResource DefMargin}" VerticalAlignment="Top" />
+                </StackPanel>
+            </DataTemplate>
+
+            <DataTemplate x:Key="RoutePointItemTemplate">
+                <Grid></Grid>
+            </DataTemplate>
+
+        </ResourceDictionary>
+
+    </Window.Resources>
+
+    <Grid x:Name="LayoutRoot">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" MinWidth="71.76"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50*" MinHeight="50"/>
+            <RowDefinition Height="Auto" MinHeight="52.836"/>
+        </Grid.RowDefinitions>
+
+        <DataGrid Margin="{DynamicResource DefMargin}" ItemsSource="{Binding Points, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" RowStyle="{DynamicResource RouteRowStyle}" VerticalContentAlignment="Center" Grid.ColumnSpan="2">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Date" CellTemplate="{StaticResource RoutePointActionDateTemplate}"/>
+                <DataGridComboBoxColumn SelectedItemBinding="{Binding RouteMode, Converter={StaticResource EnumRouteModeConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EnumRouteModes, Source={StaticResource RoutePointBaseViewResource}}" Header="Mode"/>
+                <DataGridTemplateColumn Header="Value" CellTemplate="{StaticResource PointValueTemplate}"/>
+                <DataGridTemplateColumn Header="Actions" CellTemplate="{StaticResource RoutePointActionsTemplate}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <DockPanel x:Name="PnlControlButtons" LastChildFill="False" Grid.Row="1" d:LayoutOverrides="Height, GridBox" Grid.Column="1" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="cmdClose" Content="Close" Grid.Column="3" Grid.Row="1" Width="100" Height="42.172" Click="cmdCloseClick" Style="{DynamicResource DefaultButton}" Margin="0"/>
+            </StackPanel>
+        </DockPanel>
+        <Button Margin="{DynamicResource DefMargin}" ToolTip="Add New Point" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource AddNewButton}" Click="AddNewPoint" d:LayoutOverrides="Height" Grid.Row="1" Visibility="{Binding CanAddPoints, Converter={StaticResource BooleanToVisibilityConverter}, Mode=Default}"/>
+        <Button Margin="{DynamicResource DefMargin}" ToolTip="Reload List from server" VerticalAlignment="Top" Height="48" Content="" Template="{DynamicResource RefreshButton}" Click="RefreshPilototoList" d:LayoutOverrides="Height" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" />
+
+    </Grid>
 </Window>
