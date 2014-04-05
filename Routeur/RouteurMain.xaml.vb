@@ -44,9 +44,9 @@ Partial Public Class RouteurMain
     Private _PrevHeight As Double = 0
 
     Private _MouseCapture As Boolean = False
-    Private _MouseCaptureMode As frmRouteViewer.CaptureInfoRequest = frmRouteViewer.CaptureInfoRequest.None
+    Private _MouseCaptureMode As frmAutoPilotViewer.CaptureInfoRequest = frmAutoPilotViewer.CaptureInfoRequest.None
 
-    Private WithEvents _RouteForm As frmRouteViewer
+    Private WithEvents _RouteForm As frmAutoPilotViewer
     Private WithEvents _frmControlDeck As New frmControlDeck
 
     Public Shared ReadOnly TravelCalculatorProperty As DependencyProperty = _
@@ -244,7 +244,7 @@ Partial Public Class RouteurMain
         If DragCanvas Then
 
             _DragStartPoint = EndDragPoint
-            
+
             C1 = New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
             C2 = New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
         ElseIf _ZoomCanvas Then
@@ -420,7 +420,7 @@ Partial Public Class RouteurMain
         If _RouteForm Is Nothing Then
             Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
 
-            _RouteForm = New frmRouteViewer(M, M.VorHandler.PlayerInfo.RaceInfo.vacfreq)
+            _RouteForm = New frmAutoPilotViewer(M, M.VorHandler.PlayerInfo.RaceInfo.vacfreq)
             _RouteForm.Owner = Me
 
         End If

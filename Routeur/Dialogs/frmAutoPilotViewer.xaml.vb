@@ -24,7 +24,7 @@ Imports System.Windows.Media
 Imports System.Windows.Media.Animation
 Imports System.Windows.Navigation
 
-Partial Public Class frmRouteViewer
+Partial Public Class frmAutoPilotViewer
 
     Private _Model As RouteurModel
     Private WithEvents _RouteViewModel As RouteViewModel
@@ -87,7 +87,7 @@ Partial Public Class frmRouteViewer
     '    End If
     'End Sub
 
-    Private Sub AddNewPoint(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+    Private Sub AddNewPoint(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
 
         Dim Route As RouteViewModel
 
@@ -119,8 +119,8 @@ Partial Public Class frmRouteViewer
         End If
     End Sub
 
-    Private Sub EndDateDrag(ByVal sender as Object, ByVal e as System.Windows.Input.MouseButtonEventArgs)
-        
+    Private Sub EndDateDrag(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
+
         Debug.WriteLine(Now & " Released")
         _MouseCaptured = False
         ReleaseMouseCapture()
@@ -146,7 +146,7 @@ Partial Public Class frmRouteViewer
         End If
     End Sub
 
-    Private Sub RefreshPilototoList(ByVal sender as Object, ByVal e as System.Windows.RoutedEventArgs)
+    Private Sub RefreshPilototoList(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
         _RouteViewModel = _Model.GetPilototoRoute
         DataContext = _RouteViewModel
     End Sub
