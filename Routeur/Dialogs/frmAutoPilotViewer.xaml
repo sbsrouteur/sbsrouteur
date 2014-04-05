@@ -21,7 +21,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d" 
 	xmlns:local="clr-namespace:Routeur"
-	x:Class="frmRouteViewer"
+	x:Class="frmAutoPilotViewer"
 	x:Name="Window"
 	Title="Route Editor"
 	Width="640" Height="480" Icon="/Routeur;Component/Graphics/blackboard.ico" WindowStartupLocation="CenterOwner">

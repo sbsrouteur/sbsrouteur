@@ -318,7 +318,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Dialogs\frmRouteViewer.xaml">
+    <Page Include="Dialogs\frmAutoPilotViewer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -488,8 +488,8 @@
     <Compile Include="Dialogs\frmRoutesManager.xaml.vb">
       <DependentUpon>frmRoutesManager.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\frmRouteViewer.xaml.vb">
-      <DependentUpon>frmRouteViewer.xaml</DependentUpon>
+    <Compile Include="Dialogs\frmAutoPilotViewer.xaml.vb">
+      <DependentUpon>frmAutoPilotViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\frmUserPicker.xaml.vb">
       <DependentUpon>frmUserPicker.xaml</DependentUpon>

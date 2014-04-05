@@ -1,4 +1,4 @@
-﻿Imports Routeur.frmRouteViewer
+﻿Imports Routeur.frmAutoPilotViewer
 
 Partial Class RouteMgrResources
     Inherits ResourceDictionary
