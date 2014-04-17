@@ -228,7 +228,7 @@ Public Class RecordedRoute
         For Each pt In Route
 
             If pt.ActionDate >= CurDate Then
-                If PrevPt IsNot Nothing Then
+                If PrevPt IsNot Nothing AndAlso PrevPt.P IsNot Nothing Then
 
                     Select Case PrevPt.RouteMode
 
