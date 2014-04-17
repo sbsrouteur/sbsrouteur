@@ -388,6 +388,7 @@ Public Class RouteurModel
 
         UpdateRaceScale(C1, C2)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoMapper"))
+        VorHandler.RecordedRouteManager = RouteManager
     End Sub
 
     Private Sub InitRaceExclusions()
