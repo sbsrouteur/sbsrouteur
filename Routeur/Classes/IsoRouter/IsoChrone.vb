@@ -126,7 +126,10 @@ Public Class IsoChrone
             For Each Point In WorkSet
                 'Dists(Index) = Point.DistFromPos
                 'Angles(Index) = Point.CapFromPos
-                MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Math.Max(Point.DistFromPos, MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT))
+                'Find why some time
+                If Not Double.IsNaN(Point.CapFromPos) Then
+                    MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Math.Max(Point.DistFromPos, MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT))
+                End If
                 Index += 1
 
             Next
@@ -156,7 +159,7 @@ Public Class IsoChrone
             For Each Point In (From Pt In WorkSet Order By Pt.CapFromPos)
                 'If ((((Angles(Index) - Angles((Index + 1) Mod (Angles.Count - 1)) + 360) Mod 360)) > 1) OrElse (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
                 'If (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
-                If Point.CapFromPos <> PrevAngle AndAlso MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Point.DistFromPos Then
+                If Not Double.IsNaN(Point.CapFromPos) AndAlso (Point.CapFromPos <> PrevAngle AndAlso MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Point.DistFromPos) Then
                     _NextPointSet.AddLast(Point)
                     PrevAngle = Point.CapFromPos
                 End If

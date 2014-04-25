@@ -70,8 +70,8 @@ Public Class TravelCalculator
 
             Dim Lon1 As Double = -StartPoint.N_Lon
             Dim Lon2 As Double = -EndPoint.N_Lon
-            Dim Lat1 As Double = StartPoint.Lat
-            Dim Lat2 As Double = EndPoint.Lat
+            Dim Lat1 As Double = StartPoint.N_Lat
+            Dim Lat2 As Double = EndPoint.N_Lat
 
             If Lon1 > 0 Then
                 Lon2 += 2 * PI
