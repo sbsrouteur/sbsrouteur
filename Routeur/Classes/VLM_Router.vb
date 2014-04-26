@@ -768,6 +768,15 @@ Public Class VLM_Router
         End If
         Dim D As Double = 0
         Tc.EndPoint = Tc.ReachDistanceortho((MaxDist + MinDist) / 2, theta)
+
+        If Abs(Tc.EndPoint.Lat_Deg) >= 90 Then
+            If Tc.EndPoint.Lat_Deg < 0 Then
+                Tc.EndPoint.Lat_Deg = -89.99999
+            Else
+                Tc.EndPoint.Lat_Deg = 89.99999
+            End If
+            Return Tc.EndPoint
+        End If
         D += Tc.SurfaceDistance
         Tc.StartPoint = F2
         D += Tc.SurfaceDistance
