@@ -224,9 +224,12 @@ insert into DBVersion (VersionNumber) Values (6);
 CREATE TABLE `MapImage`
 (
        IdMapImage INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	   Hash NVARCHAR(32) NOT NULL,
        Data BLOB NOT NULL
 );
-
+CREATE UNIQUE INDEX IdxMapImageHash
+ ON `MapImage` (Hash);
+ 
 CREATE TABLE `MapLut`
 (
        IdMapLut INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -236,7 +239,7 @@ CREATE TABLE `MapLut`
 	   RefBlob INTEGER NOT NULL,
 	   FOREIGN KEY(RefBlob) REFERENCES MapImage(IdImageMap)
 );
-CREATE UNIQUE INDEX IdxMapLut
+CREATE UNIQUE INDEX IdxMapLutLevelXY
  ON `MapLut` (Level,X,Y);
 commit transaction;</value>
   </data>

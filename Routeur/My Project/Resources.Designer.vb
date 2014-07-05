@@ -190,9 +190,12 @@ Namespace My.Resources
         '''CREATE TABLE `MapImage`
         '''(
         '''       IdMapImage INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        '''	   Hash NVARCHAR(32) NOT NULL,
         '''       Data BLOB NOT NULL
         ''');
-        '''
+        '''CREATE UNIQUE INDEX IdxMapImageHash
+        ''' ON `MapImage` (Hash);
+        ''' 
         '''CREATE TABLE `MapLut`
         '''(
         '''       IdMapLut INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -200,10 +203,7 @@ Namespace My.Resources
         '''       X INTEGER NOT NULL,
         '''       Y INTEGER NOT NULL,
         '''	   RefBlob INTEGER NOT NULL,
-        '''	   FOREIGN KEY(RefBlob) REFERENCES MapImage(IdImageMap)
-        ''');
-        '''CREATE UNIQUE INDEX IdxMapLut
-        ''' ON `MapLut` (Leve [le reste de la chaîne a été tronqué]&quot;;.
+        '''	   FOREIGN KEY( [le reste de la chaîne a été tronqué]&quot;;.
         '''</summary>
         Friend ReadOnly Property UpdateV5ToV6() As String
             Get
