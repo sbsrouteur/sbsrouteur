@@ -20,7 +20,7 @@
     <SignManifests>true</SignManifests>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <ApplicationIcon>Graphics\Yacht.ico</ApplicationIcon>
-    <ExpressionBlendVersion>4.0.20621.0</ExpressionBlendVersion>
+    <ExpressionBlendVersion>5.0.40218.0</ExpressionBlendVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -159,7 +159,13 @@
     <Compile Include="Classes\SQLLite\MapSegment.vb" />
     <Compile Include="Classes\TrackPoint.vb" />
     <Compile Include="Classes\VLM_JSon_Classes\VLMShortRaceInfo.vb" />
+    <Compile Include="Controls\ctlRoutePointView.xaml.vb">
+      <DependentUpon>ctlRoutePointView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PathInfo.vb" />
+    <Compile Include="Controls\RoutePointManager.xaml.vb">
+      <DependentUpon>RoutePointManager.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\WindInfoCtrl\WindInfoControl.xaml.vb">
       <DependentUpon>WindInfoControl.xaml</DependentUpon>
     </Compile>
@@ -168,6 +174,9 @@
     </Compile>
     <Compile Include="Dialogs\frmRaceSelection.xaml.vb">
       <DependentUpon>frmRaceSelection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\RouteMgrResources.xaml.vb">
+      <DependentUpon>RouteMgrResources.xaml</DependentUpon>
     </Compile>
     <Compile Include="xml\RouteExport.vb">
       <DependentUpon>RouteExport.xsd</DependentUpon>
@@ -247,6 +256,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\ctlRoutePointView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\PathResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -256,6 +269,10 @@
     <Page Include="Controls\7SegDisplays\SegmentDigit.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\RoutePointManager.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -301,7 +318,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Dialogs\frmRouteViewer.xaml">
+    <Page Include="Dialogs\frmAutoPilotViewer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -324,6 +341,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="My Project\DesignTimeResources.xaml" Condition="'$(DesignTime)'=='true' OR ('$(SolutionPath)'!='' AND Exists('$(SolutionPath)') AND '$(BuildingInsideVisualStudio)'!='true' AND '$(BuildingInsideExpressionBlend)'!='true')">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <ContainsDesignTimeResources>true</ContainsDesignTimeResources>
     </Page>
     <Page Include="RouteurMain.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -466,8 +488,8 @@
     <Compile Include="Dialogs\frmRoutesManager.xaml.vb">
       <DependentUpon>frmRoutesManager.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\frmRouteViewer.xaml.vb">
-      <DependentUpon>frmRouteViewer.xaml</DependentUpon>
+    <Compile Include="Dialogs\frmAutoPilotViewer.xaml.vb">
+      <DependentUpon>frmAutoPilotViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\frmUserPicker.xaml.vb">
       <DependentUpon>frmUserPicker.xaml</DependentUpon>

@@ -388,6 +388,7 @@ Public Class RouteurModel
 
         UpdateRaceScale(C1, C2)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("MeteoMapper"))
+        VorHandler.RecordedRouteManager = RouteManager
     End Sub
 
     Private Sub InitRaceExclusions()
@@ -1116,22 +1117,22 @@ Public Class RouteurModel
         Cron.Start()
     End Sub
 
-    Sub HandleCapture(frmRouteViewer As frmRouteViewer, MouseCaptureMode As frmRouteViewer.CaptureInfoRequest, p As Point)
+    Sub HandleCapture(frmRouteViewer As frmAutoPilotViewer, MouseCaptureMode As frmAutoPilotViewer.CaptureInfoRequest, p As Point)
 
         Select Case MouseCaptureMode
-            Case Routeur.frmRouteViewer.CaptureInfoRequest.RouteDate
+            Case Routeur.frmAutoPilotViewer.CaptureInfoRequest.RouteDate
 
                 NotifyEstimateDateUnderMouse(frmRouteViewer, p)
         End Select
     End Sub
 
-    Private Sub NotifyEstimateDateUnderMouse(frm As frmRouteViewer, P As Point)
+    Private Sub NotifyEstimateDateUnderMouse(frm As frmAutoPilotViewer, P As Point)
 
         If VorHandler IsNot Nothing Then
             Dim RoutePointInfo As clsrouteinfopoints = Nothing
             Dim C As New Coords(CanvasToCoords(P))
             If VorHandler.GetRoutePointAtCoords(VorHandler.PilototoRoute, C, RoutePointInfo) Then
-                frm.NotifyMousePositionInfo(RoutePointInfo.T, frmRouteViewer.CaptureInfoRequest.RouteDate)
+                frm.NotifyMousePositionInfo(RoutePointInfo.T, frmAutoPilotViewer.CaptureInfoRequest.RouteDate)
             End If
         End If
     End Sub
