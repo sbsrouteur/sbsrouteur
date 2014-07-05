@@ -183,5 +183,32 @@ Namespace My.Resources
                 Return ResourceManager.GetString("UpdateV4ToV5", resourceCulture)
             End Get
         End Property
+        
+        '''<summary>
+        '''  Recherche une chaîne localisée semblable à begin transaction;
+        '''insert into DBVersion (VersionNumber) Values (6);
+        '''CREATE TABLE `MapImage`
+        '''(
+        '''       IdMapImage INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        '''       Data BLOB NOT NULL
+        ''');
+        '''
+        '''CREATE TABLE `MapLut`
+        '''(
+        '''       IdMapLut INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        '''       Level INTEGER NOT NULL,
+        '''       X INTEGER NOT NULL,
+        '''       Y INTEGER NOT NULL,
+        '''	   RefBlob INTEGER NOT NULL,
+        '''	   FOREIGN KEY(RefBlob) REFERENCES MapImage(IdImageMap)
+        ''');
+        '''CREATE UNIQUE INDEX IdxMapLut
+        ''' ON `MapLut` (Leve [le reste de la chaîne a été tronqué]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property UpdateV5ToV6() As String
+            Get
+                Return ResourceManager.GetString("UpdateV5ToV6", resourceCulture)
+            End Get
+        End Property
     End Module
 End Namespace
