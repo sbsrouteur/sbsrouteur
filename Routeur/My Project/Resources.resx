@@ -218,4 +218,26 @@ insert into DBVersion (VersionNumber) Values (5);
 Create unique Index Idx_Tracks_RaceIDBoatID on Tracks (RaceID,BoatNum);
 Commit Transaction;</value>
   </data>
+  <data name="UpdateV5ToV6" xml:space="preserve">
+    <value>begin transaction;
+insert into DBVersion (VersionNumber) Values (6);
+CREATE TABLE `MapImage`
+(
+       IdMapImage INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+       Data BLOB NOT NULL
+);
+
+CREATE TABLE `MapLut`
+(
+       IdMapLut INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+       Level INTEGER NOT NULL,
+       X INTEGER NOT NULL,
+       Y INTEGER NOT NULL,
+	   RefBlob INTEGER NOT NULL,
+	   FOREIGN KEY(RefBlob) REFERENCES MapImage(IdImageMap)
+);
+CREATE UNIQUE INDEX IdxMapLut
+ ON `MapLut` (Level,X,Y);
+commit transaction;</value>
+  </data>
 </root>
