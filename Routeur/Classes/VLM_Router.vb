@@ -203,38 +203,6 @@ Public Class VLM_Router
         Public Shared CurTCProps As New PropertyChangedEventArgs("CurTC")
         Public Shared CurDTFProps As New PropertyChangedEventArgs("DTF")
 
-
-
-        'Public ReadOnly Property AvgSpeed() As Double
-        '    Get
-        '        Dim TS As New TimeSpan
-        '        Dim L As Double = LochFromStart()
-
-        '        If TS.TotalHours > 0 Then
-        '            Return L / TS.TotalHours
-        '        Else
-        '            Return 0
-        '        End If
-
-        '    End Get
-
-        'End Property
-
-        'Public ReadOnly Property AvgVMG() As Double
-        '    Get
-        '        Dim TS As New TimeSpan
-        '        Dim L As Double = StartDTF(TS)
-
-        '        If TS.TotalHours > 0 Then
-        '            Return (L - DTF) / TS.TotalHours
-        '        Else
-        '            Return 0
-        '        End If
-
-        '    End Get
-
-        'End Property
-
         Public Property Cap() As Double
             Get
                 Return _Cap
@@ -396,23 +364,6 @@ Public Class VLM_Router
             End Set
         End Property
 
-        'Public Function LochFromStart(ByRef TotalTime As TimeSpan) As Double
-        '    Dim Ret As Double = 0
-        '    Dim p As clsrouteinfopoints = Me
-        '    Dim TotalTicks As Long = p.T.Ticks
-        '    Dim EndTicks As Long
-
-        '    Do
-        '        Ret += p.Loch
-        '        EndTicks = p.T.Ticks
-
-        '        p = p.From
-        '    Loop Until p Is Nothing
-        '    TotalTime = New TimeSpan(TotalTicks - EndTicks)
-        '    Return Ret
-
-        'End Function
-
         Public Property P() As Coords
             Get
                 Return _P
@@ -442,24 +393,6 @@ Public Class VLM_Router
                 RaiseEvent PropertyChanged(Me, SpeedProps)
             End Set
         End Property
-
-        'Public Function StartDTF() As Double
-
-
-        '    Dim P As clsrouteinfopoints = Me
-        '    Dim Start As DateTime = T
-        '    Dim endTime As DateTime
-        '    While P.From IsNot Nothing
-        '        P = P.From
-        '        endTime = P.T
-
-        '    End While
-
-        '    TimeSpan = Start.Subtract(endTime)
-        '    Return P.DTF
-
-        'End Function
-
 
         Public Property T() As DateTime
             Get
@@ -835,6 +768,15 @@ Public Class VLM_Router
         End If
         Dim D As Double = 0
         Tc.EndPoint = Tc.ReachDistanceortho((MaxDist + MinDist) / 2, theta)
+
+        If Abs(Tc.EndPoint.Lat_Deg) >= 90 Then
+            If Tc.EndPoint.Lat_Deg < 0 Then
+                Tc.EndPoint.Lat_Deg = -89.99999
+            Else
+                Tc.EndPoint.Lat_Deg = 89.99999
+            End If
+            Return Tc.EndPoint
+        End If
         D += Tc.SurfaceDistance
         Tc.StartPoint = F2
         D += Tc.SurfaceDistance
@@ -936,6 +878,24 @@ Public Class VLM_Router
 
         End Get
     End Property
+
+
+
+    Private _RecordedRouteManager As RouteManager
+
+    Public Property RecordedRouteManager As RouteManager
+        Get
+            Return _RecordedRouteManager
+        End Get
+        Set(value As RouteManager)
+            _RecordedRouteManager = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RecordedRouteManager"))
+        End Set
+    End Property
+
+
+
+
 
     Public ReadOnly Property RaceNotStarted As Boolean
         Get
@@ -2455,6 +2415,43 @@ Public Class VLM_Router
 
     End Function
 
+    Public Function GetRoutePointAtCoords(ByVal Points As ObservableCollection(Of Routeur.RoutePointView), ByVal TargetC As Coords, ByRef RetC As clsrouteinfopoints) As Boolean
+
+        Dim TC As New TravelCalculator() With {.StartPoint = TargetC}
+        Dim CurDist As Double = Double.MaxValue
+        Dim BestP As Coords = Nothing
+        Dim CurT As DateTime = New DateTime(3000, 1, 1)
+        Try
+            For Each Pt In Points
+
+                TC.EndPoint = Pt.P
+                If CurDist > TC.SurfaceDistance OrElse (Abs(CurDist - TC.SurfaceDistance) < 3 * _PixelSize AndAlso CurT > Pt.ActionDate) Then
+                    CurDist = TC.SurfaceDistance
+                    CurT = Pt.ActionDate
+                    BestP = Pt.P
+                    'ElseIf CurDist <> Double.MaxValue AndAlso 3 * CurDist > TC.SurfaceDistance Then
+                    '    Exit For
+                End If
+
+
+            Next
+            TC.StartPoint = Nothing
+            TC.EndPoint = Nothing
+            TC = Nothing
+
+            If CurDist < 10 Then
+                RetC = New clsrouteinfopoints With {.P = BestP, .T = CurT}
+                Return True
+            Else
+                Return False
+            End If
+        Catch
+            'inore exception, will try later
+            Return False
+        End Try
+
+    End Function
+
     Private Sub GetRoutesUnderMouse(ByVal O As Object)
 
         Dim RoutePoints As New ObservableCollection(Of RoutePointInfo)
@@ -2485,6 +2482,15 @@ Public Class VLM_Router
                 P = New RoutePointInfo("Allure Route", RetC)
                 RoutePoints.Add(P)
             End If
+
+            For Each r As RecordedRoute In RecordedRouteManager.Routes
+                If r.Visible Then
+                    If GetRoutePointAtCoords(r.Route, C, RetC) Then
+                        P = New RoutePointInfo(r.RouteName, RetC)
+                        RoutePoints.Add(P)
+                    End If
+                End If
+            Next
 
         Catch
             'Swallow this one

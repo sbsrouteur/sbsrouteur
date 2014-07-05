@@ -641,7 +641,7 @@ Public Class GribManager
 
         Dim Start As DateTime = Now
 
-        If Double.IsNaN(C.Lon_Deg) OrElse Double.IsNaN(C.Lat_Deg) Then
+        If C Is Nothing OrElse Double.IsNaN(C.Lon_Deg) OrElse Double.IsNaN(C.Lat_Deg) Then
             Return Nothing
         End If
 
