@@ -18,6 +18,7 @@ Imports System.IO
 Imports System.Data.SQLite
 Imports System.Text
 Imports System.Threading
+Imports System.Security.Cryptography
 
 
 
@@ -546,6 +547,111 @@ RestartPoint:
 
         Debug.WriteLine("Track loaded " & Now.Subtract(Start).TotalMilliseconds & "ms pts: " & PtList.Count)
     End Sub
+
+    Sub AddDBTile(Level As Integer, X As Integer, Y As Integer, TileData As Byte())
+
+        Dim Hasher As MD5
+
+        Hasher = MD5.Create
+        Hasher.Initialize()
+
+        Dim HashData = Hasher.ComputeHash(TileData)
+        Dim HashString As String = ""
+
+        For Each b As Byte In HashData
+            HashString &= b.ToString("X2")
+        Next
+
+        Using con As New SQLiteConnection(_DBPath)
+            con.Open()
+            Dim Trans As SQLiteTransaction = Nothing
+            Using cmd As New SQLiteCommand(con)
+
+                Try
+                    Trans = con.BeginTransaction
+
+                    cmd.CommandText = "Select IdMapImage from MapImage where hash='" & HashString & "';"
+                    Dim Id As Object = cmd.ExecuteScalar
+
+                    If Id Is Nothing Then
+                        'New Tile, add the image to the DB
+                        cmd.CommandText = "insert into MapImage (Hash,Data) values ('" & HashString & "', @ImageData);"
+                        cmd.Parameters.Add("@ImageData", System.Data.DbType.Binary).Value = TileData
+                        cmd.ExecuteNonQuery()
+
+                        cmd.Parameters.Clear()
+                        cmd.CommandText = "Select IdMapImage from MapImage where hash='" & HashString & "';"
+                        Id = cmd.ExecuteScalar
+                    End If
+
+                    'Insert the MapLut Record
+                    cmd.CommandText = "insert into MapLut (Level,X,Y,RefBlob) values (" & Level & "," & X & "," & Y & "," & CInt(Id) & ");"
+                    cmd.ExecuteNonQuery()
+                    Trans.Commit()
+                Catch ex As Exception
+                    If Trans IsNot Nothing Then
+                        Trans.Rollback()
+                    End If
+                End Try
+
+            End Using
+            con.Close()
+        End Using
+
+
+
+    End Sub
+
+    Function ImageTileExists(TI As TileInfo) As Boolean
+        Using con As New SQLiteConnection(_DBPath)
+            con.Open()
+            Using cmd As New SQLiteCommand(con)
+
+                cmd.CommandText = "Select idMapLut from MapLut where level=" & TI.Z & " and X=" & TI.TX & " and Y=" & TI.TY & ";"
+                Dim Id As Object = cmd.ExecuteScalar
+
+                Return Id IsNot Nothing
+
+            End Using
+            con.Close()
+
+        End Using
+    End Function
+
+    Function GetImageBuffer(Ti As TileInfo) As Byte()
+
+        Using con As New SQLiteConnection(_DBPath)
+            con.Open()
+            Dim Reader As SQLiteDataReader = Nothing
+            Dim NbRetries As Integer = 0
+
+            While NbRetries < 2
+                Using cmd As New SQLiteCommand(con)
+                    Try
+                        cmd.CommandText = "Select Data from MapImage join MapLut on RefBlob = IdMapImage where level=" & Ti.Z & " and X=" & Ti.TX & " and Y=" & Ti.TY & ";"
+                        Reader = cmd.ExecuteReader
+
+                        If Reader.HasRows Then
+                            Reader.Read()
+                            Return CType(Reader(0), Byte())
+                        Else
+                            Return Nothing
+                        End If
+                    Finally
+                        If Reader IsNot Nothing Then
+                            Reader.Close()
+                        End If
+                    End Try
+
+                End Using
+                NbRetries += 1
+            End While
+            con.Close()
+            Return Nothing
+
+        End Using
+
+    End Function
 
 
 

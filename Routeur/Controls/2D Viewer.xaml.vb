@@ -50,9 +50,9 @@ Partial Public Class _2D_Viewer
     Private _AbortBGDrawing As Boolean = False
     Private _ThBgDraw As System.Threading.Thread = Nothing
     Private _ThreadLastStart As DateTime = Now
-    'Private _OpponentsBmp As WriteableBitmap
+
     Private _ISOBmp As WriteableBitmap
-    'Private _gshhs As New GSHHS_Reader
+
     Private _CurCoords As New Coords
     Private _P As Point
     Private _Progress As MapProgressContext
@@ -60,11 +60,6 @@ Partial Public Class _2D_Viewer
     Private _ClearBgMap As Boolean = False
     Private _ZFactor As Integer
 
-    'Private Shared _RaceRect As Coords() = New Coords() {New Coords(48, 12), New Coords(48, -13), New Coords(55, -13), New Coords(55, -2), _
-    '                                                     New Coords(59, 5), New Coords(62, 20), New Coords(48.1, 12)}
-    'Private Shared _RaceRect As Coords() = New Coords() {New Coords(58, 10), New Coords(48, 10), New Coords(48, 20), New Coords(60, 20), New Coords(60, 16.5), _
-    '                                                     New Coords(56 + 17 / 60, 16 + 28 / 60), New Coords(58, 14) _
-    '                                                     }
 
     Private Shared _RacePolygons As New LinkedList(Of Polygon)()
     Private Shared _RacePolygonsInited As Boolean = False
@@ -87,6 +82,8 @@ Partial Public Class _2D_Viewer
 
     Private WithEvents _BgDrawerTimer As DispatcherTimer
     Private _WPs As List(Of VLM_RaceWaypoint)
+
+    Private _DBLink As New DBWrapper
 
     Public Sub New()
         MyBase.New()
@@ -168,6 +165,24 @@ Partial Public Class _2D_Viewer
 
     End Function
 
+    Function LoadBitmapFromDB(Ti As TileInfo) As WriteableBitmap
+        Dim img As New BitmapImage()
+        Dim RetValue As WriteableBitmap = Nothing
+        Dim ImageBuffer() As Byte = _DBLink.GetImageBuffer(Ti)
+        img.BeginInit()
+        img.CreateOptions = BitmapCreateOptions.None
+        Using rs As New IO.MemoryStream(ImageBuffer)
+
+
+            img.StreamSource = rs
+            img.EndInit()
+            RetValue = BitmapFactory.ConvertToPbgra32Format(img)
+            rs.Close()
+
+            Return RetValue
+        End Using
+
+    End Function
 
     Private Sub LoadPolygonComplete()
 
@@ -1043,7 +1058,7 @@ Render1:
 
         If ti IsNot Nothing Then
 
-            Dim Img As WriteableBitmap = LoadBitmapFromFile(ti.FileName)
+            Dim Img As WriteableBitmap = LoadBitmapFromDB(ti)
 
             If Img Is Nothing Then
 #If TESTING <> 1 Then
