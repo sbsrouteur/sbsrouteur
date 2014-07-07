@@ -18,6 +18,7 @@ Imports System.IO
 Imports System.Drawing
 Imports System.ComponentModel
 Imports System.Net
+Imports System.Security.Cryptography
 
 Public Class TileServer
     Implements INotifyPropertyChanged
@@ -29,12 +30,14 @@ Public Class TileServer
     Public Const TILE_SIZE As Integer = 256
 
     Private _Renderer As _2D_Viewer
+    Private _DBLink As New DBWrapper
 
     Private _VLM_TILE_SERVER As String = RouteurModel.Base_Game_Url
-    
+
     Private _TileBuildList As New SortedList(Of String, TileInfo)
     Private _queryCount As Long = 0
     Private _HitCount As Long = 0
+
     '    Private _Busy As Boolean = False
 
 
@@ -99,8 +102,10 @@ Public Class TileServer
         Try
 restart_download:
             FileError = False
-            WC.DownloadFile(_VLM_TILE_SERVER & "/cache/gshhstiles/" & TI.Z & "/" & TI.TX & "/" & TI.TY & ".png", TI.FileName)
+            Dim TileData() As Byte = WC.DownloadData(_VLM_TILE_SERVER & "/cache/gshhstiles/" & TI.Z & "/" & TI.TX & "/" & TI.TY & ".png")
             
+            _DBLink.AddDBTile(TI.Z, TI.TX, TI.TY, TileData)
+
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Failed to get tile " & TI.FileName)
             FileError = True
@@ -131,7 +136,7 @@ restart_download:
     Public Sub RequestTile(ByVal TI As TileInfo)
 
         _queryCount += 1
-        If File.Exists(TI.FileName) AndAlso New FileInfo(TI.FileName).Length > 0 Then
+        If _DBLink.ImageTileExists(TI) Then
             'Dim Tile As New Bitmap(TI.FileName)
             _HitCount += 1
             RaiseEvent TileReady(TI)
@@ -140,7 +145,7 @@ restart_download:
 #Const LOCAL_GSHHS_MAP = 0
 
 #If LOCAL_GSHHS_MAP = 0 Then
-            BgCreateTile (TI)
+            BgCreateTile(TI)
 #Else
             'System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgCreateTile, TI)
             SyncLock _TileBuildList
@@ -194,11 +199,11 @@ restart_download:
         Dim img() As Bitmap
         Dim i As Integer
         ReDim img(_TileBuildList.Count - 1)
-        
+
         For i = 0 To img.Length - 1
             img(i) = New Bitmap(TILE_SIZE, TILE_SIZE, Imaging.PixelFormat.Format32bppArgb)
         Next
-        
+
         Dim MapLevel As String
         Dim TI As TileInfo
         Select Case _TileBuildList.Values(0).Z
