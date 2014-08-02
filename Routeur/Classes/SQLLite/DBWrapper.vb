@@ -603,6 +603,11 @@ RestartPoint:
     End Sub
 
     Function ImageTileExists(TI As TileInfo) As Boolean
+
+        If TI.TX < 0 OrElse TI.TY < 0 OrElse TI.TX > 2 ^ TI.Z OrElse TI.TY > 2 ^ TI.Z Then
+            Dim i As Integer = 1
+        End If
+
         Using con As New SQLiteConnection(_DBPath)
             con.Open()
             Using cmd As New SQLiteCommand(con)

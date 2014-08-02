@@ -66,9 +66,25 @@ Public Class TileInfo
         End If
         _TX = CInt(Math.Floor((N_Lon + 180) / 360 * 2 ^ Z))
         _TY = CInt(Math.Floor((1 - Math.Log(Math.Tan(N_Lat * Math.PI / 180) + 1 / Math.Cos(N_Lat * Math.PI / 180)) / Math.PI) / 2 * 2 ^ Z))
+
         If _TY > 2 ^ Z Then
             _TY = CInt(2 ^ Z)
         End If
+
+        While _TX < 0
+            _TX = CInt(_TX + (2 ^ Z))
+        End While
+
+        While _TY < 0
+            _TY = CInt(_TY + (2 ^ Z))
+        End While
+
+        _TX = CInt(_TX Mod 2 ^ Z)
+        _TY = CInt(_TY Mod 2 ^ Z)
+        'If _TX < 0 OrElse _TY < 0 OrElse _TX > 2 ^ Z OrElse _TY > 2 ^ Z Then
+        '    Dim i As Integer = 1
+        'End If
+
         Debug.Assert(_TX >= 0 And _TX <= 2 ^ Z)
         'Debug.Assert(_TY <= 2 ^ Z)
 
@@ -85,6 +101,9 @@ Public Class TileInfo
     End Sub
     Public Sub New(ByVal Z As Integer, ByVal Tx As Integer, ByVal TY As Integer)
 
+        If Tx < 0 OrElse Tx < 0 Then
+            Dim i As Integer = 0
+        End If
         _Z = Z
 
         _TX = Tx
