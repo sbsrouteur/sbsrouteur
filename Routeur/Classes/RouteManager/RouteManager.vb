@@ -71,6 +71,9 @@ Public Class RouteManager
 
         Dim R As RecordedRoute = AddNewRoute(RaceID, RaceName, Route.RouteName)
 
+        If R.RouteName = VLM_Router.KEY_ROUTE_THIS_POINT Then
+            R.RouteName = Now.Day & " " & Now.Hour & "h"
+        End If
         Dim PrevP As RoutePointView = Nothing
         Dim TC As New TravelCalculator
 
