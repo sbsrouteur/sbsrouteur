@@ -101,7 +101,7 @@ Public Class VLM_Router
     Private _RoutingRestartPending As Boolean = False
     Private _IsoRoutingRestartPending As Boolean = False
     Private Shared _Track As LinkedList(Of Coords)
-    Private _DrawOpponnents As Boolean = False
+    Private _DrawOpponnents As Boolean = True
     Private _DrawReals As Boolean = False
     Private _CurUserWP As Integer = 0
     Private _IsoRoutingBorder As New LinkedList(Of Coords)
@@ -873,6 +873,8 @@ Public Class VLM_Router
             ElseIf _Opponents.Count > 0 AndAlso _Opponents.ContainsKey(_PlayerInfo.NumBoat.ToString) Then
                 Return _Opponents(_PlayerInfo.NumBoat.ToString).RaceDepTime
             Else
+                'Get player info to get race start date
+                Dim ret As Dictionary(Of String, Object) = WS_Wrapper.GetBoatInfo(_PlayerInfo)
                 Return _PlayerInfo.RaceInfo.deptime
             End If
 
@@ -1732,8 +1734,8 @@ Public Class VLM_Router
             Static LastRequest As DateTime = New DateTime(0)
             If LastTrackEpoch = 0 Then
                 'If no data, then use race start epoch
-                Dim StartDate As New DateTime(_PlayerInfo.RaceInfo.deptime.Ticks, DateTimeKind.Local)
-                LastTrackEpoch = CLng(StartDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds) - 3600
+                'Dim StartDate As New DateTime(_PlayerInfo.RaceInfo.deptime.Ticks, DateTimeKind.Local)
+                LastTrackEpoch = CLng(RaceStartDate.ToUniversalTime.Subtract(New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds) - 3600
 
             End If
 
@@ -2791,8 +2793,6 @@ Public Class VLM_Router
 
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PositionDataAge"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceStartDate"))
-
-
 
     End Sub
 
