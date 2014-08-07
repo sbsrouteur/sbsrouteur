@@ -35,6 +35,12 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 					<TextBlock Text="{Binding RouteName, Mode=Default}"  />
 				</Grid>
 			</DataTemplate>
+
+			<DataTemplate x:Key="CheckBoxColumn">
+				<Grid>
+					<CheckBox IsChecked="{Binding Visible}"/>
+				</Grid>
+			</DataTemplate>
 		</ResourceDictionary>
 	</Window.Resources>
 	<Grid x:Name="LayoutRoot">
@@ -47,7 +53,14 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 			<RowDefinition Height="0.623*"/>
 			<RowDefinition Height="0.108*"/>
 		</Grid.RowDefinitions>
-		<ListBox x:Name="RaceList" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RoutesInRace, Mode=Default}" Grid.RowSpan="2"/>
+		<ListView x:Name="RaceList" Margin="{DynamicResource DefMargin}" ItemsSource="{Binding RoutesInRace, Mode=Default}" Grid.RowSpan="2">
+			<ListView.View>
+				<GridView>
+					<GridViewColumn Header="Vis." Width="30" DisplayMemberBinding="{Binding Visible}" CellTemplate="{StaticResource CheckBoxColumn}"/>
+					<GridViewColumn Header="Name" DisplayMemberBinding="{Binding RouteName}"/>
+				</GridView>
+			</ListView.View>
+		</ListView>
 		<Button Grid.Row="2" Content="Add New Route" Click="AddNewRoute" Margin="{DynamicResource DefMargin}" />
 		<Button HorizontalAlignment="Right" Margin="{DynamicResource DefMargin}" Width="75" Content="Close" Grid.Column="1" Grid.Row="2" Click="OnClose"/>
 		<StackPanel Grid.Row="2" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Left" >
