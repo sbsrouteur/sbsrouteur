@@ -777,11 +777,12 @@ Render1:
                     PenNumber = 0
                     Dim CurWP As Integer = 1
                     Dim RouteIndex As Integer = 0
+
                     For Each R In PathInfo.Routes
 
                         If Not R Is Nothing Then
                             If RouteIndex = PathInfo.EstimateRouteIndex OrElse RouteIndex = PathInfo.WPRouteIndex Then
-                                DrawPath(_RBmp, R, routePen(PenNumber), RouteIndex = PathInfo.EstimateRouteIndex, PathInfo.CurrentPos)
+                                DrawPath(_RBmp, R, routePen(PenNumber), RouteIndex = PathInfo.EstimateRouteIndex, PathInfo.CurrentPos, True)
                             Else
                                 DrawPath(_RBmp, R, routePen(PenNumber), False)
 
@@ -1246,9 +1247,11 @@ Render1:
 
     End Function
 
-    Private Sub DrawPath(RBmp As WriteableBitmap, R As ObservableCollection(Of VLM_Router.clsrouteinfopoints), PenColor As Integer, WithPointCircles As Boolean, Optional CurrentPos As Coords = Nothing)
+    Private Sub DrawPath(RBmp As WriteableBitmap, R As ObservableCollection(Of VLM_Router.clsrouteinfopoints), PenColor As Integer, WithPointCircles As Boolean, Optional CurrentPos As Coords = Nothing, Optional ForceDraw As Boolean = False)
 
         Dim Path As New LinkedList(Of Coords)
+
+        'if there is a current position add it to the route so that it can be traced on it's own
         If CurrentPos IsNot Nothing Then
             Path.AddLast(CurrentPos)
         End If
@@ -1256,13 +1259,13 @@ Render1:
 
             Path.AddLast(P.P)
         Next
-        DrawPath(RBmp, Path, PenColor, WithPointCircles)
+        DrawPath(RBmp, Path, PenColor, WithPointCircles, Nothing, ForceDraw)
         Path.Clear()
         Path = Nothing
 
     End Sub
 
-    Private Sub DrawPath(RBmp As WriteableBitmap, Path As LinkedList(Of Coords), PenColor As Integer, WithPointCircles As Boolean, Optional CurrentPos As Coords = Nothing)
+    Private Sub DrawPath(RBmp As WriteableBitmap, Path As LinkedList(Of Coords), PenColor As Integer, WithPointCircles As Boolean, Optional CurrentPos As Coords = Nothing, Optional ForceDraw As Boolean = False)
 
         Dim P1 As Point
         Dim PrevPoint As Point
@@ -1293,7 +1296,7 @@ Render1:
                         Pnt.Lon_Deg = C.Lon_Deg
                         Pnt.Lat_Deg = C.Lat_Deg
 
-                        SafeDrawLine(_RBmp, PrevP, Pnt, PenColor)
+                        SafeDrawLine(_RBmp, PrevP, Pnt, PenColor, ForceDraw)
                         If WithPointCircles Then
                             SafeDrawEllipse(_RBmp, Pnt, PenColor, 2, 2)
                         End If
