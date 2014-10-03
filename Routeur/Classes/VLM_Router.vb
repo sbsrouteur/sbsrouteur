@@ -1080,7 +1080,8 @@ Public Class VLM_Router
             End If
 
             'Get Meteo at date
-            mi = _Meteo.GetMeteoToDate(CurPos, CurDate.AddTicks(CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)), True)
+            'mi = _Meteo.GetMeteoToDate(CurPos, CurDate.AddTicks(CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)), True)
+            mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
 
             If mi Is Nothing Then
                 Return RetRoute
@@ -1765,36 +1766,6 @@ Public Class VLM_Router
             'End If
         End Get
     End Property
-
-    Public Function ComputeTrackBearing(ByVal Bearing As Double) As List(Of Coords)
-
-
-        Dim C As New Coords(UserInfo.Position)
-        Dim StartDate As DateTime = Now
-
-        If _PlayerInfo.RaceInfo.deptime > Now Then
-            StartDate = _PlayerInfo.RaceInfo.deptime
-        End If
-
-        Dim Cp(3) As Coords
-        Cp(0) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(3), Meteo, UserInfo.POL, Sails, False)
-        Cp(1) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(6), Meteo, UserInfo.POL, Sails, False)
-        Cp(2) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(12), Meteo, UserInfo.POL, Sails, False)
-        Cp(3) = BearingNavHelper.ComputeTrackBearing(C, Bearing, StartDate, StartDate.AddHours(24), Meteo, UserInfo.POL, Sails, False)
-        Dim L As New List(Of Coords)
-
-        For Each v In Cp
-            If v IsNot Nothing Then
-                L.Add(v)
-
-            End If
-        Next
-
-        Return L
-
-    End Function
-
-
 
 
     Public ReadOnly Property Log() As ObservableCollection(Of String)
