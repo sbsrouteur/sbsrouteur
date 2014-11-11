@@ -50,7 +50,7 @@ Public Class IsoRouter
     Private _DB As DBWrapper
     Private _MapLevel As Integer
 
-#Const DBG_ISO = 1
+#Const DBG_ISO = 0
 
     Public Sub New(ByVal BoatType As String, ByVal SailManager As clsSailManager, ByVal Meteo As GribManager, ByVal AngleStep As Double, ByVal SearchAngle As Double, ByVal VacLength As TimeSpan, MapLevel As Integer, EllipseExcent As Double)
         _AngleStep = AngleStep
@@ -66,7 +66,7 @@ Public Class IsoRouter
     End Sub
 
 
-    Private Function ComputeNextIsoChrone(ByVal Iso As IsoChrone) As IsoChrone
+    Private Function ComputeNextIsoChrone(ByVal Iso As IsoChrone, Optional DoNotCleanUp As Boolean = False) As IsoChrone
         'Private Function ComputeNextIsoChrone(ByVal Iso As IsoChrone) As IsoChrone
 
         Dim RetIsoChrone As IsoChrone = Nothing
@@ -138,10 +138,10 @@ Public Class IsoRouter
             Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / 360 / MaxSpeed * TimeSpan.TicksPerHour)).TotalMinutes
             NbMinutes = Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes) * RouteurModel.VacationMinutes
             CurStep = New TimeSpan(0, CInt(NbMinutes), 0)
-            
+
 
             Dim tc2 As New TravelCalculator
-            
+
             Dim IsoLine As New LinkedList(Of Coordinate)
             Dim IsoPoly As New DotSpatial.Topology.Polygon(IsoLine)
             For Each Iso In IsoChrones
@@ -249,7 +249,7 @@ Public Class IsoRouter
             'Clean up bad points
             If RetIsoChrone IsNot Nothing Then
 
-                RetIsoChrone.CleanUp()
+                RetIsoChrone.CleanUp(Iso, DoNotCleanUp)
 
             End If
 
@@ -287,7 +287,14 @@ Public Class IsoRouter
             Dim LoopStart As DateTime = Now
 
             Dim isostart As DateTime = Now
+
+#If DBG_ISO = 1 Then
+            Const MAX_DBG_ISO = 2
+            CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone, _IsoChrones.Count = MAX_DBG_ISO)
+
+#Else
             CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
+#End If
             Dim IsoDuratoin As Double = Now.Subtract(isostart).TotalMilliseconds
 
 #If DBG_ISO = 1 Then
@@ -319,8 +326,12 @@ Public Class IsoRouter
                 'ElseIf CurDTF < 5 Then
                 '    RouteComplete = True
             End If
-
+#If DBG_ISO = 1 Then
+            If _IsoChrones.Count > MAX_DBG_ISO OrElse CurIsoChrone Is Nothing OrElse CurIsoChrone.PointSet.Count = 0 Then
+#Else
             If CurIsoChrone Is Nothing OrElse CurIsoChrone.PointSet.Count = 0 Then
+#End If
+
                 RouteComplete = True
             ElseIf P IsNot Nothing AndAlso P.DTF < Dist * 0.01 Then
                 RouteComplete = True
@@ -353,7 +364,7 @@ Public Class IsoRouter
         Static CumWait As Long = 0
         Static HitCount As Long = 1
         Static LoopCount As Long = 0
-        Dim StartTick As DateTime = Now
+        Dim DebugTimingStartTick As DateTime = Now
 
         Debug.Assert(Duration.Ticks > 0)
 
@@ -367,12 +378,12 @@ Public Class IsoRouter
             Dim Speed As Double
             Dim MI As MeteoInfo = Nothing
             Dim i As Long
-            Dim CurDate As DateTime
             Dim TotalDist As Double = 0
             Static PrevDist As Double = 0
             Dim MinWindAngle As Double = 0
             Dim MaxWindAngle As Double = 0
             Dim StartTicks As DateTime = Start.T
+            Dim CurDate As DateTime = StartTicks
 
             TC.StartPoint = Start.P
 
@@ -386,7 +397,6 @@ Public Class IsoRouter
             If Not _RouterPrefs.FastRouteShortMeteo Then
                 MI = Nothing
                 For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
-                    CurDate = StartTicks.AddTicks(i)
                     MI = Nothing
                     Dim WaitStart As DateTime = Now
                     While MI Is Nothing And Not _CancelRequested
@@ -411,6 +421,7 @@ Public Class IsoRouter
                     Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
                     TotalDist += Speed / 60 * RouteurModel.VacationMinutes
                     TC.StartPoint = TC.ReachDistanceortho(Speed / 60 * RouteurModel.VacationMinutes, Cap)
+                    CurDate = StartTicks.AddTicks(i)
                     '    LoopCount += 1
                     'TC.StartPoint = TC.EndPoint
 
@@ -482,7 +493,7 @@ Public Class IsoRouter
                     .Loch = TotalDist
                     .LochFromStart = .Loch + Start.LochFromStart
                     TC.StartPoint = _DestPoint
-                        .DTF = TC.SurfaceDistance
+                    .DTF = TC.SurfaceDistance
                     .From = Start
                     .Cap = Cap
                 End With
@@ -502,7 +513,7 @@ Public Class IsoRouter
             'End If
             Return RetPoint
         Finally
-            CumDuration += Now.Subtract(StartTick).Ticks
+            CumDuration += Now.Subtract(DebugTimingStartTick).Ticks
             Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPointMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
             Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPointMeteoWaitMS) = CumWait / HitCount / TimeSpan.TicksPerMillisecond
             Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPointAvgLoopCount) = LoopCount / HitCount

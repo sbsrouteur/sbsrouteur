@@ -83,7 +83,7 @@ Public Class IsoChrone
 
 
 
-    Sub CleanUp()
+    Sub CleanUp(ParentIso As IsoChrone, DoNotCleanUp As Boolean)
 
         Const MAX_ISO_POINT As Integer = 360
 
@@ -113,64 +113,121 @@ Public Class IsoChrone
             _RawPointSet.AddLast(P)
         Next
 #End If
+        Dim Complete As Boolean = False
+        Dim Tmpworkset As New LinkedList(Of clsrouteinfopoints)
 
-        Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
-        Dim PrevCount As Integer = 0
-        Do
-            PrevCount = _NextPointSet.Count
-            _NextPointSet.Clear()
-            Dim Index As Integer = 0
-            Dim MaxDists(MAX_ISO_POINT - 1) As Double
+        coordslist.Clear()
+        For Each Point In ParentIso.PointSet
+            coordslist.Add(New Topology.Coordinate(Point.P.Lon, Point.P.Lat))
+        Next
+        Dim LR As New Topology.LinearRing(coordslist)
+        Dim Poly As New Topology.Polygon(LR)
+        For Each Point In WorkSet
+            Dim P As New Topology.Coordinate(Point.P.Lon, Point.P.Lat)
+            Dim Pt As New Topology.Point(P)
+            If Not Poly.Intersects(Pt) Then
+                Tmpworkset.AddLast(Point)
+            End If
 
-            'Using sr As New IO.StreamWriter("c:\temp\dists.csv")
+        Next
+
+        WorkSet = Tmpworkset
+        Tmpworkset = Nothing
+
+        Dim RemoveList As New LinkedList(Of Topology.IPoint)
+        'While Not Complete
+
+        For i = 0 To LR.NumPoints - 1
+            Dim P As Topology.IPoint = LR.GetPointN(i)
+
+            Dim LR2 As Topology.LineString = CType(LR.Difference(P), Topology.LineString)
+
+            If LR2.Intersects(P) Then
+                LR = New Topology.LinearRing(LR2)
+                RemoveList.AddLast(P)
+            End If
+
+        Next
+        'End While
+
+        If Not DoNotCleanUp Then
+
+
+            Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
             For Each Point In WorkSet
-                'Dists(Index) = Point.DistFromPos
-                'Angles(Index) = Point.CapFromPos
-                'Find why some time
-                If Not Double.IsNaN(Point.CapFromPos) Then
-                    MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Math.Max(Point.DistFromPos, MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT))
-                End If
-                Index += 1
+                Dim Match As Boolean = False
+                For i = 0 To LR.NumPoints - 1
+                    Dim P As Topology.IPoint = LR.GetPointN(i)
 
-            Next
+                    If P.X = Point.P.Lon AndAlso P.Y = Point.P.Lat Then
+                        Match = True
+                        Exit For
+                    End If
+                Next
 
-
-            'Dim factor As Double
-
-            'For Index = 0 To Dists.Length - 1
-            '    FilteredDist(Index) = 0
-            '    factor = 0
-            '    Dim PrevD As Double = 0
-            '    Dim NextD As Double = 0
-            '    Dim MaxD As Double = 0
-
-            '    For i As Integer = -2 To 2
-            '        FilteredDist(Index) += Dists((Index + i + Dists.Length) Mod Dists.Length) '* (2 ^ (2 - Math.Abs(i)))
-            '        factor += 1 '(2 ^ (2 - Math.Abs(i)))
-            '    Next
-            '    FilteredDist(Index) /= factor
-            '    'sr.WriteLine(Angles(Index).ToString & ";" & Dists(Index).ToString & ";" & FilteredDist(Index).ToString)
-            'Next
-            'sr.Close()
-            'End Using
-
-            Index = 0
-
-            For Each Point In (From Pt In WorkSet Order By Pt.CapFromPos)
-                'If ((((Angles(Index) - Angles((Index + 1) Mod (Angles.Count - 1)) + 360) Mod 360)) > 1) OrElse (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
-                'If (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
-                If Not Double.IsNaN(Point.CapFromPos) AndAlso (Point.CapFromPos <> PrevAngle AndAlso MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Point.DistFromPos) Then
+                If Not Match Then
                     _NextPointSet.AddLast(Point)
-                    PrevAngle = Point.CapFromPos
                 End If
-                Index += 1
             Next
             WorkSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
-            ReDim Dists(WorkSet.Count - 1)
-            ReDim FilteredDist(WorkSet.Count - 1)
-        Loop Until _NextPointSet.Count <= MAX_ISO_POINT Or _NextPointSet.Count = PrevCount
-        _PointSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
+            Dim PrevCount As Integer = 0
+            Do
+                PrevCount = _NextPointSet.Count
+                _NextPointSet.Clear()
+                Dim Index As Integer = 0
+                Dim MaxDists(MAX_ISO_POINT - 1) As Double
 
+                'Using sr As New IO.StreamWriter("c:\temp\dists.csv")
+                For Each Point In WorkSet
+                    'Dists(Index) = Point.DistFromPos
+                    'Angles(Index) = Point.CapFromPos
+                    'Find why some time
+                    If Not Double.IsNaN(Point.CapFromPos) Then
+                        MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Math.Max(Point.DistFromPos, MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT))
+                    End If
+                    Index += 1
+
+                Next
+
+
+                'Dim factor As Double
+
+                'For Index = 0 To Dists.Length - 1
+                '    FilteredDist(Index) = 0
+                '    factor = 0
+                '    Dim PrevD As Double = 0
+                '    Dim NextD As Double = 0
+                '    Dim MaxD As Double = 0
+
+                '    For i As Integer = -2 To 2
+                '        FilteredDist(Index) += Dists((Index + i + Dists.Length) Mod Dists.Length) '* (2 ^ (2 - Math.Abs(i)))
+                '        factor += 1 '(2 ^ (2 - Math.Abs(i)))
+                '    Next
+                '    FilteredDist(Index) /= factor
+                '    'sr.WriteLine(Angles(Index).ToString & ";" & Dists(Index).ToString & ";" & FilteredDist(Index).ToString)
+                'Next
+                'sr.Close()
+                'End Using
+
+                Index = 0
+
+                For Each Point In (From Pt In WorkSet Order By Pt.CapFromPos)
+                    'If ((((Angles(Index) - Angles((Index + 1) Mod (Angles.Count - 1)) + 360) Mod 360)) > 1) OrElse (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
+                    'If (FilteredDist(Index) <> 0 AndAlso Dists(Index) > FilteredDist(Index)) Then
+                    If Not Double.IsNaN(Point.CapFromPos) AndAlso (Point.CapFromPos <> PrevAngle AndAlso MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Point.DistFromPos) Then
+                        _NextPointSet.AddLast(Point)
+                        PrevAngle = Point.CapFromPos
+                    End If
+                    Index += 1
+                Next
+                WorkSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
+                ReDim Dists(WorkSet.Count - 1)
+                ReDim FilteredDist(WorkSet.Count - 1)
+            Loop Until _NextPointSet.Count <= MAX_ISO_POINT Or _NextPointSet.Count = PrevCount
+            _PointSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
+        Else
+            _PointSet = WorkSet
+        End If
         'Create IndexLut for IsoChrone
         Dim PointIndex As Integer = 0
         _Iso_IndexLut(0) = 0
@@ -184,7 +241,7 @@ Public Class IsoChrone
             PointIndex += 1
         Next
         EndCount = _PointSet.Count
-        Console.WriteLine("CleanUp from " & startcount & " to " & endcount & " in " & Now.Subtract(Start).TotalMilliseconds)
+        Console.WriteLine("CleanUp from " & StartCount & " to " & EndCount & " in " & Now.Subtract(Start).TotalMilliseconds)
         Return
     End Sub
 
