@@ -155,6 +155,7 @@
     <Compile Include="Classes\NavHelper\OrthoNavHelper.vb" />
     <Compile Include="Classes\NavHelper\VBVMGNavHelper.vb" />
     <Compile Include="Classes\NavHelper\VMGNavHelper.vb" />
+    <Compile Include="Classes\Polygon\Polygon.vb" />
     <Compile Include="Classes\SQLLite\DBWrapper.vb" />
     <Compile Include="Classes\SQLLite\MapSegment.vb" />
     <Compile Include="Classes\TrackPoint.vb" />
@@ -435,7 +436,6 @@
     <Compile Include="Classes\ListMgr\CoordsComparer.vb" />
     <Compile Include="Classes\ListMgr\ICoords.vb" />
     <Compile Include="Classes\MenuCommands\CommandManager.vb" />
-    <Compile Include="Classes\Polygon\Polygon.vb" />
     <Compile Include="Classes\Polygon\PolygonEnumerator.vb" />
     <Compile Include="Classes\ProgressContext.vb" />
     <Compile Include="Classes\RouteManager\RecordedRoute.vb" />
