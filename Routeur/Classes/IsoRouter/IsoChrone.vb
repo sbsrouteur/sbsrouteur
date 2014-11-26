@@ -94,7 +94,7 @@ Public Class IsoChrone
         Dim WorkSet As New LinkedList(Of clsrouteinfopoints)
         WorkSet = New LinkedList(Of clsrouteinfopoints)(_PointSet)
 
-        Dim coordslist As New List(Of DotSpatial.Topology.Coordinate)
+        'Dim coordslist As New List(Of DotSpatial.Topology.Coordinate)
         Dim Angles(WorkSet.Count - 1) As Double
         Dim Dists(WorkSet.Count - 1) As Double
         Dim FilteredDist(WorkSet.Count - 1) As Double
@@ -113,63 +113,63 @@ Public Class IsoChrone
             _RawPointSet.AddLast(P)
         Next
 #End If
-        Dim Complete As Boolean = False
-        Dim Tmpworkset As New LinkedList(Of clsrouteinfopoints)
+        'Dim Complete As Boolean = False
+        'Dim Tmpworkset As New LinkedList(Of clsrouteinfopoints)
 
-        coordslist.Clear()
-        For Each Point In ParentIso.PointSet
-            coordslist.Add(New Topology.Coordinate(Point.P.Lon, Point.P.Lat))
-        Next
-        Dim LR As New Topology.LinearRing(coordslist)
-        Dim Poly As New Topology.Polygon(LR)
-        For Each Point In WorkSet
-            Dim P As New Topology.Coordinate(Point.P.Lon, Point.P.Lat)
-            Dim Pt As New Topology.Point(P)
-            If Not Poly.Intersects(Pt) Then
-                Tmpworkset.AddLast(Point)
-            End If
+        'coordslist.Clear()
+        'For Each Point In ParentIso.PointSet
+        '    coordslist.Add(New Topology.Coordinate(Point.P.Lon, Point.P.Lat))
+        'Next
+        'Dim LR As New Topology.LinearRing(coordslist)
+        'Dim Poly As New Topology.Polygon(LR)
+        'For Each Point In WorkSet
+        '    Dim P As New Topology.Coordinate(Point.P.Lon, Point.P.Lat)
+        '    Dim Pt As New Topology.Point(P)
+        '    If Not Poly.Intersects(Pt) Then
+        '        Tmpworkset.AddLast(Point)
+        '    End If
 
-        Next
+        'Next
 
-        WorkSet = Tmpworkset
-        Tmpworkset = Nothing
+        'WorkSet = Tmpworkset
+        'Tmpworkset = Nothing
 
-        Dim RemoveList As New LinkedList(Of Topology.IPoint)
-        'While Not Complete
+        'Dim RemoveList As New LinkedList(Of Topology.IPoint)
+        ''While Not Complete
 
-        For i = 0 To LR.NumPoints - 1
-            Dim P As Topology.IPoint = LR.GetPointN(i)
+        'For i = 0 To LR.NumPoints - 1
+        '    Dim P As Topology.IPoint = LR.GetPointN(i)
 
-            Dim LR2 As Topology.LineString = CType(LR.Difference(P), Topology.LineString)
+        '    Dim LR2 As Topology.LineString = CType(LR.Difference(P), Topology.LineString)
 
-            If LR2.Intersects(P) Then
-                LR = New Topology.LinearRing(LR2)
-                RemoveList.AddLast(P)
-            End If
+        '    If LR2.Intersects(P) Then
+        '        LR = New Topology.LinearRing(LR2)
+        '        RemoveList.AddLast(P)
+        '    End If
 
-        Next
-        'End While
+        'Next
+        ''End While
 
         If Not DoNotCleanUp Then
 
 
             Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
-            For Each Point In WorkSet
-                Dim Match As Boolean = False
-                For i = 0 To LR.NumPoints - 1
-                    Dim P As Topology.IPoint = LR.GetPointN(i)
+            'For Each Point In WorkSet
+            '    Dim Match As Boolean = False
+            '    For i = 0 To LR.NumPoints - 1
+            '        Dim P As Topology.IPoint = LR.GetPointN(i)
 
-                    If P.X = Point.P.Lon AndAlso P.Y = Point.P.Lat Then
-                        Match = True
-                        Exit For
-                    End If
-                Next
+            '        If P.X = Point.P.Lon AndAlso P.Y = Point.P.Lat Then
+            '            Match = True
+            '            Exit For
+            '        End If
+            '    Next
 
-                If Not Match Then
-                    _NextPointSet.AddLast(Point)
-                End If
-            Next
-            WorkSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
+            '    If Not Match Then
+            '        _NextPointSet.AddLast(Point)
+            '    End If
+            'Next
+            'WorkSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
             Dim PrevCount As Integer = 0
             Do
                 PrevCount = _NextPointSet.Count
