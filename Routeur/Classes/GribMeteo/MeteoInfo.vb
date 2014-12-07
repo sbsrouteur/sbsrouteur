@@ -15,6 +15,7 @@
 'along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 Imports System.ComponentModel
+Imports System.Threading
 
 Public Class MeteoInfo
 
@@ -34,6 +35,7 @@ Public Class MeteoInfo
     Private Shared StrengthProp As New PropertyChangedEventArgs("Strength")
     'Private Shared DateProp As New PropertyChangedEventArgs("GribDate")
     Private _GribDate As DateTime
+    Private _SyncEvent As New ManualResetEvent(False)
 
 
     Public ReadOnly Property DataOK() As Boolean
@@ -77,6 +79,12 @@ Public Class MeteoInfo
             _Strength = value
             RaiseEvent PropertyChanged(Me, StrengthProp)
         End Set
+    End Property
+
+    Public ReadOnly Property SyncEvent As ManualResetEvent
+        Get
+            Return _SyncEvent
+        End Get
     End Property
 
     Private Function GetDir() As Double

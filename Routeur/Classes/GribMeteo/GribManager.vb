@@ -51,7 +51,7 @@ Public Class GribManager
 
     Private Shared _GMT_Offset As Double = TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours
     'Private Shared _GribMonitor(NB_MAX_GRIBS - 1) As Object
-    Private Shared _GribLock(NB_MAX_GRIBS - 1) As SpinLock
+    'Private Shared _GribLock(NB_MAX_GRIBS - 1) As SpinLock
 
     Private _MeteoArrays(MAX_INDEX) As MeteoArray
     Private _LastGribDate As DateTime
@@ -67,7 +67,9 @@ Public Class GribManager
     Private _GetMeteoToDateTicks As Long
     Private _GetMeteoToDateCount As Long
 
-
+    Private _MeteoLoader As Thread
+    Private _ShutDown As Boolean = False
+    Private _MeteoLoadQueue As New Queue(Of MeteoLoadRequest)
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -91,42 +93,57 @@ Public Class GribManager
         'bLoad = bLoad OrElse Now.Ticks > NextTick
 
         If bLoad Then
-            'RaiseEvent log("Synclock grib monitor th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
-            If Not SpinLockEnter(MeteoIndex, NoLock) Then
-                If NoLock Then
-                    Return Nothing
-                End If
 
-                If NoLoad Then
-                    Return False
-                End If
-
+            Dim loadreq As New MeteoLoadRequest With {.LatIndex = latIndex, .LonIndex = LonIndex, .MeteoIndex = MeteoIndex}
+            If Not NoLock Then
+                loadreq.SyncEvt = New AutoResetEvent(False)
             End If
-            'SyncLock _GribMonitor
-            Try
-                bLoad = _MeteoArrays(MeteoIndex) Is Nothing
-                bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex) Is Nothing
-                bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex).GribDate < GetCurGribDate(Now)
-                bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex).Dir = MeteoInfo.NO_VALUE
-                'bLoad = bLoad OrElse Now.Ticks > NextTick
-                If bLoad Then
-                    'System.Threading.Monitor.Enter(_GribMonitor)
-                    retval = LoadGribData(MeteoIndex, MeteoArray.GetArrayIndexLon(LonIndex, GetIndexGrain(MeteoIndex)), MeteoArray.GetArrayIndexLat(latIndex, GetIndexGrain(MeteoIndex)))
-                Else
-                    retval = True
-                End If
-            Catch ex As Exception
-                RaiseEvent log("Exception during checkgribdata " & ex.Message)
+            SyncLock _MeteoLoadQueue
+                _MeteoLoadQueue.Enqueue(loadreq)
+            End SyncLock
+            'If _MeteoLoadQueue.Count Mod 10 = 0 Then
+            '    Console.WriteLine("Queue ++ " & _MeteoLoadQueue.Count)
+            'End If
+            If NoLock Then
                 retval = False
-            Finally
-                SpinLockExit(MeteoIndex)
+            Else
+                loadreq.SyncEvt.WaitOne()
+            End If
+        
+            ''RaiseEvent log("Synclock grib monitor th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
+            'If Not SpinLockEnter(MeteoIndex, NoLock) Then
+            '    If NoLock Then
+            '        Return Nothing
+            '    End If
 
-            End Try
+            '    If NoLoad Then
+            '        Return False
+            '    End If
+
+            'End If
+            ''SyncLock _GribMonitor
+            'Try
+            '    bLoad = _MeteoArrays(MeteoIndex) Is Nothing
+            '    bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex) Is Nothing
+            '    bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex).GribDate < GetCurGribDate(Now)
+            '    bLoad = bLoad OrElse _MeteoArrays(MeteoIndex).Data(LonIndex, latIndex).Dir = MeteoInfo.NO_VALUE
+            '    'bLoad = bLoad OrElse Now.Ticks > NextTick
+            '    If bLoad Then
+            '        'System.Threading.Monitor.Enter(_GribMonitor)
+            '        retval = LoadGribData(MeteoIndex, MeteoArray.GetArrayIndexLon(LonIndex, GetIndexGrain(MeteoIndex)), MeteoArray.GetArrayIndexLat(latIndex, GetIndexGrain(MeteoIndex)))
+            '    Else
+            '        retval = True
+            '    End If
+            'Catch ex As Exception
+            '    RaiseEvent log("Exception during checkgribdata " & ex.Message)
+            '    retval = False
+            'Finally
+            '    SpinLockExit(MeteoIndex)
+
+            'End Try
             'NextTick = Now.AddMinutes(30).Ticks
             Return retval
             'End SyncLock
-
-
         Else
             Return True
         End If
@@ -140,129 +157,129 @@ Public Class GribManager
     End Function
 
 
-    Private Function GetFileStream(ByVal MeteoIndex As Integer, ByVal Lon As Double, ByVal lat As Double) As String
+    'Private Function GetFileStream(ByVal MeteoIndex As Integer, ByVal Lon As Double, ByVal lat As Double) As String
 
-        Dim RetString As String = ""
-        Dim GribDataFileName As String = GetGribDataFileName(MeteoIndex)
+    '    Dim RetString As String = ""
+    '    Dim GribDataFileName As String = GetGribDataFileName(MeteoIndex)
 
-        If Not System.IO.Directory.Exists(".\GribData") Then
-            System.IO.Directory.CreateDirectory(".\GribData")
-        End If
+    '    If Not System.IO.Directory.Exists(".\GribData") Then
+    '        System.IO.Directory.CreateDirectory(".\GribData")
+    '    End If
 
-        If Not System.IO.File.Exists(System.IO.Path.Combine(".\GribData", GribDataFileName)) Then
+    '    If Not System.IO.File.Exists(System.IO.Path.Combine(".\GribData", GribDataFileName)) Then
 
-            Dim FileOK As Boolean = False
-            Dim WLon As Integer = CInt(-Lon - 5) 'revert grib lon for request!!!
-            Dim ELon As Integer = WLon + 10
-            Dim NLat As Integer = CInt(lat + 5)
-            Dim SLat As Integer = NLat - 10
-            Dim retries As Integer = 0
-            Dim wr As WebResponse = Nothing
-            Dim rs As System.IO.Stream
-            Dim WaitStart As DateTime = Now
-
-
-            While Not FileOK
-                Dim GribURL As String = GetGribURL(MeteoIndex, WLon, ELon, NLat, SLat, False)
-                'Dim Http As HttpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), HttpWebRequest)
-                Dim ftp As FtpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), FtpWebRequest)
-                Try
-
-                    wr = ftp.GetResponse()
-                    FileOK = True
-                Catch ex2 As WebException
-                    If retries > 2 Then
-                        'Meteo is not available for that date (two late??)
-                        Return ""
-                    ElseIf ex2.Message.Contains("404") Then
-                        retries += 1
-                    End If
-                Catch ex As Exception
-                    Dim i As Integer = 0
-                    Throw
-                End Try
-            End While
-            rs = wr.GetResponseStream()
-            Dim Gribdata(1024) As Byte
-            Dim readlen As Integer
-            Try
-                Dim fName As String = "fgrib" & Now.Ticks  'System.IO.Path.GetTempFileName()
-                Dim f As New System.IO.FileStream(fName, IO.FileMode.Create)
-                Do
-                    readlen = rs.Read(Gribdata, 0, 1024)
-                    If readlen > 0 Then
-                        f.Write(Gribdata, 0, readlen)
-                    End If
-                Loop Until readlen = 0
-
-                f.Close()
-
-                Dim App As New Process
-                Dim Si As New System.Diagnostics.ProcessStartInfo
-
-                With Si
-                    .Arguments = """" & fName & """ -csv " & fName & ".csv"""
-                    .FileName = "..\grib2\wgrib2.exe"
-                    .UseShellExecute = False
-                    .CreateNoWindow = True
-                End With
-
-                App.StartInfo = Si
-                App.Start()
-
-                'App.WaitForExit(0)
-                WaitStart = Now
-                While Not System.IO.File.Exists(fName & ".csv")
-                    If Now.Subtract(WaitStart).TotalSeconds > 15 Then
-                        Exit While
-                    End If
+    '        Dim FileOK As Boolean = False
+    '        Dim WLon As Integer = CInt(-Lon - 5) 'revert grib lon for request!!!
+    '        Dim ELon As Integer = WLon + 10
+    '        Dim NLat As Integer = CInt(lat + 5)
+    '        Dim SLat As Integer = NLat - 10
+    '        Dim retries As Integer = 0
+    '        Dim wr As WebResponse = Nothing
+    '        Dim rs As System.IO.Stream
+    '        Dim WaitStart As DateTime = Now
 
 
-                End While
+    '        While Not FileOK
+    '            Dim GribURL As String = GetGribURL(MeteoIndex, WLon, ELon, NLat, SLat, False)
+    '            'Dim Http As HttpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), HttpWebRequest)
+    '            Dim ftp As FtpWebRequest = CType(WebRequest.Create(New Uri(GribURL)), FtpWebRequest)
+    '            Try
 
-                If Not System.IO.File.Exists(fName & ".csv") Then
-                    Return ""
-                End If
+    '                wr = ftp.GetResponse()
+    '                FileOK = True
+    '            Catch ex2 As WebException
+    '                If retries > 2 Then
+    '                    'Meteo is not available for that date (two late??)
+    '                    Return ""
+    '                ElseIf ex2.Message.Contains("404") Then
+    '                    retries += 1
+    '                End If
+    '            Catch ex As Exception
+    '                Dim i As Integer = 0
+    '                Throw
+    '            End Try
+    '        End While
+    '        rs = wr.GetResponseStream()
+    '        Dim Gribdata(1024) As Byte
+    '        Dim readlen As Integer
+    '        Try
+    '            Dim fName As String = "fgrib" & Now.Ticks  'System.IO.Path.GetTempFileName()
+    '            Dim f As New System.IO.FileStream(fName, IO.FileMode.Create)
+    '            Do
+    '                readlen = rs.Read(Gribdata, 0, 1024)
+    '                If readlen > 0 Then
+    '                    f.Write(Gribdata, 0, readlen)
+    '                End If
+    '            Loop Until readlen = 0
 
-                Dim f2 As System.IO.StreamReader = Nothing
+    '            f.Close()
 
-                WaitStart = Now
-                While f2 Is Nothing
-                    Try
-                        f2 = New System.IO.StreamReader(fName & ".csv")
-                        If Now.Subtract(WaitStart).TotalSeconds > 15 Then
-                            Exit While
-                        End If
-                        System.Threading.Thread.Sleep(500)
-                    Catch ex As Exception
-                        System.Threading.Thread.Sleep(100)
-                    End Try
-                End While
+    '            Dim App As New Process
+    '            Dim Si As New System.Diagnostics.ProcessStartInfo
 
-                If f2 Is Nothing Then
-                    Return ""
-                End If
+    '            With Si
+    '                .Arguments = """" & fName & """ -csv " & fName & ".csv"""
+    '                .FileName = "..\grib2\wgrib2.exe"
+    '                .UseShellExecute = False
+    '                .CreateNoWindow = True
+    '            End With
 
-                Dim foutput As New System.IO.StreamWriter(System.IO.Path.Combine(".\GribData", GribDataFileName))
-                foutput.Write(f2.ReadToEnd)
-                foutput.Close()
-                f2.Close()
-                App.Dispose()
-                System.IO.File.Delete(fName & ".csv")
-                System.IO.File.Delete(fName)
+    '            App.StartInfo = Si
+    '            App.Start()
 
-            Catch ex As Exception
-                RaiseEvent log("GetFileStream exception : " & ex.Message)
-            End Try
+    '            'App.WaitForExit(0)
+    '            WaitStart = Now
+    '            While Not System.IO.File.Exists(fName & ".csv")
+    '                If Now.Subtract(WaitStart).TotalSeconds > 15 Then
+    '                    Exit While
+    '                End If
 
 
-        End If
+    '            End While
 
-        Return System.IO.Path.Combine(".\GribData", GribDataFileName)
+    '            If Not System.IO.File.Exists(fName & ".csv") Then
+    '                Return ""
+    '            End If
+
+    '            Dim f2 As System.IO.StreamReader = Nothing
+
+    '            WaitStart = Now
+    '            While f2 Is Nothing
+    '                Try
+    '                    f2 = New System.IO.StreamReader(fName & ".csv")
+    '                    If Now.Subtract(WaitStart).TotalSeconds > 15 Then
+    '                        Exit While
+    '                    End If
+    '                    System.Threading.Thread.Sleep(500)
+    '                Catch ex As Exception
+    '                    System.Threading.Thread.Sleep(100)
+    '                End Try
+    '            End While
+
+    '            If f2 Is Nothing Then
+    '                Return ""
+    '            End If
+
+    '            Dim foutput As New System.IO.StreamWriter(System.IO.Path.Combine(".\GribData", GribDataFileName))
+    '            foutput.Write(f2.ReadToEnd)
+    '            foutput.Close()
+    '            f2.Close()
+    '            App.Dispose()
+    '            System.IO.File.Delete(fName & ".csv")
+    '            System.IO.File.Delete(fName)
+
+    '        Catch ex As Exception
+    '            RaiseEvent log("GetFileStream exception : " & ex.Message)
+    '        End Try
+
+
+    '    End If
+
+    '    Return System.IO.Path.Combine(".\GribData", GribDataFileName)
 
 
 
-    End Function
+    'End Function
 
 
     Private Function GetGribDataFileName(ByVal MeteoIndex As Integer) As String
@@ -823,111 +840,112 @@ Public Class GribManager
         Return RetInfo
     End Function
 
-    Private Function LoadGribDataFromFtp(ByVal MeteoIndex As Integer, ByVal lon As Double, ByVal lat As Double) As Boolean
+    'Private Function LoadGribDataFromFtp(ByVal MeteoIndex As Integer, ByVal lon As Double, ByVal lat As Double) As Boolean
 
-        Dim GribDataFileName As String = GetFileStream(MeteoIndex, lon, lat)
-        If GribDataFileName Is Nothing OrElse GribDataFileName = "" Then
-            Return Nothing
-        End If
+    '    Dim GribDataFileName As String = GetFileStream(MeteoIndex, lon, lat)
+    '    If GribDataFileName Is Nothing OrElse GribDataFileName = "" Then
+    '        Return Nothing
+    '    End If
 
-        Dim fRead As New System.IO.StreamReader(GribDataFileName)
-        Dim CurLon As Double = -1000
-        Dim CurLat As Double = -1000
-        Dim sb As New System.Text.StringBuilder
-        Dim Line As String
-        Dim FileOk As Boolean = True
-        Dim FirstLine As Boolean
+    '    Dim fRead As New System.IO.StreamReader(GribDataFileName)
+    '    Dim CurLon As Double = -1000
+    '    Dim CurLat As Double = -1000
+    '    Dim sb As New System.Text.StringBuilder
+    '    Dim Line As String
+    '    Dim FileOk As Boolean = True
+    '    Dim FirstLine As Boolean
 
-        While FileOk
+    '    While FileOk
 
-            Line = fRead.ReadLine
+    '        Line = fRead.ReadLine
 
-            If Not Line = "" Then
+    '        If Not Line = "" Then
 
-                Dim Fields() As String = Line.Split(","c)
+    '            Dim Fields() As String = Line.Split(","c)
 
-                If FirstLine Then
-                    Dim CurGribDate As DateTime = New DateTime(CInt(Fields(0).Substring(1, 4)), _
-                                                               CInt(Fields(0).Substring(6, 2)), _
-                                                               CInt(Fields(0).Substring(9, 2)), _
-                                                               CInt(Fields(0).Substring(12, 2)), 0, 0)
+    '            If FirstLine Then
+    '                Dim CurGribDate As DateTime = New DateTime(CInt(Fields(0).Substring(1, 4)), _
+    '                                                           CInt(Fields(0).Substring(6, 2)), _
+    '                                                           CInt(Fields(0).Substring(9, 2)), _
+    '                                                           CInt(Fields(0).Substring(12, 2)), 0, 0)
 
-                    Dim DataGribDate As DateTime = New DateTime(CInt(Fields(1).Substring(1, 4)), _
-                                                                           CInt(Fields(1).Substring(6, 2)), _
-                                                                           CInt(Fields(1).Substring(9, 2)), _
-                                                                           CInt(Fields(1).Substring(12, 2)), 0, 0)
+    '                Dim DataGribDate As DateTime = New DateTime(CInt(Fields(1).Substring(1, 4)), _
+    '                                                                       CInt(Fields(1).Substring(6, 2)), _
+    '                                                                       CInt(Fields(1).Substring(9, 2)), _
+    '                                                                       CInt(Fields(1).Substring(12, 2)), 0, 0)
 
-                    If CurGribDate > _LastGribDate Then
+    '                If CurGribDate > _LastGribDate Then
 
-                        For i = 0 To _MeteoArrays.Length - 1
-                            _MeteoArrays(i) = Nothing
-                        Next
+    '                    For i = 0 To _MeteoArrays.Length - 1
+    '                        _MeteoArrays(i) = Nothing
+    '                    Next
 
-                        _LastGribDate = CurGribDate
-                        RaiseEvent log("Cleared meteo for new grib @   " & _LastGribDate.ToString)
-                    End If
-                    FirstLine = True
-                End If
+    '                    _LastGribDate = CurGribDate
+    '                    RaiseEvent log("Cleared meteo for new grib @   " & _LastGribDate.ToString)
+    '                End If
+    '                FirstLine = True
+    '            End If
 
-                'RaiseEvent log("Loaded @   " & DataGribDate.ToString & " lon " & lon & " , Lat " & lat)
+    '            'RaiseEvent log("Loaded @   " & DataGribDate.ToString & " lon " & lon & " , Lat " & lat)
 
-                If _MeteoArrays(MeteoIndex) Is Nothing Then
-                    _MeteoArrays(MeteoIndex) = New MeteoArray(GetIndexGrain(MeteoIndex))
-                End If
-
-
-
-                Dim Value As Double
-                Dim Type As String = Fields(2)
-                Dim GribDate As DateTime
-
-                DateTime.TryParse(Fields(4), GribDate)
-
-                Double.TryParse(Fields(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, CurLon)
-                Double.TryParse(Fields(5), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, CurLat)
-                Double.TryParse(Fields(6), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Value)
-
-                'Grib lon are inverted
-                CurLon = -CurLon
-
-                If Math.Abs(lon - CurLon) < 5 AndAlso Math.Abs(lat - CurLat) < 5 Then
+    '            If _MeteoArrays(MeteoIndex) Is Nothing Then
+    '                _MeteoArrays(MeteoIndex) = New MeteoArray(GetIndexGrain(MeteoIndex))
+    '            End If
 
 
-                    'If _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat)) Is Nothing Then
-                    '    _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat)) = New MeteoInfo
-                    'End If
 
-                    Dim Data As MeteoInfo = _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon, GetIndexGrain(MeteoIndex)), MeteoArray.GetLatArrayIndex(CurLat, GetIndexGrain(MeteoIndex)))
+    '            Dim Value As Double
+    '            Dim Type As String = Fields(2)
+    '            Dim GribDate As DateTime
 
-                    Select Case Type
-                        Case """UGRD"""
-                            Data.UGRD = Value
+    '            DateTime.TryParse(Fields(4), GribDate)
 
-                        Case """VGRD"""
-                            Data.VGRD = Value
+    '            Double.TryParse(Fields(4), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, CurLon)
+    '            Double.TryParse(Fields(5), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, CurLat)
+    '            Double.TryParse(Fields(6), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, Value)
 
-                    End Select
-                End If
+    '            'Grib lon are inverted
+    '            CurLon = -CurLon
 
-            End If
+    '            If Math.Abs(lon - CurLon) < 5 AndAlso Math.Abs(lat - CurLat) < 5 Then
 
-            FileOk = Not fRead.EndOfStream 'AndAlso CurLon <= lon + 5 AndAlso CurLat <= lat + 5
 
-        End While
+    '                'If _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat)) Is Nothing Then
+    '                '    _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon), MeteoArray.GetLatArrayIndex(CurLat)) = New MeteoInfo
+    '                'End If
 
-        Return True
+    '                Dim Data As MeteoInfo = _MeteoArrays(MeteoIndex).Data(MeteoArray.GetLonArrayIndex(CurLon, GetIndexGrain(MeteoIndex)), MeteoArray.GetLatArrayIndex(CurLat, GetIndexGrain(MeteoIndex)))
 
-    End Function
+    '                Select Case Type
+    '                    Case """UGRD"""
+    '                        Data.UGRD = Value
+
+    '                    Case """VGRD"""
+    '                        Data.VGRD = Value
+
+    '                End Select
+    '            End If
+
+    '        End If
+
+    '        FileOk = Not fRead.EndOfStream 'AndAlso CurLon <= lon + 5 AndAlso CurLat <= lat + 5
+
+    '    End While
+
+    '    Return True
+
+    'End Function
+
     Private Function LoadGribData(ByVal MeteoIndex As Integer, ByVal lon As Double, ByVal lat As Double) As Boolean
 
-        Const SquareWidth As Integer = 20
-        Const SquareHeight As Integer = 20
+        Const SquareWidth As Integer = 40
+        'Const SquareHeight As Integer = 40
         lon = CInt(lon / 5) * 5
         lat = CInt(lat / 5) * 5
         Dim WLon As Integer = CInt(lon - SquareWidth / 2) 'revert grib lon for request!!!
         Dim ELon As Integer = WLon + SquareWidth
-        Dim NLat As Integer = CInt(lat + SquareHeight / 2)
-        Dim SLat As Integer = NLat - SquareHeight
+        Dim NLat As Integer = 90 'CInt(lat + SquareHeight / 2)
+        Dim SLat As Integer = -90 'NLat - SquareHeight
         Dim retries As Integer = 0
         Dim FileOK As Boolean = False
         Dim wr As WebResponse = Nothing
@@ -989,8 +1007,10 @@ Public Class GribManager
                 If readlen > 0 Then
                     f.Write(Gribdata, 0, readlen)
                 End If
-                sz += 1
+                sz += readlen
             Loop Until readlen = 0
+
+            sz = CInt(sz / 1024)
 
             f.Close()
             Console.WriteLine(Now.Subtract(start).ToString & "to loaded " & GribURL & " " & sz & "kB in ")
@@ -1148,11 +1168,59 @@ Public Class GribManager
 
     End Function
 
+    Private Sub MeteoLoaderThread()
+
+        Dim LoadInfo As MeteoLoadRequest = Nothing
+        Dim NeedLoad As Boolean = False
+
+        While Not _ShutDown
+
+            SyncLock _MeteoLoadQueue
+                NeedLoad = False
+                While _MeteoLoadQueue.Count > 0
+                    If _MeteoLoadQueue.Count Mod 100000 = 0 Then
+                        Console.WriteLine("Queue -- " & _MeteoLoadQueue.Count)
+                    End If
+                    LoadInfo = _MeteoLoadQueue.Dequeue
+                    If _MeteoArrays(LoadInfo.MeteoIndex) Is Nothing OrElse _MeteoArrays(LoadInfo.MeteoIndex).Data(LoadInfo.LonIndex, LoadInfo.LatIndex) Is Nothing _
+                        OrElse Not _MeteoArrays(LoadInfo.MeteoIndex).Data(LoadInfo.LonIndex, LoadInfo.LatIndex).DataOK OrElse
+                        _MeteoArrays(LoadInfo.MeteoIndex).Data(LoadInfo.LonIndex, LoadInfo.LatIndex).GribDate < GetCurGribDate(Now) Then
+                        NeedLoad = True
+                        Exit While
+                    Else
+                        'Data has been loaded, release the waiting one
+                        If LoadInfo.SyncEvt IsNot Nothing Then
+                            LoadInfo.SyncEvt.Set()
+                        End If
+                        End If
+                End While
+            End SyncLock
+
+            If LoadInfo IsNot Nothing AndAlso NeedLoad Then
+                '        retval = LoadGribData(MeteoIndex, ), )
+
+                If LoadGribData(LoadInfo.MeteoIndex, MeteoArray.GetArrayIndexLon(LoadInfo.LonIndex, GetIndexGrain(LoadInfo.MeteoIndex)), MeteoArray.GetArrayIndexLat(LoadInfo.LatIndex, GetIndexGrain(LoadInfo.MeteoIndex))) Then
+                    If LoadInfo.SyncEvt IsNot Nothing Then
+                        LoadInfo.SyncEvt.Set()
+                    End If
+                Else
+                    SyncLock _MeteoLoadQueue
+                        _MeteoLoadQueue.Enqueue(LoadInfo)
+                    End SyncLock
+                End If
+            ElseIf _MeteoLoadQueue.Count = 0 Then
+                Thread.Sleep(100)
+            End If
+        End While
+
+        Dim i As Integer = 0
+    End Sub
+
     Shared Sub New()
 
         'Init grib thread mgt spinlocks
         For i = 0 To NB_MAX_GRIBS - 1
-            _GribLock(i) = New SpinLock
+            '_GribLock(i) = New SpinLock
             _Evt(i) = New AutoResetEvent(False)
         Next
 
@@ -1172,6 +1240,10 @@ Public Class GribManager
 
         Dim CurGrib As DateTime = GetCurGribDate(Now)
         _LastGribDate = New DateTime(0)
+
+        _MeteoLoader = New Thread(AddressOf MeteoLoaderThread)
+        _MeteoLoader.Priority = ThreadPriority.AboveNormal
+        _MeteoLoader.Start()
 
     End Sub
 
@@ -1227,26 +1299,26 @@ Public Class GribManager
         Dim i As Integer = 0
     End Sub
 
-    Private Function SpinLockEnter(MeteoIndex As Integer, NoLock As Boolean) As Boolean
+    'Private Function SpinLockEnter(MeteoIndex As Integer, NoLock As Boolean) As Boolean
 
-        Dim GotLock As Boolean
+    '    Dim GotLock As Boolean
 
-        Do
+    '    Do
 
-        _GribLock(MeteoIndex).Enter(GotLock)
-            If Not GotLock AndAlso NoLock Then
-                Return False
-            ElseIf Not GotLock Then
-                'System.Threading.Thread.Sleep(CInt(METEO_SLEEP_DELAY * Rnd()))
-            End If
+    '        _GribLock(MeteoIndex).Enter(GotLock)
+    '        If Not GotLock AndAlso NoLock Then
+    '            Return False
+    '        ElseIf Not GotLock Then
+    '            'System.Threading.Thread.Sleep(CInt(METEO_SLEEP_DELAY * Rnd()))
+    '        End If
 
-        Loop Until GotLock
+    '    Loop Until GotLock
 
-        Return True
-    End Function
+    '    Return True
+    'End Function
 
-    Private Sub SpinLockExit(MeteoIndex As Integer)
-        _GribLock(MeteoIndex).Exit()
-    End Sub
+    'Private Sub SpinLockExit(MeteoIndex As Integer)
+    '    _GribLock(MeteoIndex).Exit()
+    'End Sub
 
 End Class
