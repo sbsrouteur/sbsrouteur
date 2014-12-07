@@ -48,7 +48,7 @@ Public Class RecordedRoute
     Private WithEvents _Route As ObservableCollection(Of RoutePointView)
     Private _Path As New LinkedList(Of Coords)
     Private _Visible As Boolean = True
-    Private _Color As Color = Color.FromRgb(CByte(Rnd() * 128 + 100), CByte(Rnd() * 128 + 100), CByte(Rnd() * 128 + 100))
+    Private _Color As Color = Color.FromRgb(CByte(Rnd() * 128), CByte(Rnd() * 128), CByte(Rnd() * 128))
     Private Shared _M As RouteurModel
 
 
