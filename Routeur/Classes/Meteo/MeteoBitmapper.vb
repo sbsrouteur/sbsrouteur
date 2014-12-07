@@ -223,7 +223,7 @@ Public Class MeteoBitmapper
 
                 If _StopRender Then Return
                 Dim StartMeteo As DateTime = Now
-                Dim mi As MeteoInfo = _meteo.GetMeteoToDate(New Coords(_Viewer.CanvasToLat(Y), _Viewer.CanvasToLon(X)), Me.Date.AddMinutes(5 * MeteoIndex), True)
+                Dim mi As MeteoInfo = _meteo.GetMeteoToDate(New Coords(_Viewer.CanvasToLat(Y), _Viewer.CanvasToLon(X)), Me.Date.AddMinutes(5 * MeteoIndex), False)
                 If _MeteoCache(MeteoIndex)(Ix + NbX * Iy) Is Nothing Then
                     _MeteoCache(MeteoIndex)(Ix + NbX * Iy) = New MeteoData
                 End If
@@ -382,7 +382,7 @@ Public Class MeteoBitmapper
             ReDim _ImgData(CInt(Math.Ceiling(_Viewer.ActualWidth)) * CInt(Math.Ceiling(_Viewer.ActualHeight)) - 1)
             '_Img.CopyPixels(R, _ImgData, 4 * CInt(_Viewer.ActualWidth), 0)
             _RenderThread = New Thread(AddressOf ImGRenderThread)
-
+            _RenderThread.Priority = ThreadPriority.BelowNormal
             _StopRender = False
             _RenderThread.Start()
         Catch

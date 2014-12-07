@@ -401,9 +401,9 @@ Public Class IsoRouter
                     Dim WaitStart As DateTime = Now
                     While MI Is Nothing And Not _CancelRequested
                         MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, False)
-                        'If MI Is Nothing Then
-                        'System.Threading.Thread.Sleep(GribManager.METEO_SLEEP_DELAY)
-                        'End If
+                        If MI Is Nothing Then
+                            System.Threading.Thread.Sleep(GribManager.METEO_SLEEP_DELAY)
+                        End If
                     End While
                     CumWait += Now.Subtract(WaitStart).Ticks
                     LoopCount += 1

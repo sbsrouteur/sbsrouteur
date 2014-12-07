@@ -1749,12 +1749,12 @@ Public Class VLM_Router
                     'Round current time to last vac update
                     Dim RefDate As DateTime = Now
                     LastRequest = New DateTime(RefDate.Ticks - RefDate.Ticks Mod (_PlayerInfo.RaceInfo.vacfreq * 60))
+                    _Track = db.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat)
                 End If
             Catch ex As Exception
                 AddLog("Get Trackproperty exception : " & ex.ToString)
             End Try
 
-            _Track = db.GetTrack(CInt(_PlayerInfo.RaceInfo.idraces), _PlayerInfo.NumBoat)
 
             If _Track.Count = 0 Then
                 'No track, race has not started or boat is just engaged

@@ -148,6 +148,7 @@
     <Compile Include="Classes\Converters\RaceTypeToString.vb" />
     <Compile Include="Classes\Cron\Cron.vb" />
     <Compile Include="Classes\Cron\CronTask.vb" />
+    <Compile Include="Classes\GribMeteo\MeteoLoadRequest.vb" />
     <Compile Include="Classes\GridRouter\GridProgressContext.vb" />
     <Compile Include="Classes\GSHHS\GSHHS_Utils.vb" />
     <Compile Include="Classes\Meteo\MeteoBitmapper.vb" />
