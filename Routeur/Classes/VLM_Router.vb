@@ -1723,7 +1723,16 @@ Public Class VLM_Router
 
     Public ReadOnly Property Track() As LinkedList(Of Coords)
         Get
-            
+
+            Static LastGetTrack As DateTime
+
+            'Limit track requests to 1/minute
+            If Now.Subtract(LastGetTrack).TotalSeconds < 60 Then
+                Return _Track
+            Else
+                LastGetTrack = Now
+            End If
+
             If _PlayerInfo Is Nothing Then
                 Return Nothing
             End If
@@ -1756,7 +1765,10 @@ Public Class VLM_Router
             End Try
 
 
-            If _Track.Count = 0 Then
+            If _Track Is Nothing OrElse _Track.Count = 0 Then
+                If _Track Is Nothing Then
+                    _Track = New LinkedList(Of Coords)()
+                End If
                 'No track, race has not started or boat is just engaged
                 _Track.AddLast(New Coords(_UserInfo.LAT, _UserInfo.LON))
             End If
