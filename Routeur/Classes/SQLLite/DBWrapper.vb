@@ -35,14 +35,16 @@ Public Class DBWrapper
         Dim BaseFile As String = System.IO.Path.Combine(RouteurModel.BaseFileDir, DBName)
         _DBPath = "Data Source = """ & BaseFile & """ ; Version = 3; ConnectionPooling=100"
 
-        If Not File.Exists(BaseFile) Then
-            If Not File.Exists(System.IO.Path.Combine(RouteurModel.BaseFileDir, OldDbName)) Then
-                CreateDB(BaseFile)
-            ElseIf File.Exists(Path.Combine(RouteurModel.BaseFileDir, OldDbName)) Then
-                File.Move(Path.Combine(RouteurModel.BaseFileDir, OldDbName), BaseFile)
+        If Not _InitOK Then
+            If Not File.Exists(BaseFile) Then
+                If Not File.Exists(System.IO.Path.Combine(RouteurModel.BaseFileDir, OldDbName)) Then
+                    CreateDB(BaseFile)
+                ElseIf File.Exists(Path.Combine(RouteurModel.BaseFileDir, OldDbName)) Then
+                    File.Move(Path.Combine(RouteurModel.BaseFileDir, OldDbName), BaseFile)
+                End If
             End If
+            CheckDBVersionAndUpdate()
         End If
-        CheckDBVersionAndUpdate()
 
     End Sub
 
@@ -240,6 +242,7 @@ RestartPoint:
                         If Reader.HasRows Then
 
                             HitCountNZ += 1
+
                             While Reader.Read
                                 Dim seg_lon1 As Double = CDbl(Reader("lon1"))
                                 Dim seg_lon2 As Double = CDbl(Reader("lon2"))
@@ -248,7 +251,9 @@ RestartPoint:
 
                                 RetList.Add(New MapSegment With {.Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
                                 TotalHitCount += 1
+
                             End While
+
 
                         End If
                         HitCount += 1
