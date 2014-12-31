@@ -514,8 +514,9 @@ Public Class IsoRouter
             Return RetPoint
         Finally
             CumDuration += Now.Subtract(DebugTimingStartTick).Ticks
-            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPointMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
-            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPointMeteoWaitMS) = CumWait / HitCount / TimeSpan.TicksPerMillisecond
+            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtAvgMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
+            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtCumMS) = CumDuration / TimeSpan.TicksPerMillisecond
+            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtMetWaitMS) = CumWait / HitCount / TimeSpan.TicksPerMillisecond
             Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPointAvgLoopCount) = LoopCount / HitCount
             HitCount += 1
         End Try

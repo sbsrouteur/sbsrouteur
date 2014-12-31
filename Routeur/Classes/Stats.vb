@@ -28,6 +28,7 @@ Public Class Stats
     Public Enum StatID As Integer
         BSPCellCount
         BSPCellAvgDepth
+        BSP_GetSegCumMS
         BSP_GetSegAvgMS
         BSP_GetSegHitRatio
         HitTestBspAvgMS
@@ -49,8 +50,9 @@ Public Class Stats
         RIndex_AvgHitCount
         RIndex_AvgHitCountNonZero
         RIndex_ExceptionRatio
-        ISO_ReachPointMS
-        ISO_ReachPointMeteoWaitMS
+        ISO_ReachPtAvgMS
+        ISO_ReachPtCumMS
+        ISO_ReachPtMetWaitMS
         ISO_ReachPointAvgLoopCount
     End Enum
 
@@ -72,21 +74,20 @@ Public Class Stats
 
     Public Shared WriteOnly Property SetStatValue(ByVal Prop As StatID) As Double
         Set(ByVal value As Double)
-            Return
-            'Dim Item As StatInfo
-            'SyncLock _Stats
-            '    If _Stats.ContainsKey(Prop) Then
-            '        Item = _Stats(Prop)
-            '        If Item.Value <> value Then
-            '            Item.Value = value
-            '            _Changed = True
-            '        End If
-            '    Else
-            '        Item = New StatInfo With {.Name = Prop.ToString, .Value = value}
-            '        _Changed = True
-            '        _Stats.Add(Prop, Item)
-            '    End If
-            'End SyncLock
+            Dim Item As StatInfo
+            SyncLock _Stats
+                If _Stats.ContainsKey(Prop) Then
+                    Item = _Stats(Prop)
+                    If Item.Value <> value Then
+                        Item.Value = value
+                        _Changed = True
+                    End If
+                Else
+                    Item = New StatInfo With {.Name = Prop.ToString, .Value = value}
+                    _Changed = True
+                    _Stats.Add(Prop, Item)
+                End If
+            End SyncLock
         End Set
     End Property
 

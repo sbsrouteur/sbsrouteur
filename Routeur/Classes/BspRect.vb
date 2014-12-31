@@ -139,6 +139,7 @@ Public Class BspRect
                 CumDuration += Now.Subtract(start).Ticks
 
                 Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegAvgMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
+                Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegCumMS) = CumDuration / TimeSpan.TicksPerMillisecond
                 Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegHitRatio) = CacheHitCount / HitCount * 100
                 HitCount += 1
             End Try
