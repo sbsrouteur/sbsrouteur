@@ -304,6 +304,11 @@ Public Class GribManager
         Dim HourOffset As Double
         Dim RequestDate As DateTime = CurGrib
 
+        WestLon = Math.Max(WestLon, -180)
+        EastLon = Math.Min(EastLon, 180)
+        SouthLat = Math.Max(SouthLat, -90)
+        NorthLat = Math.Min(NorthLat, 90)
+
         If UseHttp Then
             Dim ReturnUrl As String
             If MeteoIndex < MAX_INDEX_05 Then
@@ -939,13 +944,13 @@ Public Class GribManager
     Private Function LoadGribData(ByVal MeteoIndex As Integer, ByVal lon As Double, ByVal lat As Double) As Boolean
 
         Const SquareWidth As Integer = 40
-        'Const SquareHeight As Integer = 40
+        Const SquareHeight As Integer = 40
         lon = CInt(lon / 5) * 5
         lat = CInt(lat / 5) * 5
         Dim WLon As Integer = CInt(lon - SquareWidth / 2) 'revert grib lon for request!!!
         Dim ELon As Integer = WLon + SquareWidth
-        Dim NLat As Integer = 90 'CInt(lat + SquareHeight / 2)
-        Dim SLat As Integer = -90 'NLat - SquareHeight
+        Dim NLat As Integer = CInt(lat + SquareHeight / 2)
+        Dim SLat As Integer = NLat - SquareHeight
         Dim retries As Integer = 0
         Dim FileOK As Boolean = False
         Dim wr As WebResponse = Nothing
