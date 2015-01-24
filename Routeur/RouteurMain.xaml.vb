@@ -553,7 +553,10 @@ Partial Public Class RouteurMain
 
     Private Sub RouteurMain_Closing(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles Me.Closing
 
-        
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+
+        M.VorHandler.ShutDown()
+
     End Sub
 
 

@@ -150,17 +150,22 @@ Public Class BspRect
     Public ReadOnly Property GetSegments(C1 As Coords, C2 As Coords, db As DBWrapper) As List(Of MapSegment)
         Get
 
-            Dim TmpSeg As New List(Of MapSegment)
+            Dim TmpSeg As New Dictionary(Of Long, MapSegment)
 
             Dim CellList As List(Of Coords) = BuildBspCellLine(C1, C2)
             For Each Center As Coords In CellList
                 Dim l = GetSegments(Center, db)
                 If l IsNot Nothing Then
-                    TmpSeg.AddRange(l)
+                    For Each seg In l
+                        If Not TmpSeg.ContainsKey(seg.Id) Then
+                            TmpSeg.Add(seg.Id, seg)
+                        End If
+                    Next
+
                 End If
             Next
 
-            Return TmpSeg
+            Return TmpSeg.Values.ToList
 
         End Get
     End Property
