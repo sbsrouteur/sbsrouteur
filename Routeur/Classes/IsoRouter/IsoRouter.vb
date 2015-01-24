@@ -221,7 +221,8 @@ Public Class IsoRouter
                                          tc.EndPoint = Nothing
                                      End If
 
-                                     If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= MaxEllipsisDist AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
+                                     'If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= MaxEllipsisDist AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
+                                     If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= MaxEllipsisDist Then
 
                                          P.DistFromPos = CurDist
 
@@ -420,7 +421,7 @@ Public Class IsoRouter
 
                     Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
                     TotalDist += Speed / 60 * RouteurModel.VacationMinutes
-                    TC.StartPoint = TC.ReachDistanceortho(Speed / 60 * RouteurModel.VacationMinutes, Cap)
+                    TC.StartPoint = TC.ReachDistanceLoxo(Speed / 60 * RouteurModel.VacationMinutes, Cap)
                     CurDate = StartTicks.AddTicks(i)
                     '    LoopCount += 1
                     'TC.StartPoint = TC.EndPoint
@@ -433,12 +434,15 @@ Public Class IsoRouter
             Else
                 CurDate = Start.T
                 MI = Nothing
+                Dim WaitStart As DateTime = Now
                 While MI Is Nothing And Not _CancelRequested
-                    MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, True)
+                    MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, False)
                     If MI Is Nothing Then
-                        System.Threading.Thread.Sleep(50)
+                        System.Threading.Thread.Sleep(GribManager.METEO_SLEEP_DELAY)
                     End If
                 End While
+                CumWait += Now.Subtract(WaitStart).Ticks
+                LoopCount += 1
                 If _CancelRequested Then
                     Return Nothing
                 End If
@@ -453,7 +457,7 @@ Public Class IsoRouter
 
                 Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
                 TotalDist = Speed * Duration.TotalHours
-                TC.StartPoint = TC.ReachDistanceortho(TotalDist, Cap)
+                TC.StartPoint = TC.ReachDistanceLoxo(TotalDist, Cap)
                 CurDate = CurDate.Add(Duration)
 
             End If
@@ -517,7 +521,7 @@ Public Class IsoRouter
             Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtAvgMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
             Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtCumMS) = CumDuration / TimeSpan.TicksPerMillisecond
             Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtMetWaitMS) = CumWait / HitCount / TimeSpan.TicksPerMillisecond
-            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPointAvgLoopCount) = LoopCount / HitCount
+            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtAvgLpCnt) = LoopCount / HitCount
             HitCount += 1
         End Try
 

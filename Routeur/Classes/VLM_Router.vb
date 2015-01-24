@@ -3316,6 +3316,10 @@ Public Class VLM_Router
         End If
     End Sub
 
+    Sub ShutDown()
+        _Meteo.Shutdown()
+    End Sub
+
 
    
 

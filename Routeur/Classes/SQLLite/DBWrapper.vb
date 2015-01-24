@@ -213,7 +213,6 @@ Public Class DBWrapper
         Try
 
 
-            Dim M As New MapSegment(lon1, lat1, lon2, lat2)
             Dim RestartOnLockException As Boolean = False
 
 RestartPoint:
@@ -230,7 +229,7 @@ RestartPoint:
                         Dim MinLat As String = Math.Min(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
                         Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
 
-                        Cmd.CommandText = "Select * from mapssegments inner join ( " &
+                        Cmd.CommandText = "Select IdSegment,lon1,lat1,lon2,lat2 from mapssegments inner join ( " &
                                             " select id from MapLevel_Idx" & MapLevel & " where " &
                                             " (MaxX  >= " & MinLon & " and MinX <=" & MaxLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") " &
                                             ") As T on IdSegment = id"
@@ -248,8 +247,8 @@ RestartPoint:
                                 Dim seg_lon2 As Double = CDbl(Reader("lon2"))
                                 Dim seg_lat1 As Double = CDbl(Reader("lat1"))
                                 Dim seg_lat2 As Double = CDbl(Reader("lat2"))
-
-                                RetList.Add(New MapSegment With {.Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+                                Dim IdSeg As Long = CLng(Reader("IdSegment"))
+                                RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
                                 TotalHitCount += 1
 
                             End While
@@ -305,27 +304,36 @@ RestartPoint:
 
     Public Function IntersectMapSegment(coords As Coords, coords1 As Coords, bspRect As BspRect) As Boolean
 
+        Dim StartTick As DateTime = Now
+        Static CumTime As Long = 0
+        Static HitCount As Long = 0
+        Try
+            HitCount += 1
+            Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me)
 
-        Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me)
+            If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
+                Return False
+            End If
 
-        If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
+            'Debug.WriteLine(coords.ToString & ";" & coords1.ToString)
+            If SegList IsNot Nothing Then
+                For Each Seg As MapSegment In SegList
+                    If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
+                        Return True
+                    End If
+
+                    'Debug.WriteLine(";;" & Seg.Lat1 & ";" & Seg.Lon1 & ";" & Seg.Lat2 & ";" & Seg.Lon2)
+
+                Next
+            End If
+
+
             Return False
-        End If
+        Finally
+            CumTime = CLng(CumTime + Now.Subtract(StartTick).TotalMilliseconds)
+            Routeur.Stats.SetStatValue(Stats.StatID.DB_IntersectMapSegAvgMs) = CumTime / HitCount
+        End Try
 
-        'Debug.WriteLine(coords.ToString & ";" & coords1.ToString)
-        If SegList IsNot Nothing Then
-            For Each Seg As MapSegment In SegList
-                If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
-                    Return True
-                End If
-
-                'Debug.WriteLine(";;" & Seg.Lat1 & ";" & Seg.Lon1 & ";" & Seg.Lat2 & ";" & Seg.Lon2)
-
-            Next
-        End If
-
-
-        Return False
 
 
     End Function

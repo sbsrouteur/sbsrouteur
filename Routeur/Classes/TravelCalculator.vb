@@ -244,7 +244,7 @@ Public Class TravelCalculator
             q = (Lat - Lat1) / dPhi
         End If
         dlon = -d * Sin(tc) / q
-        lon = ((Lon1 + dlon + PI) Mod 2 * PI) - PI
+        lon = -(((Lon1 + dlon + PI) Mod 2 * PI) - PI)
 
         Return New Coords(CType(Lat, Decimal), CType(lon, Decimal), True)
 

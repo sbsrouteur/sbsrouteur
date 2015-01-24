@@ -349,7 +349,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
                         <ColumnDefinition Width="171.61"/>
                         <ColumnDefinition/>
                         <ColumnDefinition Width="2*" MinWidth="136.239"/>
-                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="1*" MinWidth="200"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" MinHeight="24.572"/>

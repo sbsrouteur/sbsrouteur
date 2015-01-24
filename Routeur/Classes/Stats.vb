@@ -53,7 +53,8 @@ Public Class Stats
         ISO_ReachPtAvgMS
         ISO_ReachPtCumMS
         ISO_ReachPtMetWaitMS
-        ISO_ReachPointAvgLoopCount
+        ISO_ReachPtAvgLpCnt
+        DB_IntersectMapSegAvgMs
     End Enum
 
     Public Shared ReadOnly Property Stats() As ObservableCollection(Of StatInfo)

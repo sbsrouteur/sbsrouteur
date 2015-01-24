@@ -36,7 +36,7 @@ Public Class GribManager
 
     Public Const GRIB_MAX_DAY As Integer = 16
 
-    Private Const MAX_GRIB_05 As Integer = 180
+    Private Const MAX_GRIB_05 As Integer = 384
     Private Const MAX_GRIB_1 As Integer = 384
     Private Const GRIB_OFFSET As Integer = -3
     Private Const GRIB_GRAIN_05 As Integer = 3
@@ -53,23 +53,23 @@ Public Class GribManager
     'Private Shared _GribMonitor(NB_MAX_GRIBS - 1) As Object
     'Private Shared _GribLock(NB_MAX_GRIBS - 1) As SpinLock
 
-    Private _MeteoArrays(MAX_INDEX) As MeteoArray
-    Private _LastGribDate As DateTime
-    Public Event log(ByVal Msg As String)
+    Private Shared _MeteoArrays(MAX_INDEX) As MeteoArray
+    Private Shared _LastGribDate As DateTime
+    Public Shared Event log(ByVal Msg As String)
 
     Private Const CORRECTION_LENGTH As Integer = 12
     Private _AnglePointer As Integer = 0
     Private _WindPointer As Integer = 0
     Private WithEvents p As Process
-    Private _Process(NB_MAX_GRIBS - 1) As System.Diagnostics.Process
+    Private Shared _Process(NB_MAX_GRIBS - 1) As System.Diagnostics.Process
     Private Shared _Evt(NB_MAX_GRIBS - 1) As AutoResetEvent
 
     Private _GetMeteoToDateTicks As Long
     Private _GetMeteoToDateCount As Long
 
-    Private _MeteoLoader As Thread
-    Private _ShutDown As Boolean = False
-    Private _MeteoLoadQueue As New Queue(Of MeteoLoadRequest)
+    Private Shared _MeteoLoader As Thread
+    Private Shared _ShutDown As Boolean = False
+    Private Shared _MeteoLoadQueue As New Queue(Of MeteoLoadRequest)
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -298,7 +298,7 @@ Public Class GribManager
 
     End Function
 
-    Private Function GetGribURL(ByVal MeteoIndex As Integer, ByVal WestLon As Integer, ByVal EastLon As Integer, ByVal NorthLat As Integer, ByVal SouthLat As Integer, ByVal UseHttp As Boolean) As String
+    Private Shared Function GetGribURL(ByVal MeteoIndex As Integer, ByVal WestLon As Integer, ByVal EastLon As Integer, ByVal NorthLat As Integer, ByVal SouthLat As Integer, ByVal UseHttp As Boolean) As String
         Dim CurGrib As DateTime = GetCurGribDate(Now)
 
         Dim HourOffset As Double
@@ -313,9 +313,9 @@ Public Class GribManager
             Dim ReturnUrl As String
             If MeteoIndex < MAX_INDEX_05 Then
                 HourOffset = MeteoIndex * GRIB_GRAIN_05
-                ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_hd.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
-                        "z.mastergrb2f" & (HourOffset).ToString("00") & "&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
-                        & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH") & "%2Fmaster"
+                ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
+                        "z.pgrb2full.0p50.f" & (HourOffset).ToString("000") & "&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
+                        & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH")
             Else
                 HourOffset = 192 + GRIB_GRAIN_1 * (MeteoIndex - MAX_INDEX_05)
                 ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
@@ -941,7 +941,7 @@ Public Class GribManager
 
     'End Function
 
-    Private Function LoadGribData(ByVal MeteoIndex As Integer, ByVal lon As Double, ByVal lat As Double) As Boolean
+    Private Shared Function LoadGribData(ByVal MeteoIndex As Integer, ByVal lon As Double, ByVal lat As Double) As Boolean
 
         Const SquareWidth As Integer = 40
         Const SquareHeight As Integer = 40
@@ -1173,7 +1173,7 @@ Public Class GribManager
 
     End Function
 
-    Private Sub MeteoLoaderThread()
+    Private Shared Sub MeteoLoaderThread()
 
         Dim LoadInfo As MeteoLoadRequest = Nothing
         Dim NeedLoad As Boolean = False
@@ -1197,7 +1197,7 @@ Public Class GribManager
                         If LoadInfo.SyncEvt IsNot Nothing Then
                             LoadInfo.SyncEvt.Set()
                         End If
-                        End If
+                    End If
                 End While
             End SyncLock
 
@@ -1218,7 +1218,7 @@ Public Class GribManager
             End If
         End While
 
-        Dim i As Integer = 0
+
     End Sub
 
     Shared Sub New()
@@ -1237,12 +1237,6 @@ Public Class GribManager
                 'swallow exceptions
             End Try
         Next
-
-    End Sub
-
-    Public Sub New()
-
-
         Dim CurGrib As DateTime = GetCurGribDate(Now)
         _LastGribDate = New DateTime(0)
 
@@ -1251,6 +1245,7 @@ Public Class GribManager
         _MeteoLoader.Start()
 
     End Sub
+
 
     Private Function get_ArrayAvg(ByVal Items As Double()) As Double
         Dim Sum As Double = 0
@@ -1289,7 +1284,7 @@ Public Class GribManager
     End Sub
 
 
-    Private Sub _Process_Exited(ByVal sender As Object, ByVal e As System.EventArgs)
+    Private Shared Sub _Process_Exited(ByVal sender As Object, ByVal e As System.EventArgs)
 
         For i As Integer = 0 To NB_MAX_GRIBS
             If sender Is _Process(i) Then
@@ -1325,5 +1320,10 @@ Public Class GribManager
     'Private Sub SpinLockExit(MeteoIndex As Integer)
     '    _GribLock(MeteoIndex).Exit()
     'End Sub
+
+    Sub Shutdown()
+        _ShutDown = True
+    End Sub
+
 
 End Class

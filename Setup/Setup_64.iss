@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "sbsRouteur"
-#define MyAppVersion "0.34"
+#define MyAppVersion "0.35"
 #define MyAppPublisher "sbsRouteur"
 #define MyAppURL "http://code.google.com/p/sbsrouteur/"
 #define MyAppExeName "Routeur.exe"
@@ -28,6 +28,7 @@ Compression=lzma/Max
 SolidCompression=true
 ArchitecturesInstallIn64BitMode=x64
 UninstallDisplayIcon={pf}\sbs\Routeur\Routeur\Routeur.exe
+AppVerName={#MyAppVersion}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -49,13 +50,12 @@ Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Grib2\wgrib2.exe;
 Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_c.b; DestDir: {pf}\sbs\Routeur\Gshhs; 
 Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_i.b; DestDir: {pf}\sbs\Routeur\Gshhs; 
 Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\gshhs\gshhs_l.b; DestDir: {pf}\sbs\Routeur\Gshhs; 
-Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug_64\WriteableBitmapEx.Wpf.dll; DestDir: {pf}\sbs\Routeur\Routeur; 
 Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug\WriteableBitmapEx.Wpf.dll; DestDir: {pf}\sbs\Routeur\Routeur;
 
 ;SQLite 
-Source: "C:\Program Files (x86)\System.Data.SQLite\2010\bin\System.Data.SQLite.dll"; DestDir: {pf}\sbs\Routeur\Routeur; 
-Source: "C:\Program Files\System.Data.SQLite\2010\bin\SQLite.Interop.dll"; DestDir: {pf}\sbs\Routeur\Routeur\x64; 
-Source: "C:\Program Files (x86)\System.Data.SQLite\2010\bin\SQLite.Interop.dll"; DestDir: {pf}\sbs\Routeur\Routeur\x86; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug\System.Data.SQLite.dll; DestDir: {pf}\sbs\Routeur\Routeur; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug\x64\SQLite.Interop.dll; DestDir: {pf}\sbs\Routeur\Routeur\x64; 
+Source: C:\Projets\01_Perso\HG_Routeur-google_code\Routeur\bin\Debug\x86\SQLite.Interop.dll; DestDir: {pf}\sbs\Routeur\Routeur\x86; 
 
 
 ;VC 2010 Redists

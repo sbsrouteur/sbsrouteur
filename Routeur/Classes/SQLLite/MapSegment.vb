@@ -30,6 +30,7 @@ Public Class MapSegment
         _Lat2 = lat2
     End Sub
 
+    Public Property Id As Long
     Public Property Lon1 As Double
     Public Property Lon2 As Double
     Public Property Lat1 As Double
