@@ -107,6 +107,8 @@ Public Class IsoChrone
         Dim Start As DateTime = Now
         Dim StartCount As Integer = WorkSet.Count
         Dim EndCount As Integer
+        Dim PointIndex As Integer = 0
+
 
 #If DBG_ISO_POINT_SET Then
         For Each P In WorkSet
@@ -176,14 +178,19 @@ Public Class IsoChrone
                 _NextPointSet.Clear()
                 Dim Index As Integer = 0
                 Dim MaxDists(MAX_ISO_POINT - 1) As Double
-
                 'Using sr As New IO.StreamWriter("c:\temp\dists.csv")
                 For Each Point In WorkSet
                     'Dists(Index) = Point.DistFromPos
                     'Angles(Index) = Point.CapFromPos
                     'Find why some time
                     If Not Double.IsNaN(Point.CapFromPos) Then
-                        MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT) = Math.Max(Point.DistFromPos, MaxDists(CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT))
+                        ' FIX ME : is this ok for any other value of max_iso_point other than 360?
+                        PointIndex = CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT
+                        MaxDists(PointIndex) = Math.Max(Point.DistFromPos, MaxDists(PointIndex))
+                        Dim PrevIsoPointIndex = ParentIso.IndexFromAngle(Point.CapFromPos)
+                        If ParentIso.PointSet(PrevIsoPointIndex) IsNot Nothing Then
+                            MaxDists(PointIndex) = Math.Max(ParentIso.PointSet(PrevIsoPointIndex).DistFromPos, MaxDists(PointIndex))
+                        End If
                     End If
                     Index += 1
 
@@ -229,7 +236,6 @@ Public Class IsoChrone
             _PointSet = WorkSet
         End If
         'Create IndexLut for IsoChrone
-        Dim PointIndex As Integer = 0
         _Iso_IndexLut(0) = 0
         For Each Point In _PointSet
 
@@ -260,30 +266,61 @@ Public Class IsoChrone
 
     Function IndexFromAngle(Loxo As Double) As Integer
 
-        Dim StartIndex As Integer = _Iso_IndexLut(CInt(Loxo / 10))
-
-        If StartIndex = -1 Then
-            StartIndex = 0
+        If Loxo < 0 Then
+            Loxo = (Loxo + 3600) Mod 360
         End If
 
-        Dim PointIndex As Integer
-        Dim AngleError As Double = Double.MaxValue
-        Try
+        Return IndexFromAngleDycho(Loxo, 0, _PointSet.Count - 1)
 
-            For PointIndex = StartIndex To _PointSet.Count - 1
-                Dim LocalError As Double = Math.Abs(Loxo - _PointSet(PointIndex).CapFromPos)
-                If LocalError <= AngleError Then
-                    AngleError = LocalError
-                Else
-                    Return PointIndex - 1
-                End If
-            Next
+        'Dim StartIndex As Integer = _Iso_IndexLut(CInt(Loxo / 10)) - 1
 
-            Return _PointSet.Count - 1
-        Finally
+        ''If StartIndex < 0 Then
+        'StartIndex = 0
+        ''End If
 
-        End Try
+        'Dim PointIndex As Integer
+        'Dim AngleError As Double = Double.MaxValue
+        'Try
 
+        '    For PointIndex = StartIndex To _PointSet.Count - 1
+        '        Dim LocalError As Double = Math.Abs(Loxo - _PointSet(PointIndex).CapFromPos)
+        '        If LocalError <= AngleError Then
+        '            AngleError = LocalError
+        '        Else
+        '            Return PointIndex - 1
+        '        End If
+        '    Next
+
+        '    Return _PointSet.Count - 1
+        'Finally
+
+        'End Try
+
+    End Function
+
+    Private Function IndexFromAngleDycho(Loxo As Double, p2 As Integer, p3 As Integer) As Integer
+
+        If _PointSet.Count = 0 Then
+            Return 0
+        ElseIf (p3 - p2) = 0 Then
+            Return p3
+        ElseIf (p3 - p2) = 1 Then
+            Dim Err1 As Double = Math.Abs(_PointSet(p2).CapFromPos - Loxo)
+            Dim Err2 As Double = Math.Abs(_PointSet(p2).CapFromPos - Loxo)
+
+            If Err1 <= Err2 Then
+                Return p2
+            Else
+                Return p3
+            End If
+        Else
+            Dim Middle As Integer = CInt((p3 + p2) / 2)
+            If Loxo > _PointSet(Middle).CapFromPos Then
+                Return IndexFromAngleDycho(Loxo, Middle, p3)
+            Else
+                Return IndexFromAngleDycho(Loxo, p2, Middle)
+            End If
+        End If
     End Function
 
 
