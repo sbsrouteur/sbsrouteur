@@ -36,7 +36,7 @@ Public Class GribManager
 
     Public Const GRIB_MAX_DAY As Integer = 16
 
-    Private Const MAX_GRIB_05 As Integer = 384
+    Private Const MAX_GRIB_05 As Integer = 240
     Private Const MAX_GRIB_1 As Integer = 384
     Private Const GRIB_OFFSET As Integer = -3
     Private Const GRIB_GRAIN_05 As Integer = 3
