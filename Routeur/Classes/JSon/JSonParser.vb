@@ -27,7 +27,7 @@ Module JSonParser
         Dim ObjectData As Object = Nothing
         ObjectNum = 0
 
-        If Data.Trim = "null" Then
+        If Data Is Nothing OrElse Data.Trim = "null" Then
             Return RetValue
         End If
 
