@@ -108,6 +108,7 @@ Public Class IsoChrone
         Dim StartCount As Integer = WorkSet.Count
         Dim EndCount As Integer
         Dim PointIndex As Integer = 0
+        Dim LoopCount As Integer = 0
 
 
 #If DBG_ISO_POINT_SET Then
@@ -179,6 +180,10 @@ Public Class IsoChrone
                 Dim Index As Integer = 0
                 Dim MaxDists(MAX_ISO_POINT - 1) As Double
                 'Using sr As New IO.StreamWriter("c:\temp\dists.csv")
+                For Each Point In ParentIso.PointSet
+                    PointIndex = CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT
+                    MaxDists(PointIndex) = Math.Max(Point.DistFromPos, MaxDists(PointIndex))
+                Next
                 For Each Point In WorkSet
                     'Dists(Index) = Point.DistFromPos
                     'Angles(Index) = Point.CapFromPos
@@ -187,15 +192,16 @@ Public Class IsoChrone
                         ' FIX ME : is this ok for any other value of max_iso_point other than 360?
                         PointIndex = CInt(Point.CapFromPos * 360 / MAX_ISO_POINT) Mod MAX_ISO_POINT
                         MaxDists(PointIndex) = Math.Max(Point.DistFromPos, MaxDists(PointIndex))
-                        Dim PrevIsoPointIndex = ParentIso.IndexFromAngle(Point.CapFromPos)
-                        If ParentIso.PointSet(PrevIsoPointIndex) IsNot Nothing Then
-                            MaxDists(PointIndex) = Math.Max(ParentIso.PointSet(PrevIsoPointIndex).DistFromPos, MaxDists(PointIndex))
-                        End If
+                        'Dim PrevIsoPointIndex = ParentIso.IndexFromAngle(Point.CapFromPos)
+                        'If ParentIso.PointSet(PrevIsoPointIndex) IsNot Nothing Then
+                        'MaxDists(PointIndex) = Math.Max(ParentIso.PointSet(PrevIsoPointIndex).DistFromPos, MaxDists(PointIndex))
+                        'End If
                     End If
                     Index += 1
 
                 Next
 
+                Console.WriteLine("CleanUp half loop in " & Now.Subtract(Start).TotalMilliseconds & " with " & LoopCount & " Loops")
 
                 'Dim factor As Double
 
@@ -230,6 +236,7 @@ Public Class IsoChrone
                 WorkSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
                 ReDim Dists(WorkSet.Count - 1)
                 ReDim FilteredDist(WorkSet.Count - 1)
+                LoopCount += 1
             Loop Until _NextPointSet.Count <= MAX_ISO_POINT Or _NextPointSet.Count = PrevCount
             _PointSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
         Else
@@ -247,7 +254,7 @@ Public Class IsoChrone
             PointIndex += 1
         Next
         EndCount = _PointSet.Count
-        Console.WriteLine("CleanUp from " & StartCount & " to " & EndCount & " in " & Now.Subtract(Start).TotalMilliseconds)
+        Console.WriteLine("CleanUp from " & StartCount & " to " & EndCount & " in " & Now.Subtract(Start).TotalMilliseconds & " with " & LoopCount & " Loops")
         Return
     End Sub
 
@@ -270,31 +277,31 @@ Public Class IsoChrone
             Loxo = (Loxo + 3600) Mod 360
         End If
 
-        Return IndexFromAngleDycho(Loxo, 0, _PointSet.Count - 1)
+        Return IndexFromAngleDycho(Loxo, 0, _PointSet.Count)
 
-        'Dim StartIndex As Integer = _Iso_IndexLut(CInt(Loxo / 10)) - 1
+        Dim StartIndex As Integer = _Iso_IndexLut(CInt(Loxo / 10)) - 1
 
-        ''If StartIndex < 0 Then
-        'StartIndex = 0
-        ''End If
+        'If StartIndex < 0 Then
+        StartIndex = 0
+        'End If
 
-        'Dim PointIndex As Integer
-        'Dim AngleError As Double = Double.MaxValue
-        'Try
+        Dim PointIndex As Integer
+        Dim AngleError As Double = Double.MaxValue
+        Try
 
-        '    For PointIndex = StartIndex To _PointSet.Count - 1
-        '        Dim LocalError As Double = Math.Abs(Loxo - _PointSet(PointIndex).CapFromPos)
-        '        If LocalError <= AngleError Then
-        '            AngleError = LocalError
-        '        Else
-        '            Return PointIndex - 1
-        '        End If
-        '    Next
+            For PointIndex = StartIndex To _PointSet.Count - 1
+                Dim LocalError As Double = Math.Abs(Loxo - _PointSet(PointIndex).CapFromPos)
+                If LocalError <= AngleError Then
+                    AngleError = LocalError
+                Else
+                    Return PointIndex - 1
+                End If
+            Next
 
-        '    Return _PointSet.Count - 1
-        'Finally
+            Return _PointSet.Count - 1
+        Finally
 
-        'End Try
+        End Try
 
     End Function
 
@@ -303,13 +310,15 @@ Public Class IsoChrone
         If _PointSet.Count = 0 Then
             Return 0
         ElseIf (p3 - p2) = 0 Then
-            Return p3
+            Return p3 Mod 360
         ElseIf (p3 - p2) = 1 Then
             Dim Err1 As Double = Math.Abs(_PointSet(p2).CapFromPos - Loxo)
             Dim Err2 As Double = Math.Abs(_PointSet(p2).CapFromPos - Loxo)
 
             If Err1 <= Err2 Then
                 Return p2
+            ElseIf p3 = 360 Then
+                Return 0
             Else
                 Return p3
             End If
