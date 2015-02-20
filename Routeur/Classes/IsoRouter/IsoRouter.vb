@@ -282,10 +282,10 @@ Public Class IsoRouter
         Dim Dist As Double = TC.SurfaceDistance * 0.995
 
         RaiseEvent Log("Isochrone router started at " & Start)
+        Dim LoopStart As DateTime = Now
         While Not RouteComplete AndAlso Not _CancelRequested
 
             P = Nothing
-            Dim LoopStart As DateTime = Now
 
             Dim isostart As DateTime = Now
 
@@ -296,7 +296,10 @@ Public Class IsoRouter
 #Else
             CurIsoChrone = ComputeNextIsoChrone(CurIsoChrone)
 #End If
-            Dim IsoDuratoin As Double = Now.Subtract(isostart).TotalMilliseconds
+            Dim IsoDuration As Double = Now.Subtract(isostart).TotalMilliseconds
+
+            Routeur.Stats.SetStatValue(Stats.StatID.Isochrone_ComputeTimeMS) = IsoDuration
+            Routeur.Stats.SetStatValue(Stats.StatID.Isochrone_Rate) = Now.Subtract(LoopStart).TotalMilliseconds / _IsoChrones.Count
 
 #If DBG_ISO = 1 Then
             If CurIsoChrone IsNot Nothing Then
