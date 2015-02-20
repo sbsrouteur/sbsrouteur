@@ -158,4 +158,6 @@ Public Class VLMRaceInfo
         End Get
     End Property
 
+    Property NSZ As List(Of MapSegment)
+
 End Class

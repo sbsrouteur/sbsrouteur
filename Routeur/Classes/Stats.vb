@@ -54,6 +54,8 @@ Public Class Stats
         ISO_ReachPtCumMS
         ISO_ReachPtMetWaitMS
         ISO_ReachPtAvgLpCnt
+        Isochrone_ComputeTimeMS
+        Isochrone_Rate
         DB_IntersectMapSegAvgMs
     End Enum
 
