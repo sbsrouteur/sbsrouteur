@@ -57,6 +57,26 @@ Module WS_Wrapper
         Return CLng(p1.Subtract(New DateTime(1970, 1, 1)).TotalSeconds)
     End Function
 
+    Public Function GetNSZInfo(RaceID As Integer) As String
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo/exclusions.php?idrace=" & RaceID
+        Dim Retstring As String = ""
+        Try
+            Retstring = RequestPage(URL)
+            Return Retstring
+        Catch wex As WebException
+            If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+                'Login error
+                Return Nothing
+            Else
+                MessageBox.Show(wex.Response.ToString)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
+        End Try
+
+        Return Nothing
+    End Function
+
     Public Function GetRaceInfo(ByVal RAN As String) As String
 
         Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo.php?forcefmt=json&idrace=" & RAN
@@ -355,7 +375,7 @@ Module WS_Wrapper
 #If TESTING = 0 Then
                                                     Dim retstring As String = RequestPage(RouteurModel.Cached_Base_Game_Url((UrlIndex Mod NB_CACHE) + 1) & "/tracks/" & CStr(Url), False)
 #Else
-                                                Dim retstring As String = RequestPage(RouteurModel.Base_Game_Url & "/cache/tracks/" & CStr(Url))
+                                                    Dim retstring As String = RequestPage(RouteurModel.Base_Game_Url & "/cache/tracks/" & CStr(Url))
 #End If
 
                                                     RetJSon = JSonParser.Parse(retstring)

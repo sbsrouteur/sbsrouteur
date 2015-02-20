@@ -657,6 +657,28 @@ Public Class RouteurModel
         If Info IsNot Nothing AndAlso Info.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
             LoadJSonDataToObject(_P_Info(0).RaceInfo, Info(JSONDATA_BASE_OBJECT_NAME))
             RouteurModel.VacationMinutes = _P_Info(0).RaceInfo.vacfreq
+
+            ' Load NSZ if any
+            Dim NSZ As String = WS_Wrapper.GetNSZInfo(CInt(RaceNum))
+            Info = Parse(NSZ)
+
+            If Info IsNot Nothing AndAlso Info.ContainsKey(JSONDATA_BASE_OBJECT_NAME) Then
+                Dim ExclusionsDef As List(Of Object) = CType(CType(Info(JSONDATA_BASE_OBJECT_NAME), Dictionary(Of String, Object))("Exclusions"), List(Of Object))
+
+                For Each item As List(Of Object) In ExclusionsDef
+                    If item IsNot Nothing Then
+                        Dim P1 As List(Of Object) = CType(item(0), List(Of Object))
+                        Dim P2 As List(Of Object) = CType(item(1), List(Of Object))
+                        'LoadJSonDataToObject(_P_Info(0).RaceInfo.NSZ, Info(JSONDATA_BASE_OBJECT_NAME))
+
+                        Dim Seg As New MapSegment(CDbl(P1(1)), CDbl(P1(0)), CDbl(P2(1)), CDbl(P2(0)))
+                        If _P_Info(0).RaceInfo.NSZ Is Nothing Then
+                            _P_Info(0).RaceInfo.NSZ = New List(Of MapSegment)
+                        End If
+                        _P_Info(0).RaceInfo.NSZ.Add(Seg)
+                    End If
+                Next
+            End If
         End If
 
     End Sub
@@ -931,6 +953,7 @@ Public Class RouteurModel
                 P.IsoChrones = VorHandler.IsoChrones
                 If CurPlayer IsNot Nothing Then
                     P.WPs = CurPlayer.RaceInfo.races_waypoints
+                    P.NSZ = CurPlayer.RaceInfo.NSZ
                 End If
                 P.ManagedRoutes = (From R In _RouteManager.VisibleRoutes Where R.RaceID = VorHandler.PlayerInfo.RaceInfo.idraces).ToList
 

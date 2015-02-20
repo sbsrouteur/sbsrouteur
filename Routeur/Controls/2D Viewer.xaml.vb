@@ -82,6 +82,7 @@ Partial Public Class _2D_Viewer
 
     Private WithEvents _BgDrawerTimer As DispatcherTimer
     Private _WPs As List(Of VLM_RaceWaypoint)
+    Private _NSZ As List(Of MapSegment)
 
     Private _DBLink As New DBWrapper
 
@@ -525,6 +526,7 @@ Render1:
 
             'GC.Collect()
             _WPs = PathInfo.WPs
+            _NSZ = PathInfo.NSZ
 
             'Dim Pixels As Array
             'If Monitor.TryEnter(Me) Then
@@ -946,6 +948,21 @@ Render1:
 
     End Sub
 
+    Private Sub DrawNSZ(ByVal NSZ As List(Of MapSegment))
+        Dim NSZColor As Integer = &HFFFF0000
+        
+        If NSZ IsNot Nothing Then
+            For Each seg As MapSegment In NSZ
+                Dim C1 As New Coords(seg.Lat1, seg.Lon1)
+                Dim C2 As New Coords(seg.Lat2, seg.Lon2)
+
+                SafeDrawLine(_BackDropBmp, C1, C2, NSZColor, True)
+
+            Next
+        End If
+
+    End Sub
+
     Public Sub ClearBgMap()
 
         _ClearBgMap = True
@@ -1052,7 +1069,7 @@ Render1:
         End Get
     End Property
 
-    Private Sub DrawTile(ByVal ti As TileInfo, ByVal WPs As List(Of VLM_RaceWaypoint))
+    Private Sub DrawTile(ByVal ti As TileInfo, ByVal WPs As List(Of VLM_RaceWaypoint), NSZ As List(Of MapSegment))
 
         'Dim D As New DrawingVisual
         'Dim DC As DrawingContext = D.RenderOpen
@@ -1086,6 +1103,7 @@ Render1:
             Using _BackDropBmp.GetBitmapContext
                 _BackDropBmp.Blit(R, Img, New Rect(0, 0, TileServer.TILE_SIZE, TileServer.TILE_SIZE))
                 DrawGates(WPs)
+                DrawNSZ(nsz)
 
             End Using
             'LocalBmp.Freeze()
@@ -1209,7 +1227,7 @@ Render1:
             _Frm.DataContext = _MapPg
             _ThBgDraw = New Thread(AddressOf BgBackDropDrawing)
             _ThreadLastStart = Now
-            _ThBgDraw.Start(_WPs)
+            _ThBgDraw.Start(Nothing)
             'System.Threading.ThreadPool.QueueUserWorkItem(AddressOf BgBackDropDrawing, WPs)
 
 #If NO_TILES = 0 Then
@@ -1218,7 +1236,7 @@ Render1:
                 Dim loopcount As Double = 0
                 While _ReadyTilesQueue.Count > 0 ' AndAlso loopcount < 5
                     Dim ti As TileInfo = _ReadyTilesQueue.Dequeue
-                    DrawTile(ti, _WPs)
+                    DrawTile(ti, _WPs, _NSZ)
                     loopcount += 1
                 End While
             End SyncLock

@@ -27,6 +27,7 @@ Public Class PathInfo
     Public Property ClearBoats As Boolean
     Public Property IsoChrones As LinkedList(Of IsoChrone)
     Public Property WPs As List(Of VLM_RaceWaypoint)
+    Public Property NSZ As List(Of MapSegment)
     Public Property ManagedRoutes As IList(Of RecordedRoute)
     Public Property RoutingBorder As LinkedList(Of Coords)
     Public Property CurrentPos As Coords
