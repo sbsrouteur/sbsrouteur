@@ -948,10 +948,101 @@ Render1:
 
     End Sub
 
+    ''' <summary>
+    ''' Split NSZ in Two is AM crosses the polygon
+    ''' </summary>
+    ''' <param name="NSZ"></param>
+    ''' <param name="StartIndex"></param>
+    ''' <param name="EndIndex"></param>
+    ''' <remarks></remarks>
+    Private Sub DrawNSZPolygon(NSZ As List(Of MapSegment), StartIndex As Integer, EndIndex As Integer)
+
+        Dim HasAM As Boolean = False
+        Dim index As Integer
+        Dim End1 As Integer
+        Dim End2 As Integer
+
+        'Go from start
+        End1 = EndIndex
+        For index = StartIndex + 1 To EndIndex
+            If NSZ(index).Lon1 * NSZ(StartIndex).Lon1 < 0 Then
+                End1 = index
+                HasAM = True
+                Exit For
+            End If
+        Next
+
+        'Go from end
+        If HasAM Then
+            For index = EndIndex - 1 To StartIndex Step -1
+                If NSZ(index).Lon1 * NSZ(EndIndex).Lon1 < 0 Then
+                    End2 = index
+                    Exit For
+                End If
+            Next
+
+            Dim nsz1 As New List(Of MapSegment)
+            For index = StartIndex To End1
+                nsz1.Add(NSZ(index))
+            Next
+            For index = End2 To EndIndex
+                nsz1.Add(NSZ(index))
+            Next
+            DrawNSZPolygonSafe(nsz1, 0, nsz1.Count - 1)
+            nsz1.Clear()
+            For index = End1 To End2
+                nsz1.Add(NSZ(index))
+            Next
+            DrawNSZPolygonSafe(nsz1, 0, nsz1.Count - 1)
+        Else
+            DrawNSZPolygonSafe(NSZ, StartIndex, EndIndex)
+        End If
+
+
+    End Sub
+
+
+    Private Sub DrawNSZPolygonSafe(NSZ As List(Of MapSegment), StartIndex As Integer, EndIndex As Integer)
+        Dim Points(2 * (EndIndex - StartIndex) + 3) As Integer
+        Dim i As Integer
+        Dim NSZColor As Integer = &H7FFF0000
+
+        For i = StartIndex To EndIndex
+            Points(2 * i) = CInt(LonToCanvas(NSZ(i).Lon1))
+            Points(2 * i + 1) = CInt(LatToCanvas(NSZ(i).Lat1))
+        Next
+        Points(2 * i) = CInt(LonToCanvas(NSZ(StartIndex).Lon1))
+        Points(2 * i + 1) = CInt(LatToCanvas(NSZ(StartIndex).Lat1))
+
+        _BackDropBmp.FillPolygon(Points, NSZColor)
+    End Sub
+
     Private Sub DrawNSZ(ByVal NSZ As List(Of MapSegment))
         Dim NSZColor As Integer = &HFFFF0000
-        
+
+
         If NSZ IsNot Nothing Then
+
+            Dim i As Integer
+            Dim IsPoly As Boolean = False
+            Dim StartIndex As Integer = -1
+
+            For i = 0 To NSZ.Count - 1
+                If IsPoly Then
+                    If NSZ(i).Lat1 <> NSZ(i - 1).Lat2 Or ((NSZ(i).Lon1 Mod 180) <> (NSZ(i - 1).Lon2 Mod 180)) Then
+                        'Seg is not in previous polygon
+                        IsPoly = False
+                    ElseIf NSZ(i).Lat2 = NSZ(StartIndex).Lat1 And NSZ(i).Lon2 = NSZ(StartIndex).Lon1 Then
+                        'Seg goes back to first point, polygon is closed
+                        IsPoly = False
+                        DrawNSZPolygon(NSZ, StartIndex, i)
+                    End If
+                Else
+                    IsPoly = True
+                    StartIndex = i
+                End If
+            Next
+
             For Each seg As MapSegment In NSZ
                 Dim C1 As New Coords(seg.Lat1, seg.Lon1)
                 Dim C2 As New Coords(seg.Lat2, seg.Lon2)
@@ -1101,10 +1192,9 @@ Render1:
 
 
             Using _BackDropBmp.GetBitmapContext
+                'DrawNSZ(NSZ)
+                'DrawGates(WPs)
                 _BackDropBmp.Blit(R, Img, New Rect(0, 0, TileServer.TILE_SIZE, TileServer.TILE_SIZE))
-                DrawGates(WPs)
-                DrawNSZ(nsz)
-
             End Using
             'LocalBmp.Freeze()
         End If
@@ -1225,6 +1315,10 @@ Render1:
         If Not _BgStarted AndAlso _BgReloadRequest Then
             _BgStarted = True 'BgBackDropDrawing(0)
             _Frm.DataContext = _MapPg
+            Using _BackDropBmp.GetBitmapContext
+                DrawNSZ(_NSZ)
+                DrawGates(_WPs)
+            End Using
             _ThBgDraw = New Thread(AddressOf BgBackDropDrawing)
             _ThreadLastStart = Now
             _ThBgDraw.Start(Nothing)
