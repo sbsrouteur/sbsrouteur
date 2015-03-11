@@ -36,16 +36,16 @@ Public Class GribManager
 
     Public Const GRIB_MAX_DAY As Integer = 16
 
-    Private Const MAX_GRIB_05 As Integer = 240
-    Private Const MAX_GRIB_1 As Integer = 384
+    Private Const MAX_GRIB_05_03H As Integer = 240
+    Private Const MAX_GRIB_05_12H As Integer = 384
     Private Const GRIB_OFFSET As Integer = -3
-    Private Const GRIB_GRAIN_05 As Integer = 3
-    Private Const GRIB_GRAIN_1 As Integer = 12
+    Private Const GRIB_GRAIN_3H As Integer = 3
+    Private Const GRIB_GRAIN_12H As Integer = 12
     Private Const GRIB_PERIOD As Integer = 6
-    Private Const MAX_INDEX_05 As Integer = CInt(MAX_GRIB_05 / GRIB_GRAIN_05)
-    Private Const MAX_INDEX_1 As Integer = CInt((MAX_GRIB_1 - MAX_GRIB_05 - GRIB_GRAIN_1) / GRIB_GRAIN_1) + MAX_INDEX_05
-    Private Const MAX_INDEX As Integer = MAX_INDEX_1
-    Private Const NB_MAX_GRIBS As Integer = CInt(MAX_GRIB_05 / GRIB_GRAIN_05 + (MAX_GRIB_1 - MAX_GRIB_05) / GRIB_GRAIN_1)
+    Private Const MAX_INDEX_03H As Integer = CInt(MAX_GRIB_05_03H / GRIB_GRAIN_3H)
+    Private Const MAX_INDEX_12H As Integer = CInt((MAX_GRIB_05_12H - MAX_GRIB_05_03H - GRIB_GRAIN_12H) / GRIB_GRAIN_12H) + MAX_INDEX_03H
+    Private Const MAX_INDEX As Integer = MAX_INDEX_12H
+    Private Const NB_MAX_GRIBS As Integer = CInt(MAX_GRIB_05_03H / GRIB_GRAIN_3H + (MAX_GRIB_05_12H - MAX_GRIB_05_03H) / GRIB_GRAIN_12H)
 
     Public Shared ZULU_OFFSET As Integer = -CInt(TimeZone.CurrentTimeZone.GetUtcOffset(Now).TotalHours)
 
@@ -55,6 +55,8 @@ Public Class GribManager
 
     Private Shared _MeteoArrays(MAX_INDEX) As MeteoArray
     Private Shared _LastGribDate As DateTime
+    Friend StopRouting As Boolean
+
     Public Shared Event log(ByVal Msg As String)
 
     Private Const CORRECTION_LENGTH As Integer = 12
@@ -69,6 +71,7 @@ Public Class GribManager
 
     Private Shared _MeteoLoader As Thread
     Private Shared _ShutDown As Boolean = False
+    Private Shared _RoutingStopped As Boolean = False
     Private Shared _MeteoLoadQueue As New Queue(Of MeteoLoadRequest)
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
@@ -107,9 +110,13 @@ Public Class GribManager
             If NoLock Then
                 retval = False
             Else
-                loadreq.SyncEvt.WaitOne()
+                Do
+                Loop Until loadreq.SyncEvt.WaitOne(500) Or _ShutDown Or _RoutingStopped
+                If _ShutDown Or _RoutingStopped Then
+                    Return False
+                End If
             End If
-        
+
             ''RaiseEvent log("Synclock grib monitor th" & System.Threading.Thread.CurrentThread.ManagedThreadId)
             'If Not SpinLockEnter(MeteoIndex, NoLock) Then
             '    If NoLock Then
@@ -287,10 +294,10 @@ Public Class GribManager
         Dim HourOffset As Integer
         Dim CurGrib As DateTime = GetCurGribDate(Now)
 
-        If MeteoIndex < MAX_INDEX_05 Then
-            HourOffset = MeteoIndex * GRIB_GRAIN_05
+        If MeteoIndex < MAX_INDEX_03H Then
+            HourOffset = MeteoIndex * GRIB_GRAIN_3H
         Else
-            HourOffset = MeteoIndex * GRIB_GRAIN_1
+            HourOffset = MeteoIndex * GRIB_GRAIN_12H
         End If
 
 
@@ -311,18 +318,16 @@ Public Class GribManager
 
         If UseHttp Then
             Dim ReturnUrl As String
-            If MeteoIndex < MAX_INDEX_05 Then
-                HourOffset = MeteoIndex * GRIB_GRAIN_05
-                ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
+            If MeteoIndex < MAX_INDEX_03H Then
+                HourOffset = MeteoIndex * GRIB_GRAIN_3H
+
+            Else
+                HourOffset = MAX_INDEX_03H * 3 + GRIB_GRAIN_12H * (MeteoIndex - MAX_INDEX_03H)
+
+            End If
+            ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
                         "z.pgrb2full.0p50.f" & (HourOffset).ToString("000") & "&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
                         & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH")
-            Else
-                HourOffset = 192 + GRIB_GRAIN_1 * (MeteoIndex - MAX_INDEX_05)
-                ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
-                        "z.pgrbf" & (HourOffset).ToString("00") & ".grib2&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
-                        & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH")
-            End If
-
             Return ReturnUrl
         Else
 
@@ -334,7 +339,7 @@ Public Class GribManager
 
     Private Shared ReadOnly Property GetIndexGrain(ByVal MeteoIndex As Integer) As Double
         Get
-            If MeteoIndex < MAX_INDEX_05 Then
+            If MeteoIndex < MAX_INDEX_03H Then
                 Return 0.5
             Else
                 Return 2.5
@@ -353,10 +358,10 @@ Public Class GribManager
         Dim TotalHours As Double = Dte.AddHours(-_GMT_Offset).Subtract(CurGrib).TotalHours
         Dim HourIndex As Integer
 
-        If TotalHours < MAX_INDEX_05 * GRIB_GRAIN_05 Then
-            HourIndex = CInt(Math.Floor(TotalHours / GRIB_GRAIN_05))
+        If TotalHours < MAX_INDEX_03H * GRIB_GRAIN_3H Then
+            HourIndex = CInt(Math.Floor(TotalHours / GRIB_GRAIN_3H))
         Else
-            HourIndex = MAX_INDEX_05 + CInt(Math.Floor((TotalHours - 192) / GRIB_GRAIN_1))
+            HourIndex = MAX_INDEX_03H + CInt(Math.Floor((TotalHours - 192) / GRIB_GRAIN_12H))
         End If
 
         If HourIndex < 0 Then
@@ -381,10 +386,10 @@ Public Class GribManager
 
         If TotalHours < 0 Then
             Dim i As Int16 = 0
-        ElseIf TotalHours <= MAX_GRIB_05 Then
-            Return TotalHours Mod GRIB_GRAIN_05
+        ElseIf TotalHours <= MAX_GRIB_05_03H Then
+            Return TotalHours Mod GRIB_GRAIN_3H
         Else
-            Return TotalHours Mod GRIB_GRAIN_1
+            Return TotalHours Mod GRIB_GRAIN_12H
         End If
 
     End Function
@@ -706,10 +711,10 @@ Public Class GribManager
             NextMeteoIndex = MAX_INDEX
         End If
 
-        If NextMeteoIndex < MAX_INDEX_05 Then
-            GribGrain = GRIB_GRAIN_05
+        If NextMeteoIndex < MAX_INDEX_03H Then
+            GribGrain = GRIB_GRAIN_3H
         Else
-            GribGrain = GRIB_GRAIN_1
+            GribGrain = GRIB_GRAIN_12H
         End If
 
         Dim tws0 As Double = 0
@@ -765,10 +770,10 @@ Public Class GribManager
             NextMeteoIndex = MAX_INDEX
         End If
 
-        If NextMeteoIndex < MAX_INDEX_05 Then
-            GribGrain = GRIB_GRAIN_05
+        If NextMeteoIndex < MAX_INDEX_03H Then
+            GribGrain = GRIB_GRAIN_3H
         Else
-            GribGrain = GRIB_GRAIN_1
+            GribGrain = GRIB_GRAIN_12H
         End If
 
         Dim Dir0 As DirInterpolation
@@ -818,10 +823,10 @@ Public Class GribManager
             NextMeteoIndex = MAX_INDEX
         End If
 
-        If NextMeteoIndex < MAX_INDEX_05 Then
-            GribGrain = GRIB_GRAIN_05
+        If NextMeteoIndex < MAX_INDEX_03H Then
+            GribGrain = GRIB_GRAIN_3H
         Else
-            GribGrain = GRIB_GRAIN_1
+            GribGrain = GRIB_GRAIN_12H
         End If
 
 

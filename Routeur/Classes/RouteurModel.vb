@@ -60,7 +60,7 @@ Public Class RouteurModel
 #If TESTING = 1 Then
     Public Const S10_SERVER As String = "testing.v-l-m.org"
 #Else
-    Public Const S10_SERVER As String = "virtual-loup-de-mer.org"
+    Public Const S10_SERVER As String = "v-l-m.org"
 
 #End If
 

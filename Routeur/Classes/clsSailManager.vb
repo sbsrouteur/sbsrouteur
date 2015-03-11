@@ -63,29 +63,69 @@ Public Class clsSailManager
             Return 0
         End Get
     End Property
-        
+
     Private Function GetArrayIndex(ByVal A() As Integer, ByVal Value As Double, ByVal ValueBelow As Boolean) As Integer
 
         'Dim RetIndex As Integer = 0
-        Dim CurIndex As Integer = 0
-        Value = Abs(Value)
 
-        While CurIndex < A.Length
+        Return GetArrayIndexRecurs(A, Value, 0, A.Length - 1, ValueBelow)
+        'Dim CurIndex As Integer = 0
+        'Value = Abs(Value)
 
-            If ValueBelow And A(CurIndex) > Value Then
-                If CurIndex = 0 Then
+        'While CurIndex < A.Length
+
+        '    If ValueBelow And A(CurIndex) > Value Then
+        '        If CurIndex = 0 Then
+        '            Return 0
+        '        End If
+        '        Return CurIndex - 1
+        '    ElseIf Not ValueBelow And A(CurIndex) >= Value Then
+        '        Return CurIndex
+        '    End If
+
+        '    CurIndex += 1
+        'End While
+
+        'Return A.Length - 1
+    End Function
+
+    Private Function GetArrayIndexRecurs(ByVal A() As Integer, ByVal Value As Double, MinIndex As Integer, MaxIndex As Integer, ByVal ValueBelow As Boolean) As Integer
+
+        If MinIndex < 0 Then
+            MinIndex = 0
+        End If
+
+        If MaxIndex >= A.Length Then
+            MaxIndex = A.Length - 1
+        End If
+
+        If MinIndex + 1 = MaxIndex Then
+            If ValueBelow Then
+                Return MinIndex
+            Else
+                Return MaxIndex
+            End If
+        End If
+        Dim MidIndex As Integer = CInt((MaxIndex + MinIndex) / 2)
+
+        If Value = A(MidIndex) Then
+            If ValueBelow Then
+                If MidIndex > 0 Then
+                    Return MidIndex - 1
+                Else
                     Return 0
                 End If
-                Return CurIndex - 1
-            ElseIf Not ValueBelow And A(CurIndex) >= Value Then
-                Return CurIndex
+            Else
+                Return MidIndex
             End If
+        ElseIf Value > A(MidIndex) Then
+            Return GetArrayIndexRecurs(A, Value, MidIndex, MaxIndex, ValueBelow)
+        Else
+            Return GetArrayIndexRecurs(A, Value, MinIndex, MidIndex, ValueBelow)
+        End If
 
-            CurIndex += 1
-        End While
-
-        Return A.Length - 1
     End Function
+
 
 
     Public Function GetBestSailSpeed(ByVal BoatType As String, ByRef RetSail As EnumSail, ByVal windangle As Double, ByVal windspeed As Double) As Double
@@ -146,44 +186,37 @@ Public Class clsSailManager
             F = MaxWindSpeedMultiplied
         End If
 
-#Const POLAR_STAT = 0
+#Const POLAR_STAT = 1
 #If POLAR_STAT = 1 Then
+        Static GetSpeedDurationCumMS As Double = 0
         Static NbCall As Long = 0
         Static NbCallCached As Long = 0
         Dim CacheRatio As Double = 0
+        Dim StartTime As DateTime = Now
 
         NbCall += 1
 #End If
-        If SailMode = EnumSail.OneSail Then
-            'SyncLock _Polar
-            If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
 
-#If POLAR_STAT = 1 Then
-                NbCallCached += 1
-                Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
-#End If
-                Return _Polar(D, F)
+        Try
+            If SailMode = EnumSail.OneSail Then
+                'SyncLock _Polar
+                If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
+                    NbCallCached += 1
+                    Return _Polar(D, F)
+                End If
+                'End SyncLock
             End If
-            'End SyncLock
-        End If
 
-        Dim SailIndex = GetSailIndex(SailMode)
-        Dim CurSpeed As Integer = 0
+            Dim SailIndex = GetSailIndex(SailMode)
+            Dim CurSpeed As Integer = 0
 
 
-        'WindSpeed = Math.Floor(WindSpeed)
-        'WindAngle = Math.Floor(WindAngle + 0.5)
-
-        'If (SailMode And brokensails) <> 0 Then
-        '    Return 0
-        'End If
-
-        If Not _SailLoaded And Not BoatType Is Nothing Then
-            If Not LoadSails(BoatType) Then
-                Return -1
-            End If
-            _SailLoaded = True
-            InitPolar()
+            If Not _SailLoaded And Not BoatType Is Nothing Then
+                If Not LoadSails(BoatType) Then
+                    Return -1
+                End If
+                _SailLoaded = True
+                InitPolar()
 #If GEN_TCV = 1 Then
             SyncLock Me
                 Dim fName As String = Path.Combine(RouteurModel.BaseFileDir, BoatType & ".dat")
@@ -203,75 +236,90 @@ Public Class clsSailManager
                 End Using
             End SyncLock
 #End If
-        ElseIf BoatType Is Nothing Then
-            Return -1
-        End If
+            ElseIf BoatType Is Nothing Then
+                Return -1
+            End If
 
-        Dim WMin As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, True)
-        Dim WMax As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, False)
-        Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, True)
-        Dim AMax As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, False)
-        If WindAngle = 62 And WindSpeed > 55 Then
-            Dim bp As Integer = 0
-        End If
-        If WMin = WMax AndAlso WMin = 0 Then
-            WMax = 1
-        End If
+            Dim WMin As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, True)
+            Dim WMax As Integer = WMin + 1 'GetArrayIndex(_WindList(SailIndex), WindSpeed, False)
+            Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, True)
+            Dim AMax As Integer = AMin + 1 'GetArrayIndex(_TWAList(SailIndex), WindAngle, False)
 
-        Dim W1 As Integer = _WindList(SailIndex)(WMin)
-        Dim W2 As Integer = _WindList(SailIndex)(WMax)
-        Dim A1 As Integer = _TWAList(SailIndex)(AMin)
-        Dim A2 As Integer = _TWAList(SailIndex)(AMax)
+            If WindAngle = 62 And WindSpeed > 55 Then
+                Dim bp As Integer = 0
+            End If
 
+            If WMin = WMax AndAlso WMin = 0 Then
+                WMax = 1
+            End If
 
-        Dim V11 As Double = _PolarLut(SailIndex, WMin, AMin)
-        Dim V21 As Double = _PolarLut(SailIndex, WMax, AMin)
-        Dim V12 As Double = _PolarLut(SailIndex, WMin, AMax)
-        Dim V22 As Double = _PolarLut(SailIndex, WMax, AMax)
-        Dim V1 As Double
-        Dim v2 As Double
+            Dim W1 As Integer = _WindList(SailIndex)(WMin)
+            Dim W2 As Integer = _WindList(SailIndex)(WMax)
+            Dim A1 As Integer = _TWAList(SailIndex)(AMin)
+            Dim A2 As Integer = _TWAList(SailIndex)(AMax)
 
 
-        If A1 <> A2 Then
-            V1 = V11 + (WindAngle - A1) / (A2 - A1) * (V12 - V11)
-            v2 = V21 + (WindAngle - A1) / (A2 - A1) * (V22 - V21)
-        Else
-            V1 = V11
-            v2 = V21
-        End If
+            Dim V11 As Double = _PolarLut(SailIndex, WMin, AMin)
+            Dim V21 As Double = _PolarLut(SailIndex, WMax, AMin)
+            Dim V12 As Double = _PolarLut(SailIndex, WMin, AMax)
+            Dim V22 As Double = _PolarLut(SailIndex, WMax, AMax)
+            Dim V1 As Double
+            Dim v2 As Double
 
-        Dim RetVal As Double
-        If W1 <> W2 AndAlso v2 - V1 <> 0 Then
-            RetVal = V1 + (WindSpeed - W1) / (W2 - W1) * (v2 - V1)
-        Else
-            RetVal = V1
-        End If
 
-        SyncLock _Polar
-            _Polar(D, F) = RetVal
-        End SyncLock
-        
+            If A1 <> A2 Then
+                V1 = V11 + (WindAngle - A1) / (A2 - A1) * (V12 - V11)
+                v2 = V21 + (WindAngle - A1) / (A2 - A1) * (V22 - V21)
+            Else
+                V1 = V11
+                v2 = V21
+            End If
+
+            Dim RetVal As Double
+            If W1 <> W2 AndAlso v2 - V1 <> 0 Then
+                RetVal = V1 + (WindSpeed - W1) / (W2 - W1) * (v2 - V1)
+            Else
+                RetVal = V1
+            End If
+
+            SyncLock _Polar
+                _Polar(D, F) = RetVal
+            End SyncLock
+            Return RetVal
+
+        Finally
+
 #If POLAR_STAT = 1 Then
-        Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
+            Dim dur As Double = Now.Subtract(StartTime).TotalMilliseconds
+            GetSpeedDurationCumMS += dur
+            Stats.SetStatValue(Stats.StatID.Polar_CacheRatio) = NbCallCached / NbCall
+            Stats.SetStatValue(Stats.StatID.Polar_AvgCallMs) = GetSpeedDurationCumMS / NbCall
+            Stats.SetStatValue(Stats.StatID.Polar_CumCall_S) = GetSpeedDurationCumMS / 1000
+            Stats.SetStatValue(Stats.StatID.Polar_CallCount) = NbCall
 #End If
+        End Try
 
-        Return RetVal
+
 
     End Function
 
     Public Sub InitPolar()
 
-        For WindStrength As Integer = 0 To MaxWindSpeedMultiplied
+        Static InitStarted As Integer = 0
+
+        If InitStarted = 0 AndAlso System.Threading.Interlocked.CompareExchange(InitStarted, 1, 0) = 0 Then
+            For WindStrength As Integer = 0 To MaxWindSpeedMultiplied
 
 
-            For alpha As Integer = 0 To 180 * POLAR_ANGLE_MULTIPLIER
-                _Polar(alpha, WindStrength) = 65535
+                For alpha As Integer = 0 To 180 * POLAR_ANGLE_MULTIPLIER
+                    _Polar(alpha, WindStrength) = 65535
+                Next
             Next
-        Next
 
-        Dim th As New System.Threading.Thread(AddressOf InitPolarThread)
-        th.Start()
-        'InitPolarThread(Nothing)
+            Dim th As New System.Threading.Thread(AddressOf InitPolarThread)
+            th.Start()
+            'InitPolarThread(Nothing)
+        End If
     End Sub
 
     Private Sub InitPolarThread(ByVal StartInfo As Object)
