@@ -3033,6 +3033,8 @@ Public Class VLM_Router
 
     Public Function StartIsoRoute(ByVal Owner As RouteurMain, ByVal StartRouting As Boolean, ByVal AutoRestart As Boolean) As Boolean
 
+        _Meteo.StopRouting = StartIsoRoute
+
         If StartRouting Then
             Dim prefs As RacePrefs
             Dim StartDate As DateTime

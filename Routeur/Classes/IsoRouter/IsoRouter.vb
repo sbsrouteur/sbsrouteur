@@ -74,6 +74,7 @@ Public Class IsoRouter
         Dim ReachPointDuration As Long = 0
         Dim ReachPointCount As Long = 0
         Dim MaxEllipsisDist As Double
+        Dim CurThreadCount As Integer = 0
 
 
         If Iso Is Nothing Then
@@ -157,6 +158,8 @@ Public Class IsoRouter
                              Dim CurDest As Coords
                              Dim rp As clsrouteinfopoints
 
+                             Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount) = Interlocked.Increment(CurThreadCount)
+
                              If Not Iso.PointSet(Pindex) Is Nothing Then
                                  rp = Iso.PointSet(Pindex)
 
@@ -199,6 +202,8 @@ Public Class IsoRouter
                                  Parallel.For(0, StepCount,
                                  Sub(AlphaIndex As Integer)
 
+                                     Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount) = Interlocked.Increment(CurThreadCount)
+
                                      Dim alpha As Double = (MinAngle + _AngleStep * AlphaIndex) Mod 360
                                      Dim P As clsrouteinfopoints
                                      Dim tc As New TravelCalculator
@@ -236,6 +241,9 @@ Public Class IsoRouter
                                      tc.StartPoint = Nothing
                                      tc.EndPoint = Nothing
                                      tc = Nothing
+                                     Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount) = Interlocked.Decrement(CurThreadCount)
+
+
                                  End Sub)
 
 
@@ -244,13 +252,16 @@ Public Class IsoRouter
                              tcfn1.EndPoint = Nothing
                              tcfn1.StartPoint = Nothing
                              tcfn1 = Nothing
+
+                             Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount) = Interlocked.Decrement(CurThreadCount)
+
                          End Sub)
 
 
             'Clean up bad points
             If RetIsoChrone IsNot Nothing Then
 
-                RetIsoChrone.CleanUp(Iso, DoNotCleanUp)
+                RetIsoChrone.CleanUp(Iso, DoNotCleanUp, 1)
 
             End If
 
@@ -300,6 +311,11 @@ Public Class IsoRouter
 
             Routeur.Stats.SetStatValue(Stats.StatID.Isochrone_ComputeTimeMS) = IsoDuration
             Routeur.Stats.SetStatValue(Stats.StatID.Isochrone_Rate) = Now.Subtract(LoopStart).TotalMilliseconds / _IsoChrones.Count
+            Routeur.Stats.SetStatValue(Stats.StatID.Isochrone_Count) = _IsoChrones.Count
+            If CurIsoChrone IsNot Nothing AndAlso CurIsoChrone.PointSet IsNot Nothing AndAlso CurIsoChrone.PointSet.Count > 0 Then
+                Routeur.Stats.SetStatValue(Stats.StatID.Isochrone_TimeHorizon) = CurIsoChrone.PointSet(0).T.Subtract(Now).TotalHours
+            End If
+
 
 #If DBG_ISO = 1 Then
             If CurIsoChrone IsNot Nothing Then
@@ -414,15 +430,15 @@ Public Class IsoRouter
                     If _CancelRequested Then
                         Return Nothing
                     End If
+                    Dim Alpha As Double = WindAngle(Cap, MI.Dir)
                     If _RouterPrefs.FastRouteShortPolar Then
                         _SailManager.GetCornerAngles(MI.Strength, MinWindAngle, MaxWindAngle)
-                        Dim Alpha As Double = WindAngle(Cap, MI.Dir)
                         If Alpha < MinWindAngle OrElse Alpha > MaxWindAngle Then
                             Return Nothing
                         End If
                     End If
 
-                    Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, WindAngle(Cap, MI.Dir), MI.Strength)
+                    Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, Alpha, MI.Strength)
                     TotalDist += Speed / 60 * RouteurModel.VacationMinutes
                     TC.StartPoint = TC.ReachDistanceLoxo(Speed / 60 * RouteurModel.VacationMinutes, Cap)
                     CurDate = StartTicks.AddTicks(i)

@@ -45,6 +45,9 @@ Public Class Stats
         HitDistanceAvgPolyCount
         Grib_GetMeteoToDateAvgMS
         Polar_CacheRatio
+        Polar_AvgCallMs
+        Polar_CallCount
+        Polar_CumCall_S
         DRAW_FPS
         RIndex_AvgQueryTimeMS
         RIndex_AvgHitCount
@@ -56,6 +59,9 @@ Public Class Stats
         ISO_ReachPtAvgLpCnt
         Isochrone_ComputeTimeMS
         Isochrone_Rate
+        Isochrone_Count
+        Isochrone_TimeHorizon
+        Isocrhone_ThreadCount
         DB_IntersectMapSegAvgMs
     End Enum
 
