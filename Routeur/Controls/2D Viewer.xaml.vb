@@ -957,64 +957,70 @@ Render1:
     ''' <remarks></remarks>
     Private Sub DrawNSZPolygon(NSZ As List(Of MapSegment), StartIndex As Integer, EndIndex As Integer)
 
-        Dim HasAM As Boolean = False
         Dim index As Integer
-        Dim End1 As Integer
-        Dim End2 As Integer
+        Dim nsz1 As New List(Of MapSegment)
+        Dim nsz2 As New List(Of MapSegment)
+        Dim CurList As List(Of MapSegment) = nsz1
 
-        'Go from start
-        End1 = EndIndex
-        For index = StartIndex + 1 To EndIndex
-            If NSZ(index).Lon1 * NSZ(StartIndex).Lon1 < 0 Then
-                End1 = index
-                HasAM = True
-                Exit For
-            End If
+        For index = StartIndex To EndIndex
+
+            If index = StartIndex Then
+                'Do nothing
+            ElseIf Abs(CurList(0).Lon2 - NSZ(index).Lon1) >= 180 Then
+                'Add to missing segment and Change Side
+
+                If CurList Is nsz1 Then
+                    CurList = nsz2
+                Else
+                    CurList = nsz1
+                End If
+                If CurList.Count > 0 Then
+                    Dim Seg As New MapSegment()
+                    Seg.Lon1 = CurList(CurList.Count - 1).Lon2
+                    Seg.Lat1 = CurList(CurList.Count - 1).Lat2
+
+
+                    If Abs(NSZ(index).Lon1) <> 180 Then
+                        Seg.Lon2 = NSZ(index).Lon2
+                        Seg.Lat2 = NSZ(index).Lat2
+                    Else
+                        Seg.Lon2 = NSZ(index).Lon1
+                        Seg.Lat2 = NSZ(index).Lat1
+                    End If
+                    CurList.Add(Seg)
+                End If
+                End If
+            CurList.Add(NSZ(index))
+
         Next
 
-        'Go from end
-        If HasAM Then
-            For index = EndIndex - 1 To StartIndex Step -1
-                If NSZ(index).Lon1 * NSZ(EndIndex).Lon1 < 0 Then
-                    End2 = index
-                    Exit For
-                End If
-            Next
-
-            Dim nsz1 As New List(Of MapSegment)
-            For index = StartIndex To End1
-                nsz1.Add(NSZ(index))
-            Next
-            For index = End2 To EndIndex
-                nsz1.Add(NSZ(index))
-            Next
-            DrawNSZPolygonSafe(nsz1, 0, nsz1.Count - 1)
-            nsz1.Clear()
-            For index = End1 To End2
-                nsz1.Add(NSZ(index))
-            Next
-            DrawNSZPolygonSafe(nsz1, 0, nsz1.Count - 1)
-        Else
-            DrawNSZPolygonSafe(NSZ, StartIndex, EndIndex)
+        DrawNSZPolygonSafe(nsz1, 0, nsz1.Count - 1)
+        If nsz2.Count >= 2 Then
+            DrawNSZPolygonSafe(nsz2, 0, nsz2.Count - 1)
         End If
+
 
 
     End Sub
 
 
     Private Sub DrawNSZPolygonSafe(NSZ As List(Of MapSegment), StartIndex As Integer, EndIndex As Integer)
-        Dim Points(2 * (EndIndex - StartIndex) + 3) As Integer
+        Dim Points(2 * (EndIndex - StartIndex + 1 + 2) - 1) As Integer
         Dim i As Integer
         Dim NSZColor As Integer = &H7FFF0000
-
-        For i = StartIndex To EndIndex
-            Points(2 * i) = CInt(LonToCanvas(NSZ(i).Lon1))
-            Points(2 * i + 1) = CInt(LatToCanvas(NSZ(i).Lat1))
+        
+        For maps As Integer = -1 To 1
+            Points(0) = CInt(LonToCanvas(NSZ(0).Lon1 + 360 * maps))
+            Points(1) = CInt(LatToCanvas(NSZ(0).Lat1))
+            For i = StartIndex To EndIndex
+                Points(2 * (i + 1) + 0) = CInt(LonToCanvas(NSZ(i).Lon2 + 360 * maps))
+                Points(2 * (i + 1) + 1) = CInt(LatToCanvas(NSZ(i).Lat2))
+            Next
+            Points(2 * (i) + 2) = Points(0)
+            Points(2 * (i) + 3) = Points(1)
+            _BackDropBmp.FillPolygon(Points, NSZColor)
         Next
-        Points(2 * i) = CInt(LonToCanvas(NSZ(StartIndex).Lon1))
-        Points(2 * i + 1) = CInt(LatToCanvas(NSZ(StartIndex).Lat1))
 
-        _BackDropBmp.FillPolygon(Points, NSZColor)
     End Sub
 
     Private Sub DrawNSZ(ByVal NSZ As List(Of MapSegment))
