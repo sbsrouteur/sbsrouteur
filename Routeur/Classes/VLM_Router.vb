@@ -986,7 +986,7 @@ Public Class VLM_Router
             PlannedRoute.Add(P)
             Return
         Else
-            Dim Dest As Coords = TC.ReachDistanceOrtho(0.5)
+            Dim Dest As Coords = TC.ReachDistanceortho(0.5)
             Dim P1 As New clsrouteinfopoints With {.P = Dest}
             BuildOrthoToP(userPosition, P1, PlannedRoute)
             BuildOrthoToP(P1.P, P, PlannedRoute)
@@ -2757,23 +2757,24 @@ Public Class VLM_Router
 
     Public Sub RefreshTimes()
 
-
+        Dim LogChanged As Boolean = _LogQueue.Count > 0
         getboatinfo(Meteo)
 
-        'AddLog("synclock refreshtimes " & System.Threading.Thread.CurrentThread.ManagedThreadId)
-        SyncLock _LogQueue
+        If LogChanged Then
+            'AddLog("synclock refreshtimes " & System.Threading.Thread.CurrentThread.ManagedThreadId)
+            SyncLock _LogQueue
 
-            While _LogQueue.Count > 0
+                While _LogQueue.Count > 0
 
-                _Log.Insert(0, _LogQueue.Dequeue)
-                If _Log.Count = 200 Then
-                    _Log.RemoveAt(199)
-                End If
+                    _Log.Insert(0, _LogQueue.Dequeue)
+                    If _Log.Count = 200 Then
+                        _Log.RemoveAt(199)
+                    End If
 
-            End While
-        End SyncLock
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Log"))
-
+                End While
+            End SyncLock
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Log"))
+        End If
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("PositionDataAge"))
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RaceStartDate"))
 
@@ -3056,7 +3057,7 @@ Public Class VLM_Router
 
             _iso = New IsoRouter(_UserInfo.POL, Sails, Meteo, prefs.IsoAngleStep, prefs.IsoLookupAngle, New TimeSpan(0, _PlayerInfo.RaceInfo.vacfreq, 0), _
                                  DBWrapper.GetMapLevel(prefs.MapLevel), prefs.EllipseExtFactor)
-            
+
 
 
 
@@ -3297,20 +3298,20 @@ Public Class VLM_Router
             WP = _CurUserWP
         End If
 
-        If prefs.UseCustomDest Then
-            EndCoords1 = prefs.RouteDest
+        If Prefs.UseCustomDest Then
+            EndCoords1 = Prefs.RouteDest
             EndCoords2 = Nothing
         Else
             EndCoords1 = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(0)
             EndCoords2 = _PlayerInfo.RaceInfo.races_waypoints(WP).WPs(0)(1)
         End If
 
-        If prefs.UseCustomStart Then
-            If prefs.RouteStart IsNot Nothing Then
-                StartCoords = prefs.RouteStart
+        If Prefs.UseCustomStart Then
+            If Prefs.RouteStart IsNot Nothing Then
+                StartCoords = Prefs.RouteStart
             Else
                 MessageBox.Show("Alternate start selected without specifying start coordinates. Using Current pos for start point")
-                prefs.UseCustomDest = False
+                Prefs.UseCustomDest = False
                 StartCoords = start
             End If
         Else
@@ -3323,7 +3324,7 @@ Public Class VLM_Router
     End Sub
 
 
-   
+
 
 
 
