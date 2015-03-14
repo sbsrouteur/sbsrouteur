@@ -20,7 +20,7 @@ Imports System.Threading
 Public Class BspRect
     Public Const GRID_GRAIN_OVERSAMPLE As Integer = 1
     Private Const MAX_IGNORED_COUNT As Integer = 2000
-    Private Const MAX_TREE_Z As Integer = 10
+    Private Const MAX_TREE_Z As Integer = 12
 
     Public Enum inlandstate As Byte
         Unknown = 0
