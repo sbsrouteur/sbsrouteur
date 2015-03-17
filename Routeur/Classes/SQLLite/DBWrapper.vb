@@ -283,18 +283,20 @@ RestartPoint:
             End Using
         Finally
             Dim EndTick As DateTime = Now
-
+            Static lastupdate As DateTime
             CumDuration += Now.Subtract(Start).Ticks
             Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgQueryTimeMS) = CumDuration / Count / TimeSpan.TicksPerMillisecond
             Count += 1
-            If HitCount <> 0 Then
-                Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgHitCount) = TotalHitCount / HitCount
-                Routeur.Stats.SetStatValue(Stats.StatID.RIndex_ExceptionRatio) = HitCountError / HitCount
+            If Now.Subtract(lastupdate).TotalSeconds > 1 Then
+                If HitCount <> 0 Then
+                    Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgHitCount) = TotalHitCount / HitCount
+                    Routeur.Stats.SetStatValue(Stats.StatID.RIndex_ExceptionRatio) = HitCountError / HitCount
+                End If
+                If HitCountNZ <> 0 Then
+                    Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgHitCountNonZero) = HitCount / HitCountNZ
+                End If
+                lastupdate = Now
             End If
-            If HitCountNZ <> 0 Then
-                Routeur.Stats.SetStatValue(Stats.StatID.RIndex_AvgHitCountNonZero) = HitCount / HitCountNZ
-            End If
-
         End Try
 
 
