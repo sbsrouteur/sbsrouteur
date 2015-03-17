@@ -441,6 +441,10 @@ Public Class IsoRouter
                     Speed = _SailManager.GetSpeed(_BoatType, clsSailManager.EnumSail.OneSail, Alpha, MI.Strength)
                     TotalDist += Speed / 60 * RouteurModel.VacationMinutes
                     TC.StartPoint = TC.ReachDistanceLoxo(Speed / 60 * RouteurModel.VacationMinutes, Cap)
+                    If TC.StartPoint Is Nothing Then
+                        'if point cannot be reached abort...
+                        Return Nothing
+                    End If
                     CurDate = StartTicks.AddTicks(i)
                     '    LoopCount += 1
                     'TC.StartPoint = TC.EndPoint
