@@ -63,7 +63,6 @@ Public Class VLM_Router
     Private _TempRoute As New ObservableCollection(Of clsrouteinfopoints)
     Private _PlannedRoute As New ObservableCollection(Of clsrouteinfopoints)
     Private _LastBestVMGCalc As TimeSpan = New TimeSpan(0, 0, 15)
-    Private _LastCommunication As DateTime = New DateTime(0)
     Private _lastflush As DateTime = New DateTime(0)
     Private _CurrentDest As Coords = Nothing
 
@@ -2566,8 +2565,7 @@ Public Class VLM_Router
 
         Dim ErrorCount As Integer = 0
         Dim ResponseString As String = ""
-        Static requerydelay As Double = 0
-
+        Static LastQuery As DateTime
 
         If _PlayerInfo Is Nothing Then
             Return
@@ -2575,7 +2573,7 @@ Public Class VLM_Router
 
 
 
-        If Not force AndAlso Not _UserInfo Is Nothing AndAlso Now.Subtract(_UserInfo.[Date]).TotalMinutes < RouteurModel.VacationMinutes + requerydelay Then
+        If Not force AndAlso Not _UserInfo Is Nothing AndAlso (Now.Subtract(_UserInfo.[Date]).TotalMinutes < RouteurModel.VacationMinutes OrElse Now.Subtract(LastQuery).TotalMinutes <= RouteurModel.VacationMinutes) Then
             Return
         End If
 
@@ -2589,29 +2587,21 @@ Public Class VLM_Router
             Dim prevwp As Integer = RouteurModel.CurWP
             Dim CurDate As Date = If(UserInfo Is Nothing, Now, _UserInfo.[Date])
             UserInfo = ParseVLMBoatInfoString()
+            LastQuery = Now
             If _UserInfo IsNot Nothing Then
 
-            End If
-            If Not force AndAlso CurDate = _UserInfo.[Date] Then
-                If requerydelay = 0 Then
-                    requerydelay = 2 / 60
-                Else
-                    requerydelay += 1 / 60
-                End If
-                Return
-            Else
-                requerydelay = 0
-            End If
-            Dim Dest As Coords
+                Dim Dest As Coords
 
-            If UserInfo.WPLAT = 0 AndAlso UserInfo.WPLAT = UserInfo.WPLON Then
-                Dim Pos As New Coords(UserInfo.Position)
-                Dest = GSHHS_Reader.PointToSegmentIntersect(Pos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0) _
-                                                                                     , _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
-            Else
-                Dest = New Coords(UserInfo.Position)
+                If UserInfo.WPLAT = 0 AndAlso UserInfo.WPLAT = UserInfo.WPLON Then
+                    Dim Pos As New Coords(UserInfo.Position)
+                    Dest = GSHHS_Reader.PointToSegmentIntersect(Pos, _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(0) _
+                                                                                         , _PlayerInfo.RaceInfo.races_waypoints(RouteurModel.CurWP).WPs(0)(1))
+                Else
+                    Dest = New Coords(UserInfo.Position)
+                End If
+
+                CurrentDest = Dest
             End If
-            CurrentDest = Dest
 
             If RouteurModel.CurWP <> prevwp Then
                 'If CurUserWP = 0 Then
@@ -2659,7 +2649,6 @@ Public Class VLM_Router
             Else
                 AddLog("No Meteo data !!")
             End If
-            _LastCommunication = Now
 
             If Now.Subtract(_lastflush).TotalMinutes > 15 Then
 
