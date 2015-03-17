@@ -146,25 +146,25 @@ Partial Public Class _2D_Viewer
 
     End Function
 
-    Function LoadBitmapFromFile(path As String) As WriteableBitmap
-        Dim img As New BitmapImage()
-        Dim RetValue As WriteableBitmap = Nothing
-        img.BeginInit()
-        img.CreateOptions = BitmapCreateOptions.None
-        Using rs As New IO.FileStream(path, IO.FileMode.Open)
-            Try
+    'Function LoadBitmapFromFile(path As String) As WriteableBitmap
+    '    Dim img As New BitmapImage()
+    '    Dim RetValue As WriteableBitmap = Nothing
+    '    img.BeginInit()
+    '    img.CreateOptions = BitmapCreateOptions.None
+    '    Using rs As New IO.FileStream(path, IO.FileMode.Open)
+    '        Try
 
-                img.StreamSource = rs
-                img.EndInit()
-                RetValue = BitmapFactory.ConvertToPbgra32Format(img)
-            Catch
-                rs.Close()
-                IO.File.Delete(path)
-            End Try
-            Return RetValue
-        End Using
+    '            img.StreamSource = rs
+    '            img.EndInit()
+    '            RetValue = BitmapFactory.ConvertToPbgra32Format(img)
+    '        Catch
+    '            rs.Close()
+    '            IO.File.Delete(path)
+    '        End Try
+    '        Return RetValue
+    '    End Using
 
-    End Function
+    'End Function
 
     Function LoadBitmapFromDB(Ti As TileInfo) As WriteableBitmap
         Dim img As New BitmapImage()
