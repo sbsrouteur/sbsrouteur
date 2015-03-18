@@ -113,20 +113,20 @@ Public Class MeteoBitmapper
 
                             If _GridStep <> 0 Then
                                 'Draw Grid
-                                Dim Gx As Double = Math.Round(_Viewer.CanvasToLon(0), 0)
-                                Dim MaxX As Double = _Viewer.CanvasToLon(_Viewer.ActualWidth)
+                                Dim Gx As Double = Math.Round(_Viewer.MapTransform.CanvasToLon(0), 0)
+                                Dim MaxX As Double = _Viewer.MapTransform.CanvasToLon(_Viewer.ActualWidth)
                                 While Gx < MaxX
-                                    Dim Px As Integer = CInt(_Viewer.LonToCanvas(Gx))
+                                    Dim Px As Integer = CInt(_Viewer.MapTransform.LonToCanvas(Gx))
                                     g.DrawLine(Pens.Aqua, New Point(CInt(Px), 0), New Point(CInt(Px), CInt(_Viewer.ActualHeight)))
                                     g.DrawString(Gx.ToString, _MeteoFont, Brushes.Black, New Point(Px, 1))
                                     g.DrawString(Gx.ToString, _MeteoFont, Brushes.Black, New Point(Px, CInt(_Viewer.ActualHeight) - 8))
                                     Gx += _GridStep
                                 End While
 
-                                Dim GY As Double = Math.Round(_Viewer.CanvasToLat(0), 0)
-                                Dim MinY As Double = _Viewer.CanvasToLat(_Viewer.ActualHeight)
+                                Dim GY As Double = Math.Round(_Viewer.MapTransform.CanvasToLat(0), 0)
+                                Dim MinY As Double = _Viewer.MapTransform.CanvasToLat(_Viewer.ActualHeight)
                                 While GY > MinY
-                                    Dim Py As Integer = CInt(_Viewer.LatToCanvas(GY))
+                                    Dim Py As Integer = CInt(_Viewer.MapTransform.LatToCanvas(GY))
                                     g.DrawLine(Pens.Aqua, New Point(0, Py), New Point(CInt(_Viewer.ActualWidth), Py))
                                     g.DrawString(GY.ToString, _MeteoFont, Brushes.Black, New Point(1, Py))
                                     g.DrawString(GY.ToString, _MeteoFont, Brushes.Black, New Point(CInt(_Viewer.ActualHeight) - 8, Py))
@@ -174,8 +174,8 @@ Public Class MeteoBitmapper
                                 For Each RoutePoint In Route
                                     If Abs(Now.AddMinutes(5 * ImgIndex).Subtract(RoutePoint.T).TotalMinutes) < 5 Then
                                         Dim Pt1 As New Point
-                                        Pt1.X = CInt(_Viewer.LonToCanvas(RoutePoint.P.N_Lon_Deg)) - 2
-                                        Pt1.Y = CInt(_Viewer.LatToCanvas(RoutePoint.P.Lat_Deg)) - 2
+                                        Pt1.X = CInt(_Viewer.MapTransform.LonToCanvas(RoutePoint.P.N_Lon_Deg)) - 2
+                                        Pt1.Y = CInt(_Viewer.MapTransform.LatToCanvas(RoutePoint.P.Lat_Deg)) - 2
                                         g.DrawEllipse(Pens.Red, Pt1.X, Pt1.Y, 4, 4)
                                         Exit For
                                     End If
@@ -223,7 +223,7 @@ Public Class MeteoBitmapper
 
                 If _StopRender Then Return
                 Dim StartMeteo As DateTime = Now
-                Dim mi As MeteoInfo = _meteo.GetMeteoToDate(New Coords(_Viewer.CanvasToLat(Y), _Viewer.CanvasToLon(X)), Me.Date.AddMinutes(5 * MeteoIndex), False)
+                Dim mi As MeteoInfo = _meteo.GetMeteoToDate(New Coords(_Viewer.MapTransform.CanvasToLat(Y), _Viewer.MapTransform.CanvasToLon(X)), Me.Date.AddMinutes(5 * MeteoIndex), False)
                 If _MeteoCache(MeteoIndex)(Ix + NbX * Iy) Is Nothing Then
                     _MeteoCache(MeteoIndex)(Ix + NbX * Iy) = New MeteoData
                 End If
@@ -273,8 +273,8 @@ Public Class MeteoBitmapper
         Dim Dx As Integer = CInt(_Viewer.ActualWidth / NbX)
         Dim dy As Integer = CInt(_Viewer.ActualHeight / NbY)
 
-        Dim DeltaLon As Double = _Viewer.CanvasToLon(Dx) - _Viewer.CanvasToLon(0)
-        Dim DeltaLat As Double = _Viewer.CanvasToLat(0) - _Viewer.CanvasToLat(dy)
+        Dim DeltaLon As Double = _Viewer.MapTransform.CanvasToLon(Dx) - _Viewer.MapTransform.CanvasToLon(0)
+        Dim DeltaLat As Double = _Viewer.MapTransform.CanvasToLat(0) - _Viewer.MapTransform.CanvasToLat(dy)
 
         Dim ELon As Double = Math.Log(DeltaLon) / Math.Log(0.5)
         Dim ELat As Double = Math.Log(DeltaLat) / Math.Log(0.5)

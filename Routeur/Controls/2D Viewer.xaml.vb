@@ -68,9 +68,9 @@ Partial Public Class _2D_Viewer
     Private WithEvents _MapPg As New MapProgressContext("Drawing Map...")
     Private _TileCount As Integer = 0
 
-    Private _Scale As Double
-    Private _LonOffset As Double
-    Private _LatOffset As Double
+    'Private _Scale As Double
+    'Private _LonOffset As Double
+    'Private _LatOffset As Double
     Private Shared _CenterOnAnteMeridien As Boolean = False
     Private _HideIsochroneLines As Boolean = False
     Private _HideIsochroneDots As Boolean = False
@@ -86,6 +86,10 @@ Partial Public Class _2D_Viewer
 
     Private _DBLink As New DBWrapper
 
+    Private _MapTransform As IMapTransform
+
+
+
     Public Sub New()
         MyBase.New()
 
@@ -98,53 +102,9 @@ Partial Public Class _2D_Viewer
         _BgDrawerTimer = New DispatcherTimer(DispatcherPriority.Background, Dispatcher)
         _BgDrawerTimer.Interval = New TimeSpan(0, 0, 0, 0, 100)
         _BgDrawerTimer.Start()
+        _MapTransform = New MercatorTransform
+
     End Sub
-
-    Public Function CanvasToLat(ByVal C As Double) As Double
-        Debug.Assert(Scale <> 0)
-        Dim Ret As Double = (ActualHeight / 2 - C) / Scale + LatOffset '90 / RouteurModel.SCALE - C / DEFINITION / RouteurModel.SCALE + RouteurModel.LAT_OFFSET
-        Ret = Ret / 180 * PI
-        Return (Math.Atan(Math.Sinh(Ret)) / PI * 180)
-    End Function
-
-    Public Function CanvasToLon(ByVal V As Double) As Double
-        Debug.Assert(Scale <> 0)
-        Dim Ret As Double = ((V - ActualWidth / 2) / Scale + LonOffset) '(V - 180 * DEFINITION) / DEFINITION / RouteurModel.SCALE
-        'If Ret > 180 Then
-        '    While Ret > 180
-        '        Ret -= 180
-        '    End While
-        'ElseIf Ret < -180 Then
-        '    While Ret < -180
-        '        Ret += 180
-        '    End While
-        'End If
-        Return Ret
-    End Function
-
-
-    Public Function LatToCanvas(ByVal V As Double) As Double
-
-        V = V / 180.0 * PI
-        V = Log(Tan(V) + 1 / Cos(V))
-        V = V / PI * 180.0
-        If Double.IsNaN(V) Then
-            Dim i As Integer = 0
-        End If
-        Return ActualHeight / 2.0 - (V - LatOffset) * Scale
-
-    End Function
-
-    Public Function LonToCanvas(ByVal V As Double) As Double
-
-        'V = V Mod 360
-        'If CenterMapOnAnteMeridien AndAlso V < 0 Then
-        'Return ActualWidth / 2 + (V - LonOffset + 360) * Scale
-        'Else
-        Return ActualWidth / 2.0 + (V - LonOffset) * Scale
-        'End If
-
-    End Function
 
     'Function LoadBitmapFromFile(path As String) As WriteableBitmap
     '    Dim img As New BitmapImage()
@@ -358,7 +318,7 @@ Render1:
 
 
         'Scale = 360 / Math.Abs(C1.Lon_Deg - C2.Lon_Deg)
-        Dim Width As Double = CanvasToLon(ActualWidth) - CanvasToLon(0)
+        Dim Width As Double = MapTransform.CanvasToLon(ActualWidth) - MapTransform.CanvasToLon(0)
         ZFactor = CInt(Math.Floor(Math.Log(ActualWidth / Width) / Math.Log(2))) + 1
 
         'Limit zoom to 20 (at least for use with VLM cached tiles)
@@ -368,8 +328,8 @@ Render1:
             ZFactor = 1
         End If
 
-        Dim North As Double = CanvasToLat(0)
-        Dim West As Double = CanvasToLon(0)
+        Dim North As Double = MapTransform.CanvasToLat(0)
+        Dim West As Double = MapTransform.CanvasToLon(0)
         _TileCount = 0
         Dim TI As TileInfo
 
@@ -378,11 +338,11 @@ Render1:
 
         _TileServer.Clear()
         For x As Integer = CInt(-TileServer.TILE_SIZE / 2) To CInt(ActualWidth + TileServer.TILE_SIZE / 2) Step CInt(TileServer.TILE_SIZE / 2)
-            Dim W As Double = CanvasToLon(x)
-            Dim E As Double = CanvasToLon(x + TileServer.TILE_SIZE)
+            Dim W As Double = MapTransform.CanvasToLon(x)
+            Dim E As Double = MapTransform.CanvasToLon(x + TileServer.TILE_SIZE)
             For y As Integer = CInt(-TileServer.TILE_SIZE / 2) To CInt(ActualHeight + TileServer.TILE_SIZE / 2) Step CInt(TileServer.TILE_SIZE / 2)
-                Dim N As Double = CanvasToLat(y)
-                Dim S As Double = CanvasToLat(y + TileServer.TILE_SIZE)
+                Dim N As Double = MapTransform.CanvasToLat(y)
+                Dim S As Double = MapTransform.CanvasToLat(y + TileServer.TILE_SIZE)
                 TI = New TileInfo(ZFactor, N, S, E, W)
 
                 System.Threading.Interlocked.Increment(_PendingTileRequestCount)
@@ -419,6 +379,7 @@ Render1:
 
 
         Try
+           
             If Not _RacePolygons Is Nothing Then
                 _RacePolygons.AddLast(RouteurModel._RaceRect)
             End If
@@ -444,8 +405,8 @@ Render1:
     Private Sub SafeDrawLine(Bmp As WriteableBitmap, ByVal PrevP As Coords, ByVal P As Coords, ByVal Color As Integer, Optional ForceDraw As Boolean = False)
         Dim MapSpan As Integer
         For MapSpan = -1 To 1
-            Dim PrevPoint2 As New Point(LonToCanvas(PrevP.N_Lon_Deg + 360 * MapSpan), LatToCanvas(PrevP.N_Lat_Deg))
-            Dim NewP2 As New Point(LonToCanvas(P.N_Lon_Deg + 360 * MapSpan), LatToCanvas(P.N_Lat_Deg))
+            Dim PrevPoint2 As New Point(MapTransform.LonToCanvas(PrevP.N_Lon_Deg + 360 * MapSpan), MapTransform.LatToCanvas(PrevP.N_Lat_Deg))
+            Dim NewP2 As New Point(MapTransform.LonToCanvas(P.N_Lon_Deg + 360 * MapSpan), MapTransform.LatToCanvas(P.N_Lat_Deg))
 
             If Not ForceDraw AndAlso OutOfCanvas(PrevPoint2) AndAlso OutOfCanvas(NewP2) Then
                 Continue For
@@ -456,23 +417,23 @@ Render1:
                 Dim DLon As Double
                 Dim LonSpan As Double
                 If PrevP.N_Lon < 0 Then
-                    Pint.X = LonToCanvas(-179.99 + 360 * MapSpan)
+                    Pint.X = MapTransform.LonToCanvas(-179.99 + 360 * MapSpan)
                     DLon = 180 + PrevP.N_Lon_Deg
                     LonSpan = PrevP.N_Lon_Deg + 360 - P.Lon_Deg
                 Else
-                    Pint.X = LonToCanvas(179.99 + 360 * MapSpan)
+                    Pint.X = MapTransform.LonToCanvas(179.99 + 360 * MapSpan)
                     DLon = 180 - PrevP.N_Lon_Deg
                     LonSpan = Abs(-180 - P.N_Lon_Deg) + 180 - PrevP.Lon_Deg
                 End If
 
                 'Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
-                Pint.Y = LatToCanvas(PrevP.N_Lat_Deg + (P.N_Lat_Deg - PrevP.N_Lat_Deg) * DLon / LonSpan)
+                Pint.Y = MapTransform.LatToCanvas(PrevP.N_Lat_Deg + (P.N_Lat_Deg - PrevP.N_Lat_Deg) * DLon / LonSpan)
                 Bmp.DrawLine(CInt(Math.Floor(PrevPoint2.X)), CInt(Math.Floor(PrevPoint2.Y)), CInt(Math.Ceiling(Pint.X)), CInt(Math.Ceiling(Pint.Y)), Color)
 
                 If P.N_Lon < 0 Then
-                    Pint.X = LonToCanvas(-179.99 + 360 * MapSpan)
+                    Pint.X = MapTransform.LonToCanvas(-179.99 + 360 * MapSpan)
                 Else
-                    Pint.X = LonToCanvas(179.99 + 360 * MapSpan)
+                    Pint.X = MapTransform.LonToCanvas(179.99 + 360 * MapSpan)
                 End If
 
                 Bmp.DrawLine(CInt(Pint.X), CInt(Pint.Y), CInt(NewP2.X), CInt(NewP2.Y), Color)
@@ -652,8 +613,8 @@ Render1:
                                         If Not HideIsochronesLines Then
                                             If Not iso.PointSet(index) Is Nothing AndAlso Not iso.PointSet(index).P Is Nothing Then
                                                 CurP = iso.PointSet(index).P
-                                                P1.X = LonToCanvas(CurP.Lon_Deg)
-                                                P1.Y = LatToCanvas(CurP.Lat_Deg)
+                                                P1.X = MapTransform.LonToCanvas(CurP.Lon_Deg)
+                                                P1.Y = MapTransform.LatToCanvas(CurP.Lat_Deg)
 
                                                 tc.EndPoint = CurP
                                                 Dim NewLoxo As Double = tc.LoxoCourse_Deg
@@ -854,6 +815,12 @@ Render1:
 
     End Sub
 
+    Public ReadOnly Property MapTransform As IMapTransform
+        Get
+            Return _MapTransform
+        End Get
+    End Property
+
 
     Private Sub MouseOverMap(ByVal sender As System.Object, ByVal e As System.Windows.Input.MouseEventArgs)
 
@@ -864,8 +831,8 @@ Render1:
         Static evtprops As New PropertyChangedEventArgs("CurCoords")
         Dim P As Point = e.GetPosition(CType(sender, IInputElement))
 
-        CurCoords.Lon_Deg = CanvasToLon(P.X)
-        CurCoords.Lat_Deg = CanvasToLat(P.Y)
+        CurCoords.Lon_Deg = MapTransform.CanvasToLon(P.X)
+        CurCoords.Lat_Deg = MapTransform.CanvasToLat(P.Y)
         'P.X += 5
         'P.Y += 5
         'Debug.WriteLine("Coords : " & CurCoords.ToString)
@@ -1010,11 +977,11 @@ Render1:
         Dim NSZColor As Integer = &H7FFF0000
         
         For maps As Integer = -1 To 1
-            Points(0) = CInt(LonToCanvas(NSZ(0).Lon1 + 360 * maps))
-            Points(1) = CInt(LatToCanvas(NSZ(0).Lat1))
+            Points(0) = CInt(MapTransform.LonToCanvas(NSZ(0).Lon1 + 360 * maps))
+            Points(1) = CInt(MapTransform.LatToCanvas(NSZ(0).Lat1))
             For i = StartIndex To EndIndex
-                Points(2 * (i + 1) + 0) = CInt(LonToCanvas(NSZ(i).Lon2 + 360 * maps))
-                Points(2 * (i + 1) + 1) = CInt(LatToCanvas(NSZ(i).Lat2))
+                Points(2 * (i + 1) + 0) = CInt(MapTransform.LonToCanvas(NSZ(i).Lon2 + 360 * maps))
+                Points(2 * (i + 1) + 1) = CInt(MapTransform.LatToCanvas(NSZ(i).Lat2))
             Next
             Points(2 * (i) + 2) = Points(0)
             Points(2 * (i) + 3) = Points(1)
@@ -1103,32 +1070,6 @@ Render1:
         End Set
     End Property
 
-    Public Property LatOffset() As Double
-        Get
-            Return _LatOffset
-        End Get
-        Set(ByVal value As Double)
-            Debug.Assert(Not Double.IsNaN(value))
-            If Double.IsNaN(value) Then
-                _LatOffset = 0
-            Else
-                _LatOffset = value
-            End If
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LatOffset"))
-        End Set
-    End Property
-
-    Public Property LonOffset() As Double
-        Get
-            Return _LonOffset
-        End Get
-        Set(ByVal value As Double)
-            Debug.Assert(Not Double.IsNaN(value))
-            _LonOffset = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("LonOffset"))
-        End Set
-    End Property
-
     Public Property MouseP() As Point
         Get
             Return _P
@@ -1146,16 +1087,6 @@ Render1:
             End If
             Return _RacePolygons
         End Get
-    End Property
-
-    Public Property Scale() As Double
-        Get
-            Return _Scale
-        End Get
-        Set(ByVal value As Double)
-            Debug.Assert(value <> 0)
-            _Scale = value
-        End Set
     End Property
 
     Public Property TrackColor As Color
@@ -1182,10 +1113,10 @@ Render1:
 
                 Return
             End If
-            Dim N As Double = LatToCanvas(ti.North)
-            Dim S As Double = LatToCanvas(ti.South)
-            Dim W As Double = LonToCanvas(ti.West)
-            Dim E As Double = LonToCanvas(ti.East)
+            Dim N As Double = MapTransform.LatToCanvas(ti.North)
+            Dim S As Double = MapTransform.LatToCanvas(ti.South)
+            Dim W As Double = MapTransform.LonToCanvas(ti.West)
+            Dim E As Double = MapTransform.LonToCanvas(ti.East)
 
             Dim R As New Rect(W, _
                               N, _
@@ -1275,9 +1206,9 @@ Render1:
 
     Private Sub SafeDrawEllipse(Bmp As WriteableBitmap, CurP As Coords, Color As Integer, XAxis As Integer, YAxis As Integer)
         Dim P1_X As Integer
-        Dim P1_Y As Integer = CInt(LatToCanvas(CurP.N_Lat_Deg) - (YAxis / 2))
+        Dim P1_Y As Integer = CInt(MapTransform.LatToCanvas(CurP.N_Lat_Deg) - (YAxis / 2))
         Dim P2_X As Integer
-        Dim P2_Y As Integer = CInt(LatToCanvas(CurP.N_Lat_Deg) + (YAxis / 2))
+        Dim P2_Y As Integer = CInt(MapTransform.LatToCanvas(CurP.N_Lat_Deg) + (YAxis / 2))
 
         If P1_Y = P2_Y Then
             P2_Y += 1
@@ -1285,8 +1216,8 @@ Render1:
 
         For mapspan As Integer = -1 To 1
             Try
-                P1_X = CInt(LonToCanvas(CurP.Lon_Deg + 360 * mapspan) - (XAxis / 2))
-                P2_X = CInt(LonToCanvas(CurP.Lon_Deg + 360 * mapspan) + (XAxis / 2))
+                P1_X = CInt(MapTransform.LonToCanvas(CurP.Lon_Deg + 360 * mapspan) - (XAxis / 2))
+                P2_X = CInt(MapTransform.LonToCanvas(CurP.Lon_Deg + 360 * mapspan) + (XAxis / 2))
                 If P1_X = P2_X Then
                     P2_X += 1
                 End If
@@ -1346,18 +1277,6 @@ Render1:
 
     End Sub
 
-    Public Property ZFactor As Integer
-        Get
-            Return _ZFactor
-        End Get
-        Set(value As Integer)
-            If value <> _ZFactor Then
-                _ZFactor = value
-                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ZFactor"))
-            End If
-        End Set
-    End Property
-
     Private Function OutOfCanvas(Point As Point) As Boolean
 
         Return (Point.X < 0 OrElse Point.X > ActualWidth) OrElse
@@ -1396,15 +1315,15 @@ Render1:
             If CurrentPos IsNot Nothing Then
                 PrevP = CurrentPos
                 PrevPoint = New Point
-                PrevPoint.X = LonToCanvas(PrevP.Lon_Deg)
-                PrevPoint.Y = LatToCanvas(PrevP.Lat_Deg)
+                PrevPoint.X = MapTransform.LonToCanvas(PrevP.Lon_Deg)
+                PrevPoint.Y = MapTransform.LatToCanvas(PrevP.Lat_Deg)
             End If
 
             For Each C As Coords In Path
                 If C IsNot Nothing Then
 
-                    P1.X = LonToCanvas(C.Lon_Deg)
-                    P1.Y = LatToCanvas(C.Lat_Deg)
+                    P1.X = MapTransform.LonToCanvas(C.Lon_Deg)
+                    P1.Y = MapTransform.LatToCanvas(C.Lat_Deg)
 
                     CurPos.Lon_Deg = C.Lon_Deg
                     CurPos.Lat_Deg = C.Lat_Deg
@@ -1432,6 +1351,19 @@ Render1:
         End If
     End Sub
 
+    Public Property ZFactor As Integer
+        Get
+            Return _ZFactor
+        End Get
+        Set(value As Integer)
+            _ZFactor = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ZFactor"))
+        End Set
+    End Property
 
 
+    Private Sub _2D_Viewer_SizeChanged(sender As Object, e As SizeChangedEventArgs) Handles Me.SizeChanged
+        _MapTransform.ActualHeight = ActualHeight
+        _MapTransform.ActualWidth = ActualWidth
+    End Sub
 End Class

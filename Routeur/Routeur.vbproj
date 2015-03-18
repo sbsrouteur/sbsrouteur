@@ -151,6 +151,8 @@
     <Compile Include="Classes\GribMeteo\MeteoLoadRequest.vb" />
     <Compile Include="Classes\GridRouter\GridProgressContext.vb" />
     <Compile Include="Classes\GSHHS\GSHHS_Utils.vb" />
+    <Compile Include="Classes\MapTransforms\IMapTransform.vb" />
+    <Compile Include="Classes\MapTransforms\MercatorTransform.vb" />
     <Compile Include="Classes\Meteo\MeteoBitmapper.vb" />
     <Compile Include="Classes\NavHelper\AngleNavHelper.vb" />
     <Compile Include="Classes\NavHelper\OrthoNavHelper.vb" />

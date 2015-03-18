@@ -118,108 +118,198 @@ Module GSHHS_Utils
 
     Public Function IntersectSegments(S1_P1 As Coords, S1_P2 As Coords, S2_P1 As Coords, S2_P2 As Coords) As Boolean
 
-        If S1_P1.Equals1(S2_P1) OrElse
-           S1_P1.Equals1(S2_P1) OrElse
-           S2_P1.Equals(S1_P2) OrElse
-           S2_P2.Equals1(S1_P2) Then
-            Return True
+        Static V As New MercatorTransform With {.ActualHeight = 10000, .ActualWidth = 10000, .LatOffset = 0, .LonOffset = 0, .Scale = 1}
+
+        Dim Ax As Double = V.LonToCanvas(S1_P1.N_Lon_Deg)
+        Dim Ay As Double = V.LatToCanvas(S1_P1.N_Lat_Deg)
+        Dim Bx As Double = V.LonToCanvas(S1_P2.N_Lon_Deg)
+        Dim By As Double = V.LatToCanvas(S1_P2.N_Lat_Deg)
+        Dim Cx As Double = V.LonToCanvas(S2_P1.N_Lon_Deg)
+        Dim Cy As Double = V.LatToCanvas(S2_P1.N_Lat_Deg)
+        Dim Dx As Double = V.LonToCanvas(S2_P2.N_Lon_Deg)
+        Dim Dy As Double = V.LatToCanvas(S2_P2.N_Lat_Deg)
+
+        '  Fail if either line is undefined.
+        If (S1_P1.N_Lon_Deg = S1_P2.N_Lon_Deg And S1_P1.N_Lat_Deg = S1_P2.N_Lat_Deg) OrElse (S2_P1.N_Lon_Deg = S2_P2.N_Lon_Deg And S2_P1.N_Lat_Deg = S2_P2.N_Lat_Deg) Then
+            Return False
         End If
 
-        'Denormalize coords around ante-meridien
-        DenormalizeSegmentForAnte(S1_P1, S1_P2)
-        DenormalizeSegmentForAnte(S2_P1, S2_P2)
+
+        '// (1) Translate the system so that point A is on the origin.
+        Bx -= Ax
+        By -= Ay
+        Cx -= Ax
+        Cy -= Ay
+        Dx -= Ax
+        Dy -= Ay
+        Ax = 0
+        Ay = 0
+
+        '// Discover the length of segment A-B.
+        Dim DistAB As Double = Sqrt(Bx * Bx + By * By)
+        '// (2) Rotate the system so that point B is on the positive X axis.
+        Dim theCos As Double = Bx / DistAB
+        Dim theSin As Double = By / DistAB
+        Dim newX As Double = Cx * theCos + Cy * theSin
+        Cy = Cy * theCos - Cx * theSin
+        Cx = newX
+        newX = Dx * theCos + Dy * theSin
+        Dy = Dy * theCos - Dx * theSin
+        Dx = newX
+
+        '// Fail if the lines are parallel.
+        If (Cy = Dy) Then
+
+            Return False
+        End If
+
+        '//  (3) Discover the position of the intersection point along line A-B.
+        Dim ABpos As Double = Dx + (Cx - Dx) * Dy / (Dy - Cy)
 
 
-        Dim CoefS1 As LineParam = GetLineCoefs(S1_P1, S1_P2)
-        Dim CoefS2 As LineParam = GetLineCoefs(S2_P1, S2_P2)
+        Dim Ratio As Double = ABpos / DistAB
 
-        If CoefS1.a = CoefS2.a Then
-            Return CoefS1.b = CoefS2.b
-        ElseIf Not Double.IsNaN(CoefS1.a) And Not Double.IsNaN(CoefS2.a) Then
-            Dim x As Double = (CoefS2.b - CoefS1.b) / (CoefS1.a - CoefS2.a)
-            Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) AndAlso x <= (Max(S1_P1.Lon, S1_P2.Lon)) AndAlso x >= (Min(S2_P1.Lon, S2_P2.Lon)) AndAlso x <= (Max(S2_P1.Lon, S2_P2.Lon))
-            If SegmentIntersect = True Then
-                Dim bp As Integer = 0
+
+        If (Ratio >= 0 AndAlso Ratio <= 1) Then
+
+            '	// Possible Success
+            '// Check other segment ratio
+
+            '// Get Intersect coords
+            Dim Ix As Double = Ax + ABpos
+            Dim Iy As Double = Ay
+            Dim Ratio2 As Double
+            If ((Dx - Cx) <> 0) Then
+
+                ' // Seg is not vertical
+                Ratio2 = (Ix - Cx) / (Dx - Cx)
+            ElseIf ((Dy - Cy) <> 0) Then
+                '// Seg is vertical
+                Ratio2 = (Iy - Cy) / (Dy - Cy)
+            Else
+                '// No segment !!
+                Return False
             End If
-            Return SegmentIntersect
-        ElseIf Double.IsNaN(CoefS1.a) AndAlso CoefS2.a = 0 Then
-            Dim x As Double = (CoefS2.b)
-            Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lat, S1_P2.Lat)) AndAlso x <= (Max(S1_P1.Lat, S1_P2.Lat))
-            'Dim SegmentIntersect As Boolean = CoefS1.b >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.b <= (Max(S2_P1.Lon, S2_P2.Lon))
-            If SegmentIntersect = True Then
-                Dim bp As Integer = 0
+
+            If ((Ratio2 >= 0) AndAlso (Ratio2 <= 1)) Then
+
+                Return True
+
+            Else
+                Return False
+
             End If
-            Return SegmentIntersect
-        ElseIf Double.IsNaN(CoefS1.a) AndAlso Not Double.IsNaN(CoefS2.a) Then
-            Dim y As Double = CoefS2.b + CoefS1.b * CoefS2.a
-            Dim SegmentIntersect As Boolean = y >= (Min(S1_P1.Lat, S1_P2.Lat)) AndAlso y <= (Max(S1_P1.Lat, S1_P2.Lat)) AndAlso y >= (Min(S2_P1.Lat, S2_P2.Lat)) AndAlso y <= (Max(S2_P1.Lat, S2_P2.Lat))
-            'Dim SegmentIntersect As Boolean = CoefS1.b >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.b <= (Max(S2_P1.Lon, S2_P2.Lon))
-            If SegmentIntersect = True Then
-                Dim bp As Integer = 0
-            End If
-            Return SegmentIntersect
-        ElseIf Double.IsNaN(CoefS2.a) And CoefS1.a = 0 Then
-            Dim x As Double = CoefS1.b
-            Dim SegmentIntersect As Boolean = x >= (Min(S2_P1.Lat, S2_P2.Lat)) AndAlso x <= (Max(S2_P1.Lat, S2_P2.Lat))
-            'Dim SegmentIntersect As Boolean = CoefS2.b >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.b <= (Max(S1_P1.Lon, S1_P2.Lon))
-            If SegmentIntersect = True Then
-                Dim bp As Integer = 0
-            End If
-            Return SegmentIntersect
-        ElseIf Double.IsNaN(CoefS2.a) Then
-            Dim y As Double = CoefS1.b + CoefS2.b * CoefS1.a
-            Dim SegmentIntersect As Boolean = y >= (Min(S1_P1.Lat, S1_P2.Lat)) AndAlso y <= (Max(S1_P1.Lat, S1_P2.Lat)) AndAlso y >= (Min(S2_P1.Lat, S2_P2.Lat)) AndAlso y <= (Max(S2_P1.Lat, S2_P2.Lat))
-            'Dim SegmentIntersect As Boolean = CoefS2.b >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.b <= (Max(S1_P1.Lon, S1_P2.Lon))
-            If SegmentIntersect = True Then
-                Dim bp As Integer = 0
-            End If
-            Return SegmentIntersect
         Else
 
-            Throw New NotImplementedException
+            '// Segments do not intersect
+            Return False
         End If
-        ''Normalize S1 for antemeridian
-        'Dim X11 As Double
-        'Dim X12 As Double
-        'Dim X21 As Double
-        'Dim X22 As Double
-        'Dim Y11 As Double
-        'Dim Y12 As Double
-        'Dim Y21 As Double
-        'Dim Y22 As Double
-        'If S1_P1.Lon * S1_P2.Lon < 0 AndAlso Abs(S1_P1.Lon * S1_P2.Lon) > PI Then
-        '    X11 = (S1_P1.Lon + PI) Mod (2 * PI)
-        '    X12 = (S1_P2.Lon + PI) Mod (2 * PI)
-        'Else
-        '    X11 = S1_P1.Lon
-        '    X12 = S1_P2.Lon
-        'End If
-
-        'If S2_P1.Lon * S2_P2.Lon < 0 AndAlso Abs(S2_P1.Lon * S2_P2.Lon) > PI Then
-        '    X21 = (S2_P1.Lon + PI) Mod (2 * PI)
-        '    X22 = (S2_P2.Lon + PI) Mod (2 * PI)
-        'Else
-        '    X21 = S2_P1.Lon
-        '    X22 = S2_P2.Lon
-        'End If
-
-        'Y11 = S1_P1.Lat
-        'Y12 = S1_P2.Lat
-        'Y21 = S2_P1.Lat
-        'Y22 = S2_P2.Lat
-
-        'Dim P1 As Double = (X21 - X11) * (X22 - X11) + (Y21 - Y11) * (Y22 - Y11)
-        'If P1 = 0 Then
-        '    Return True
-        'End If
-        'Dim P2 As Double = (X21 - X12) * (X22 - X12) + (Y21 - Y12) * (Y22 - Y12)
-        'If P2 = 0 Then
-        '    Return True
-        'End If
-
-        'Return P1 * P2 < 0
-
     End Function
+
+    'Public Function IntersectSegments(S1_P1 As Coords, S1_P2 As Coords, S2_P1 As Coords, S2_P2 As Coords) As Boolean
+
+    '    If S1_P1.Equals1(S2_P1) OrElse
+    '       S1_P1.Equals1(S2_P1) OrElse
+    '       S2_P1.Equals(S1_P2) OrElse
+    '       S2_P2.Equals1(S1_P2) Then
+    '        Return True
+    '    End If
+
+    '    'Denormalize coords around ante-meridien
+    '    DenormalizeSegmentForAnte(S1_P1, S1_P2)
+    '    DenormalizeSegmentForAnte(S2_P1, S2_P2)
+
+
+    '    Dim CoefS1 As LineParam = GetLineCoefs(S1_P1, S1_P2)
+    '    Dim CoefS2 As LineParam = GetLineCoefs(S2_P1, S2_P2)
+
+    '    If CoefS1.a = CoefS2.a Then
+    '        Return CoefS1.b = CoefS2.b
+    '    ElseIf Not Double.IsNaN(CoefS1.a) And Not Double.IsNaN(CoefS2.a) Then
+    '        Dim x As Double = (CoefS2.b - CoefS1.b) / (CoefS1.a - CoefS2.a)
+    '        Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lon, S1_P2.Lon)) AndAlso x <= (Max(S1_P1.Lon, S1_P2.Lon)) AndAlso x >= (Min(S2_P1.Lon, S2_P2.Lon)) AndAlso x <= (Max(S2_P1.Lon, S2_P2.Lon))
+    '        If SegmentIntersect = True Then
+    '            Dim bp As Integer = 0
+    '        End If
+    '        Return SegmentIntersect
+    '    ElseIf Double.IsNaN(CoefS1.a) AndAlso CoefS2.a = 0 Then
+    '        Dim x As Double = (CoefS2.b)
+    '        Dim SegmentIntersect As Boolean = x >= (Min(S1_P1.Lat, S1_P2.Lat)) AndAlso x <= (Max(S1_P1.Lat, S1_P2.Lat))
+    '        'Dim SegmentIntersect As Boolean = CoefS1.b >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.b <= (Max(S2_P1.Lon, S2_P2.Lon))
+    '        If SegmentIntersect = True Then
+    '            Dim bp As Integer = 0
+    '        End If
+    '        Return SegmentIntersect
+    '    ElseIf Double.IsNaN(CoefS1.a) AndAlso Not Double.IsNaN(CoefS2.a) Then
+    '        Dim y As Double = CoefS2.b + CoefS1.b * CoefS2.a
+    '        Dim SegmentIntersect As Boolean = y >= (Min(S1_P1.Lat, S1_P2.Lat)) AndAlso y <= (Max(S1_P1.Lat, S1_P2.Lat)) AndAlso y >= (Min(S2_P1.Lat, S2_P2.Lat)) AndAlso y <= (Max(S2_P1.Lat, S2_P2.Lat))
+    '        'Dim SegmentIntersect As Boolean = CoefS1.b >= (Min(S2_P1.Lon, S2_P2.Lon)) And CoefS1.b <= (Max(S2_P1.Lon, S2_P2.Lon))
+    '        If SegmentIntersect = True Then
+    '            Dim bp As Integer = 0
+    '        End If
+    '        Return SegmentIntersect
+    '    ElseIf Double.IsNaN(CoefS2.a) And CoefS1.a = 0 Then
+    '        Dim x As Double = CoefS1.b
+    '        Dim SegmentIntersect As Boolean = x >= (Min(S2_P1.Lat, S2_P2.Lat)) AndAlso x <= (Max(S2_P1.Lat, S2_P2.Lat))
+    '        'Dim SegmentIntersect As Boolean = CoefS2.b >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.b <= (Max(S1_P1.Lon, S1_P2.Lon))
+    '        If SegmentIntersect = True Then
+    '            Dim bp As Integer = 0
+    '        End If
+    '        Return SegmentIntersect
+    '    ElseIf Double.IsNaN(CoefS2.a) Then
+    '        Dim y As Double = CoefS1.b + CoefS2.b * CoefS1.a
+    '        Dim SegmentIntersect As Boolean = y >= (Min(S1_P1.Lat, S1_P2.Lat)) AndAlso y <= (Max(S1_P1.Lat, S1_P2.Lat)) AndAlso y >= (Min(S2_P1.Lat, S2_P2.Lat)) AndAlso y <= (Max(S2_P1.Lat, S2_P2.Lat))
+    '        'Dim SegmentIntersect As Boolean = CoefS2.b >= (Min(S1_P1.Lon, S1_P2.Lon)) And CoefS2.b <= (Max(S1_P1.Lon, S1_P2.Lon))
+    '        If SegmentIntersect = True Then
+    '            Dim bp As Integer = 0
+    '        End If
+    '        Return SegmentIntersect
+    '    Else
+
+    '        Throw New NotImplementedException
+    '    End If
+    '    ''Normalize S1 for antemeridian
+    '    'Dim X11 As Double
+    '    'Dim X12 As Double
+    '    'Dim X21 As Double
+    '    'Dim X22 As Double
+    '    'Dim Y11 As Double
+    '    'Dim Y12 As Double
+    '    'Dim Y21 As Double
+    '    'Dim Y22 As Double
+    '    'If S1_P1.Lon * S1_P2.Lon < 0 AndAlso Abs(S1_P1.Lon * S1_P2.Lon) > PI Then
+    '    '    X11 = (S1_P1.Lon + PI) Mod (2 * PI)
+    '    '    X12 = (S1_P2.Lon + PI) Mod (2 * PI)
+    '    'Else
+    '    '    X11 = S1_P1.Lon
+    '    '    X12 = S1_P2.Lon
+    '    'End If
+
+    '    'If S2_P1.Lon * S2_P2.Lon < 0 AndAlso Abs(S2_P1.Lon * S2_P2.Lon) > PI Then
+    '    '    X21 = (S2_P1.Lon + PI) Mod (2 * PI)
+    '    '    X22 = (S2_P2.Lon + PI) Mod (2 * PI)
+    '    'Else
+    '    '    X21 = S2_P1.Lon
+    '    '    X22 = S2_P2.Lon
+    '    'End If
+
+    '    'Y11 = S1_P1.Lat
+    '    'Y12 = S1_P2.Lat
+    '    'Y21 = S2_P1.Lat
+    '    'Y22 = S2_P2.Lat
+
+    '    'Dim P1 As Double = (X21 - X11) * (X22 - X11) + (Y21 - Y11) * (Y22 - Y11)
+    '    'If P1 = 0 Then
+    '    '    Return True
+    '    'End If
+    '    'Dim P2 As Double = (X21 - X12) * (X22 - X12) + (Y21 - Y12) * (Y22 - Y12)
+    '    'If P2 = 0 Then
+    '    '    Return True
+    '    'End If
+
+    '    'Return P1 * P2 < 0
+
+    'End Function
 
 
 

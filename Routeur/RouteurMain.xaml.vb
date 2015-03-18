@@ -154,10 +154,10 @@ Partial Public Class RouteurMain
             Pos1 = _2DGrid.TranslatePoint(Pos1, VOR2DViewer)
             Pos2 = _2DGrid.TranslatePoint(Pos2, VOR2DViewer)
 
-            C1.Lon_Deg = M.The2DViewer.CanvasToLon(Pos1.X)
-            C1.Lat_Deg = M.The2DViewer.CanvasToLat(Pos1.Y)
-            C2.Lon_Deg = M.The2DViewer.CanvasToLon(Pos2.X)
-            C2.Lat_Deg = M.The2DViewer.CanvasToLat(Pos2.Y)
+            C1.Lon_Deg = M.The2DViewer.MapTransform.CanvasToLon(Pos1.X)
+            C1.Lat_Deg = M.The2DViewer.MapTransform.CanvasToLat(Pos1.Y)
+            C2.Lon_Deg = M.The2DViewer.MapTransform.CanvasToLon(Pos2.X)
+            C2.Lat_Deg = M.The2DViewer.MapTransform.CanvasToLat(Pos2.Y)
         Else
             C1 = RouteurModel._RaceRect(0)
             C2 = RouteurModel._RaceRect(2)
@@ -210,8 +210,8 @@ Partial Public Class RouteurMain
             Dim MinY As Double = Math.Min(_DragStartPoint.Y, EndDragPoint.Y)
             Dim MaxY As Double = Math.Max(_DragStartPoint.Y, EndDragPoint.Y)
 
-            C1 = New Coords(VOR2DViewer.CanvasToLat(MaxY), VOR2DViewer.CanvasToLon(MinX))
-            C2 = New Coords(VOR2DViewer.CanvasToLat(MinY), VOR2DViewer.CanvasToLon(MaxX))
+            C1 = New Coords(VOR2DViewer.MapTransform.CanvasToLat(MaxY), VOR2DViewer.MapTransform.CanvasToLon(MinX))
+            C2 = New Coords(VOR2DViewer.MapTransform.CanvasToLat(MinY), VOR2DViewer.MapTransform.CanvasToLon(MaxX))
 
         End If
         If C1 IsNot Nothing AndAlso C2 IsNot Nothing Then
@@ -245,8 +245,8 @@ Partial Public Class RouteurMain
 
             _DragStartPoint = EndDragPoint
 
-            C1 = New Coords(VOR2DViewer.CanvasToLat(-Dy), VOR2DViewer.CanvasToLon(-Dx))
-            C2 = New Coords(VOR2DViewer.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
+            C1 = New Coords(VOR2DViewer.MapTransform.CanvasToLat(-Dy), VOR2DViewer.MapTransform.CanvasToLon(-Dx))
+            C2 = New Coords(VOR2DViewer.MapTransform.CanvasToLat(VOR2DViewer.ActualHeight - Dy), VOR2DViewer.MapTransform.CanvasToLon(VOR2DViewer.ActualWidth - Dx))
         ElseIf _ZoomCanvas Then
 
         End If
@@ -332,10 +332,10 @@ Partial Public Class RouteurMain
 
             Debug.WriteLine(dx & " / " & dy)
 
-            Dim C1 As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y - dy1), VOR2DViewer.CanvasToLon(CenterPosition.X - dx1))
-            Dim C2 As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y + dy2), VOR2DViewer.CanvasToLon(CenterPosition.X + dx2))
+            Dim C1 As New Coords(VOR2DViewer.MapTransform.CanvasToLat(CenterPosition.Y - dy1), VOR2DViewer.MapTransform.CanvasToLon(CenterPosition.X - dx1))
+            Dim C2 As New Coords(VOR2DViewer.MapTransform.CanvasToLat(CenterPosition.Y + dy2), VOR2DViewer.MapTransform.CanvasToLon(CenterPosition.X + dx2))
             'TODO handle antemeridien
-            Dim ZoomCenter As New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y), VOR2DViewer.CanvasToLon(CenterPosition.X))
+            Dim ZoomCenter As New Coords(VOR2DViewer.MapTransform.CanvasToLat(CenterPosition.Y), VOR2DViewer.MapTransform.CanvasToLon(CenterPosition.X))
             Debug.WriteLine("ZoomCenter" & ZoomCenter.ToString & " vs " & (C1.Lat_Deg + C2.Lat_Deg) / 2 & " = " & (C1.Lat_Deg + C2.Lat_Deg) / 2 - ZoomCenter.Lat_Deg)
             Debug.WriteLine("ZoomCenter" & ZoomCenter.ToString & " vs " & (C1.Lon_Deg + C2.Lon_Deg) / 2 & " = " & (C1.Lon_Deg + C2.Lon_Deg) / 2 - ZoomCenter.Lon_Deg)
             Debug.WriteLine("zoom to " & C1.ToString & " / " & C2.ToString)
@@ -345,7 +345,7 @@ Partial Public Class RouteurMain
             M.UpdateRaceScale(C1, C2)
             'M.RouteManager.Rescale()
             RedrawClick(Nothing, Nothing)
-            ZoomCenter = New Coords(VOR2DViewer.CanvasToLat(CenterPosition.Y), VOR2DViewer.CanvasToLon(CenterPosition.X))
+            ZoomCenter = New Coords(VOR2DViewer.MapTransform.CanvasToLat(CenterPosition.Y), VOR2DViewer.MapTransform.CanvasToLon(CenterPosition.X))
             Debug.WriteLine("New mouse pos" & ZoomCenter.ToString)
 
         End If
@@ -466,10 +466,10 @@ Partial Public Class RouteurMain
         End If
 
         Dim V As VLM_Router = M.VorHandler
-        Dim MinLon As Double = M.The2DViewer.CanvasToLon(0)
-        Dim MaxLon As Double = M.The2DViewer.CanvasToLon(M.The2DViewer.ActualWidth)
-        Dim MaxLat As Double = M.The2DViewer.CanvasToLat(0)
-        Dim MinLat As Double = M.The2DViewer.CanvasToLat(M.The2DViewer.ActualHeight)
+        Dim MinLon As Double = M.The2DViewer.MapTransform.CanvasToLon(0)
+        Dim MaxLon As Double = M.The2DViewer.MapTransform.CanvasToLon(M.The2DViewer.ActualWidth)
+        Dim MaxLat As Double = M.The2DViewer.MapTransform.CanvasToLat(0)
+        Dim MinLat As Double = M.The2DViewer.MapTransform.CanvasToLat(M.The2DViewer.ActualHeight)
         Dim DLon As Double = (MaxLon - MinLon) / 2
         Dim DLat As Double = (MaxLat - MinLat) / 2
         Dim p1 As New Coords(M.VorHandler.UserInfo.LAT + DLat, M.VorHandler.UserInfo.LON - DLon)

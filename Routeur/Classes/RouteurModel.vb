@@ -146,7 +146,7 @@ Public Class RouteurModel
     Public Function CanvasToCoords(ByVal X As Double, ByVal Y As Double) As Coords
 
         If Not _VorHandler Is Nothing AndAlso Not _2DViewer Is Nothing Then
-            Return New Coords(_2DViewer.CanvasToLat(Y), _2DViewer.CanvasToLon(X))
+            Return New Coords(_2DViewer.MapTransform.CanvasToLat(Y), _2DViewer.MapTransform.CanvasToLon(X))
         End If
 
         Return Nothing
@@ -214,9 +214,9 @@ Public Class RouteurModel
         VorHandler.CoordsExtent(C1, C2, _2DViewer.ActualWidth, _2DViewer.ActualHeight)
         CoordsExtent(C1, C2, _2DViewer.ActualWidth, _2DViewer.ActualHeight)
         
-        _2DViewer.Scale = Scale
-        _2DViewer.LonOffset = _LonOffset
-        _2DViewer.LatOffset = _LatOffset
+        _2DViewer.MapTransform.Scale = Scale
+        _2DViewer.MapTransform.LonOffset = _LonOffset
+        _2DViewer.MapTransform.LatOffset = _LatOffset
         _2DViewer.ClearBgMap()
 
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("WPsPath"))
@@ -446,7 +446,7 @@ Public Class RouteurModel
             If VorHandler.UserInfo Is Nothing OrElse VorHandler.UserInfo.position Is Nothing Then
                 Return 0
             End If
-            Return _2DViewer.LonToCanvas(VorHandler.UserInfo.LON)
+            Return _2DViewer.MapTransform.LonToCanvas(VorHandler.UserInfo.LON)
         End Get
     End Property
 
@@ -456,7 +456,7 @@ Public Class RouteurModel
                 Return 0
             End If
 
-            Return _2DViewer.LatToCanvas(VorHandler.UserInfo.LAT)
+            Return _2DViewer.MapTransform.LatToCanvas(VorHandler.UserInfo.LAT)
         End Get
     End Property
 
@@ -808,9 +808,9 @@ Public Class RouteurModel
         Set(ByVal value As _2D_Viewer)
             _2DViewer = value
 
-            _2DViewer.Scale = Scale
-            _2DViewer.LonOffset = _LonOffset
-            _2DViewer.LatOffset = _LatOffset
+            _2DViewer.MapTransform.Scale = Scale
+            _2DViewer.MapTransform.LonOffset = _LonOffset
+            _2DViewer.MapTransform.LatOffset = _LatOffset
 
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("The2DViewer"))
         End Set
