@@ -2,3 +2,4 @@
 *.suo
 */obj/*
 Routeur/bin/*
+TestWriteableBitmapEx\bin\Debug*/
