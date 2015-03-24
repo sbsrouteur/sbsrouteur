@@ -12,11 +12,11 @@ Imports System.Windows
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("Routeur")> 
+<Assembly: AssemblyTitle("sbsRouteur")> 
 <Assembly: AssemblyDescription("")> 
 <Assembly: AssemblyCompany("")> 
-<Assembly: AssemblyProduct("Routeur")> 
-<Assembly: AssemblyCopyright("Copyright @  2010-2013")> 
+<Assembly: AssemblyProduct("sbsRouteur")> 
+<Assembly: AssemblyCopyright("Copyright @  2010-2015")> 
 <Assembly: AssemblyTrademark("")> 
 <Assembly: ComVisible(false)>
 

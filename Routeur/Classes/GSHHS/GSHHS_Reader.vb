@@ -64,9 +64,7 @@ Public Class GSHHS_Reader
         Dim SI As GSHHS_StartInfo = CType(State, GSHHS_StartInfo)
         Dim MapLevel As Integer = DBWrapper.GetMapLevel(SI.StartPath)
         Dim DB As New DBWrapper
-        If _Tree Is Nothing Then
-            _Tree = New BspRect(_P1, _P2, 1)
-        End If
+
         If Not DB.DataMapInited(MapLevel) Then
             Try
 
@@ -81,12 +79,12 @@ Public Class GSHHS_Reader
                 SI.ProgressWindows.Start(S.Length)
                 Do
                     ReadPoly(S, SI, MapLevel, DB)
-                
+
                     SI.ProgressWindows.Progress(S.Position)
                 Loop Until S.Position >= S.Length 'Or _UseFullPolygon.Count > 5 'A Is Nothing 'Or PolyGons.Count > 2
 
                 S.Close()
-                
+
 #End If
                 DB.AddSegment(MapLevel, Nothing, Nothing, True)
             Catch ex As Exception
@@ -949,6 +947,10 @@ Public Class GSHHS_Reader
 
     Private Shared Sub _Tree_Log(ByVal Msg As String) Handles _Tree.Log
         RaiseEvent Log(Msg)
+    End Sub
+
+    Shared Sub New()
+        _Tree = New BspRect(_P1, _P2, 1)
     End Sub
 End Class
 

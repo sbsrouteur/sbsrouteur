@@ -258,6 +258,7 @@ RestartPoint:
                         HitCount += 1
                         Return RetList
                     Catch ex As Exception
+                        Debug.WriteLine("SegmentList exception " & ex.Message)
                         HitCountError += 1
                         RestartOnLockException = True
                     Finally
@@ -672,6 +673,7 @@ RestartPoint:
         End Using
 
     End Function
+
 
 
 

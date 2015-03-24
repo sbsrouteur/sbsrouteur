@@ -35,7 +35,7 @@ Public Class MeteoInfo
     Private Shared StrengthProp As New PropertyChangedEventArgs("Strength")
     'Private Shared DateProp As New PropertyChangedEventArgs("GribDate")
     Private _GribDate As DateTime
-    Private _SyncEvent As New ManualResetEvent(False)
+    'Private _SyncEvent As New ManualResetEvent(False)
 
 
     Public ReadOnly Property DataOK() As Boolean
@@ -81,11 +81,11 @@ Public Class MeteoInfo
         End Set
     End Property
 
-    Public ReadOnly Property SyncEvent As ManualResetEvent
-        Get
-            Return _SyncEvent
-        End Get
-    End Property
+    'Public ReadOnly Property SyncEvent As ManualResetEvent
+    '    Get
+    '        Return _SyncEvent
+    '    End Get
+    'End Property
 
     Private Function GetDir() As Double
         Dim dir As Double

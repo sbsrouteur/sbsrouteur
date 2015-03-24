@@ -17,16 +17,18 @@
 Imports Routeur.VLM_Router
 Imports System.Threading
 Imports DotSpatial
+Imports System.Collections.Concurrent
 
 Public Class IsoChrone
 
     'Private _Data() As clsrouteinfopoints
-    Private _PointSet As New LinkedList(Of clsrouteinfopoints)
+
+    Private _PointSet As New ConcurrentBag(Of clsrouteinfopoints)
 
 #If DBG_ISO_POINT_SET Then
     Private _RawPointSet As New LinkedList(Of clsrouteinfopoints)
 #End If
-    Private Const NB_MAX_INDEX_ISO_LUT = 36
+    'Private Const NB_MAX_INDEX_ISO_LUT = 36
     Private _Drawn As Boolean = False
     Private _IsoChroneLock As New Object
     Private _SailManager As clsSailManager
@@ -64,7 +66,7 @@ Public Class IsoChrone
     End Property
 #End If
 
-    ReadOnly Property PointSet As LinkedList(Of clsrouteinfopoints)
+    ReadOnly Property PointSet As ConcurrentBag(Of clsrouteinfopoints)
         Get
             Return _PointSet
         End Get
@@ -76,9 +78,9 @@ Public Class IsoChrone
     End Function
 
     Sub AddPoint(P1 As clsrouteinfopoints)
-        SyncLock (_IsoChroneLock)
-            _PointSet.AddLast(P1)
-        End SyncLock
+        'SyncLock (_IsoChroneLock)
+        _PointSet.Add(P1)
+        'End SyncLock
     End Sub
 
 
@@ -90,9 +92,8 @@ Public Class IsoChrone
         Dim NextPoint As clsrouteinfopoints = Nothing
         Dim Count As Integer = 0
         Dim Ignored As Integer = 0
-        Dim WorkSet As New LinkedList(Of clsrouteinfopoints)
-        WorkSet = New LinkedList(Of clsrouteinfopoints)(_PointSet)
-
+        Dim WorkSet As New ConcurrentBag(Of clsrouteinfopoints)(PointSet)
+        
         'Dim coordslist As New List(Of DotSpatial.Topology.Coordinate)
         Dim Angles(WorkSet.Count - 1) As Double
         Dim Dists(WorkSet.Count - 1) As Double
@@ -102,7 +103,7 @@ Public Class IsoChrone
         If WorkSet.Count = 0 Then
             Dim i As Integer = 0
         End If
-        WorkSet = New LinkedList(Of clsrouteinfopoints)(From P In WorkSet Order By P.CapFromPos)
+        WorkSet = New ConcurrentBag(Of clsrouteinfopoints)(From P In WorkSet Order By P.CapFromPos)
         Dim Start As DateTime = Now
         Dim StartCount As Integer = WorkSet.Count
         Dim EndCount As Integer
@@ -180,7 +181,7 @@ Public Class IsoChrone
 
                 Console.WriteLine("CleanUp half loop in " & Now.Subtract(Start).TotalMilliseconds & " with " & LoopCount & " Loops")
 
-                
+
 
                 Index = 0
 
@@ -192,14 +193,16 @@ Public Class IsoChrone
                     End If
                     Index += 1
                 Next
-                WorkSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
+                WorkSet = New ConcurrentBag(Of clsrouteinfopoints)(_NextPointSet)
                 ReDim Dists(WorkSet.Count - 1)
                 ReDim FilteredDist(WorkSet.Count - 1)
                 LoopCount += 1
             Loop Until _NextPointSet.Count <= IsoMaxCount Or _NextPointSet.Count = PrevCount
-            _PointSet = New LinkedList(Of clsrouteinfopoints)(_NextPointSet)
+            _PointSet = New ConcurrentBag(Of clsrouteinfopoints)(_NextPointSet)
+
         Else
             _PointSet = WorkSet
+
         End If
         ''Create IndexLut for IsoChrone
         '_Iso_IndexLut(0) = 0
@@ -236,7 +239,7 @@ Public Class IsoChrone
             Loxo = (Loxo + 3600) Mod 360
         End If
 
-        Return IndexFromAngleDycho(Loxo, 0, _PointSet.Count)
+        Return IndexFromAngleDycho(PointSet, Loxo, 0, _PointSet.Count)
 
         'Dim StartIndex As Integer = _Iso_IndexLut(CInt(Loxo / 10)) - 1
 
@@ -264,15 +267,15 @@ Public Class IsoChrone
 
     End Function
 
-    Private Function IndexFromAngleDycho(Loxo As Double, p2 As Integer, p3 As Integer) As Integer
+    Private Function IndexFromAngleDycho(PointSet As ConcurrentBag(Of clsrouteinfopoints), Loxo As Double, p2 As Integer, p3 As Integer) As Integer
 
         If _PointSet.Count = 0 Then
             Return 0
         ElseIf (p3 - p2) = 0 Then
             Return p3 Mod 360
         ElseIf (p3 - p2) = 1 Then
-            Dim Err1 As Double = Math.Abs(_PointSet(p2).CapFromPos - Loxo)
-            Dim Err2 As Double = Math.Abs(_PointSet(p2).CapFromPos - Loxo)
+            Dim Err1 As Double = Math.Abs(PointSet(p2).CapFromPos - Loxo)
+            Dim Err2 As Double = Math.Abs(PointSet(p2).CapFromPos - Loxo)
 
             If Err1 <= Err2 Then
                 Return p2
@@ -283,10 +286,10 @@ Public Class IsoChrone
             End If
         Else
             Dim Middle As Integer = CInt((p3 + p2) / 2)
-            If Loxo > _PointSet(Middle).CapFromPos Then
-                Return IndexFromAngleDycho(Loxo, Middle, p3)
+            If Loxo > PointSet(Middle).CapFromPos Then
+                Return IndexFromAngleDycho(PointSet, Loxo, Middle, p3)
             Else
-                Return IndexFromAngleDycho(Loxo, p2, Middle)
+                Return IndexFromAngleDycho(PointSet, Loxo, p2, Middle)
             End If
         End If
     End Function

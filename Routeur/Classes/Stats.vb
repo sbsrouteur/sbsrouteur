@@ -61,7 +61,8 @@ Public Class Stats
         Isochrone_Rate
         Isochrone_Count
         Isochrone_TimeHorizon
-        Isocrhone_ThreadCount
+        Isocrhone_ThreadCount1
+        Isocrhone_ThreadCount2
         DB_IntersectMapSegAvgMs
     End Enum
 

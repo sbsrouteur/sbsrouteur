@@ -74,7 +74,8 @@ Public Class IsoRouter
         Dim ReachPointDuration As Long = 0
         Dim ReachPointCount As Long = 0
         Dim MaxEllipsisDist As Double
-        Dim CurThreadCount As Integer = 0
+        Dim CurThreadCount1 As Integer = 0
+        Dim CurThreadCount2 As Integer = 0
 
 
         If Iso Is Nothing Then
@@ -93,16 +94,15 @@ Public Class IsoRouter
 
                     RetIsoChrone.AddPoint(P1)
 
-
                 End If
             Next
 
-            Dim tP1 As New Coords(38, 8, 11, Coords.NORTH_SOUTH.N, 118, 2, 13, Coords.EAST_WEST.E)
-            Dim tP2 As New Coords(38, 7, 34, Coords.NORTH_SOUTH.N, 118, 1, 5, Coords.EAST_WEST.E)
-            Dim ret As Boolean = _DB.IntersectMapSegment(tP2, tP1, GSHHS_Reader._Tree)
-            If ret Then
-                MessageBox.Show("intersect")
-            End If
+            'Dim tP1 As New Coords(38, 8, 11, Coords.NORTH_SOUTH.N, 118, 2, 13, Coords.EAST_WEST.E)
+            'Dim tP2 As New Coords(38, 7, 34, Coords.NORTH_SOUTH.N, 118, 1, 5, Coords.EAST_WEST.E)
+            'Dim ret As Boolean = _DB.IntersectMapSegment(tP2, tP1, GSHHS_Reader._Tree)
+            'If ret Then
+            '    MessageBox.Show("intersect")
+            'End If
         Else
             RetIsoChrone = New IsoChrone(_SailManager, _StartPoint.P)
             Dim StartIndex As Integer = 0
@@ -151,111 +151,114 @@ Public Class IsoRouter
                 Next
             Next
 
+            For pindex As Integer = StartIndex To Iso.PointSet.Count - 1
+                'Parallel.For(StartIndex, Iso.PointSet.Count - 1,
+                '           Sub(Pindex As Integer)
+                Dim tcfn1 As New TravelCalculator
+                Dim CurDest As Coords
+                Dim rp As clsrouteinfopoints
 
-            Parallel.For(StartIndex, Iso.PointSet.Count - 1,
-                         Sub(Pindex As Integer)
-                             Dim tcfn1 As New TravelCalculator
-                             Dim CurDest As Coords
-                             Dim rp As clsrouteinfopoints
+                Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount1) = Interlocked.Increment(CurThreadCount1)
+                'While CurThreadCount1 > 8
+                '    System.Threading.Thread.Sleep(1)
+                'End While
+                If Not Iso.PointSet(pindex) Is Nothing Then
+                    rp = Iso.PointSet(pindex)
 
-                             Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount) = Interlocked.Increment(CurThreadCount)
+                    Dim Ortho As Double
+                    tcfn1.StartPoint = rp.P
+                    tcfn1.EndPoint = _DestPoint
+                    CurDest = tcfn1.EndPoint
+                    Ortho = tcfn1.OrthoCourse_Deg
+                    tcfn1.EndPoint = _StartPoint.P
 
-                             If Not Iso.PointSet(Pindex) Is Nothing Then
-                                 rp = Iso.PointSet(Pindex)
+                    Dim TcAngleTrim As New TravelCalculator()
+                    Dim MinSearch As Double = 180
+                    Dim MaxSearch As Double = 180
+                    Dim PrevIndex As Integer = (pindex + Iso.PointSet.Count - 1) Mod Iso.PointSet.Count
+                    Dim NextIndex As Integer = (pindex + 1) Mod Iso.PointSet.Count
+                    If Iso.PointSet(PrevIndex) IsNot Nothing Then
+                        TcAngleTrim.EndPoint = Iso.PointSet(PrevIndex).P
+                        TcAngleTrim.StartPoint = rp.P
+                        MinSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                    End If
+                    If Iso.PointSet(NextIndex) IsNot Nothing Then
+                        TcAngleTrim.StartPoint = rp.P
+                        TcAngleTrim.EndPoint = Iso.PointSet(NextIndex).P
+                        MaxSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                    End If
 
-                                 Dim Ortho As Double
-                                 tcfn1.StartPoint = rp.P
-                                 tcfn1.EndPoint = _DestPoint
-                                 CurDest = tcfn1.EndPoint
-                                 Ortho = tcfn1.OrthoCourse_Deg
-                                 tcfn1.EndPoint = _StartPoint.P
+                    Dim MinAngle As Double = Ortho + MinSearch
+                    Dim maxAngle As Double = Ortho + MaxSearch
 
-                                 Dim TcAngleTrim As New TravelCalculator()
-                                 Dim MinSearch As Double = 180
-                                 Dim MaxSearch As Double = 180
-                                 Dim PrevIndex As Integer = (Pindex + Iso.PointSet.Count - 1) Mod Iso.PointSet.Count
-                                 Dim NextIndex As Integer = (Pindex + 1) Mod Iso.PointSet.Count
-                                 If Iso.PointSet(PrevIndex) IsNot Nothing Then
-                                     TcAngleTrim.EndPoint = Iso.PointSet(PrevIndex).P
-                                     TcAngleTrim.StartPoint = rp.P
-                                     MinSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                                 End If
-                                 If Iso.PointSet(NextIndex) IsNot Nothing Then
-                                     TcAngleTrim.StartPoint = rp.P
-                                     TcAngleTrim.EndPoint = Iso.PointSet(NextIndex).P
-                                     MaxSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                                 End If
+                    If MinAngle > maxAngle Then
+                        maxAngle += 360
+                    End If
 
-                                 Dim MinAngle As Double = Ortho + MinSearch
-                                 Dim maxAngle As Double = Ortho + MaxSearch
+                    tcfn1.StartPoint = _StartPoint.P
 
-                                 If MinAngle > maxAngle Then
-                                     maxAngle += 360
-                                 End If
-
-                                 tcfn1.StartPoint = _StartPoint.P
-
-                                 Dim StepCount As Integer = CInt(Math.Floor((maxAngle - MinAngle) / _AngleStep) + 1)
+                    Dim StepCount As Integer = CInt(Math.Floor((maxAngle - MinAngle) / _AngleStep) + 1)
 #If DBG_ISO = 1 Then
                                  'Console.WriteLine("StepCount " & StepCount & " @ " & Pindex)
 #End If
-                                 Parallel.For(0, StepCount,
-                                 Sub(AlphaIndex As Integer)
+                    'For alphaindex As Integer = 0 To StepCount
+                    Parallel.For(0, StepCount,
+                    Sub(AlphaIndex As Integer)
+                        Dim IsoBucket As Integer = Interlocked.Increment(CurThreadCount2)
+                        Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount2) = IsoBucket
+                        Dim alpha As Double = (MinAngle + _AngleStep * AlphaIndex) Mod 360
+                        Dim P As clsrouteinfopoints
+                        Dim tc As New TravelCalculator
+                        Dim EllipsisDit As Double = 0
 
-                                     Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount) = Interlocked.Increment(CurThreadCount)
+                        P = ReachPoint(rp, alpha, CurStep)
+                        Dim CurDist As Double = 0
+                        Dim LoxoCourse As Double = 0
+                        If P IsNot Nothing Then
+                            tc.StartPoint = _StartPoint.P
+                            tc.EndPoint = P.P
+                            CurDist = tc.SurfaceDistance
+                            LoxoCourse = tc.LoxoCourse_Deg
+                            EllipsisDit = tc.SurfaceDistance
 
-                                     Dim alpha As Double = (MinAngle + _AngleStep * AlphaIndex) Mod 360
-                                     Dim P As clsrouteinfopoints
-                                     Dim tc As New TravelCalculator
-                                     Dim EllipsisDit As Double = 0
+                            tc.StartPoint = _DestPoint
+                            EllipsisDit += tc.SurfaceDistance
 
-                                     P = ReachPoint(rp, alpha, CurStep)
-                                     Dim CurDist As Double = 0
-                                     Dim LoxoCourse As Double = 0
-                                     If P IsNot Nothing Then
-                                         tc.StartPoint = _StartPoint.P
-                                         tc.EndPoint = P.P
-                                         CurDist = tc.SurfaceDistance
-                                         LoxoCourse = tc.LoxoCourse_Deg
-                                         EllipsisDit = tc.SurfaceDistance
+                            tc.StartPoint = Nothing
+                            tc.EndPoint = Nothing
+                        End If
 
-                                         tc.StartPoint = _DestPoint
-                                         EllipsisDit += tc.SurfaceDistance
+                        'If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= MaxEllipsisDist AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
+                        If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= MaxEllipsisDist Then
 
-                                         tc.StartPoint = Nothing
-                                         tc.EndPoint = Nothing
-                                     End If
+                            P.DistFromPos = CurDist
 
-                                     'If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= MaxEllipsisDist AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree)) AndAlso Not IsoPoly.Contains(New Point(P.P.Lon, P.P.Lat)) Then
-                                     If Not P Is Nothing AndAlso P.P.Lat_Deg < 88 AndAlso CurDist > MinDist AndAlso EllipsisDit <= MaxEllipsisDist Then
+                            If P.DistFromPos < MinDist Then
+                                Dim i As Integer = 0
+                            End If
+                            P.CapFromPos = LoxoCourse
+                            RetIsoChrone.AddPoint(P)
+                        End If
 
-                                         P.DistFromPos = CurDist
-
-                                         If P.DistFromPos < MinDist Then
-                                             Dim i As Integer = 0
-                                         End If
-                                         P.CapFromPos = LoxoCourse
-                                         RetIsoChrone.AddPoint(P)
-                                     End If
-
-                                     tc.StartPoint = Nothing
-                                     tc.EndPoint = Nothing
-                                     tc = Nothing
-                                     Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount) = Interlocked.Decrement(CurThreadCount)
-
-
-                                 End Sub)
+                        tc.StartPoint = Nothing
+                        tc.EndPoint = Nothing
+                        tc = Nothing
+                        Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount2) = Interlocked.Decrement(CurThreadCount2)
 
 
-                             End If
+                    End Sub)
+                    'Next
 
-                             tcfn1.EndPoint = Nothing
-                             tcfn1.StartPoint = Nothing
-                             tcfn1 = Nothing
+                End If
 
-                             Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount) = Interlocked.Decrement(CurThreadCount)
+                tcfn1.EndPoint = Nothing
+                tcfn1.StartPoint = Nothing
+                tcfn1 = Nothing
 
-                         End Sub)
+                Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount1) = Interlocked.Decrement(CurThreadCount1)
+
+                'End Sub)
+            Next
 
 
             'Clean up bad points
@@ -419,12 +422,12 @@ Public Class IsoRouter
                 For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
                     MI = Nothing
                     Dim WaitStart As DateTime = Now
-                    While MI Is Nothing And Not _CancelRequested
+                    Do
+
                         MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, False)
-                        If MI Is Nothing Then
-                            System.Threading.Thread.Sleep(GribManager.METEO_SLEEP_DELAY)
-                        End If
-                    End While
+
+                    Loop While MI Is Nothing And Not _CancelRequested
+
                     CumWait += Now.Subtract(WaitStart).Ticks
                     LoopCount += 1
                     If _CancelRequested Then
@@ -540,12 +543,12 @@ Public Class IsoRouter
             'End If
             Return RetPoint
         Finally
-            CumDuration += Now.Subtract(DebugTimingStartTick).Ticks
-            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtAvgMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
-            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtCumMS) = CumDuration / TimeSpan.TicksPerMillisecond
-            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtMetWaitMS) = CumWait / HitCount / TimeSpan.TicksPerMillisecond
-            Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtAvgLpCnt) = LoopCount / HitCount
-            HitCount += 1
+            'CumDuration += Now.Subtract(DebugTimingStartTick).Ticks
+            'Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtAvgMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
+            'Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtCumMS) = CumDuration / TimeSpan.TicksPerMillisecond
+            'Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtMetWaitMS) = CumWait / HitCount / TimeSpan.TicksPerMillisecond
+            'Routeur.Stats.SetStatValue(Stats.StatID.ISO_ReachPtAvgLpCnt) = LoopCount / HitCount
+            'HitCount += 1
         End Try
 
     End Function

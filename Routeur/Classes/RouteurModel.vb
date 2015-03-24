@@ -98,33 +98,6 @@ Public Class RouteurModel
 
     Public Const LAKE_RACE As Boolean = False
 
-    ''
-    '' Exclusion Lon, Lat deg neg West, neg south
-    ''
-
-    'Exclusion Neg East/South
-    Public Shared DeepSouthE() As Double = {-179.99, -60, _
-                                           -179.99, -80, _
-                                            -0.01, -80, _
-                                            -0.01, -60, _
-                                            -179.99, -60}
-
-    Public Shared DeepSouthW() As Double = {179.99, -60, _
-                                           179.99, -80, _
-                                            0.01, -80, _
-                                            0.01, -60, _
-                                            179.99, -60}
-
-    'B2B Exclusion zones
-    Public Const B2B_RACEID = "20101231"
-
-    Public Shared B2B_EXCL_1() As Double = {105, -70, _
-                                            105, -46, _
-                                            120, -46, _
-                                            120, -70}
-
-
-
     Private Shared _CurWP As Integer = 0
 
 
@@ -283,7 +256,7 @@ Public Class RouteurModel
         RouteManager.Load()
         _P_Info(0) = frm.PlayerInfo.Playerinfo
         LoadRaceInfo(frm.PlayerInfo)
-        InitRaceExclusions()
+        InitRaceExclusions(_P_Info(0).RaceInfo.NSZ)
         LoadParams()
         CurPlayer = _P_Info(0)
         OnWPListUpdate()
@@ -391,16 +364,12 @@ Public Class RouteurModel
         VorHandler.RecordedRouteManager = RouteManager
     End Sub
 
-    Private Sub InitRaceExclusions()
+    Private Sub InitRaceExclusions(NSZs As List(Of MapSegment))
 
-        Select Case P_Info(0).RaceInfo.idraces
+        For Each nsz In NSZs
+            GSHHS_Reader._Tree.AddMapSegment(nsz, GSHHS_Reader._Tree)
+        Next
 
-            Case B2B_RACEID
-                Exclusions = New Double()() {B2B_EXCL_1}
-            Case Else
-                Exclusions = New Double()() {DeepSouthE, DeepSouthW}
-
-        End Select
     End Sub
 
     Public Shared ReadOnly Property Base_Game_Url() As String

@@ -1180,23 +1180,29 @@ Public Class GribManager
 
     Private Shared Sub MeteoLoaderThread()
 
-        Dim LoadInfo As MeteoLoadRequest = Nothing
         Dim NeedLoad As Boolean = False
-
+        Dim NextLoad As MeteoLoadRequest
         While Not _ShutDown
 
             SyncLock _MeteoLoadQueue
                 NeedLoad = False
+                NextLoad = Nothing
+                Dim NewList As New List(Of MeteoLoadRequest)
                 While _MeteoLoadQueue.Count > 0
+                    Dim LoadInfo As MeteoLoadRequest = _MeteoLoadQueue.Dequeue
                     If _MeteoLoadQueue.Count Mod 100000 = 0 Then
                         Console.WriteLine("Queue -- " & _MeteoLoadQueue.Count)
                     End If
-                    LoadInfo = _MeteoLoadQueue.Dequeue
+
                     If _MeteoArrays(LoadInfo.MeteoIndex) Is Nothing OrElse _MeteoArrays(LoadInfo.MeteoIndex).Data(LoadInfo.LonIndex, LoadInfo.LatIndex) Is Nothing _
                         OrElse Not _MeteoArrays(LoadInfo.MeteoIndex).Data(LoadInfo.LonIndex, LoadInfo.LatIndex).DataOK OrElse
                         _MeteoArrays(LoadInfo.MeteoIndex).Data(LoadInfo.LonIndex, LoadInfo.LatIndex).GribDate < GetCurGribDate(Now) Then
-                        NeedLoad = True
-                        Exit While
+                        If Not NeedLoad Then
+                            NeedLoad = True
+                            NextLoad = LoadInfo
+                        Else
+                            NewList.Add(LoadInfo)
+                        End If
                     Else
                         'Data has been loaded, release the waiting one
                         If LoadInfo.SyncEvt IsNot Nothing Then
@@ -1204,18 +1210,22 @@ Public Class GribManager
                         End If
                     End If
                 End While
+
+                For Each item In NewList
+                    _MeteoLoadQueue.Enqueue(item)
+                Next
             End SyncLock
 
-            If LoadInfo IsNot Nothing AndAlso NeedLoad Then
+            If NextLoad IsNot Nothing AndAlso NeedLoad Then
                 '        retval = LoadGribData(MeteoIndex, ), )
 
-                If LoadGribData(LoadInfo.MeteoIndex, MeteoArray.GetArrayIndexLon(LoadInfo.LonIndex, GetIndexGrain(LoadInfo.MeteoIndex)), MeteoArray.GetArrayIndexLat(LoadInfo.LatIndex, GetIndexGrain(LoadInfo.MeteoIndex))) Then
-                    If LoadInfo.SyncEvt IsNot Nothing Then
-                        LoadInfo.SyncEvt.Set()
+                If LoadGribData(NextLoad.MeteoIndex, MeteoArray.GetArrayIndexLon(NextLoad.LonIndex, GetIndexGrain(NextLoad.MeteoIndex)), MeteoArray.GetArrayIndexLat(NextLoad.LatIndex, GetIndexGrain(NextLoad.MeteoIndex))) Then
+                    If NextLoad.SyncEvt IsNot Nothing Then
+                        NextLoad.SyncEvt.Set()
                     End If
                 Else
                     SyncLock _MeteoLoadQueue
-                        _MeteoLoadQueue.Enqueue(LoadInfo)
+                        _MeteoLoadQueue.Enqueue(NextLoad)
                     End SyncLock
                 End If
             ElseIf _MeteoLoadQueue.Count = 0 Then

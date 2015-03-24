@@ -20,7 +20,7 @@ Imports System.Threading
 Public Class BspRect
     Public Const GRID_GRAIN_OVERSAMPLE As Integer = 1
     Private Const MAX_IGNORED_COUNT As Integer = 2000
-    Private Const MAX_TREE_Z As Integer = 12
+    Private Const MAX_TREE_Z As Integer = 8
 
     Public Enum inlandstate As Byte
         Unknown = 0
@@ -102,7 +102,7 @@ Public Class BspRect
             Static HitCount As Long = 1
             Static CacheHitCount As Long = 0
             Static CumDuration As Long = 0
-            Dim start As DateTime = Now
+            'Dim start As DateTime = Now
 
             If Double.IsNaN(Center.N_Lon_Deg) OrElse Double.IsNaN(Center.N_Lat_Deg) Then
                 Return Nothing
@@ -126,8 +126,8 @@ Public Class BspRect
                             Dim Segs = db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg)
                             If Segs IsNot Nothing Then
                                 TmpSegments.AddRange(Segs)
-                                _SegmentsArray(X, Y) = TmpSegments
                             End If
+                            _SegmentsArray(X, Y) = TmpSegments
 
                         End If
                     Finally
@@ -136,12 +136,12 @@ Public Class BspRect
                 End If
                 Return _SegmentsArray(X, Y)
             Finally
-                CumDuration += Now.Subtract(start).Ticks
+                'CumDuration += Now.Subtract(start).Ticks
 
-                Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegAvgMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
-                Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegCumMS) = CumDuration / TimeSpan.TicksPerMillisecond
-                Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegHitRatio) = CacheHitCount / HitCount * 100
-                HitCount += 1
+                'Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegAvgMS) = CumDuration / HitCount / TimeSpan.TicksPerMillisecond
+                'Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegCumMS) = CumDuration / TimeSpan.TicksPerMillisecond
+                'Routeur.Stats.SetStatValue(Stats.StatID.BSP_GetSegHitRatio) = CacheHitCount / HitCount * 100
+                'HitCount += 1
             End Try
 
         End Get
@@ -445,6 +445,20 @@ Public Class BspRect
             _Z = value
         End Set
     End Property
+
+    Sub AddMapSegment(M As MapSegment, bspRect As BspRect)
+
+        Dim db As New DBWrapper
+
+        Dim L = BuildBspCellLine(M.P1, M.P2)
+        For Each center In L
+            Dim X As Integer = CInt(Math.Floor((center.N_Lon_Deg + 180) / (360 / 2 ^ MAX_TREE_Z)))
+            Dim Y As Integer = CInt(Math.Floor((center.N_Lat / PI * 180 + 90) / (180 / 2 ^ MAX_TREE_Z)))
+            Dim lSegs = GetSegments(center, db)
+            _SegmentsArray(X, Y).Add(M)
+        Next
+
+    End Sub
 
 
 
