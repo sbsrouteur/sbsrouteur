@@ -26,6 +26,8 @@ Public Class RouteurModel
 
     Implements INotifyPropertyChanged
 
+    Public Shared DBGCoastHighlights As New LinkedList(Of MapSegment)
+
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -366,7 +368,10 @@ Public Class RouteurModel
 
     Private Sub InitRaceExclusions(NSZs As List(Of MapSegment))
 
+        Dim SegId As Integer = -1
         For Each nsz In NSZs
+            nsz.Id = SegId
+            SegId -= 1
             GSHHS_Reader._Tree.AddMapSegment(nsz, GSHHS_Reader._Tree)
         Next
 
@@ -920,6 +925,7 @@ Public Class RouteurModel
                 P.ClearGrid = _ClearGrid
                 P.ClearBoats = _ClearBoats
                 P.IsoChrones = VorHandler.IsoChrones
+                P.CoastHighligts = DBGCoastHighlights
                 If CurPlayer IsNot Nothing Then
                     P.WPs = CurPlayer.RaceInfo.races_waypoints
                     P.NSZ = CurPlayer.RaceInfo.NSZ
@@ -972,6 +978,8 @@ Public Class RouteurModel
 
     Private _RecordRoute As New DelegateCommand(Of Object)(AddressOf OnRecordRouteMenuHandler, Function(o) True)
 
+    Private _DbgShowBSPList As New DelegateCommand(Of Object)(AddressOf OnDbgShowBSPListHandler, Function(o) True)
+
     Public ReadOnly Property SetBearingMenu() As ICommand
         Get
             Return _BearingMenu
@@ -999,6 +1007,12 @@ Public Class RouteurModel
     Public ReadOnly Property SetNAVWPMenu() As ICommand
         Get
             Return _SetNAVWPMenu
+        End Get
+    End Property
+
+    Public ReadOnly Property DbgShowBspList As ICommand
+        Get
+            Return _DbgShowBSPList
         End Get
     End Property
 
@@ -1076,6 +1090,12 @@ Public Class RouteurModel
             VorHandler.SetNAVWP(True)
         End If
     End Sub
+
+    Sub OnDbgShowBSPListHandler(o As Object)
+        VorHandler.DbgShowBspList()
+    End Sub
+
+
 
 
 #End Region

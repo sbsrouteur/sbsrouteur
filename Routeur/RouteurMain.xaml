@@ -244,6 +244,9 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
             <MenuItem Header="{Binding VorHandler.GoToPointNAVORTHOMSG, Mode=Default}" Command="{Binding (ContextMenu.PlacementTarget).DataContext.SetNAVToMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="ORTHO"/>
             <MenuItem Header="{Binding VorHandler.GoToPointNAVVMGMSG, Mode=Default}" Command="{Binding (ContextMenu.PlacementTarget).DataContext.SetNAVToMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="VMG"/>
             <MenuItem Header="{Binding VorHandler.GoToPointNAVVBVMGMSG, Mode=Default}" Command="{Binding (ContextMenu.PlacementTarget).DataContext.SetNAVToMenu, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" CommandParameter="VBVMG"/>
+            
+            <Separator/>
+            <MenuItem Header="ShowBSPList" Command="{Binding (ContextMenu.PlacementTarget).DataContext.DbgShowBspList, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"/>
 
         </ContextMenu>
 

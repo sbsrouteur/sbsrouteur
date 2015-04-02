@@ -30,6 +30,7 @@ Public Class PathInfo
     Public Property NSZ As List(Of MapSegment)
     Public Property ManagedRoutes As IList(Of RecordedRoute)
     Public Property RoutingBorder As LinkedList(Of Coords)
+    Public Property CoastHighligts As LinkedList(Of MapSegment)
     Public Property CurrentPos As Coords
 
 #If DBG_ISO_POINT_SET Then
@@ -37,5 +38,6 @@ Public Class PathInfo
 #End If
 
     Property TrackColor As Color
+
 
 End Class

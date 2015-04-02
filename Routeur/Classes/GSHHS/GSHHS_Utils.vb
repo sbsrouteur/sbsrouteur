@@ -120,14 +120,14 @@ Module GSHHS_Utils
 
         Static V As New MercatorTransform With {.ActualHeight = 10000, .ActualWidth = 10000, .LatOffset = 0, .LonOffset = 0, .Scale = 1}
 
-        Dim Ax As Double = V.LonToCanvas(S1_P1.N_Lon_Deg)
-        Dim Ay As Double = V.LatToCanvas(S1_P1.N_Lat_Deg)
-        Dim Bx As Double = V.LonToCanvas(S1_P2.N_Lon_Deg)
-        Dim By As Double = V.LatToCanvas(S1_P2.N_Lat_Deg)
-        Dim Cx As Double = V.LonToCanvas(S2_P1.N_Lon_Deg)
-        Dim Cy As Double = V.LatToCanvas(S2_P1.N_Lat_Deg)
-        Dim Dx As Double = V.LonToCanvas(S2_P2.N_Lon_Deg)
-        Dim Dy As Double = V.LatToCanvas(S2_P2.N_Lat_Deg)
+        Dim Ax As Double = V.LonToCanvas(S1_P1.Lon_Deg)
+        Dim Ay As Double = V.LatToCanvas(S1_P1.Lat_Deg)
+        Dim Bx As Double = V.LonToCanvas(S1_P2.Lon_Deg)
+        Dim By As Double = V.LatToCanvas(S1_P2.Lat_Deg)
+        Dim Cx As Double = V.LonToCanvas(S2_P1.Lon_Deg)
+        Dim Cy As Double = V.LatToCanvas(S2_P1.Lat_Deg)
+        Dim Dx As Double = V.LonToCanvas(S2_P2.Lon_Deg)
+        Dim Dy As Double = V.LatToCanvas(S2_P2.Lat_Deg)
 
         '  Fail if either line is undefined.
         If (S1_P1.N_Lon_Deg = S1_P2.N_Lon_Deg And S1_P1.N_Lat_Deg = S1_P2.N_Lat_Deg) OrElse (S2_P1.N_Lon_Deg = S2_P2.N_Lon_Deg And S2_P1.N_Lat_Deg = S2_P2.N_Lat_Deg) Then

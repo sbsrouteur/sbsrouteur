@@ -84,7 +84,7 @@ Partial Public Class _2D_Viewer
     Private _WPs As List(Of VLM_RaceWaypoint)
     Private _NSZ As List(Of MapSegment)
 
-    Private _DBLink As New DBWrapper
+    Private _DBLink As DBWrapper
 
     Private _MapTransform As IMapTransform
 
@@ -98,10 +98,7 @@ Partial Public Class _2D_Viewer
         ' Insérez le code requis pour la création d'objet sous ce point.
 
         '_Model = CType(FindResource("2DModel"), _2DViewerModel)
-        _TileServer = New TileServer(Me)
-        _BgDrawerTimer = New DispatcherTimer(DispatcherPriority.Background, Dispatcher)
-        _BgDrawerTimer.Interval = New TimeSpan(0, 0, 0, 0, 100)
-        _BgDrawerTimer.Start()
+       
         _MapTransform = New MercatorTransform
 
     End Sub
@@ -129,7 +126,11 @@ Partial Public Class _2D_Viewer
     Function LoadBitmapFromDB(Ti As TileInfo) As WriteableBitmap
         Dim img As New BitmapImage()
         Dim RetValue As WriteableBitmap = Nothing
-        Dim ImageBuffer() As Byte = _DBLink.GetImageBuffer(Ti)
+        Dim ImageBuffer() As Byte
+        If _DBLink Is Nothing Then
+            _DBLink = New DBWrapper
+        End If
+        ImageBuffer = _DBLink.GetImageBuffer(Ti)
         img.BeginInit()
         img.CreateOptions = BitmapCreateOptions.None
         Using rs As New IO.MemoryStream(ImageBuffer)
@@ -379,7 +380,11 @@ Render1:
 
 
         Try
-           
+            _TileServer = New TileServer(Me)
+            _BgDrawerTimer = New DispatcherTimer(DispatcherPriority.Background, Dispatcher)
+            _BgDrawerTimer.Interval = New TimeSpan(0, 0, 0, 0, 100)
+            _BgDrawerTimer.Start()
+
             If Not _RacePolygons Is Nothing Then
                 _RacePolygons.AddLast(RouteurModel._RaceRect)
             End If
@@ -560,6 +565,12 @@ Render1:
                 'Next
 
 #End If
+                For Each seg As MapSegment In PathInfo.CoastHighligts
+                    Dim lP1 As New Coords(seg.Lat1, seg.Lon1)
+                    Dim lP2 As New Coords(seg.Lat2, seg.Lon2)
+                    Dim PenSegs As Integer = &HFFFFF00
+                    SafeDrawLine(_RBmp, lP1, lP2, PenSegs)
+                Next
 
 
                 '
@@ -1195,7 +1206,9 @@ Render1:
         End If
         _ThBgDraw = Nothing
         _AbortBGDrawing = False
-        _TileServer.Clear()
+        If _TileServer IsNot Nothing Then
+            _TileServer.Clear()
+        End If
         _BgStarted = False
         _BgReloadRequest = True
 

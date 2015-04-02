@@ -18,9 +18,9 @@ Imports System.Math
 Imports System.Threading
 
 Public Class BspRect
-    Public Const GRID_GRAIN_OVERSAMPLE As Integer = 1
+
     Private Const MAX_IGNORED_COUNT As Integer = 2000
-    Private Const MAX_TREE_Z As Integer = 8
+    Private Const MAX_TREE_Z As Integer = 11
 
     Public Enum inlandstate As Byte
         Unknown = 0
@@ -108,8 +108,8 @@ Public Class BspRect
                 Return Nothing
             End If
             Try
-                Dim X As Integer = CInt(Math.Floor((Center.N_Lon_Deg + 180) / (360 / 2 ^ MAX_TREE_Z)))
-                Dim Y As Integer = CInt(Math.Floor((Center.N_Lat / PI * 180 + 90) / (180 / 2 ^ MAX_TREE_Z)))
+                Dim X As Integer = CInt(Math.Floor((Center.N_Lon_Deg + 180) / (360 / (2 ^ MAX_TREE_Z))))
+                Dim Y As Integer = CInt(Math.Floor((Center.N_Lat_Deg + 90) / (180 / (2 ^ MAX_TREE_Z))))
 
                 If _SegmentsArray(X, Y) IsNot Nothing Then
                     CacheHitCount += 1
@@ -120,8 +120,12 @@ Public Class BspRect
                         If _SegmentsArray(X, Y) Is Nothing Then
 
                             Dim TmpSegments = New List(Of MapSegment)
-                            Dim P1 As New Coords((Y - 1) * 180 / (2 ^ MAX_TREE_Z) - 90, (X - 1) * 360 / (2 ^ MAX_TREE_Z) - 180)
-                            Dim P2 As New Coords((Y + 1) * 180 / (2 ^ MAX_TREE_Z) - 90, (X + 1) * 360 / (2 ^ MAX_TREE_Z) - 180)
+                            Dim CLat As Double = (Y + 0.5) * 180 / (2 ^ MAX_TREE_Z) - 90
+                            Dim CLon As Double = (X + 0.5) * 360 / (2 ^ MAX_TREE_Z) - 180
+                            Dim dLat As Double = 180 / (2 ^ MAX_TREE_Z)
+                            Dim dLon As Double = 360 / (2 ^ MAX_TREE_Z)
+                            Dim P1 As New Coords(CLat - dLat, CLon - dLon)
+                            Dim P2 As New Coords(CLat + dLat, CLon + dLon)
 
                             Dim Segs = db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg)
                             If Segs IsNot Nothing Then
@@ -196,6 +200,52 @@ Public Class BspRect
             End If
         End Get
     End Property
+
+    Function BuildBspCellLineBad(C1 As Coords, C2 As Coords) As List(Of Coords)
+        Dim RetList As New List(Of Coords)
+
+        If C1 = C2 Then
+            RetList.Add(C1)
+            Return RetList
+        End If
+        'Transform coords to mercator map spaces
+        Dim M As New MercatorTransform With {.ActualHeight = 10000, .ActualWidth = 10000, .LatOffset = 0, .LonOffset = 0, .Scale = 1}
+        Dim DxOffset As Double = (360) / (2 ^ (MAX_TREE_Z + 1))
+        Dim DyOffset As Double = (M.LatToCanvas(85) - M.LatToCanvas(-85)) / (2 ^ (MAX_TREE_Z + 1) / 360 * 170)
+
+        If C2.Lon < C1.Lon Then
+            DxOffset = -DxOffset
+        End If
+
+        If C2.Lat < C1.Lat Then
+            DyOffset = -DyOffset
+        End If
+
+        'FIXME handle antemeridien
+        If ((C2.Lat_Deg - C1.Lat_Deg) = 0 OrElse Abs(C2.N_Lon_Deg - C1.N_Lon_Deg) > 2 * Abs(C2.Lat_Deg - C1.Lat_Deg)) _
+            AndAlso (C2.Lon_Deg - C1.Lon_Deg <> 0) Then
+            Dim Dy As Double = (M.LatToCanvas(C2.Lat_Deg) - M.LatToCanvas(C1.Lat_Deg)) / (C2.Lon_Deg - C1.Lon_Deg) * DxOffset
+            Dim CurY As Double = M.LatToCanvas(C1.Lat_Deg) - Dy
+            For x = C1.N_Lon_Deg - DxOffset To C2.N_Lon_Deg + DxOffset Step DxOffset * 0.4
+                RetList.Add(New Coords(M.CanvasToLat(CurY), x))
+                RetList.Add(New Coords(M.CanvasToLat(CurY - DyOffset), x))
+                RetList.Add(New Coords(M.CanvasToLat(CurY + DyOffset), x))
+                CurY += Dy
+            Next
+        Else
+            Dim Dx As Double = (C2.Lon_Deg - C1.Lon_Deg) / (M.LatToCanvas(C2.Lat_Deg) - M.LatToCanvas(C1.Lat_Deg)) * DyOffset
+            Dim CurX As Double = C1.Lon_Deg - Dx
+            For y = M.LatToCanvas(C1.Lat_Deg) - DyOffset To M.LatToCanvas(C2.Lat_Deg) + DyOffset Step DyOffset * 0.4
+                RetList.Add(New Coords(M.CanvasToLat(y), CurX))
+                RetList.Add(New Coords(M.CanvasToLat(y), CurX - DxOffset))
+                RetList.Add(New Coords(M.CanvasToLat(y), CurX + DxOffset))
+                CurX += Dx
+            Next
+        End If
+        Return RetList
+
+    End Function
+
 
     Function BuildBspCellLine(C1 As Coords, C2 As Coords) As List(Of Coords)
         Dim RetList As New List(Of Coords)
@@ -453,9 +503,19 @@ Public Class BspRect
         Dim L = BuildBspCellLine(M.P1, M.P2)
         For Each center In L
             Dim X As Integer = CInt(Math.Floor((center.N_Lon_Deg + 180) / (360 / 2 ^ MAX_TREE_Z)))
-            Dim Y As Integer = CInt(Math.Floor((center.N_Lat / PI * 180 + 90) / (180 / 2 ^ MAX_TREE_Z)))
-            Dim lSegs = GetSegments(center, db)
-            _SegmentsArray(X, Y).Add(M)
+            Dim Y As Integer = CInt(Math.Floor((center.N_Lat_Deg + 90) / (180 / 2 ^ MAX_TREE_Z)))
+
+            If _SegmentsArray(X, Y) Is Nothing Then
+                Dim CLat As Double = (Y + 0.5) * 180 / (2 ^ MAX_TREE_Z) - 90
+                Dim CLon As Double = (X + 0.5) * 360 / (2 ^ MAX_TREE_Z) - 180
+                Dim dLat As Double = 180 / (2 ^ MAX_TREE_Z)
+                Dim dLon As Double = 360 / (2 ^ MAX_TREE_Z)
+                Dim P1 As New Coords(CLat, CLon)
+                Dim lSegs = GetSegments(P1, db)
+            End If
+            If Not _SegmentsArray(X, Y).Contains(M) Then
+                _SegmentsArray(X, Y).Add(M)
+            End If
         Next
 
     End Sub

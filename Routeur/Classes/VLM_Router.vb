@@ -3135,6 +3135,22 @@ Public Class VLM_Router
     End Property
 #End If
 
+    Public Sub DbgShowBspList()
+        Dim Dest As New Coords(_CurMousePos)
+
+        If BestRouteAtPoint IsNot Nothing AndAlso BestRouteAtPoint.Count > 1 Then
+            Dim C1 As Coords = BestRouteAtPoint(BestRouteAtPoint.Count - 2).P
+            Dim C2 As Coords = BestRouteAtPoint(BestRouteAtPoint.Count - 1).P
+
+            Dim SegList As IList = GSHHS_Reader._Tree.GetSegments(C1, C2, New DBWrapper)
+            MessageBox.Show("Segment List is here " & SegList.Count & " long")
+            RouteurModel.DBGCoastHighlights.Clear()
+            For Each segment As MapSegment In SegList
+                RouteurModel.DBGCoastHighlights.AddFirst(segment)
+            Next
+        End If
+    End Sub
+
     Public Sub DebugTest()
         'Return
         'Dim S1_P1 As Coords = New Coords(33, 49, 19, Routeur.Coords.NORTH_SOUTH.S,

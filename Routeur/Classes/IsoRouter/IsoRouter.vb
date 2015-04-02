@@ -201,12 +201,12 @@ Public Class IsoRouter
 #If DBG_ISO = 1 Then
                                  'Console.WriteLine("StepCount " & StepCount & " @ " & Pindex)
 #End If
-                    'For alphaindex As Integer = 0 To StepCount
-                    Parallel.For(0, StepCount,
-                    Sub(AlphaIndex As Integer)
+                    For alphaindex As Integer = 0 To StepCount
+                        'Parallel.For(0, StepCount,
+                        'Sub(AlphaIndex As Integer)
                         Dim IsoBucket As Integer = Interlocked.Increment(CurThreadCount2)
                         Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount2) = IsoBucket
-                        Dim alpha As Double = (MinAngle + _AngleStep * AlphaIndex) Mod 360
+                        Dim alpha As Double = (MinAngle + _AngleStep * alphaindex) Mod 360
                         Dim P As clsrouteinfopoints
                         Dim tc As New TravelCalculator
                         Dim EllipsisDit As Double = 0
@@ -246,8 +246,8 @@ Public Class IsoRouter
                         Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount2) = Interlocked.Decrement(CurThreadCount2)
 
 
-                    End Sub)
-                    'Next
+                        'End Sub)
+                        Next
 
                 End If
 
