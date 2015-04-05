@@ -74,7 +74,7 @@ Partial Public Class RouteurMain
             'RedrawClick(Nothing, Nothing)
 
         End If
-        M.Init(Dispatcher)
+        M.Init(Me, Dispatcher)
         M.The2DViewer.InitViewer(Me)
 
 

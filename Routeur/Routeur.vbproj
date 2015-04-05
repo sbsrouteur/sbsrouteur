@@ -139,6 +139,16 @@
     <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Chat\ChatFormView.vb" />
+    <Compile Include="Chat\ChatTabItem.xaml.vb">
+      <DependentUpon>ChatTabItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Chat\frmChat.xaml.vb">
+      <DependentUpon>frmChat.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Chat\ServerConnectionTabItem.xaml.vb">
+      <DependentUpon>ServerConnectionTabItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Classes\Configuration\AppPrefs.vb" />
     <Compile Include="Classes\Configuration\ConverterStockBrushes.vb" />
     <Compile Include="Classes\Configuration\DateTimeColorConverter.vb" />
@@ -227,6 +237,18 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Page Include="Chat\ChatTabItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Chat\frmChat.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Chat\ServerConnectionTabItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\2D Viewer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

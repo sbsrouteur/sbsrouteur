@@ -77,6 +77,28 @@ Module WS_Wrapper
         Return Nothing
     End Function
 
+    Public Function GetPlayerInfo(Id As Integer) As String
+        Return "sbsrouteur"
+        'Dim URL As String = RouteurModel.Base_Game_Url & "/ws/playerinfo/list-converse?idrace=" & RAN
+        'Dim Retstring As String = ""
+        'Try
+        '    Retstring = RequestPage(URL)
+        '    Return Retstring
+        'Catch wex As WebException
+        '    If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+        '        'Login error
+        '        Return Nothing
+        '    Else
+        '        MessageBox.Show(wex.Response.ToString)
+        '    End If
+        'Catch ex As Exception
+        '    MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
+        'End Try
+
+        'Return Nothing
+
+    End Function
+
     Public Function GetRaceInfo(ByVal RAN As String) As String
 
         Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo.php?forcefmt=json&idrace=" & RAN

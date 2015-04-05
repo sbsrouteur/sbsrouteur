@@ -239,7 +239,7 @@ Public Class RouteurModel
         End Get
     End Property
 
-    Public Sub Init(ByVal D As Windows.Threading.Dispatcher)
+    Public Sub Init(MainWindow As Window, ByVal D As Windows.Threading.Dispatcher)
 
         _Dispatcher = D
         RouteManager.Dispatcher = _Dispatcher
@@ -249,6 +249,11 @@ Public Class RouteurModel
         If frm.PlayerInfo Is Nothing Then
             End
         End If
+
+        Dim Chat As New frmChat
+        Chat.Owner = MainWindow
+        Chat.Show()
+        Chat.Init("sbsrouteur", frm.PlayerInfo.Password, "iridium.v-l-m.org")
 
         Me.Dispatcher = Dispatcher
         Cron = New Cron(Dispatcher)
