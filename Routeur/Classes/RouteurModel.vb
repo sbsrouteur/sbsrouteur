@@ -374,12 +374,13 @@ Public Class RouteurModel
     Private Sub InitRaceExclusions(NSZs As List(Of MapSegment))
 
         Dim SegId As Integer = -1
-        For Each nsz In NSZs
-            nsz.Id = SegId
-            SegId -= 1
-            GSHHS_Reader._Tree.AddMapSegment(nsz, GSHHS_Reader._Tree)
-        Next
-
+        If NSZs IsNot Nothing Then
+            For Each nsz In NSZs
+                nsz.Id = SegId
+                SegId -= 1
+                GSHHS_Reader._Tree.AddMapSegment(nsz, GSHHS_Reader._Tree)
+            Next
+        End If
     End Sub
 
     Public Shared ReadOnly Property Base_Game_Url() As String
