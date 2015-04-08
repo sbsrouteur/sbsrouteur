@@ -35,8 +35,15 @@ Public Class ServerConnectionTabItem
             For Each feature In Link.GetFeatures(Link.Im.Jid)
                 AddServerMessage("Diag", feature.ToString)
             Next
+
+            For Each item In Link.GetRoster
+                AddServerMessage("Diag Roster", item.Jid.ToString & " " & item.SubscriptionState)
+            Next
             'Dim Disco As New S22.Xmpp.Extensions.Discovery
-            Link.Im.SendMessage("sbsRouteur@vhf.iridium.v-l-m.org", "test")
+            'Link.SetStatus(availability:=S22.Xmpp.Im.Availability.Away, message:="Using SbsRouteur")
+            'Link.Im.SendMessage("sbs@ir.testing.v-l-m.org", "no body", , , S22.Xmpp.Im.MessageType.Chat)
+            Link.Im.SendMessage("sbsrouteur@vhf.iridium.testing.v-l-m.org", "no body", , , S22.Xmpp.Im.MessageType.Groupchat)
+
         Catch ex As Exception
             MessageBox.Show("Chat Init Exception : " & ex.Message & vbCrLf & ex.StackTrace)
         End Try
