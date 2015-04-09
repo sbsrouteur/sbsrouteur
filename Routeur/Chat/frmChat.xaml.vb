@@ -15,7 +15,7 @@ Public Class frmChat
         InitializeComponent()
 
         ' Ajoutez une initialisation quelconque après l'appel InitializeComponent().
-        _View = New ChatFormView
+        _View = New ChatFormView(Dispatcher)
         DataContext = _View
     End Sub
 

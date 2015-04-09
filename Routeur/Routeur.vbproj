@@ -139,6 +139,9 @@
     <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Chat\ChatControl.xaml.vb">
+      <DependentUpon>ChatControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Chat\ChatFormView.vb" />
     <Compile Include="Chat\ChatTabItem.xaml.vb">
       <DependentUpon>ChatTabItem.xaml</DependentUpon>
@@ -146,9 +149,10 @@
     <Compile Include="Chat\frmChat.xaml.vb">
       <DependentUpon>frmChat.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Chat\ServerConnectionTabItem.xaml.vb">
-      <DependentUpon>ServerConnectionTabItem.xaml</DependentUpon>
+    <Compile Include="Chat\ServerConnectionControl.xaml.vb">
+      <DependentUpon>ServerConnectionControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Chat\XMPPLinkManager.vb" />
     <Compile Include="Classes\Configuration\AppPrefs.vb" />
     <Compile Include="Classes\Configuration\ConverterStockBrushes.vb" />
     <Compile Include="Classes\Configuration\DateTimeColorConverter.vb" />
@@ -237,6 +241,10 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Page Include="Chat\ChatControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Chat\ChatTabItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -245,7 +253,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Chat\ServerConnectionTabItem.xaml">
+    <Page Include="Chat\ServerConnectionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
