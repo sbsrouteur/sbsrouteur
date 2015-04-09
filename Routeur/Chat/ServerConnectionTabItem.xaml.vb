@@ -1,5 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports System.Text
+Imports S22.Xmpp.Im
+Imports XcoAppSpaces.Core
 
 Public Class ServerConnectionTabItem
 
@@ -12,7 +14,7 @@ Public Class ServerConnectionTabItem
     Private _Server As String
 
 
-    Private WithEvents Link As S22.Xmpp.Client.XmppClient
+    Private WithEvents Link As XcoAppSpace
 
     Private Sub AddServerMessage(Group As String, Msg As String)
         Dim S As String = Now.ToString & " " & Group & " " & Msg
@@ -27,22 +29,10 @@ Public Class ServerConnectionTabItem
         _Password = Password
         _Server = Server
 
-        Link = New S22.Xmpp.Client.XmppClient(Server, User, Password)
+        Link = New XcoAppSpace(String.Format("jabber.jid={0};jabber.password={1}", User, Password))
         Try
-            Link.Connect(GetRouteurUserAgent)
-            AddServerMessage("Diag", "Link Connected with jid:" & Link.Jid.ToString)
-            AddServerMessage("Diag", "Features:" & Link.Im.Jid.ToString)
-            For Each feature In Link.GetFeatures(Link.Im.Jid)
-                AddServerMessage("Diag", feature.ToString)
-            Next
-
-            For Each item In Link.GetRoster
-                AddServerMessage("Diag Roster", item.Jid.ToString & " " & item.SubscriptionState)
-            Next
-            'Dim Disco As New S22.Xmpp.Extensions.Discovery
-            'Link.SetStatus(availability:=S22.Xmpp.Im.Availability.Away, message:="Using SbsRouteur")
-            'Link.Im.SendMessage("sbs@ir.testing.v-l-m.org", "no body", , , S22.Xmpp.Im.MessageType.Chat)
-            Link.Im.SendMessage("sbsrouteur@vhf.iridium.testing.v-l-m.org", "no body", , , S22.Xmpp.Im.MessageType.Groupchat)
+            Dim T = Link.Connect(Of String)("iridium.v-l-m.org")
+            Dim i As Integer = 0
 
         Catch ex As Exception
             MessageBox.Show("Chat Init Exception : " & ex.Message & vbCrLf & ex.StackTrace)
@@ -60,17 +50,17 @@ Public Class ServerConnectionTabItem
 
 #Region "Link events"
 
-    Private Sub Link_ActivityChanged(sender As Object, e As S22.Xmpp.Extensions.ActivityChangedEventArgs) Handles Link.ActivityChanged
-        AddServerMessage("Activity", e.ToString)
-    End Sub
+    'Private Sub Link_ActivityChanged(sender As Object, e As S22.Xmpp.Extensions.ActivityChangedEventArgs) Handles Link.ActivityChanged
+    '    AddServerMessage("Activity", e.ToString)
+    'End Sub
 
-    Private Sub Link_Error(sender As Object, e As S22.Xmpp.Im.ErrorEventArgs) Handles Link.Error
-        AddServerMessage("Error", e.ToString)
-    End Sub
+    'Private Sub Link_Error(sender As Object, e As S22.Xmpp.Im.ErrorEventArgs) Handles Link.Error
+    '    AddServerMessage("Error", e.ToString)
+    'End Sub
 
-    Private Sub Link_Message(sender As Object, e As S22.Xmpp.Im.MessageEventArgs) Handles Link.Message
-        AddServerMessage("Message", e.ToString)
-    End Sub
+    'Private Sub Link_Message(sender As Object, e As S22.Xmpp.Im.MessageEventArgs) Handles Link.Message
+    '    AddServerMessage("Message", e.ToString)
+    'End Sub
 
 #End Region
 
