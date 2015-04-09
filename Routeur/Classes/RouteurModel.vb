@@ -61,8 +61,12 @@ Public Class RouteurModel
 
 #If TESTING = 1 Then
     Public Const S10_SERVER As String = "testing.v-l-m.org"
+    Const PROSODY_SERVER As String = "ir.testing.v-l-m.org"
+    Const PROSODY_ROOM_SERVER As String = "vhf.ir.testing.v-l-m.org"
 #Else
     Public Const S10_SERVER As String = "v-l-m.org"
+    Const PROSODY_SERVER As String = "iridium.v-l-m.org"
+    Const PROSODY_ROOM_SERVER As String = "vhf.iridium.v-l-m.org"
 
 #End If
 
@@ -253,7 +257,8 @@ Public Class RouteurModel
         Dim Chat As New frmChat
         Chat.Owner = MainWindow
         Chat.Show()
-        Chat.Init("sbsrouteur", frm.PlayerInfo.Password, "iridium.v-l-m.org")
+
+        Chat.Init(WS_Wrapper.GetPlayerProfileInfo(enumPlayerProfileInfo.PlayerName), frm.PlayerInfo.Password, PROSODY_SERVER)
 
         Me.Dispatcher = Dispatcher
         Cron = New Cron(Dispatcher)

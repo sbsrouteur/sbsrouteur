@@ -77,23 +77,41 @@ Module WS_Wrapper
         Return Nothing
     End Function
 
-    Public Function GetPlayerInfo(Id As Integer) As String
-        Return "sbsrouteur"
-        'Dim URL As String = RouteurModel.Base_Game_Url & "/ws/playerinfo/list-converse?idrace=" & RAN
-        'Dim Retstring As String = ""
-        'Try
-        '    Retstring = RequestPage(URL)
-        '    Return Retstring
-        'Catch wex As WebException
-        '    If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
-        '        'Login error
-        '        Return Nothing
-        '    Else
-        '        MessageBox.Show(wex.Response.ToString)
-        '    End If
-        'Catch ex As Exception
-        '    MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
-        'End Try
+    Friend Enum enumPlayerProfileInfo As Integer
+        PlayerName
+        PlayerJID
+    End Enum
+
+    Public Function GetPlayerProfileInfo(InfoType As enumPlayerProfileInfo) As String
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/playerinfo/profile.php"
+        Dim Retstring As String = ""
+        Try
+            Retstring = RequestPage(URL)
+
+            Dim Obj As Dictionary(Of String, Object) = JSonParser.Parse(Retstring)
+
+            If Obj.ContainsKey("JSonData") AndAlso CType(Obj("JSonData"), Dictionary(Of String, Object)).ContainsKey("profile") Then
+                Dim JSonData As Dictionary(Of String, Object) = CType(Obj("JSonData"), Dictionary(Of String, Object))
+                Select Case InfoType
+                    Case enumPlayerProfileInfo.PlayerJID
+                        Return JSonHelper.GetJSonStringValue(JSonData("profile"), "jid")
+                    Case enumPlayerProfileInfo.PlayerName
+                        Return JSonHelper.GetJSonStringValue(JSonData("profile"), "playername")
+                End Select
+            Else
+                Throw New Exception("Unexpected JSON return from GetPlayerProfileInfo :" & Retstring)
+            End If
+            Return Retstring
+        Catch wex As WebException
+            If CType(wex.Response, HttpWebResponse).StatusCode = 401 Then
+                'Login error
+                Return Nothing
+            Else
+                MessageBox.Show(wex.Response.ToString)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
+        End Try
 
         'Return Nothing
 
