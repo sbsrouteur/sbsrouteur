@@ -1,66 +1,48 @@
 ﻿Imports System.ComponentModel
 Imports System.Collections.ObjectModel
+Imports S22.Xmpp
 
 Public Class ChatControl
 
     Implements INotifyPropertyChanged
     Public Event PropertyChanged(sender As Object, e As PropertyChangedEventArgs) Implements INotifyPropertyChanged.PropertyChanged
 
-    Private _JID As String
+    Private _JID As Jid
 
-    Event ChatSend(S As ServerConnectionControl, p1 As String, p2 As String)
-
-
-    Public Property JID As String
+    Public Property JID As Jid
         Get
             Return _JID
         End Get
-        Set(value As String)
+        Set(value As Jid)
             _JID = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("JID"))
         End Set
     End Property
 
+    Private _Connector As S22.Xmpp.Im.XmppIm
 
-
-    Private _ServerControl As ServerConnectionControl
-
-    Public Property ServerControl As ServerConnectionControl
+    Public Property Connector As S22.Xmpp.Im.XmppIm
         Get
-            Return _ServerControl
+            Return _Connector
         End Get
-        Set(value As ServerConnectionControl)
-            _ServerControl = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ServerControl"))
+        Set(value As S22.Xmpp.Im.XmppIm)
+            _Connector = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Connector"))
         End Set
     End Property
 
 
-
-
-
-    
-    Public Sub AddMessage(Text As String)
+    Public Sub AddMessage(From As Jid, Text As String)
 
         Dim P As New Paragraph
-        P.Inlines.Add(New Run(Text))
-        ChatTextDocument.Add(P)
+        Dim FromString As String = From.Node
+        If From.Node Is Nothing Then
+            FromString = From.ToString
+        End If
+        P.Inlines.Add(New Run(Now.ToString("hh:mm:ss") & "<" & FromString & "> " & Text))
+        ChatTextBox.Document.Blocks.Add(P)
 
     End Sub
-
-
-
-    Private _ChatTextDocument As ObservableCollection(Of Paragraph)
-
-    Public ReadOnly Property ChatTextDocument As ObservableCollection(Of Paragraph)
-        Get
-            If _ChatTextDocument Is Nothing Then
-                _ChatTextDocument = New ObservableCollection(Of Paragraph)
-            End If
-            Return _ChatTextDocument
-        End Get
-        
-    End Property
 
     Public Sub New()
 
@@ -86,8 +68,11 @@ Public Class ChatControl
 
     Private Sub OnChatSendClick(sender As Object, e As RoutedEventArgs)
 
-        RaiseEvent ChatSend(ServerControl, JID, ChatSendLine)
-        ChatSendLine = ""
+        If Connector IsNot Nothing AndAlso ChatSendLine.Length <> 0 Then
+            Connector.SendMessage(JID, ChatSendLine, , , S22.Xmpp.Im.MessageType.Chat)
+            AddMessage(JID, ChatSendLine)
+            ChatSendLine = ""
+        End If
 
     End Sub
 End Class

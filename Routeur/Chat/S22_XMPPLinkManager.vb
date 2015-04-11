@@ -1,4 +1,7 @@
-﻿Public Class XMPPLinkManager
+﻿Imports S22.Xmpp.Im
+Imports S22.Xmpp.Extensions.Dataforms
+
+Public Class S22_XMPPLinkManager
 
     Private _User As String
     Private _Password As String
@@ -10,7 +13,13 @@
 
     Public Event MessageReceived(sender As Object, e As S22.Xmpp.Im.MessageEventArgs)
     Public Event RosterChanged()
-    Public Event ServerConsoleMessage(xMPPLinkManager As XMPPLinkManager, S As String)
+    Public Event ServerConsoleMessage(xMPPLinkManager As S22_XMPPLinkManager, S As String)
+
+    Public ReadOnly Property IM As XmppIm
+        Get
+            Return Link.Im
+        End Get
+    End Property
 
     Private Sub AddServerMessage(Group As String, Msg As String)
         Dim S As String = Now.ToString & " " & Group & " " & Msg
@@ -37,8 +46,8 @@
                 AddServerMessage("Diag Roster", item.Jid.ToString & " " & item.SubscriptionState)
             Next
             Link.Im.SendMessage("sbsrouteur_test@vhf.ir.testing.v-l-m.org", "no body?", , , S22.Xmpp.Im.MessageType.Groupchat)
-            Link.Im.SendMessage("sbsrouteur_test@vhf.ir.testing.v-l-m.org", "no body?", , , S22.Xmpp.Im.MessageType.Normal)
-            Link.Im.SendMessage("sbsrouteur@iridium.v-l-m.org", "no body?", , , S22.Xmpp.Im.MessageType.Chat)
+            'Link.Im.SendMessage("sbsrouteur_test@vhf.ir.testing.v-l-m.org", "no body?", , , S22.Xmpp.Im.MessageType.Normal)
+            'Link.Im.SendMessage("sbsrouteur@iridium.v-l-m.org", "no body?", , , S22.Xmpp.Im.MessageType.Chat)
             Link.Im.SendMessage("sbsrouteur@iridium.v-l-m.org", "no body?", , , S22.Xmpp.Im.MessageType.Groupchat)
 
         Catch ex As Exception
@@ -46,6 +55,18 @@
         End Try
 
     End Sub
+
+
+    Public ReadOnly Property Roster As Roster
+        Get
+            Return Link.GetRoster
+        End Get
+
+    End Property
+
+
+
+
 
 
 
@@ -80,6 +101,7 @@
 
     Private Sub Link_RosterUpdated(sender As Object, e As S22.Xmpp.Im.RosterUpdatedEventArgs) Handles Link.RosterUpdated
         AddServerMessage("RosterUpdated", e.ToString)
+        RaiseEvent RosterChanged()
     End Sub
 
     Private Sub Link_StatusChanged(sender As Object, e As S22.Xmpp.Im.StatusEventArgs) Handles Link.StatusChanged
@@ -105,6 +127,7 @@
 
     End Sub
 #End Region
+
 
 
 

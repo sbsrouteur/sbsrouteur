@@ -82,7 +82,7 @@
     <DocumentationFile>Routeur.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314,42353,42354,42355</NoWarn>
     <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.vb</CodeAnalysisModuleSuppressionsFile>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -143,16 +143,13 @@
       <DependentUpon>ChatControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Chat\ChatFormView.vb" />
-    <Compile Include="Chat\ChatTabItem.xaml.vb">
-      <DependentUpon>ChatTabItem.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Chat\frmChat.xaml.vb">
       <DependentUpon>frmChat.xaml</DependentUpon>
     </Compile>
     <Compile Include="Chat\ServerConnectionControl.xaml.vb">
       <DependentUpon>ServerConnectionControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Chat\XMPPLinkManager.vb" />
+    <Compile Include="Chat\S22_XMPPLinkManager.vb" />
     <Compile Include="Classes\Configuration\AppPrefs.vb" />
     <Compile Include="Classes\Configuration\ConverterStockBrushes.vb" />
     <Compile Include="Classes\Configuration\DateTimeColorConverter.vb" />
@@ -242,10 +239,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Page Include="Chat\ChatControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Chat\ChatTabItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -2,6 +2,7 @@
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 Imports System.Windows.Threading
+Imports S22.Xmpp.Im
 
 Public Class ChatFormView
     Implements INotifyPropertyChanged
@@ -11,19 +12,38 @@ Public Class ChatFormView
     Private _ChatTabs As New ObservableCollection(Of TabItem)
     Private _Dispatcher As Dispatcher
 
+
     Sub AddCredentials(User As String, password As String, Server As String)
 
-        Dim Link As New XMPPLinkManager
+        Dim Link As New S22_XMPPLinkManager
         Dim S As New ServerConnectionControl(Link)
         Dim T As New TabItem
         T.Content = S
         AddHandler Link.MessageReceived, AddressOf OnServerChatNotification
-
-        T.Header = New TextBlock With {.Text = "Server Console"}
+        AddHandler S.OpenChatTab, AddressOf OpenChatTabRequest
+        T.Header = New TextBlock With {.Text = "Server", .ToolTip = Server}
         ChatTabs.Add(T)
         Link.Init(User, password, Server)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ChatTabs"))
     End Sub
+
+
+
+    Private _CurrentTab As TabItem
+
+    Public Property CurrentTab As TabItem
+        Get
+            Return _CurrentTab
+        End Get
+        Set(value As TabItem)
+            _CurrentTab = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurrentTab"))
+        End Set
+    End Property
+
+
+
+
 
 
     Public ReadOnly Property ChatTabs As ObservableCollection(Of TabItem)
@@ -31,6 +51,15 @@ Public Class ChatFormView
             Return _ChatTabs
         End Get
     End Property
+
+    Private Function CreateChatTab(jid As S22.Xmpp.Jid, Connector As XmppIm) As TabItem
+        Dim T As New TabItem
+        T.Header = New TextBlock With {.Text = jid.ToString}
+        Dim Chat As New ChatControl With {.JID = jid, .Connector = Connector}
+        T.Content = Chat
+        ChatTabs.Add(T)
+        Return T
+    End Function
 
     Private Sub OnServerChatNotification(Sender As Object, e As S22.Xmpp.Im.MessageEventArgs)
 
@@ -46,8 +75,8 @@ Public Class ChatFormView
             For Each item In ChatTabs
                 If TypeOf item.Content Is ChatControl Then
                     Dim CT As ChatControl = CType(item.Content, ChatControl)
-                    If CT.JID = e.Jid Then
-                        CT.AddMessage(e.Message.Body)
+                    If CT.JID.ToString = e.Jid.ToString Then
+                        CT.AddMessage(e.Jid, e.Message.Body)
                         Handled = True
                         Exit For
                     End If
@@ -55,12 +84,7 @@ Public Class ChatFormView
             Next
 
             If Not Handled Then
-                Dim T As New TabItem
-                T.Header = New TextBlock With {.Text = e.Jid.ToString}
-                Dim Chat As New ChatControl With {.JID = e.Jid.ToString}
-                'AddHandler Chat.ChatSend , AddressOf  
-                T.Content = Chat
-                ChatTabs.Add(T)
+                CreateChatTab(e.Jid, CType(Sender, S22.Xmpp.Im.XmppIm))
                 OnServerChatNotification(Sender, e)
             End If
         End If
@@ -69,4 +93,26 @@ Public Class ChatFormView
     Public Sub New(D As Dispatcher)
         _Dispatcher = D
     End Sub
+
+    Private Sub OpenChatTabRequest(jid As S22.Xmpp.Jid, Connector As XmppIm)
+
+        'Lookup tab in tab collection
+
+        For Each chattab As TabItem In ChatTabs
+            If TypeOf chattab.Content Is ChatControl Then
+                Dim ct = CType(chattab.Content, ChatControl)
+
+                If ct.JID = jid Then
+                    CurrentTab = chattab
+                    Exit For
+                End If
+            End If
+        Next
+
+        CurrentTab = CreateChatTab(jid, Connector)
+
+    End Sub
+
+
+
 End Class

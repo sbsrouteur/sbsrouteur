@@ -28,7 +28,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 	
 	<local:DateTimeColorConverter x:Key="DateTimeColorConverter"/>
 	
-	<Style TargetType="{x:Type TextBlock}" >
+    <Style TargetType="{x:Type TextBlock}" >
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 	</Style>
 	

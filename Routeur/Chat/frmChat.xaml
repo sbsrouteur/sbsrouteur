@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="frmChat" Height="300" Width="300">
     <Grid>
-        <TabControl ItemsSource="{Binding ChatTabs}">
+        <TabControl ItemsSource="{Binding ChatTabs}" SelectedItem="{Binding CurrentTab}" >
             
         </TabControl>
             
