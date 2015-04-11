@@ -16,7 +16,7 @@ Public Class ChatFormView
 
     Sub AddCredentials(User As String, password As String, Server As String)
 
-        Dim Link As New S22_XMPPLinkManager
+        Dim Link As New XMPPLinkManager
         Dim S As New ServerConnectionControl(Link)
         Dim T As New TabItem
         T.Content = S

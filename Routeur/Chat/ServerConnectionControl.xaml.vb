@@ -10,9 +10,9 @@ Public Class ServerConnectionControl
     Public Event PropertyChanged(sender As Object, e As PropertyChangedEventArgs) Implements INotifyPropertyChanged.PropertyChanged
     Event OpenChatTab(jid As Jid, Connector As XmppClientConnection)
 
-    Private WithEvents _link As S22_XMPPLinkManager
+    Private WithEvents _link As XMPPLinkManager
 
-    Sub New(Link As S22_XMPPLinkManager)
+    Sub New(Link As XMPPLinkManager)
 
         InitializeComponent()
         ' TODO: Complete member initialization 
@@ -43,7 +43,7 @@ Public Class ServerConnectionControl
     End Sub
 
 
-    Private Sub _link_ServerConsoleMessage(xMPPLinkManager As S22_XMPPLinkManager, S As String) Handles _link.ServerConsoleMessage
+    Private Sub _link_ServerConsoleMessage(xMPPLinkManager As XMPPLinkManager, S As String) Handles _link.ServerConsoleMessage
 
         _ServerText.AppendLine(S)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ServerText"))

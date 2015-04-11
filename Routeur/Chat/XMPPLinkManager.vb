@@ -1,7 +1,8 @@
 ﻿Imports agsXMPP
 Imports agsXMPP.protocol.iq.roster
+Imports System.Collections.ObjectModel
 
-Public Class S22_XMPPLinkManager
+Public Class XMPPLinkManager
 
     Private _User As String
     Private _Password As String
@@ -13,7 +14,7 @@ Public Class S22_XMPPLinkManager
 
     Public Event MessageReceived(sender As Object, e As XmppClientConnection)
     Public Event RosterChanged()
-    Public Event ServerConsoleMessage(xMPPLinkManager As S22_XMPPLinkManager, S As String)
+    Public Event ServerConsoleMessage(xMPPLinkManager As XMPPLinkManager, S As String)
 
     Public ReadOnly Property IM As XmppClientConnection
         Get
@@ -59,18 +60,15 @@ Public Class S22_XMPPLinkManager
 
     End Sub
 
+    Private _Roster As New Roster
 
     Public ReadOnly Property Roster As Roster
         Get
-            Return Nothing 'Link.
+            Link.RequestRoster()
+            Return _Roster
         End Get
 
     End Property
-
-
-
-
-
 
 
 #Region "Link events"
@@ -135,12 +133,21 @@ Public Class S22_XMPPLinkManager
         AddServerMessage("ReadXML", xml)
     End Sub
 
+    Private Sub Link_OnRosterEnd(sender As Object) Handles Link.OnRosterEnd
+        AddServerMessage("RosterEnd", "")
+    End Sub
 
+    Private Sub Link_OnRosterItem(sender As Object, item As RosterItem) Handles Link.OnRosterItem
+        AddServerMessage("RosterItem", "")
+        Roster.AddRosterItem(item)
+    End Sub
 
-
-
+    Private Sub Link_OnRosterStart(sender As Object) Handles Link.OnRosterStart
+        AddServerMessage("RosterStart", "")
+    End Sub
 
     Private Sub Link_OnWriteXml(sender As Object, xml As String) Handles Link.OnWriteXml
         AddServerMessage("WriteXML", xml)
     End Sub
+
 End Class

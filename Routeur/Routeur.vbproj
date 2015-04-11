@@ -152,7 +152,7 @@
     <Compile Include="Chat\ServerConnectionControl.xaml.vb">
       <DependentUpon>ServerConnectionControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Chat\S22_XMPPLinkManager.vb" />
+    <Compile Include="Chat\XMPPLinkManager.vb" />
     <Compile Include="Classes\Configuration\AppPrefs.vb" />
     <Compile Include="Classes\Configuration\ConverterStockBrushes.vb" />
     <Compile Include="Classes\Configuration\DateTimeColorConverter.vb" />
