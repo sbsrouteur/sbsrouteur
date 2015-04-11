@@ -1,13 +1,14 @@
 ﻿Imports System.ComponentModel
 Imports System.Text
 Imports System.Collections.ObjectModel
-Imports S22.Xmpp.Im
+Imports agsXMPP
+Imports agsXMPP.protocol.iq.roster
 
 Public Class ServerConnectionControl
 
     Implements INotifyPropertyChanged
     Public Event PropertyChanged(sender As Object, e As PropertyChangedEventArgs) Implements INotifyPropertyChanged.PropertyChanged
-    Event OpenChatTab(jid As S22.Xmpp.Jid, Connector As XmppIm)
+    Event OpenChatTab(jid As Jid, Connector As XmppClientConnection)
 
     Private WithEvents _link As S22_XMPPLinkManager
 
@@ -54,12 +55,15 @@ Public Class ServerConnectionControl
     Public ReadOnly Property Roster As ObservableCollection(Of RosterItem)
         Get
             _Roster.Clear()
-            For Each item In _link.Roster
-                _Roster.Add(item)
-            Next
+            If _link IsNot Nothing AndAlso _link.Roster IsNot Nothing Then
+                For Each item In _link.Roster.ChildNodes
+                    Dim i As Integer = 0
+                    '_Roster.Add(item)
+                Next
+            End If
             Return _Roster
         End Get
-        
+
     End Property
 
     Private Sub OnContactMouseDown(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)

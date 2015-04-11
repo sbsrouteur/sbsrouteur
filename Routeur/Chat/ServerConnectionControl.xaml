@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:S22="clr-namespace:S22.Xmpp.Im;assembly=S22.Xmpp"
+             xmlns:AgsRoster="clr-namespace:agsXMPP.protocol.iq.roster;assembly=agsXMPP" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
 	<UserControl.Resources>
@@ -11,7 +11,7 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="/Routeur;component/Styles/ControlsStyles.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
-            <DataTemplate DataType="{x:Type S22:RosterItem}">
+            <DataTemplate x:Key="RosterItem">
 				<Grid >
 					<StackPanel Orientation="Horizontal">
 						<TextBlock Text="{Binding Jid.Node}"/>
@@ -25,6 +25,7 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
+		<GridSplitter Grid.Column="1" HorizontalAlignment="Left" Width="2" />
         <ListBox ItemsSource="{Binding Roster}" Margin="{DynamicResource DefMargin}" MouseDoubleClick="OnContactDblClick"/>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" Grid.Column="1" Margin="{DynamicResource DefMargin}" >
             <TextBox  Text="{Binding ServerText, Mode=OneWay}" IsReadOnly="True" />

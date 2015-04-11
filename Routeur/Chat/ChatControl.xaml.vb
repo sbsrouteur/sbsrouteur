@@ -1,6 +1,6 @@
 ﻿Imports System.ComponentModel
 Imports System.Collections.ObjectModel
-Imports S22.Xmpp
+Imports agsXMPP
 
 Public Class ChatControl
 
@@ -19,13 +19,13 @@ Public Class ChatControl
         End Set
     End Property
 
-    Private _Connector As S22.Xmpp.Im.XmppIm
+    Private _Connector As XmppClientConnection
 
-    Public Property Connector As S22.Xmpp.Im.XmppIm
+    Public Property Connector As XmppClientConnection
         Get
             Return _Connector
         End Get
-        Set(value As S22.Xmpp.Im.XmppIm)
+        Set(value As XmppClientConnection)
             _Connector = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Connector"))
         End Set
@@ -35,8 +35,8 @@ Public Class ChatControl
     Public Sub AddMessage(From As Jid, Text As String)
 
         Dim P As New Paragraph
-        Dim FromString As String = From.Node
-        If From.Node Is Nothing Then
+        Dim FromString As String = From.User
+        If From.User Is Nothing Then
             FromString = From.ToString
         End If
         P.Inlines.Add(New Run(Now.ToString("hh:mm:ss") & "<" & FromString & "> " & Text))
@@ -69,7 +69,7 @@ Public Class ChatControl
     Private Sub OnChatSendClick(sender As Object, e As RoutedEventArgs)
 
         If Connector IsNot Nothing AndAlso ChatSendLine.Length <> 0 Then
-            Connector.SendMessage(JID, ChatSendLine, , , S22.Xmpp.Im.MessageType.Chat)
+            'Connector. (JID, ChatSendLine, , , S22.Xmpp.Im.MessageType.Chat)
             AddMessage(JID, ChatSendLine)
             ChatSendLine = ""
         End If

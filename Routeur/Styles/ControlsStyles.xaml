@@ -28,7 +28,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 	
 	<local:DateTimeColorConverter x:Key="DateTimeColorConverter"/>
 	
-    <Style TargetType="{x:Type TextBlock}" >
+	<Style TargetType="{x:Type TextBlock}" >
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 	</Style>
 	
@@ -56,34 +56,34 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 	</Style>
 
-    <Style TargetType ="{x:Type Image}" >
-        <Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
-    </Style>
+	<Style TargetType ="{x:Type Image}" >
+		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
+	</Style>
 
 
-    <Style x:Key="DoubleFormatCheckTextBox" TargetType ="{x:Type TextBox}" > 
+	<Style x:Key="DoubleFormatCheckTextBox" TargetType ="{x:Type TextBox}" > 
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 		<Setter Property="Background">
 			<Setter.Value>
-        		<Binding 
+				<Binding 
 					Path="Text" 
 					Converter="{StaticResource TextToColorConverter}"
 					RelativeSource="{RelativeSource self}"
 				/>
-		     </Setter.Value>
+			 </Setter.Value>
 		 </Setter>
 	</Style>
 	
-    <Style x:Key="TimeSpanFormatCheckTextBox" TargetType ="{x:Type TextBox}" > 
+	<Style x:Key="TimeSpanFormatCheckTextBox" TargetType ="{x:Type TextBox}" > 
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 		<Setter Property="Background">
 			<Setter.Value>
-        		<Binding 
+				<Binding 
 					Path="Text" 
 					Converter="{StaticResource TimeSpanColorConverter}"
 					RelativeSource="{RelativeSource self}"
 				/>
-		     </Setter.Value>
+			 </Setter.Value>
 		 </Setter>
 	</Style>
 	
@@ -91,45 +91,45 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
 		<Setter Property="Margin" Value="{DynamicResource DefMargin}"/>
 		<Setter Property="Background">
 			<Setter.Value>
-        		<Binding 
+				<Binding 
 					Path="Text" 
 					Converter="{StaticResource DateTimeColorConverter}"
 					RelativeSource="{RelativeSource self}"
 				/>
-		     </Setter.Value>
+			 </Setter.Value>
 		 </Setter>
 	</Style>
-    
-	<ControlTemplate x:Key="TrashButton" TargetType="{x:Type Button}">
-    	<Grid>
-    		<Button >
-    			<Image Height="Auto" Source="/Routeur;Component/Graphics/Trash_48.png" Margin="{DynamicResource DefMargin}"/>
-    		</Button>
-    	</Grid>
-    </ControlTemplate>
 	
-    <ControlTemplate x:Key="UploadButton" TargetType="{x:Type Button}">
-    	<Grid>
-    		<Button >
-    			<Image Height="Auto" Source="/Routeur;Component/Graphics/Up_48.png" Margin="{DynamicResource DefMargin}"/>
-    		</Button>
-    	</Grid>
-    </ControlTemplate>
+	<ControlTemplate x:Key="TrashButton" TargetType="{x:Type Button}">
+		<Grid>
+			<Button >
+				<Image Height="Auto" Source="/Routeur;Component/Graphics/Trash_48.png" Margin="{DynamicResource DefMargin}"/>
+			</Button>
+		</Grid>
+	</ControlTemplate>
+	
+	<ControlTemplate x:Key="UploadButton" TargetType="{x:Type Button}">
+		<Grid>
+			<Button >
+				<Image Height="Auto" Source="/Routeur;Component/Graphics/Up_48.png" Margin="{DynamicResource DefMargin}"/>
+			</Button>
+		</Grid>
+	</ControlTemplate>
 
-    <ControlTemplate x:Key="AddNewButton" TargetType="{x:Type Button}">
-    	<Grid>
-    		<Button >
-    			<Image Height="Auto" Source="/Routeur;Component/Graphics/Share-plus-48.png" Margin="{DynamicResource DefMargin}"/>
-    		</Button>
-    	</Grid>
-    </ControlTemplate>
+	<ControlTemplate x:Key="AddNewButton" TargetType="{x:Type Button}">
+		<Grid>
+			<Button >
+				<Image Height="Auto" Source="/Routeur;Component/Graphics/Share-plus-48.png" Margin="{DynamicResource DefMargin}"/>
+			</Button>
+		</Grid>
+	</ControlTemplate>
 	
 	<ControlTemplate x:Key="RefreshButton" TargetType="{x:Type Button}">
-    	<Grid>
-    		<Button >
-    			<Image Height="Auto" Source="/Routeur;component/Graphics/Refresh.ico" Margin="{DynamicResource DefMargin}"/>
-    		</Button>
-    	</Grid>
-    </ControlTemplate>
+		<Grid>
+			<Button >
+				<Image Height="Auto" Source="/Routeur;component/Graphics/Refresh.ico" Margin="{DynamicResource DefMargin}"/>
+			</Button>
+		</Grid>
+	</ControlTemplate>
 
 </ResourceDictionary>
