@@ -248,7 +248,18 @@ RestartPoint:
                                 Dim seg_lat1 As Double = CDbl(Reader("lat1"))
                                 Dim seg_lat2 As Double = CDbl(Reader("lat2"))
                                 Dim IdSeg As Long = CLng(Reader("IdSegment"))
-                                RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+
+                                If seg_lon1 * seg_lon2 < 0 AndAlso Math.Abs(seg_lon1 - seg_lon2) > 180 Then
+                                    'Quick hack use denormalization twice (#38)
+                                    Dim Direction As Integer = 1
+                                    If seg_lon1 < 0 Then
+                                        Direction = -1
+                                    End If
+                                    RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1, .Lon2 = seg_lon2 + Direction * 360, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+                                    RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1 - 360 * Direction, .Lon2 = seg_lon2 + 360, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+                                Else
+                                    RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+                                End If
                                 TotalHitCount += 1
 
                             End While
