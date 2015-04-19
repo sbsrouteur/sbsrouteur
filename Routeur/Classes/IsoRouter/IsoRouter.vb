@@ -158,7 +158,7 @@ Public Class IsoRouter
                 Dim CurDest As Coords
                 Dim rp As clsrouteinfopoints
 
-                Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount1) = Interlocked.Increment(CurThreadCount1)
+                'Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount1) = Interlocked.Increment(CurThreadCount1)
                 'While CurThreadCount1 > 8
                 '    System.Threading.Thread.Sleep(1)
                 'End While
@@ -204,8 +204,8 @@ Public Class IsoRouter
                     For alphaindex As Integer = 0 To StepCount
                         'Parallel.For(0, StepCount,
                         'Sub(AlphaIndex As Integer)
-                        Dim IsoBucket As Integer = Interlocked.Increment(CurThreadCount2)
-                        Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount2) = IsoBucket
+                        'Dim IsoBucket As Integer = Interlocked.Increment(CurThreadCount2)
+                        'Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount2) = IsoBucket
                         Dim alpha As Double = (MinAngle + _AngleStep * alphaindex) Mod 360
                         Dim P As clsrouteinfopoints
                         Dim tc As New TravelCalculator
@@ -243,7 +243,7 @@ Public Class IsoRouter
                         tc.StartPoint = Nothing
                         tc.EndPoint = Nothing
                         tc = Nothing
-                        Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount2) = Interlocked.Decrement(CurThreadCount2)
+                        'Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount2) = Interlocked.Decrement(CurThreadCount2)
 
 
                         'End Sub)
@@ -255,7 +255,7 @@ Public Class IsoRouter
                 tcfn1.StartPoint = Nothing
                 tcfn1 = Nothing
 
-                Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount1) = Interlocked.Decrement(CurThreadCount1)
+                'Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount1) = Interlocked.Decrement(CurThreadCount1)
 
                 'End Sub)
             Next
