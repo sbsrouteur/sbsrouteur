@@ -2,7 +2,7 @@
 Imports System.Collections.ObjectModel
 Imports agsXMPP
 
-Public Class ChatControl
+Public Class RoomChatControl
 
     Implements INotifyPropertyChanged
     Public Event PropertyChanged(sender As Object, e As PropertyChangedEventArgs) Implements INotifyPropertyChanged.PropertyChanged
@@ -32,17 +32,13 @@ Public Class ChatControl
     End Property
 
 
-    Public Sub AddMessage(From As Jid, Text As String, isgroupChat As Boolean)
+    Public Sub AddMessage(From As Jid, Text As String)
 
         Dim P As New Paragraph
-        Dim FromString As String
-
-        If isgroupChat Then
-            FromString = From.Resource
-        Else
-            FromString = From.User
+        Dim FromString As String = From.User
+        If From.User Is Nothing Then
+            FromString = From.ToString
         End If
-
         P.Inlines.Add(New Run(Now.ToString("hh:mm:ss") & "<" & FromString & "> " & Text))
         ChatTextBox.Document.Blocks.Add(P)
 
@@ -75,7 +71,7 @@ Public Class ChatControl
         If Connector IsNot Nothing AndAlso ChatSendLine.Length <> 0 Then
             Dim M As New protocol.client.Message(JID, protocol.client.MessageType.chat, ChatSendLine)
             Connector.Send(M)
-            AddMessage(JID, ChatSendLine, False)
+            AddMessage(JID, ChatSendLine)
             ChatSendLine = ""
         End If
 

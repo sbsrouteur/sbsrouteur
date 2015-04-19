@@ -20,11 +20,11 @@ Public Class ChatFormView
         Dim S As New ServerConnectionControl(Link)
         Dim T As New TabItem
         T.Content = S
-        'AddHandler Link.MessageReceived, AddressOf OnServerChatNotification
+        AddHandler Link.MessageReceived, AddressOf OnServerChatNotification
         AddHandler S.OpenChatTab, AddressOf OpenChatTabRequest
         T.Header = New TextBlock With {.Text = "Server", .ToolTip = Server}
         ChatTabs.Add(T)
-        Link.Init(User, password, Server)
+        Link.Init(_Dispatcher, User, password, Server)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ChatTabs"))
     End Sub
 
@@ -54,42 +54,47 @@ Public Class ChatFormView
     End Property
 
     Private Function CreateChatTab(jid As Jid, Connector As XmppClientConnection) As TabItem
-        Dim T As New TabItem
-        T.Header = New TextBlock With {.Text = jid.ToString}
-        Dim Chat As New ChatControl With {.JID = jid, .Connector = Connector}
-        T.Content = Chat
-        ChatTabs.Add(T)
-        Return T
+
+        If jid IsNot Nothing AndAlso Connector IsNot Nothing Then
+            Dim T As New TabItem
+            T.Header = New TextBlock With {.Text = jid.ToString}
+            Dim Chat As New ChatControl With {.JID = jid, .Connector = Connector}
+            T.Content = Chat
+            ChatTabs.Add(T)
+            Return T
+        Else
+            Return Nothing
+        End If
     End Function
 
-    'Private Sub OnServerChatNotification(Sender As Object, e As S22.Xmpp.Im.MessageEventArgs)
+    Private Sub OnServerChatNotification(Sender As Object, e As protocol.client.Message)
 
-    '    If _Dispatcher.Thread.ManagedThreadId <> System.Threading.Thread.CurrentThread.ManagedThreadId Then
+        If _Dispatcher.Thread.ManagedThreadId <> System.Threading.Thread.CurrentThread.ManagedThreadId Then
 
-    '        _Dispatcher.BeginInvoke(New Action(Of Object, S22.Xmpp.Im.MessageEventArgs)(AddressOf OnServerChatNotification), Sender, e)
+            _Dispatcher.BeginInvoke(New Action(Of Object, protocol.client.Message)(AddressOf OnServerChatNotification), Sender, e)
 
-    '    Else
+        Else
 
-    '        Dim Handled As Boolean = False
+            Dim Handled As Boolean = False
 
 
-    '        For Each item In ChatTabs
-    '            If TypeOf item.Content Is ChatControl Then
-    '                Dim CT As ChatControl = CType(item.Content, ChatControl)
-    '                If CT.JID.ToString = e.Jid.ToString Then
-    '                    CT.AddMessage(e.Jid, e.Message.Body)
-    '                    Handled = True
-    '                    Exit For
-    '                End If
-    '            End If
-    '        Next
+            For Each item In ChatTabs
+                If TypeOf item.Content Is ChatControl Then
+                    Dim CT As ChatControl = CType(item.Content, ChatControl)
+                    If CT.JID.User = e.From.User Then
+                        CT.AddMessage(e.From, e.Body, e.Type = protocol.client.MessageType.groupchat)
+                        Handled = True
+                        Exit For
+                    End If
+                End If
+            Next
 
-    '        If Not Handled Then
-    '            CreateChatTab(e.Jid, CType(Sender, S22.Xmpp.Im.XmppIm))
-    '            OnServerChatNotification(Sender, e)
-    '        End If
-    '    End If
-    'End Sub
+            If Not Handled Then
+                CreateChatTab(e.From, CType(Sender, XmppClientConnection))
+                OnServerChatNotification(Sender, e)
+            End If
+        End If
+    End Sub
 
     Public Sub New(D As Dispatcher)
         _Dispatcher = D
