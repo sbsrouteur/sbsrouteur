@@ -1,23 +1,42 @@
 ﻿Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 Imports agsXMPP
+Imports agsXMPP.protocol.client
 
 Public Class RoomChatControl
 
     Implements INotifyPropertyChanged
     Public Event PropertyChanged(sender As Object, e As PropertyChangedEventArgs) Implements INotifyPropertyChanged.PropertyChanged
 
-    Private _JID As Jid
+    Private _Room As String
+    Private _RoomNick As String
 
-    Public Property JID As Jid
+    Public Property Room As String
         Get
-            Return _JID
+            Return _Room
         End Get
-        Set(value As Jid)
-            _JID = value
-            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("JID"))
+        Set(value As String)
+            _Room = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Room"))
         End Set
     End Property
+
+
+
+
+    Public Property RoomNick As String
+        Get
+            Return _RoomNick
+        End Get
+        Set(value As String)
+            _RoomNick = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("RoomNick"))
+        End Set
+    End Property
+
+
+
+
 
     Private _Connector As XmppClientConnection
 
@@ -32,17 +51,10 @@ Public Class RoomChatControl
     End Property
 
 
-    Public Sub AddMessage(From As Jid, Text As String)
-
-        Dim P As New Paragraph
-        Dim FromString As String = From.User
-        If From.User Is Nothing Then
-            FromString = From.ToString
-        End If
-        P.Inlines.Add(New Run(Now.ToString("hh:mm:ss") & "<" & FromString & "> " & Text))
-        ChatTextBox.Document.Blocks.Add(P)
-
+    Public Sub AddMessage(M As Message)
+        ChatHelper.AddMessage(ChatTextBox, M)
     End Sub
+
 
     Public Sub New()
 
@@ -69,11 +81,19 @@ Public Class RoomChatControl
     Private Sub OnChatSendClick(sender As Object, e As RoutedEventArgs)
 
         If Connector IsNot Nothing AndAlso ChatSendLine.Length <> 0 Then
-            Dim M As New protocol.client.Message(JID, protocol.client.MessageType.chat, ChatSendLine)
+            Dim M As New protocol.client.Message(Room, protocol.client.MessageType.groupchat, ChatSendLine)
+            M.From = New Jid(RoomNick)
             Connector.Send(M)
-            AddMessage(JID, ChatSendLine)
+            AddMessage(M)
             ChatSendLine = ""
         End If
 
+    End Sub
+
+    Private Sub OnChatSendLineKeyDown(sender As Object, e As KeyEventArgs)
+
+        If e.Key = Key.Return OrElse e.Key = Key.Enter Then
+            OnChatSendClick(sender, Nothing)
+        End If
     End Sub
 End Class

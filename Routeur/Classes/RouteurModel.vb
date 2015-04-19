@@ -64,11 +64,13 @@ Public Class RouteurModel
     Public Const XMPP_SERVER As String = "ir.testing.v-l-m.org"
     Public Const XMPP_ROOM_SERVER As String = "vhf.ir.testing.v-l-m.org"
     Public Const ROUTEUR_SUPPORT_ROOM As String = "sbsRouteur_Test"
+    Public Const XMPP_MAIN_CHAT As String = "capitainerie"
 #Else
     Public Const S10_SERVER As String = "v-l-m.org"
     Public Const XMPP_SERVER As String = "iridium.v-l-m.org"
     Public Const XMPP_ROOM_SERVER As String = "vhf.iridium.v-l-m.org"
     Public Const ROUTEUR_SUPPORT_ROOM As String = "sbsRouteur"
+    Public Const XMPP_MAIN_CHAT As String = "capitainerie"
 
 #End If
 
@@ -261,6 +263,7 @@ Public Class RouteurModel
         Chat.Show()
 
         Chat.Init(WS_Wrapper.GetPlayerProfileInfo(enumPlayerProfileInfo.PlayerName), frm.PlayerInfo.Password, XMPP_SERVER)
+        Chat.JoinRaceChat("r" & frm.PlayerInfo.RaceNum, frm.PlayerInfo.Nick)
 
         Me.Dispatcher = Dispatcher
         Cron = New Cron(Dispatcher)

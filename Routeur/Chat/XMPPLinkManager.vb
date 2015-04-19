@@ -8,10 +8,12 @@ Imports System.Windows.Threading
 Public Class XMPPLinkManager
 
     Private _User As String
+    Private _Nick As String
     Private _Password As String
     Private _Server As String
     Private _IdRoomDiscoID As String = ""
     Private _Dispatcher As Dispatcher
+    Private _PendingRoomRequests As New List(Of String)
 
 
     Private WithEvents _Link As agsXMPP.XmppClientConnection
@@ -27,6 +29,15 @@ Public Class XMPPLinkManager
         End Get
     End Property
 
+    Public Property Nick As String
+        Get
+            Return _Nick
+        End Get
+        Set(value As String)
+            _Nick = value
+        End Set
+    End Property
+
     Private Sub AddServerMessage(Group As String, Msg As String)
         Dim S As String = Now.ToString & " " & Group & " " & Msg
 
@@ -38,6 +49,7 @@ Public Class XMPPLinkManager
         _Dispatcher = D
 
         _User = User
+        _Nick = User
         _Password = Password
         _Server = Server
 
@@ -63,13 +75,22 @@ Public Class XMPPLinkManager
     End Function
 
 
-    Public Sub JoinRoom(RoomName As String)
+    Public Sub JoinRoom(RoomName As String, Optional Nick As String = Nothing)
 
         If _MUC Is Nothing Then
             _MUC = New MucManager(_Link)
         End If
 
-        _MUC.JoinRoom(New Jid(RoomName & "@" & RouteurModel.XMPP_ROOM_SERVER), _Link.MyJID.ToString)
+        If Nick IsNot Nothing AndAlso Nick.Trim <> "" Then
+            _Nick = Nick
+        End If
+        If _Link.XmppConnectionState = XmppConnectionState.SessionStarted Then
+            _MUC.JoinRoom(New Jid(RoomName & "@" & RouteurModel.XMPP_ROOM_SERVER), _Nick)
+        Else
+            SyncLock _PendingRoomRequests
+                _PendingRoomRequests.Add(RoomName)
+            End SyncLock
+        End If
     End Sub
 
     Private _Roster As New ObservableCollection(Of Jid)
@@ -112,8 +133,16 @@ Public Class XMPPLinkManager
 
     Private Sub _Link_OnLogin(sender As Object) Handles _Link.OnLogin
         AddServerMessage("Logged In", _Link.ToString)
-        JoinRoom("Capitainerie")
-        JoinRoom(RouteurModel.ROUTEUR_SUPPORT_ROOM)
+        JoinRoom(RouteurModel.XMPP_MAIN_CHAT, _Nick)
+        JoinRoom(RouteurModel.ROUTEUR_SUPPORT_ROOM, _Nick)
+
+        SyncLock _PendingRoomRequests
+            For Each Item In _PendingRoomRequests
+                JoinRoom(Item, _Nick)
+            Next
+            _PendingRoomRequests.Clear()
+        End SyncLock
+
     End Sub
 
     Private Sub Link_OnMessage(sender As Object, msg As protocol.client.Message) Handles _Link.OnMessage

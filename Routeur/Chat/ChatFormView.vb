@@ -2,7 +2,6 @@
 Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 Imports System.Windows.Threading
-Imports S22.Xmpp.Im
 Imports agsXMPP
 
 Public Class ChatFormView
@@ -22,10 +21,12 @@ Public Class ChatFormView
         T.Content = S
         AddHandler Link.MessageReceived, AddressOf OnServerChatNotification
         AddHandler S.OpenChatTab, AddressOf OpenChatTabRequest
+        AddHandler S.OpenChatRoomTab, AddressOf OpenChatRoomTabRequest
         T.Header = New TextBlock With {.Text = "Server", .ToolTip = Server}
         ChatTabs.Add(T)
         Link.Init(_Dispatcher, User, password, Server)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("ChatTabs"))
+
     End Sub
 
 
@@ -41,11 +42,6 @@ Public Class ChatFormView
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("CurrentTab"))
         End Set
     End Property
-
-
-
-
-
 
     Public ReadOnly Property ChatTabs As ObservableCollection(Of TabItem)
         Get
@@ -67,6 +63,30 @@ Public Class ChatFormView
         End If
     End Function
 
+    Private Function CreateRoomChatTab(Room As String, RoomNick As String, Connector As XmppClientConnection) As TabItem
+        If Room IsNot Nothing AndAlso Connector IsNot Nothing Then
+            Dim T As New TabItem
+            T.Header = New TextBlock With {.Text = Room}
+            Dim Chat As New RoomChatControl With {.Room = Room, .RoomNick = RoomNick, .Connector = Connector}
+            T.Content = Chat
+            ChatTabs.Add(T)
+            Return T
+        Else
+            Return Nothing
+        End If
+    End Function
+
+
+    Sub JoinRaceChat(RoomName As String, Nick As String)
+
+        For Each item In ChatTabs
+            If TypeOf item.Content Is ServerConnectionControl Then
+                CType(item.Content, ServerConnectionControl).JoinChatRoom(RoomName, Nick)
+            End If
+        Next
+    End Sub
+
+
     Private Sub OnServerChatNotification(Sender As Object, e As protocol.client.Message)
 
         If _Dispatcher.Thread.ManagedThreadId <> System.Threading.Thread.CurrentThread.ManagedThreadId Then
@@ -79,14 +99,37 @@ Public Class ChatFormView
 
 
             For Each item In ChatTabs
-                If TypeOf item.Content Is ChatControl Then
-                    Dim CT As ChatControl = CType(item.Content, ChatControl)
-                    If CT.JID.User = e.From.User Then
-                        CT.AddMessage(e.From, e.Body, e.Type = protocol.client.MessageType.groupchat)
+                Select Case e.Type
+                    Case protocol.client.MessageType.error
+                        'ignore error messages for now (they go in the server tab any ways)
                         Handled = True
                         Exit For
-                    End If
-                End If
+
+                    Case protocol.client.MessageType.groupchat
+                        If TypeOf item.Content Is ChatControl Then
+
+                            Dim CT As ChatControl = CType(item.Content, ChatControl)
+                            If CT.JID.User = e.From.User Then
+                                CT.AddMessage(e)
+                                Handled = True
+                                Exit For
+                            End If
+                        End If
+
+                    Case protocol.client.MessageType.chat
+                        If TypeOf item.Content Is RoomChatControl Then
+
+                            Dim CT As RoomChatControl = CType(item.Content, RoomChatControl)
+                            If e.From.User.StartsWith(CT.Room) Then
+                                CT.AddMessage(e)
+                                Handled = True
+                                Exit For
+                            End If
+                        End If
+                    Case Else
+                        Handled = True
+                End Select
+                
             Next
 
             If Not Handled Then
@@ -118,6 +161,24 @@ Public Class ChatFormView
         CurrentTab = CreateChatTab(jid, Connector)
 
     End Sub
+
+    Private Sub OpenChatRoomTabRequest(Room As String, RoomNick As String, Connector As XmppClientConnection)
+
+        For Each chattab As TabItem In ChatTabs
+            If TypeOf chattab.Content Is RoomChatControl Then
+                Dim ct = CType(chattab.Content, RoomChatControl)
+
+                If Room = ct.Room Then
+                    CurrentTab = chattab
+                    Exit For
+                End If
+            End If
+        Next
+
+        CurrentTab = CreateRoomChatTab(Room, RoomNick, Connector)
+    End Sub
+
+
 
 
 

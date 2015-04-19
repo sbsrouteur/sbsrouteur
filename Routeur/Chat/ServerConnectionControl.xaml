@@ -32,7 +32,7 @@
 			</Grid.ColumnDefinitions>
 			<GridSplitter Grid.Column="1" HorizontalAlignment="Left" Width="2" />
 			<ListBox ItemsSource="{Binding Roster}" Margin="{DynamicResource DefMargin}" MouseDoubleClick="OnContactDblClick" Grid.RowSpan="2"/>
-			<ListBox Grid.Column="1" ItemsSource="{Binding Rooms}" Margin="{DynamicResource DefMargin}" MouseDoubleClick="OnContactDblClick" Grid.RowSpan="2"/>
+			<ListBox Grid.Column="1" ItemsSource="{Binding Rooms}" Margin="{DynamicResource DefMargin}" MouseDoubleClick="OnChatRoomDblClick" Grid.RowSpan="2"/>
 			
 		</Grid>
 		<GridSplitter Height="2" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"/>

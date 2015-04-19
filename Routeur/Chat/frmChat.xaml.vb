@@ -23,4 +23,8 @@ Public Class frmChat
         _View.AddCredentials(User, password, Server)
     End Sub
 
+    Sub JoinRaceChat(RaceChatRoomName As String, RoomChatNick As String)
+        _View.JoinRaceChat(RaceChatRoomName, RoomChatNick)
+    End Sub
+
 End Class

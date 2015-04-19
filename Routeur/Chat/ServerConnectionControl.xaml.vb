@@ -9,6 +9,7 @@ Public Class ServerConnectionControl
     Implements INotifyPropertyChanged
     Public Event PropertyChanged(sender As Object, e As PropertyChangedEventArgs) Implements INotifyPropertyChanged.PropertyChanged
     Event OpenChatTab(jid As Jid, Connector As XmppClientConnection)
+    Event OpenChatRoomTab(Room As String, RoomNick As String, xmppClientConnection As XmppClientConnection)
 
     Private WithEvents _link As XMPPLinkManager
 
@@ -21,6 +22,7 @@ Public Class ServerConnectionControl
     End Sub
 
     Private _ServerText As New StringBuilder
+
 
 
     Public ReadOnly Property ServerText As String
@@ -72,4 +74,15 @@ Public Class ServerConnectionControl
         End If
     End Sub
 
+    Sub JoinChatRoom(RoomName As String, Nick As String)
+        _link.JoinRoom(RoomName, Nick)
+    End Sub
+
+    Private Sub OnChatRoomDblClick(sender As Object, e As MouseButtonEventArgs)
+        Dim i As Integer = 0
+        If CType(sender, ListBox).SelectedItem IsNot Nothing Then
+            RaiseEvent OpenChatRoomTab(CType(CType(sender, ListBox).SelectedItem, String), _link.Nick, _link.ClientConnection)
+            _link.JoinRoom(CStr(CType(sender, ListBox).SelectedItem))
+        End If
+    End Sub
 End Class

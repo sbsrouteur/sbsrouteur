@@ -146,6 +146,7 @@
       <DependentUpon>ChatControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Chat\ChatFormView.vb" />
+    <Compile Include="Chat\ChatHelper.vb" />
     <Compile Include="Chat\frmChat.xaml.vb">
       <DependentUpon>frmChat.xaml</DependentUpon>
     </Compile>

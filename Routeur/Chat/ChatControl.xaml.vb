@@ -1,6 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports System.Collections.ObjectModel
 Imports agsXMPP
+Imports agsXMPP.protocol.client
 
 Public Class ChatControl
 
@@ -32,21 +33,7 @@ Public Class ChatControl
     End Property
 
 
-    Public Sub AddMessage(From As Jid, Text As String, isgroupChat As Boolean)
 
-        Dim P As New Paragraph
-        Dim FromString As String
-
-        If isgroupChat Then
-            FromString = From.Resource
-        Else
-            FromString = From.User
-        End If
-
-        P.Inlines.Add(New Run(Now.ToString("hh:mm:ss") & "<" & FromString & "> " & Text))
-        ChatTextBox.Document.Blocks.Add(P)
-
-    End Sub
 
     Public Sub New()
 
@@ -59,6 +46,10 @@ Public Class ChatControl
     End Sub
 
     Private _ChatSendLine As String
+
+    Public Sub AddMessage(M As Message)
+        ChatHelper.AddMessage(ChatTextBox, M)
+    End Sub
 
     Public Property ChatSendLine As String
         Get
@@ -74,10 +65,19 @@ Public Class ChatControl
 
         If Connector IsNot Nothing AndAlso ChatSendLine.Length <> 0 Then
             Dim M As New protocol.client.Message(JID, protocol.client.MessageType.chat, ChatSendLine)
+            M.From = _JID
             Connector.Send(M)
-            AddMessage(JID, ChatSendLine, False)
+            AddMessage(M)
             ChatSendLine = ""
         End If
 
+    End Sub
+
+
+    Private Sub OnChatSendLineKeyDown(sender As Object, e As KeyEventArgs)
+
+        If e.Key = Key.Return OrElse e.Key = Key.Enter Then
+            OnChatSendClick(sender, Nothing)
+        End If
     End Sub
 End Class
