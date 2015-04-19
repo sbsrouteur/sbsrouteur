@@ -61,12 +61,14 @@ Public Class RouteurModel
 
 #If TESTING = 1 Then
     Public Const S10_SERVER As String = "testing.v-l-m.org"
-    Const PROSODY_SERVER As String = "ir.testing.v-l-m.org"
-    Const PROSODY_ROOM_SERVER As String = "vhf.ir.testing.v-l-m.org"
+    Public Const XMPP_SERVER As String = "ir.testing.v-l-m.org"
+    Public Const XMPP_ROOM_SERVER As String = "vhf.ir.testing.v-l-m.org"
+    Public Const ROUTEUR_SUPPORT_ROOM As String = "sbsRouteur_Test"
 #Else
     Public Const S10_SERVER As String = "v-l-m.org"
-    Const PROSODY_SERVER As String = "iridium.v-l-m.org"
-    Const PROSODY_ROOM_SERVER As String = "vhf.iridium.v-l-m.org"
+    Public Const XMPP_SERVER As String = "iridium.v-l-m.org"
+    Public Const XMPP_ROOM_SERVER As String = "vhf.iridium.v-l-m.org"
+    Public Const ROUTEUR_SUPPORT_ROOM As String = "sbsRouteur"
 
 #End If
 
@@ -115,7 +117,7 @@ Public Class RouteurModel
 
     Private _NOPoint As Coords
     Private _SEPoint As Coords
-    
+
     Private WithEvents _RouteManager As RouteManager
 
     Private _2DViewerLock As New Object
@@ -173,8 +175,8 @@ Public Class RouteurModel
         If The2DViewer Is Nothing Then
             Return
         End If
-        
-            
+
+
         _LonOffset = (C1.Lon_Deg + C2.Lon_Deg) / 2
         If C1.Lon = C2.Lon Then
             Scale = 1
@@ -187,12 +189,12 @@ Public Class RouteurModel
         Dim y2 As Double = C2.Mercator_Y_Deg
 
         _LatOffset = (y1 + y2) / 2
-       
+
         Debug.Assert(Scale <> 0)
 
         VorHandler.CoordsExtent(C1, C2, _2DViewer.ActualWidth, _2DViewer.ActualHeight)
         CoordsExtent(C1, C2, _2DViewer.ActualWidth, _2DViewer.ActualHeight)
-        
+
         _2DViewer.MapTransform.Scale = Scale
         _2DViewer.MapTransform.LonOffset = _LonOffset
         _2DViewer.MapTransform.LatOffset = _LatOffset
@@ -258,7 +260,7 @@ Public Class RouteurModel
         Chat.Owner = MainWindow
         Chat.Show()
 
-        Chat.Init(WS_Wrapper.GetPlayerProfileInfo(enumPlayerProfileInfo.PlayerName), frm.PlayerInfo.Password, PROSODY_SERVER)
+        Chat.Init(WS_Wrapper.GetPlayerProfileInfo(enumPlayerProfileInfo.PlayerName), frm.PlayerInfo.Password, XMPP_SERVER)
 
         Me.Dispatcher = Dispatcher
         Cron = New Cron(Dispatcher)

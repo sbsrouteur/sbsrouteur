@@ -50,32 +50,26 @@ Public Class ServerConnectionControl
 
     End Sub
 
-    Private _Roster As New ObservableCollection(Of RosterItem)
-
-    Public ReadOnly Property Roster As ObservableCollection(Of RosterItem)
+   
+    Public ReadOnly Property Roster As ObservableCollection(Of Jid)
         Get
-            _Roster.Clear()
-            If _link IsNot Nothing AndAlso _link.Roster IsNot Nothing Then
-                For Each item In _link.Roster.ChildNodes
-                    Dim i As Integer = 0
-                    '_Roster.Add(item)
-                Next
-            End If
-            Return _Roster
+            Return _link.Roster
         End Get
 
     End Property
 
-    Private Sub OnContactMouseDown(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
-
-
-    End Sub
+    Public ReadOnly Property Rooms As ObservableCollection(Of String)
+        Get
+            Return _link.Rooms
+        End Get
+    End Property
 
     Private Sub OnContactDblClick(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
         Dim i As Integer = 0
 
-        RaiseEvent OpenChatTab(CType(CType(sender, ListBox).SelectedItem, RosterItem).Jid, _link.IM)
-
+        If CType(sender, ListBox).SelectedItem IsNot Nothing Then
+            RaiseEvent OpenChatTab(CType(CType(sender, ListBox).SelectedItem, Jid), _link.ClientConnection)
+        End If
     End Sub
 
 End Class
