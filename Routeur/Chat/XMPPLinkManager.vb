@@ -160,23 +160,27 @@ Public Class XMPPLinkManager
             Dim IsDiscoItem As Boolean = False
             Dim _LocalRoomList As New List(Of String)
 
-            Using R As System.Xml.XmlReader = System.Xml.XmlReader.Create(New StringReader(xml))
-                While R.Read
-                    If (Not IsDiscoItem) AndAlso _IdRoomDiscoID = R.GetAttribute("id") Then
-                        _IdRoomDiscoID = ""
-                        IsDiscoItem = True
-                    ElseIf IsDiscoItem Then
-                        If R.NodeType = System.Xml.XmlNodeType.Element AndAlso R.Name = "item" Then
-                            _LocalRoomList.Add(R.GetAttribute("jid"))
+            Try
+                Using R As System.Xml.XmlReader = System.Xml.XmlReader.Create(New StringReader(xml))
+                    While R.Read
+                        If (Not IsDiscoItem) AndAlso _IdRoomDiscoID = R.GetAttribute("id") Then
+                            _IdRoomDiscoID = ""
+                            IsDiscoItem = True
+                        ElseIf IsDiscoItem Then
+                            If R.NodeType = System.Xml.XmlNodeType.Element AndAlso R.Name = "item" Then
+                                _LocalRoomList.Add(R.GetAttribute("jid"))
+                            End If
+
                         End If
+                    End While
+                End Using
 
-                    End If
-                End While
-            End Using
+                If IsDiscoItem AndAlso _LocalRoomList.Count > 0 Then
+                    UpdateRoomsList(_LocalRoomList)
+                End If
+            Catch ex As Exception
+            End Try
 
-            If IsDiscoItem AndAlso _LocalRoomList.Count > 0 Then
-                UpdateRoomsList(_LocalRoomList)
-            End If
         End If
     End Sub
 

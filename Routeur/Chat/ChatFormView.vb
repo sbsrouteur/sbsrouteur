@@ -106,10 +106,10 @@ Public Class ChatFormView
                         Exit For
 
                     Case protocol.client.MessageType.groupchat
-                        If TypeOf item.Content Is ChatControl Then
+                        If TypeOf item.Content Is RoomChatControl Then
 
-                            Dim CT As ChatControl = CType(item.Content, ChatControl)
-                            If CT.JID.User = e.From.User Then
+                            Dim CT As RoomChatControl = CType(item.Content, RoomChatControl)
+                            If CT.Room = e.From.User Then
                                 CT.AddMessage(e)
                                 Handled = True
                                 Exit For
@@ -117,10 +117,10 @@ Public Class ChatFormView
                         End If
 
                     Case protocol.client.MessageType.chat
-                        If TypeOf item.Content Is RoomChatControl Then
+                        If TypeOf item.Content Is ChatControl Then
 
-                            Dim CT As RoomChatControl = CType(item.Content, RoomChatControl)
-                            If e.From.User.StartsWith(CT.Room) Then
+                            Dim CT As ChatControl = CType(item.Content, ChatControl)
+                            If e.From.User = CT.JID.User Then
                                 CT.AddMessage(e)
                                 Handled = True
                                 Exit For
@@ -133,8 +133,15 @@ Public Class ChatFormView
             Next
 
             If Not Handled Then
-                CreateChatTab(e.From, CType(Sender, XmppClientConnection))
-                OnServerChatNotification(Sender, e)
+                Select Case e.Type
+                    Case protocol.client.MessageType.chat
+                        CreateChatTab(e.From, CType(Sender, XmppClientConnection))
+                        OnServerChatNotification(Sender, e)
+                    Case protocol.client.MessageType.groupchat
+                        CreateRoomChatTab(e.From.User, "", CType(Sender, XmppClientConnection))
+                        OnServerChatNotification(Sender, e)
+                End Select
+
             End If
         End If
     End Sub

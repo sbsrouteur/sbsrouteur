@@ -81,10 +81,10 @@ Public Class RoomChatControl
     Private Sub OnChatSendClick(sender As Object, e As RoutedEventArgs)
 
         If Connector IsNot Nothing AndAlso ChatSendLine.Length <> 0 Then
-            Dim M As New protocol.client.Message(Room, protocol.client.MessageType.groupchat, ChatSendLine)
+            Dim M As New protocol.client.Message(Room & "@" & RouteurModel.XMPP_ROOM_SERVER, protocol.client.MessageType.groupchat, ChatSendLine)
             M.From = New Jid(RoomNick)
             Connector.Send(M)
-            AddMessage(M)
+            'AddMessage(M)
             ChatSendLine = ""
         End If
 
