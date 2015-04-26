@@ -186,7 +186,7 @@ Public Class clsSailManager
             F = MaxWindSpeedMultiplied
         End If
 
-#Const POLAR_STAT = 1
+#Const POLAR_STAT = 0
 #If POLAR_STAT = 1 Then
         Static GetSpeedDurationCumMS As Double = 0
         Static NbCall As Long = 0
@@ -201,7 +201,10 @@ Public Class clsSailManager
             If SailMode = EnumSail.OneSail Then
                 'SyncLock _Polar
                 If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
-                    NbCallCached += 1
+#If POLAR_STAT = 1 Then
+NbCallCached += 1
+
+#End If
                     Return _Polar(D, F)
                 End If
                 'End SyncLock
