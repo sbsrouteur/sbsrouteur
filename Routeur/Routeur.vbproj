@@ -150,6 +150,7 @@
     <Compile Include="Chat\frmChat.xaml.vb">
       <DependentUpon>frmChat.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Chat\JidExtension.vb" />
     <Compile Include="Chat\ServerConnectionControl.xaml.vb">
       <DependentUpon>ServerConnectionControl.xaml</DependentUpon>
     </Compile>

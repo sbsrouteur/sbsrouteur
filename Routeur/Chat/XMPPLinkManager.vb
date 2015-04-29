@@ -16,12 +16,13 @@ Public Class XMPPLinkManager
     Private _PendingRoomRequests As New List(Of String)
 
 
-    Private WithEvents _Link As agsXMPP.XmppClientConnection
+    Private WithEvents _Link As Global.agsXMPP.XmppClientConnection
     Private _MUC As MucManager
 
     Public Event MessageReceived(sender As Object, e As protocol.client.Message)
     Public Event RosterChanged()
     Public Event ServerConsoleMessage(xMPPLinkManager As XMPPLinkManager, S As String)
+    Public Event PresenceChanged(pres As protocol.client.Presence, link As XmppClientConnection)
 
     Public ReadOnly Property ClientConnection As XmppClientConnection
         Get
@@ -93,13 +94,13 @@ Public Class XMPPLinkManager
         End If
     End Sub
 
-    Private _Roster As New ObservableCollection(Of Jid)
+    Private _Roster As New ObservableCollection(Of JidExtension)
     Private _Rooms As New ObservableCollection(Of String)
 
     Public ReadOnly Property Rooms As ObservableCollection(Of String)
         Get
             If _Rooms.Count = 0 Then
-                Dim l As New agsXMPP.protocol.iq.disco.DiscoManager(_Link)
+                Dim l As New Global.agsXMPP.protocol.iq.disco.DiscoManager(_Link)
                 l.DiscoverItems(New Jid(RouteurModel.XMPP_ROOM_SERVER))
             End If
 
@@ -107,7 +108,7 @@ Public Class XMPPLinkManager
         End Get
     End Property
 
-    Public ReadOnly Property Roster As ObservableCollection(Of Jid)
+    Public ReadOnly Property Roster As ObservableCollection(Of JidExtension)
         Get
             If _Roster.Count = 0 Then
                 _Link.RequestRoster()
@@ -151,6 +152,7 @@ Public Class XMPPLinkManager
 
     Private Sub Link_OnPresence(sender As Object, pres As protocol.client.Presence) Handles _Link.OnPresence
         AddServerMessage("Presence", pres.ToString)
+        RaiseEvent PresenceChanged(pres, _Link)
     End Sub
 
     Private Sub Link_OnReadXml(sender As Object, xml As String) Handles _Link.OnReadXml
@@ -194,7 +196,7 @@ Public Class XMPPLinkManager
     End Sub
 
     Private Sub Link_OnRosterItem(sender As Object, item As RosterItem) Handles _Link.OnRosterItem
-        Dim J As New Jid(CStr(item.Attributes("jid")))
+        Dim J As New JidExtension(CStr(item.Attributes("jid")))
         _Roster.Add(J)
     End Sub
 

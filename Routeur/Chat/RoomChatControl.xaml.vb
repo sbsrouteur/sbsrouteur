@@ -10,6 +10,9 @@ Public Class RoomChatControl
 
     Private _Room As String
     Private _RoomNick As String
+    Private _Connector As XmppClientConnection
+    Private _GroupTopic As String
+
 
     Public Property Room As String
         Get
@@ -20,9 +23,6 @@ Public Class RoomChatControl
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Room"))
         End Set
     End Property
-
-
-
 
     Public Property RoomNick As String
         Get
@@ -36,10 +36,6 @@ Public Class RoomChatControl
 
 
 
-
-
-    Private _Connector As XmppClientConnection
-
     Public Property Connector As XmppClientConnection
         Get
             Return _Connector
@@ -51,8 +47,25 @@ Public Class RoomChatControl
     End Property
 
 
+
+    Public Property GroupTopic As String
+        Get
+            Return _GroupTopic
+        End Get
+        Set(value As String)
+            _GroupTopic = value
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("GroupTopic"))
+        End Set
+    End Property
+
     Public Sub AddMessage(M As Message)
-        ChatHelper.AddMessage(ChatTextBox, M)
+
+        If M.Body IsNot Nothing Then
+            ChatHelper.AddMessage(ChatTextBox, M)
+        ElseIf M.Subject IsNot Nothing Then
+            GroupTopic = M.Subject
+        End If
+
     End Sub
 
 
@@ -96,4 +109,47 @@ Public Class RoomChatControl
             OnChatSendClick(sender, Nothing)
         End If
     End Sub
+
+    Public Sub UpdatePresence(User As JidExtension)
+
+        If Dispatcher.Thread.ManagedThreadId <> System.Threading.Thread.CurrentThread.ManagedThreadId Then
+
+            Dispatcher.BeginInvoke(New Action(Of JidExtension)(AddressOf UpdatePresence), User)
+        Else
+
+
+
+            Dim Found As Boolean = False
+
+            For Each item In RoomMembersList
+                If item.User = User.User Then
+                    item.Presence = User.Presence
+                    Found = True
+                    Exit For
+                End If
+            Next
+
+            If Not Found Then
+                RoomMembersList.Add(User)
+            End If
+        End If
+    End Sub
+
+
+
+    Private _RoomMembersList As List(Of JidExtension)
+
+    Public ReadOnly Property RoomMembersList As List(Of JidExtension)
+        Get
+            If _RoomMembersList Is Nothing Then
+                _RoomMembersList = New List(Of JidExtension)
+            End If
+            Return _RoomMembersList
+        End Get
+
+    End Property
+
+
+
+
 End Class

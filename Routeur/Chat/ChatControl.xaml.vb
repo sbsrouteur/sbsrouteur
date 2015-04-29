@@ -10,7 +10,7 @@ Public Class ChatControl
 
     Private _JID As Jid
 
-    Public Property JID As Jid
+    Friend Property JID As Jid
         Get
             Return _JID
         End Get

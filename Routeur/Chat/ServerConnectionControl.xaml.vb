@@ -53,7 +53,7 @@ Public Class ServerConnectionControl
     End Sub
 
    
-    Public ReadOnly Property Roster As ObservableCollection(Of Jid)
+    Public ReadOnly Property Roster As ObservableCollection(Of JidExtension)
         Get
             Return _link.Roster
         End Get
