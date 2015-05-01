@@ -40,10 +40,6 @@ Public Class ServerConnectionControl
         DataContext = Me
     End Sub
 
-    Private Sub _link_RosterChanged() Handles _link.RosterChanged
-
-    End Sub
-
 
     Private Sub _link_ServerConsoleMessage(xMPPLinkManager As XMPPLinkManager, S As String) Handles _link.ServerConsoleMessage
 

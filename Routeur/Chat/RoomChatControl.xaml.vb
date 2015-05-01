@@ -137,12 +137,12 @@ Public Class RoomChatControl
 
 
 
-    Private _RoomMembersList As List(Of JidExtension)
+    Private _RoomMembersList As ObservableCollection(Of JidExtension)
 
-    Public ReadOnly Property RoomMembersList As List(Of JidExtension)
+    Public ReadOnly Property RoomMembersList As ObservableCollection(Of JidExtension)
         Get
             If _RoomMembersList Is Nothing Then
-                _RoomMembersList = New List(Of JidExtension)
+                _RoomMembersList = New ObservableCollection(Of JidExtension)
             End If
             Return _RoomMembersList
         End Get

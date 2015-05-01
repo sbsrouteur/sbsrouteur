@@ -4,6 +4,7 @@ Imports System.Collections.ObjectModel
 Imports agsXMPP.protocol.x.muc
 Imports System.IO
 Imports System.Windows.Threading
+Imports agsXMPP.protocol.client
 
 Public Class XMPPLinkManager
 
@@ -14,7 +15,7 @@ Public Class XMPPLinkManager
     Private _IdRoomDiscoID As String = ""
     Private _Dispatcher As Dispatcher
     Private _PendingRoomRequests As New List(Of String)
-
+    
 
     Private WithEvents _Link As Global.agsXMPP.XmppClientConnection
     Private _MUC As MucManager
@@ -121,7 +122,7 @@ Public Class XMPPLinkManager
     Private Sub UpdateRoomsList(LocalRoomList As List(Of String))
 
         If System.Threading.Thread.CurrentThread.ManagedThreadId <> _Dispatcher.Thread.ManagedThreadId Then
-            _Dispatcher.Invoke(New Action(Of List(Of String))(AddressOf UpdateRoomsList), LocalRoomList)
+            _Dispatcher.BeginInvoke(New Action(Of List(Of String))(AddressOf UpdateRoomsList), LocalRoomList)
         Else
             For Each Item As String In LocalRoomList
                 _Rooms.Add(Item)
@@ -218,6 +219,7 @@ Public Class XMPPLinkManager
         End If
     End Sub
 #End Region
+
 
 
 
