@@ -1100,7 +1100,6 @@ Public Class VLM_Router
                     CurWP2 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(1)
 
                     NextPos = BearingNavHelper.ComputeTrackBearing(mi, _Sails, BoatType, CurPos, CType(NextOrder.RouteValue, RoutePointDoubleValue).Value, CurBoatSpeed)
-
                 Case EnumRouteMode.Ortho, EnumRouteMode.VBVMG, EnumRouteMode.VMG
 
                     'Compute current WP
@@ -1112,6 +1111,8 @@ Public Class VLM_Router
                     Else
                         CurWP1 = New Coords(UserWP.WPLat, UserWP.WPLon)
                         CurWP2 = Nothing
+
+                        
                     End If
 
                     Select Case NextOrder.RouteMode
@@ -1123,6 +1124,37 @@ Public Class VLM_Router
                             NextPos = ComputeTrackVBVMG(mi, _Sails, BoatType, CurPos, CurWP1, CurWP2, CurBoatSpeed, ReachedWP)
 
                     End Select
+
+                    If Not UserWP.UseRaceWP Then
+                        Dim TC1 As New TravelCalculator With {.StartPoint = CurPos, .EndPoint = CurWP1}
+                        Dim TC2 As New TravelCalculator With {.StartPoint = CurPos, .EndPoint = NextPos}
+
+                        If TC1.SurfaceDistance / 2 < TC2.SurfaceDistance Then
+                            'Release user waypoint and recompute using next waypoint or @ order
+
+                            If CType(NextOrder.RouteValue, RoutePointWPValue).SetBearingAtWP Then
+                                'Change mode to bearing 
+                                NextOrder.RouteValue = New RoutePointDoubleValue With {.Value = CType(NextOrder.RouteValue, RoutePointWPValue).BearingAtWP}
+                                NextOrder.RouteMode = EnumRouteMode.Bearing
+                                NextPos = BearingNavHelper.ComputeTrackBearing(mi, _Sails, BoatType, CurPos, CType(NextOrder.RouteValue, RoutePointDoubleValue).Value, CurBoatSpeed)
+                            Else
+                                'Go to WP
+                                UserWP.UseRaceWP = True
+                                CurWP1 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(0)
+                                CurWP2 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(1)
+                                
+                                Select Case NextOrder.RouteMode
+                                    Case EnumRouteMode.Ortho
+                                        NextPos = ComputeTrackOrtho(mi, _Sails, BoatType, CurPos, CurWP1, CurWP2, CurBoatSpeed, ReachedWP)
+                                    Case EnumRouteMode.VMG
+                                        NextPos = ComputeTrackVMG(mi, _Sails, BoatType, CurPos, CurWP1, CurWP2, CurBoatSpeed, ReachedWP)
+                                    Case EnumRouteMode.VBVMG
+                                        NextPos = ComputeTrackVBVMG(mi, _Sails, BoatType, CurPos, CurWP1, CurWP2, CurBoatSpeed, ReachedWP)
+
+                                End Select
+                            End If
+                        End If
+                    End If
 
                     If ReachedWP AndAlso Not UserWP.UseRaceWP Then
                         'Way point has been reached, change nextorder to  bearing mode if there is an @
