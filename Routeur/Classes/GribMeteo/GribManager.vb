@@ -114,6 +114,8 @@ Public Class GribManager
                 Loop Until loadreq.SyncEvt.WaitOne(500) Or _ShutDown Or _RoutingStopped
                 If _ShutDown Or _RoutingStopped Then
                     Return False
+                Else
+                    retval = True
                 End If
             End If
 
