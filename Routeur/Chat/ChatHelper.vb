@@ -34,8 +34,9 @@ Module ChatHelper
             FromString = From.User
         End If
 
-            P.Inlines.Add(New Run(TimeString & "<" & FromString & "> " & Text))
-            RtfBox.Document.Blocks.Add(P)
+        P.Inlines.Add(New Run(TimeString & "<" & FromString & "> " & Text))
+        RtfBox.Document.Blocks.Add(P)
+        RtfBox.ScrollToEnd()
 
     End Sub
 

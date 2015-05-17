@@ -28,6 +28,7 @@ ShutdownMode="OnMainWindowClose">
     			<ResourceDictionary Source="Styles/ControlsStyles.xaml"/>
     			<ResourceDictionary Source="Controls/7SegDisplays/7DigResources.xaml"/>
     			<ResourceDictionary Source="Dialogs/RouteMgrResources.xaml"/>
+    			<ResourceDictionary Source="ChatResourceDictionary.xaml"/>
     		</ResourceDictionary.MergedDictionaries>
     		<Thickness x:Key="DefMargin">4</Thickness>
 			

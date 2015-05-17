@@ -129,7 +129,7 @@ Public Class RoomChatControl
                 End If
             Next
 
-            If Not Found Then
+            If Not Found And User.IsPresent Then
                 RoomMembersList.Add(User)
             End If
         End If

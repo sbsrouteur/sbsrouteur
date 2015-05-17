@@ -9,8 +9,6 @@ Public Class JidExtension
 
     Public Event PropertyChanged(sender As Object, e As PropertyChangedEventArgs) Implements INotifyPropertyChanged.PropertyChanged
 
-
-
     Public Sub New(jid As String)
         MyBase.New(jid)
     End Sub
@@ -29,6 +27,7 @@ Public Class JidExtension
         Set(value As PresenceType)
             _Presence = value
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("Presence"))
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs("IsPresent"))
         End Set
     End Property
 

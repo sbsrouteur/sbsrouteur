@@ -185,7 +185,7 @@ Public Class ChatFormView
 
             If User IsNot Nothing Then
                 For Each item In ChatTabs
-                    Select Case pres.From.Server
+                    Select pres.From.Server
                         Case RouteurModel.XMPP_ROOM_SERVER
                             If TypeOf item.Content Is RoomChatControl Then
 
@@ -198,9 +198,15 @@ Public Class ChatFormView
                                 Dim S As ServerConnectionControl = CType(item.Content, ServerConnectionControl)
 
                                 For Each rostermember In S.Roster
-
+                                    If rostermember.User = User.User Then
+                                        rostermember.Presence = User.Presence
+                                        handled = True
+                                        Exit For
+                                    End If
                                 Next
+
                             End If
+
                     End Select
                 Next
 
@@ -208,7 +214,7 @@ Public Class ChatFormView
                     CreateRoomChatTab(pres.From.User, "", link)
                     OnServerPresenceChanged(pres, link)
                 End If
-            End If
+        End If
         End If
     End Sub
 
