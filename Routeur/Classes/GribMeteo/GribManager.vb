@@ -674,11 +674,11 @@ Public Class GribManager
 
         Dim Ret As MeteoInfo = GetMeteoToDate(D, C.N_Lon_Deg, C.Lat_Deg, NoLock, noload)
 
-        If Ret IsNot Nothing Then
-            _GetMeteoToDateTicks += Now.Subtract(Start).Ticks
-            _GetMeteoToDateCount += 1
-            Stats.SetStatValue(Stats.StatID.Grib_GetMeteoToDateAvgMS) = _GetMeteoToDateTicks / _GetMeteoToDateCount / TimeSpan.TicksPerMillisecond
-        End If
+        'If Ret IsNot Nothing Then
+        '    _GetMeteoToDateTicks += Now.Subtract(Start).Ticks
+        '    _GetMeteoToDateCount += 1
+        '    Stats.SetStatValue(Stats.StatID.Grib_GetMeteoToDateAvgMS) = _GetMeteoToDateTicks / _GetMeteoToDateCount / TimeSpan.TicksPerMillisecond
+        'End If
         If Ret IsNot Nothing AndAlso Ret.Strength < 0 Then
             Dim i As Integer = 1
         End If
