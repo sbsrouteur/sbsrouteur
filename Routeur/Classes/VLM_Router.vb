@@ -2499,7 +2499,7 @@ Public Class VLM_Router
                 RoutePoints.Add(P)
             End If
 
-            For Each r As RecordedRoute In RecordedRouteManager.Routes
+            For Each r As RecordedRoute In (From race In RecordedRouteManager.Routes Where race.RaceID = PlayerInfo.RaceInfo.idraces)
                 If r.Visible Then
                     If GetRoutePointAtCoords(r.Route, C, RetC) Then
                         P = New RoutePointInfo(r.RouteName, RetC)
