@@ -225,6 +225,12 @@ Public Class RecordedRoute
         Dim CurDate As DateTime = Now
         Dim PrevPt As RoutePointView = Nothing
 
+        'Reset Pos of all points in the future, except the first one
+
+        For Each pt In (From Point In Route Where Point IsNot Route(0) And Point.ActionDate >= CurDate)
+            pt.P = Nothing
+        Next
+
         For Each pt In Route
 
             If pt.ActionDate >= CurDate Then
@@ -233,7 +239,7 @@ Public Class RecordedRoute
                     Select Case PrevPt.RouteMode
 
                         Case RoutePointView.EnumRouteMode.Bearing
-                            pt.P = ComputeTrackBearing(PrevPt.P, CType(pt.RouteValue, RoutePointDoubleValue).Value, PrevPt.ActionDate, pt.ActionDate, Meteo, BoatType, Sails, True)
+                            pt.P = ComputeTrackBearing(PrevPt.P, CType(PrevPt.RouteValue, RoutePointDoubleValue).Value, PrevPt.ActionDate, pt.ActionDate, Meteo, BoatType, Sails, True)
                         Case Else
                             MessageBox.Show("Routing mode not implemented yet, computation aborted")
                             Return
