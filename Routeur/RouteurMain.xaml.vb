@@ -77,7 +77,8 @@ Partial Public Class RouteurMain
         M.Init(Me, Dispatcher)
         M.The2DViewer.InitViewer(Me)
 
-
+        'Race exclusion must happen after 2Dviewer init
+        M.InitRaceExclusions()
 
         Dim sApp As String = System.IO.Path.Combine(My.Application.Info.DirectoryPath, My.Application.Info.AssemblyName & ".exe")
         Title = M.AppString & " - Build " & RetrieveLinkerTimestamp(sApp)

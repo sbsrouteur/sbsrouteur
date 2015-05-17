@@ -156,14 +156,12 @@ Public Class DBWrapper
         End Try
 
     End Sub
+    Shared Function GetMapLevel1c(StartPath As String) As Integer
 
-
-    Shared Function GetMapLevel(StartPath As String) As Integer
-
-        If StartPath.Length <= 4 Then
+        If StartPath.Length <> 1 Then
             Return 1
         End If
-        Select Case StartPath.Substring(StartPath.Length - 3, 1).ToLowerInvariant
+        Select Case StartPath.Substring(0, 1).ToLowerInvariant
             Case "c"
                 Return 1
             Case "l"
@@ -177,6 +175,21 @@ Public Class DBWrapper
             Case Else
                 Return 1
         End Select
+    End Function
+
+    Shared Function GetMapLevel(StartPath As String) As Integer
+
+        If StartPath.Length <= 4 AndAlso StartPath.Length > 1 Then
+            Return 1
+        End If
+
+        If StartPath.Length = 1 Then
+            Return GetMapLevel1c(StartPath)
+        Else
+            Return GetMapLevel1c(StartPath.Substring(StartPath.Length - 3, 1).ToLowerInvariant)
+        End If
+
+
     End Function
 
     Shared Function GetMapLevel(enummaplevel As RacePrefs.EnumMapLevels) As Integer

@@ -273,7 +273,6 @@ Public Class RouteurModel
         RouteManager.Load()
         _P_Info(0) = frm.PlayerInfo.Playerinfo
         LoadRaceInfo(frm.PlayerInfo)
-        InitRaceExclusions(_P_Info(0).RaceInfo.NSZ)
         LoadParams()
         CurPlayer = _P_Info(0)
         OnWPListUpdate()
@@ -381,14 +380,27 @@ Public Class RouteurModel
         VorHandler.RecordedRouteManager = RouteManager
     End Sub
 
+    Public Sub InitRaceExclusions()
+        InitRaceExclusions(_P_Info(0).RaceInfo.NSZ)
+    End Sub
+
     Private Sub InitRaceExclusions(NSZs As List(Of MapSegment))
 
         Dim SegId As Integer = -1
+
         If NSZs IsNot Nothing Then
+            Dim db As New DBWrapper
+            Dim MapLevel As Integer = DBWrapper.GetMapLevel(RouteurModel.MapLevel)
+            While Not db.DataMapInited(MapLevel)
+                System.Threading.Thread.Sleep(100)
+            End While
             For Each nsz In NSZs
                 nsz.Id = SegId
                 SegId -= 1
-                GSHHS_Reader._Tree.AddMapSegment(nsz, GSHHS_Reader._Tree)
+                GSHHS_Reader._Tree.AddMapSegment(db, nsz, GSHHS_Reader._Tree, True)
+            Next
+            For Each nsz In NSZs
+                GSHHS_Reader._Tree.AddMapSegment(db, nsz, GSHHS_Reader._Tree, False)
             Next
         End If
     End Sub

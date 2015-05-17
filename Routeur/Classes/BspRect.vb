@@ -122,8 +122,8 @@ Public Class BspRect
                             Dim TmpSegments = New List(Of MapSegment)
                             Dim CLat As Double = (Y + 0.5) * 180 / (2 ^ MAX_TREE_Z) - 90
                             Dim CLon As Double = (X + 0.5) * 360 / (2 ^ MAX_TREE_Z) - 180
-                            Dim dLat As Double = 180 / (2 ^ MAX_TREE_Z)
-                            Dim dLon As Double = 360 / (2 ^ MAX_TREE_Z)
+                            Dim dLat As Double = 180 / (2 ^ (MAX_TREE_Z - 1))
+                            Dim dLon As Double = 360 / (2 ^ (MAX_TREE_Z - 1))
                             Dim P1 As New Coords(CLat - dLat, CLon - dLon)
                             Dim P2 As New Coords(CLat + dLat, CLon + dLon)
 
@@ -496,9 +496,7 @@ Public Class BspRect
         End Set
     End Property
 
-    Sub AddMapSegment(M As MapSegment, bspRect As BspRect)
-
-        Dim db As New DBWrapper
+    Sub AddMapSegment(db As DBWrapper, M As MapSegment, bspRect As BspRect, FirstPass As Boolean)
 
         Dim L = BuildBspCellLine(M.P1, M.P2)
         For Each center In L
@@ -513,7 +511,7 @@ Public Class BspRect
                 Dim P1 As New Coords(CLat, CLon)
                 Dim lSegs = GetSegments(P1, db)
             End If
-            If Not _SegmentsArray(X, Y).Contains(M) Then
+            If Not FirstPass AndAlso Not _SegmentsArray(X, Y).Contains(M) Then
                 _SegmentsArray(X, Y).Add(M)
             End If
         Next
