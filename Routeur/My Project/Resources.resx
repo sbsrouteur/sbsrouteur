@@ -120,7 +120,7 @@
   <data name="CreateDBScript" xml:space="preserve">
     <value>CREATE TABLE [DBVersion] (
 [VersionNumber] iNTEGER  UNIQUE NOT NULL PRIMARY KEY,
-[VersionDate] timesTAMP DEFAULT CURRENT_TIMESTAMP UNIQUE NOT NULL
+[VersionDate] TIMESTAMP DEFAULT CURRENT_TIMESTAMP UNIQUE NOT NULL
 );
 
 CREATE TABLE [MapsSegments] (

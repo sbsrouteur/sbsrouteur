@@ -27,7 +27,18 @@ Public Class ServerConnectionControl
 
     Public ReadOnly Property ServerText As String
         Get
-            Return _ServerText.ToString
+            Dim RetVal As String = ""
+            Dim RetryCount As Integer = 0
+            Do
+                Try
+                    Return _ServerText.ToString
+                Catch ex As Exception
+                    RetryCount += 1
+                    System.Threading.Thread.Sleep(100)
+                End Try
+            Loop While RetryCount < 5
+
+            Return ""
         End Get
     End Property
 

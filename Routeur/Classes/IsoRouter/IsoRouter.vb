@@ -166,10 +166,11 @@ Public Class IsoRouter
                     rp = Iso.PointSet(pindex)
 
                     Dim Ortho As Double
+                    tcfn1.StartPoint = _StartPoint.P ' rp.P
+                    tcfn1.EndPoint = rp.P '_DestPoint
+                    CurDest = _DestPoint 'tcfn1.EndPoint
+                    Ortho = tcfn1.LoxoCourse_Deg
                     tcfn1.StartPoint = rp.P
-                    tcfn1.EndPoint = _DestPoint
-                    CurDest = tcfn1.EndPoint
-                    Ortho = tcfn1.OrthoCourse_Deg
                     tcfn1.EndPoint = _StartPoint.P
 
                     Dim TcAngleTrim As New TravelCalculator()
@@ -180,16 +181,16 @@ Public Class IsoRouter
                     If Iso.PointSet(PrevIndex) IsNot Nothing Then
                         TcAngleTrim.EndPoint = Iso.PointSet(PrevIndex).P
                         TcAngleTrim.StartPoint = rp.P
-                        MinSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                        MaxSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
                     End If
                     If Iso.PointSet(NextIndex) IsNot Nothing Then
                         TcAngleTrim.StartPoint = rp.P
                         TcAngleTrim.EndPoint = Iso.PointSet(NextIndex).P
-                        MaxSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                        MinSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
                     End If
 
-                    Dim MinAngle As Double = Ortho + MinSearch
-                    Dim maxAngle As Double = Ortho + MaxSearch
+                    Dim MinAngle As Double = Ortho - 90 '+ MinSearch
+                    Dim maxAngle As Double = Ortho + 90 '+ MaxSearch
 
                     If MinAngle > maxAngle Then
                         maxAngle += 360
@@ -291,6 +292,16 @@ Public Class IsoRouter
         TC.EndPoint = _DestPoint
         Dim CurDTF As Double = Double.MaxValue
         Dim LastUpdate As DateTime = Now
+
+        'Get the start meteo conditions TODO handle cancellation during the loadmeteo lockup
+        Dim mi As MeteoInfo = Nothing
+        While mi Is Nothing
+            mi = _Meteo.GetMeteoToDate(_StartPoint.T, _StartPoint.P.N_Lon_Deg, _StartPoint.P.Lat_Deg, False, False)
+            System.Threading.Thread.Sleep(50)
+        End While
+
+        _StartPoint.WindDir = mi.Dir
+        _StartPoint.WindStrength = mi.Strength
 
         Dim Loxo As Double = TC.LoxoCourse_Deg
         Dim Dist As Double = TC.SurfaceDistance * 0.995
@@ -676,12 +687,7 @@ Public Class IsoRouter
             _TC.EndPoint = WP1
             _RouterPrefs = Prefs
 
-            Dim mi As MeteoInfo = Nothing
-            While mi Is Nothing
-                mi = _Meteo.GetMeteoToDate(StartDate, From.N_Lon_Deg, From.Lat_Deg, False, False)
-                System.Threading.Thread.Sleep(250)
-            End While
-
+            
             With _StartPoint
                 .P = New Coords(From)
                 .T = StartDate
@@ -694,8 +700,8 @@ Public Class IsoRouter
                 .DTF = _TC.SurfaceDistance
                 .Loch = 0
                 .LochFromStart = 0
-                .WindDir = mi.Dir
-                .WindStrength = mi.Strength
+                .WindDir = -1 'mi.Dir
+                .WindStrength = -1 ' mi.Strength
             End With
 
             _IsoChrones.Clear()

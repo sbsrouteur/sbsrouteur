@@ -32,7 +32,20 @@ Public Class TileServer
     Private _Renderer As _2D_Viewer
     Private _DBLink As New DBWrapper
 
+#Const TILESERVER_VLM = 0  'Default game server
+#Const TILESERVER_TESTING = 1  'testing
+#Const TILESERVER_DEV = 2  'vlm-dev
+
+    '#Const TILESERVER = TILESERVER_DEV
+#Const TILESERVER = TILESERVER_VLM
+#If TileServer = TILESERVER_VLM Then
     Private _VLM_TILE_SERVER As String = RouteurModel.Base_Game_Url
+#ElseIf TileServer = TILESERVER_TESTING Then
+    Private _VLM_TILE_SERVER As String = "http://testing.v-l-m.org"
+#ElseIf TileServer = TILESERVER_DEV Then
+    Private _VLM_TILE_SERVER As String = "http://vlm-dev"
+
+#End If
 
     Private _TileBuildList As New SortedList(Of String, TileInfo)
     Private _queryCount As Long = 0
@@ -103,9 +116,8 @@ Public Class TileServer
 restart_download:
             FileError = False
             Dim TileData() As Byte = WC.DownloadData(_VLM_TILE_SERVER & "/cache/gshhstiles/" & TI.Z & "/" & TI.TX & "/" & TI.TY & ".png")
-            
-            _DBLink.AddDBTile(TI.Z, TI.TX, TI.TY, TileData)
 
+            _DBLink.AddDBTile(TI.Z, TI.TX, TI.TY, TileData)
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Failed to get tile " & TI.FileName)
             FileError = True
@@ -141,7 +153,6 @@ restart_download:
             _HitCount += 1
             RaiseEvent TileReady(TI)
         Else
-
 #Const LOCAL_GSHHS_MAP = 0
 
 #If LOCAL_GSHHS_MAP = 0 Then

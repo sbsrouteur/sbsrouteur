@@ -247,6 +247,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
             
             <Separator/>
             <MenuItem Header="ShowBSPList" Command="{Binding (ContextMenu.PlacementTarget).DataContext.DbgShowBspList, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"/>
+            <MenuItem Header="Export Next 24Vacs" Command="{Binding (ContextMenu.PlacementTarget).DataContext.ExportNext24Vacs, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"/>
 
         </ContextMenu>
 
@@ -297,6 +298,8 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
                 <TextBlock Text="{Binding RacePrefs.MapLevel, Mode=OneWay, StringFormat=MapLevel \{0\}}" Foreground="{DynamicResource DefTextBlockMenuForeColor}" />
                 <Separator />
                 <MenuItem Header="Freeze Pilototo Route and Assess computation Errors" />
+                <Separator />
+                <MenuItem Header="Clear Local DB map cache" Click="OnClearTileDBCache" />
             </MenuItem>
             <MenuItem Header="Display" VerticalAlignment="Center">
 
@@ -334,6 +337,7 @@ along with Foobar.  If not, see<http://www.gnu.org/licenses/> .-->
                 <MenuItem Header="Pilototo Route" Click="ShowPilototoRouteDlg" />
                 <MenuItem Header="Recorded Routes manager" Click="ShowRouteMgr"  />
                 <MenuItem Header="Import Track" Click="ImportTrack" />
+                <MenuItem Header="Export Next 24vacs estimate as csv" Click="OnExportVacsEstimateClick"/>
             </MenuItem>
             <MenuItem Header="Options..." VerticalAlignment="Center" Checked="ShowOptionsDlg" Visibility="Collapsed"/>
             <ComboBox     Height="26.92" ItemsSource="{Binding WPList, Mode=Default}" ToolTip="Route to this WP" SelectedIndex="{Binding VorHandler.CurUserWP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"     />

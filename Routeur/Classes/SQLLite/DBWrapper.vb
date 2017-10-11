@@ -25,36 +25,44 @@ Imports System.Security.Cryptography
 Public Class DBWrapper
 
     Private Const OldDbName As String = "RouteurDB"
-    Private Const DBName As String = "RouteurDB.db3"
+    Private Const DBName As String = "RouteurDB_dev.db3"
 
-    Private _DBPath As String
+    Private Shared _DBPath As String
     Private Shared _Lock As New Object
     Private Shared _InitOK As Boolean = False
+    
+    Shared Sub New()
+
+        SyncLock _Lock
+            Dim BaseFile As String = System.IO.Path.Combine(RouteurModel.BaseFileDir, DBName)
+            _DBPath = "Data Source = """ & BaseFile & """ ; Version = 3; ConnectionPooling=100"
+
+            If Not _InitOK Then
+                If Not File.Exists(BaseFile) Then
+                    If Not File.Exists(System.IO.Path.Combine(RouteurModel.BaseFileDir, OldDbName)) Then
+                        CreateDB(BaseFile)
+                    ElseIf File.Exists(Path.Combine(RouteurModel.BaseFileDir, OldDbName)) Then
+                        File.Move(Path.Combine(RouteurModel.BaseFileDir, OldDbName), BaseFile)
+                    End If
+                End If
+                CheckDBVersionAndUpdate()
+            End If
+        End SyncLock
+    End Sub
 
     Public Sub New()
-        Dim BaseFile As String = System.IO.Path.Combine(RouteurModel.BaseFileDir, DBName)
-        _DBPath = "Data Source = """ & BaseFile & """ ; Version = 3; ConnectionPooling=100"
-
-        If Not _InitOK Then
-            If Not File.Exists(BaseFile) Then
-                If Not File.Exists(System.IO.Path.Combine(RouteurModel.BaseFileDir, OldDbName)) Then
-                    CreateDB(BaseFile)
-                ElseIf File.Exists(Path.Combine(RouteurModel.BaseFileDir, OldDbName)) Then
-                    File.Move(Path.Combine(RouteurModel.BaseFileDir, OldDbName), BaseFile)
-                End If
-            End If
-            CheckDBVersionAndUpdate()
-        End If
 
     End Sub
 
     Public Sub New(MapLevel As Integer)
-        Me.New()
         Me.MapLevel = MapLevel
     End Sub
 
-    Private Sub CreateDB(DBFileName As String)
+    Private Shared Sub CreateDB(DBFileName As String)
         Try
+            SyncLock _Lock
+
+            
             SQLiteConnection.CreateFile(DBFileName)
 
             Dim Conn As New SQLiteConnection(_DBPath)
@@ -63,7 +71,9 @@ Public Class DBWrapper
             cmd.ExecuteNonQuery()
             cmd.CommandText = My.Resources.CreateRangeIndex
             cmd.ExecuteNonQuery()
-            Conn.Close()
+                Conn.Close()
+            End SyncLock
+
         Catch ex As Exception
             MessageBox.Show("Exception during database creation : " & ex.Message)
         End Try
@@ -76,6 +86,9 @@ Public Class DBWrapper
         Conn.Open()
         Dim Cmd As New SQLiteCommand("Select * from MapsSegments where maplevel = " & MapLevel, Conn)
 
+        If GSHHS_Reader.Initing Then
+            Return False
+        End If
         Dim Reader As SQLiteDataReader = Nothing
         Try
             Reader = Cmd.ExecuteReader
@@ -367,7 +380,7 @@ RestartPoint:
 
     Shared VersionChecked As Boolean = False
 
-    Private Sub CheckDBVersionAndUpdate()
+    Private Shared Sub CheckDBVersionAndUpdate()
 
         If VersionChecked Then
             Return
@@ -422,7 +435,7 @@ RestartPoint:
 
     End Sub
 
-    Private Function GetCurDBVersion() As Integer
+    Private Shared Function GetCurDBVersion() As Integer
         Using Conn As New SQLiteConnection(_DBPath)
             Conn.Open()
             Using cmd As New SQLiteCommand("Select Max(VersionNumber) from DBVersion", Conn)
@@ -437,7 +450,7 @@ RestartPoint:
 
     End Function
 
-    Private Function GetDBScript(i As Integer) As String
+    Private Shared Function GetDBScript(i As Integer) As String
 
         Return My.Resources.ResourceManager.GetString("UpdateV" & i & "ToV" & i + 1)
 
@@ -648,6 +661,10 @@ RestartPoint:
             Dim i As Integer = 1
         End If
 
+        If Not _InitOK Then
+            Return True
+        End If
+
         Using con As New SQLiteConnection(_DBPath)
             con.Open()
             Using cmd As New SQLiteCommand(con)
@@ -663,7 +680,45 @@ RestartPoint:
         End Using
     End Function
 
+
+    Public Sub DeleteCorruptedImage(Ti As TileInfo)
+        If Not _InitOK Then
+            Return
+        End If
+
+        Using con As New SQLiteConnection(_DBPath)
+            con.Open()
+
+            Dim NbRetries As Integer = 0
+
+            While NbRetries < 2
+                Using cmd As New SQLiteCommand(con)
+                    Try
+                        cmd.CommandText = "Select RefBlob from MapLut where level=" & Ti.Z & " and X=" & Ti.TX & " and Y=" & Ti.TY & ";"
+                        Dim IdImage As Integer = CInt(cmd.ExecuteScalar())
+
+                        cmd.CommandText = "delete from MapLut where RefBlob = " & IdImage & ";"
+                        cmd.CommandText &= " delete from  MapImage where IdMapImage =" & IdImage & ";"
+                        cmd.ExecuteNonQuery()
+                        Return
+                    Finally
+                        
+                    End Try
+
+                End Using
+                NbRetries += 1
+            End While
+            con.Close()
+            Return
+
+        End Using
+    End Sub
+
     Function GetImageBuffer(Ti As TileInfo) As Byte()
+
+        If Not _InitOK Then
+            Return Nothing
+        End If
 
         Using con As New SQLiteConnection(_DBPath)
             con.Open()
@@ -697,6 +752,22 @@ RestartPoint:
         End Using
 
     End Function
+
+    Sub ClearMapTileCache()
+
+        Using con As New SQLiteConnection(_DBPath)
+            con.Open()
+            Using cn As New SQLiteCommand(con)
+
+                cn.CommandText = "Delete from MapLut;"
+                cn.ExecuteNonQuery()
+                cn.CommandText = "Delete from MapImage;"
+                cn.ExecuteNonQuery()
+            End Using
+        End Using
+
+    End Sub
+
 
 
 

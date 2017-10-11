@@ -194,7 +194,7 @@ Public Class MeteoBitmapper
 
 
             'ImageReady = False
-            Console.WriteLine("ImageRender in " & Now.Subtract(Start).TotalMilliseconds)
+            'Console.WriteLine("ImageRender in " & Now.Subtract(Start).TotalMilliseconds)
             Return _Img
         End Get
     End Property

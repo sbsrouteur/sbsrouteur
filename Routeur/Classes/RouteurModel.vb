@@ -60,11 +60,13 @@ Public Class RouteurModel
     Public Const PenWidth As Double = 0.3
 
 #If TESTING = 1 Then
+    'Public Const S10_SERVER As String = "vlm-dev"
     Public Const S10_SERVER As String = "testing.v-l-m.org"
     Public Const XMPP_SERVER As String = "ir.testing.v-l-m.org"
     Public Const XMPP_ROOM_SERVER As String = "vhf.ir.testing.v-l-m.org"
     Public Const ROUTEUR_SUPPORT_ROOM As String = "sbsRouteur_Test"
     Public Const XMPP_MAIN_CHAT As String = "capitainerie"
+
 #Else
     Public Const S10_SERVER As String = "v-l-m.org"
     Public Const XMPP_SERVER As String = "iridium.v-l-m.org"
@@ -1007,6 +1009,7 @@ Public Class RouteurModel
     Private _RecordRoute As New DelegateCommand(Of Object)(AddressOf OnRecordRouteMenuHandler, Function(o) True)
 
     Private _DbgShowBSPList As New DelegateCommand(Of Object)(AddressOf OnDbgShowBSPListHandler, Function(o) True)
+    Private _OnNext24VacsExport As New DelegateCommand(Of Object)(AddressOf OnExportNext24Vacs, Function(o) True)
 
     Public ReadOnly Property SetBearingMenu() As ICommand
         Get
@@ -1041,6 +1044,12 @@ Public Class RouteurModel
     Public ReadOnly Property DbgShowBspList As ICommand
         Get
             Return _DbgShowBSPList
+        End Get
+    End Property
+
+    Public ReadOnly Property ExportNext24Vacs As ICommand
+        Get
+            Return _OnNext24VacsExport
         End Get
     End Property
 
@@ -1175,6 +1184,11 @@ Public Class RouteurModel
                 frm.NotifyMousePositionInfo(RoutePointInfo.T, frmAutoPilotViewer.CaptureInfoRequest.RouteDate)
             End If
         End If
+    End Sub
+
+    Sub OnExportNext24Vacs(o As Object)
+        VorHandler.ExportNext24Vacs()
+
     End Sub
 
 

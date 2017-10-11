@@ -198,7 +198,12 @@ Public Class XMPPLinkManager
 
     Private Sub Link_OnRosterItem(sender As Object, item As RosterItem) Handles _Link.OnRosterItem
         Dim J As New JidExtension(CStr(item.Attributes("jid")))
-        _Roster.Add(J)
+        Try
+            _Roster.Add(J)
+        Catch ex As Exception
+            MessageBox.Show("Link_OnRosterItem" & ex.Message)
+
+        End Try
     End Sub
 
     Private Sub Link_OnRosterStart(sender As Object) Handles _Link.OnRosterStart

@@ -82,7 +82,7 @@ Partial Public Class frmRoutingProgress
     Protected Sub RequestVisibility(ByVal Vis As Visibility)
 
         If Dispatcher.Thread IsNot System.Threading.Thread.CurrentThread Then
-            Dispatcher.Invoke(New Action(Of Visibility)(AddressOf RequestVisibility), New Object() {Vis})
+            Dispatcher.BeginInvoke(New Action(Of Visibility)(AddressOf RequestVisibility), New Object() {Vis})
         Else
             Visibility = Vis
 

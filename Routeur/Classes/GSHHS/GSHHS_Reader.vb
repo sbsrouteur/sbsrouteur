@@ -44,6 +44,7 @@ Public Class GSHHS_Reader
     Private Shared _HitTestBspTicks As Long
     Private Shared _HitTestNoBspPoly As Long
 #End If
+    Public Shared Initing As Boolean = False
 
 
     'Private Shared _ExcludedID() As Integer = New Integer() {}
@@ -63,9 +64,10 @@ Public Class GSHHS_Reader
 
         Dim SI As GSHHS_StartInfo = CType(State, GSHHS_StartInfo)
         Dim MapLevel As Integer = DBWrapper.GetMapLevel(SI.StartPath)
-        Dim DB As New DBWrapper
+        Dim DB As New DBWrapper(MapLevel)
 
         If Not DB.DataMapInited(MapLevel) Then
+            Initing = True
             Try
 
                 If Not File.Exists(SI.StartPath) Then
@@ -92,6 +94,7 @@ Public Class GSHHS_Reader
                 MessageBox.Show(ex.Message, "Error loading Map data")
             Finally
                 SI.CompleteCallBack()
+                Initing = False
             End Try
         Else
             SI.ProgressWindows.Start(1)
@@ -114,15 +117,18 @@ Public Class GSHHS_Reader
         With H
             .id = Readinteger(S)
             .n = Readinteger(S)
-            .level = Readinteger(S)
+            .flag = Readinteger(S)
             .west = Readinteger(S)
             .east = Readinteger(S)
             .south = Readinteger(S)
             .north = Readinteger(S)
             .area = Readinteger(S)
+            .areafull = Readinteger(S)
+            .container = Readinteger(S)
+            .ancestoer = Readinteger(S)
 
-            .Greenwich = ((.level >> 16) And &HFF) <> 0
-            .level = (.level And &HFF)
+            .Greenwich = ((.flag >> 16) And &HFF) <> 0
+            .level = (.flag And &HFF)
 
         End With
 
@@ -137,7 +143,13 @@ Public Class GSHHS_Reader
         Dim i As Integer
 
         For i = 3 To 0 Step -1
-            V(i) = CByte(S.ReadByte)
+            Dim vb As Integer = S.ReadByte
+
+            If vb = -1 Then
+                V(i) = 255
+            Else
+                V(i) = CByte(vb)
+            End If
         Next
 
         Return BitConverter.ToInt32(V, 0)
@@ -974,7 +986,9 @@ Public Class GSHHS_Header
     Public south As Integer
     Public north As Integer
     Public area As Integer
-
+    Public areafull As Integer
+    Public container As Integer
+    Public ancestoer As Integer
     Public Greenwich As Boolean
 
 End Class

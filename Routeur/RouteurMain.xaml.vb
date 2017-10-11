@@ -26,6 +26,7 @@ Imports System.Windows.Navigation
 Imports System.ComponentModel
 Imports System.Threading
 Imports System.Math
+Imports System.Data.SQLite
 
 Partial Public Class RouteurMain
 
@@ -68,7 +69,7 @@ Partial Public Class RouteurMain
 
     Private Sub FormLoaded(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
-        Dim M = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
         If M.The2DViewer Is Nothing Then
             M.The2DViewer = Me.VOR2DViewer
             'RedrawClick(Nothing, Nothing)
@@ -271,7 +272,7 @@ Partial Public Class RouteurMain
         LastSec = Now.Second
 
         If Dlg Is Nothing Then
-            Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+            Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
             Dlg = New Action(AddressOf M.VorHandler.RefreshTimes)
             DlgRefresh = New Action(AddressOf M.Refresh)
         End If
@@ -285,7 +286,7 @@ Partial Public Class RouteurMain
     End Sub
 
     Private Sub CloseApp()
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         M.VorHandler.StartIsoRoute(Me, False, False)
         My.Settings.Save()
@@ -293,7 +294,7 @@ Partial Public Class RouteurMain
 
     Private Sub cmdSimpleVMG(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         Dim Curpos As New Coords()
         Dim StartTicks As DateTime
@@ -315,7 +316,7 @@ Partial Public Class RouteurMain
         Else
             Zoom(1 / 1.2, e.GetPosition(Me.VOR2DViewer))
         End If
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
     End Sub
 
@@ -354,7 +355,7 @@ Partial Public Class RouteurMain
 
 
     Private Sub StartDrawBoatMap(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
         M.VorHandler.DrawBoatMap()
 
 
@@ -368,14 +369,14 @@ Partial Public Class RouteurMain
             .Lat = _2DW.CurCoords.Lat
             .Lon = -_2DW.CurCoords.Lon
         End With
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         M.VorHandler.AddPointToRoute(P)
 
     End Sub
 
     Private Sub CheckIsoRoute(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         If Not M.VorHandler.StartIsoRoute(Me, CBool(chkIsoRoute.IsChecked), False) Then
             chkIsoRoute.IsChecked = False
@@ -386,7 +387,7 @@ Partial Public Class RouteurMain
 
     Private Sub RedrawClick(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         M.VorHandler.UpdatePath(False)
 
@@ -419,7 +420,7 @@ Partial Public Class RouteurMain
     Private Sub ShowPilototoRouteDlg(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
 
         If _RouteForm Is Nothing Then
-            Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+            Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
             _RouteForm = New frmAutoPilotViewer(M, M.VorHandler.PlayerInfo.RaceInfo.vacfreq)
             _RouteForm.Owner = Me
@@ -432,7 +433,7 @@ Partial Public Class RouteurMain
 
     Private Sub _2D_Renderer_MouseMoveHandler(ByVal sender As Object, ByVal e As System.Windows.Input.MouseEventArgs)
         Dim P As New Point
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
         P.X = e.GetPosition(Me._2D_Renderer).X + 1
         P.Y = e.GetPosition(Me._2D_Renderer).Y + 1
 
@@ -441,13 +442,13 @@ Partial Public Class RouteurMain
     End Sub
 
     Private Sub ReloadPilototo(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         M.VorHandler.getboatinfo(True)
     End Sub
 
     Private Sub Refresh(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         M.Refresh()
 
@@ -489,7 +490,7 @@ Partial Public Class RouteurMain
 
     Private Sub RendererSizeChanged(ByVal sender As Object, ByVal e As System.Windows.SizeChangedEventArgs)
 
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
         UpdateCoordsExtent(M, False, True)
 
     End Sub
@@ -499,14 +500,14 @@ Partial Public Class RouteurMain
     End Sub
 
     Private Sub ReScaleMap(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         UpdateCoordsExtent(M, False, True)
 
     End Sub
 
     Private Sub RestoreMapScale(ByVal sender As Object, ByVal e As System.Windows.RoutedEventArgs)
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         UpdateCoordsExtent(M, True, True)
     End Sub
@@ -531,7 +532,7 @@ Partial Public Class RouteurMain
 
     Private Sub ComputeRouteXTR(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs)
 
-        Dim M As RouteurModel = CType(FindResource(RouteurModelResourceName), RouteurModel)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
 
         M.VorHandler.StartXTRAssessment()
     End Sub
@@ -572,8 +573,8 @@ Partial Public Class RouteurMain
         Dim MinLon As Double = M.VorHandler.UserInfo.LON
         Dim MaxLon As Double = MinLon
         Dim MaxLat As Double = M.VorHandler.UserInfo.LAT
-        Dim MinLat As Double = maxlat
-        
+        Dim MinLat As Double = MaxLat
+
         Dim WP As Integer = M.VorHandler.CurUserWP
         For index As Integer = 0 To 1
             If M.CurPlayer.RaceInfo.races_waypoints(WP).WPs(0)(index) IsNot Nothing Then
@@ -638,4 +639,21 @@ Partial Public Class RouteurMain
 
     End Sub
 
+    Private Sub OnClearTileDBCache(sender As Object, e As RoutedEventArgs)
+
+        If MessageBox.Show("Are you sure you want to clear the Tiles DB cache?", "Clear local map tiles cache", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) = MessageBoxResult.Yes Then
+
+            Dim db As New DBWrapper()
+
+            db.ClearMapTileCache()
+
+        End If
+    End Sub
+
+    Private Sub OnExportVacsEstimateClick(sender As Object, e As RoutedEventArgs)
+        Dim M As RouteurModel = CType(FindResource(ROUTEURMODELRESOURCENAME), RouteurModel)
+
+        M.OnExportNext24Vacs(Nothing)
+
+    End Sub
 End Class

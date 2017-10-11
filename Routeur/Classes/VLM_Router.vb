@@ -1112,7 +1112,7 @@ Public Class VLM_Router
                         CurWP1 = New Coords(UserWP.WPLat, UserWP.WPLon)
                         CurWP2 = Nothing
 
-                        
+
                     End If
 
                     Select Case NextOrder.RouteMode
@@ -1142,7 +1142,7 @@ Public Class VLM_Router
                                 UserWP.UseRaceWP = True
                                 CurWP1 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(0)
                                 CurWP2 = _PlayerInfo.RaceInfo.races_waypoints(CurRaceWP).WPs(0)(1)
-                                
+
                                 Select Case NextOrder.RouteMode
                                     Case EnumRouteMode.Ortho
                                         NextPos = ComputeTrackOrtho(mi, _Sails, BoatType, CurPos, CurWP1, CurWP2, CurBoatSpeed, ReachedWP)
@@ -2006,13 +2006,17 @@ Public Class VLM_Router
             SyncLock _BoatUnderMouse
                 _BoatUnderMouse.Clear()
                 SyncLock _Opponents
-                    For Each O In Opponents.Values
-                        TC.EndPoint = O.CurPos
-                        If TC.SurfaceDistance < 3 * _PixelSize Then
-                            _BoatUnderMouse.Add(O)
-                        End If
+                    Try
+                        For Each O In Opponents.Values
+                            TC.EndPoint = O.CurPos
+                            If TC.SurfaceDistance < 3 * _PixelSize Then
+                                _BoatUnderMouse.Add(O)
+                            End If
 
-                    Next
+                        Next
+                    Catch ex As Exception
+                        Dim i As Integer = 0
+                    End Try
                 End SyncLock
             End SyncLock
 
@@ -2652,7 +2656,7 @@ Public Class VLM_Router
             If Math.Abs(Now.Subtract(STart).TotalHours) > 24 Then
                 STart = Now
             End If
-            Dim mi As MeteoInfo = meteo.GetMeteoToDate(New Coords(UserInfo.Position), STart, False)
+            Dim mi As MeteoInfo = meteo.GetMeteoToDate(New Coords(UserInfo.Position), STart, True)
 
             If Not mi Is Nothing Then
                 Dim V As Double = Sails.GetSpeed(_UserInfo.POL, clsSailManager.EnumSail.OneSail, _UserInfo.TWA, _UserInfo.TWS)
@@ -3358,6 +3362,22 @@ Public Class VLM_Router
 
     Sub ShutDown()
         _Meteo.Shutdown()
+    End Sub
+
+    Sub ExportNext24Vacs()
+
+        Using fs As New StreamWriter("Exp24Vacs.csv", False)
+
+
+            For i As Integer = 0 To Math.Min(24, _TempRoute.Count - 1)
+                With _TempRoute(i)
+                    fs.WriteLine(.T & ";" & .P.Lon_Deg & ";" & .P.Lat_Deg & ";" & .Cap & ";" & .WindDir & ";" & .WindStrength)
+                End With
+
+
+            Next
+            fs.Close()
+        End Using
     End Sub
 
 

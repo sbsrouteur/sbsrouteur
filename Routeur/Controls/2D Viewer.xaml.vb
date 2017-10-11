@@ -98,7 +98,7 @@ Partial Public Class _2D_Viewer
         ' Insérez le code requis pour la création d'objet sous ce point.
 
         '_Model = CType(FindResource("2DModel"), _2DViewerModel)
-       
+
         _MapTransform = New MercatorTransform
 
     End Sub
@@ -124,26 +124,33 @@ Partial Public Class _2D_Viewer
     'End Function
 
     Function LoadBitmapFromDB(Ti As TileInfo) As WriteableBitmap
-        Dim img As New BitmapImage()
         Dim RetValue As WriteableBitmap = Nothing
         Dim ImageBuffer() As Byte
         If _DBLink Is Nothing Then
             _DBLink = New DBWrapper
         End If
         ImageBuffer = _DBLink.GetImageBuffer(Ti)
-        img.BeginInit()
-        img.CreateOptions = BitmapCreateOptions.None
-        Using rs As New IO.MemoryStream(ImageBuffer)
+        If ImageBuffer IsNot Nothing AndAlso ImageBuffer.GetLength(0) > 0 Then
+            Dim img As New BitmapImage()
+            img.BeginInit()
+            img.CreateOptions = BitmapCreateOptions.None
+            Using rs As New IO.MemoryStream(ImageBuffer)
 
 
-            img.StreamSource = rs
-            img.EndInit()
-            RetValue = BitmapFactory.ConvertToPbgra32Format(img)
-            rs.Close()
+                img.StreamSource = rs
+                img.EndInit()
+                RetValue = BitmapFactory.ConvertToPbgra32Format(img)
+                rs.Close()
 
-            Return RetValue
-        End Using
-
+                Return RetValue
+            End Using
+        ElseIf ImageBuffer.GetLength(0) = 0 Then
+            'Corrupted tile in DB
+            _DBLink.DeleteCorruptedImage(Ti)
+            Return Nothing
+        Else
+            Return Nothing
+        End If
     End Function
 
     Private Sub LoadPolygonComplete()
@@ -967,7 +974,7 @@ Render1:
                     End If
                     CurList.Add(Seg)
                 End If
-                End If
+            End If
             CurList.Add(NSZ(index))
 
         Next
@@ -986,7 +993,7 @@ Render1:
         Dim Points(2 * (EndIndex - StartIndex + 1 + 2) - 1) As Integer
         Dim i As Integer
         Dim NSZColor As Integer = &H7FFF0000
-        
+
         For maps As Integer = -1 To 1
             Points(0) = CInt(MapTransform.LonToCanvas(NSZ(0).Lon1 + 360 * maps))
             Points(1) = CInt(MapTransform.LatToCanvas(NSZ(0).Lat1))
