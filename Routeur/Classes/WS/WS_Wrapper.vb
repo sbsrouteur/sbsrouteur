@@ -113,7 +113,7 @@ Module WS_Wrapper
             MessageBox.Show("Failed to parse JSon Data : " & vbCrLf & Retstring)
         End Try
 
-        'Return Nothing
+        Return Retstring
 
     End Function
 

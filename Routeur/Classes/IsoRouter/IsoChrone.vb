@@ -21,9 +21,11 @@ Imports System.Collections.Concurrent
 
 Public Class IsoChrone
 
+    Public Const ANGLE_STEP As Double = 0.5
+
     'Private _Data() As clsrouteinfopoints
 
-    Private _PointSet As New ConcurrentBag(Of clsrouteinfopoints)
+    Private _PointSet As New Dictionary(Of Double, clsrouteinfopoints)
 
 #If DBG_ISO_POINT_SET Then
     Private _RawPointSet As New LinkedList(Of clsrouteinfopoints)
@@ -33,17 +35,32 @@ Public Class IsoChrone
     Private _IsoChroneLock As New Object
     Private _SailManager As clsSailManager
     Private _StartPoint As Coords
+    Private _Step As Double
     'Private _Iso_IndexLut(NB_MAX_INDEX_ISO_LUT) As Integer
 
     Private _AngleStep As Double
-
-    Public Sub New(ByVal Manager As clsSailManager, StartPoint As Coords)
+    Private _coords As Coords
+    
+    Public Sub New(ByVal Manager As clsSailManager, StartPoint As Coords, AngleStep As Double)
         _SailManager = Manager
         _StartPoint = StartPoint
+        _Step = AngleStep
 
         'For i As Integer = 0 To NB_MAX_INDEX_ISO_LUT
         '    _Iso_IndexLut(i) = -1
         'Next
+
+    End Sub
+
+    Sub New(SailManager As clsSailManager, coords As Coords, ANGLE_STEP As Double, Iso As IsoChrone)
+        ' TODO: Complete member initialization 
+        _sailManager = SailManager
+        _coords = coords
+        _Step = ANGLE_STEP
+
+        For Each KeyPair In Iso.PointSet
+            _PointSet.Add(KeyPair.Key, KeyPair.Value)
+        Next
 
     End Sub
 
@@ -66,7 +83,7 @@ Public Class IsoChrone
     End Property
 #End If
 
-    ReadOnly Property PointSet As ConcurrentBag(Of clsrouteinfopoints)
+    ReadOnly Property PointSet As Dictionary(Of Double, clsrouteinfopoints)
         Get
             Return _PointSet
         End Get
@@ -77,9 +94,10 @@ Public Class IsoChrone
         Return _PointSet.Count
     End Function
 
-    Sub AddPoint(P1 As clsrouteinfopoints)
+    Sub AddPoint(Angle As Double, P1 As clsrouteinfopoints)
         'SyncLock (_IsoChroneLock)
-        _PointSet.Add(P1)
+        Dim SteppedAngle As Double = IndexFromAngle(Angle)
+        _PointSet.Add(SteppedAngle, P1)
         'End SyncLock
     End Sub
 
@@ -87,136 +105,136 @@ Public Class IsoChrone
 
     Sub CleanUp(ParentIso As IsoChrone, DoNotCleanUp As Boolean, AngleStep As Double)
 
-        Dim IsoMaxCount As Integer = CInt(360 / AngleStep)
-        Dim PrevPoint As clsrouteinfopoints = Nothing
-        Dim NextPoint As clsrouteinfopoints = Nothing
-        Dim Count As Integer = 0
-        Dim Ignored As Integer = 0
-        Dim WorkSet As New ConcurrentBag(Of clsrouteinfopoints)(PointSet)
-        
-        'Dim coordslist As New List(Of DotSpatial.Topology.Coordinate)
-        Dim Angles(WorkSet.Count - 1) As Double
-        Dim Dists(WorkSet.Count - 1) As Double
-        Dim FilteredDist(WorkSet.Count - 1) As Double
-        Dim TrimFactor As Double = 0.8
-        Dim PrevAngle As Double = -10000
-        If WorkSet.Count = 0 Then
-            Dim i As Integer = 0
-        End If
-        WorkSet = New ConcurrentBag(Of clsrouteinfopoints)(From P In WorkSet Order By P.CapFromPos)
-        Dim Start As DateTime = Now
-        Dim StartCount As Integer = WorkSet.Count
-        Dim EndCount As Integer
-        Dim PointIndex As Integer = 0
-        Dim LoopCount As Integer = 0
+        '        Dim IsoMaxCount As Integer = CInt(360 / AngleStep)
+        '        Dim PrevPoint As clsrouteinfopoints = Nothing
+        '        Dim NextPoint As clsrouteinfopoints = Nothing
+        '        Dim Count As Integer = 0
+        '        Dim Ignored As Integer = 0
+        '        Dim WorkSet As New ConcurrentBag(Of clsrouteinfopoints)(PointSet)
+
+        '        'Dim coordslist As New List(Of DotSpatial.Topology.Coordinate)
+        '        Dim Angles(WorkSet.Count - 1) As Double
+        '        Dim Dists(WorkSet.Count - 1) As Double
+        '        Dim FilteredDist(WorkSet.Count - 1) As Double
+        '        Dim TrimFactor As Double = 0.8
+        '        Dim PrevAngle As Double = -10000
+        '        If WorkSet.Count = 0 Then
+        '            Dim i As Integer = 0
+        '        End If
+        '        WorkSet = New ConcurrentBag(Of clsrouteinfopoints)(From P In WorkSet Order By P.CapFromPos)
+        '        Dim Start As DateTime = Now
+        '        Dim StartCount As Integer = WorkSet.Count
+        '        Dim EndCount As Integer
+        '        Dim PointIndex As Integer = 0
+        '        Dim LoopCount As Integer = 0
 
 
-#If DBG_ISO_POINT_SET Then
-        For Each P In WorkSet
-            _RawPointSet.AddLast(P)
-        Next
-#End If
-        'Dim Complete As Boolean = False
-        'Dim Tmpworkset As New LinkedList(Of clsrouteinfopoints)
+        '#If DBG_ISO_POINT_SET Then
+        '        For Each P In WorkSet
+        '            _RawPointSet.AddLast(P)
+        '        Next
+        '#End If
+        '        'Dim Complete As Boolean = False
+        '        'Dim Tmpworkset As New LinkedList(Of clsrouteinfopoints)
 
-        'coordslist.Clear()
-        'For Each Point In ParentIso.PointSet
-        '    coordslist.Add(New Topology.Coordinate(Point.P.Lon, Point.P.Lat))
-        'Next
-        'Dim LR As New Topology.LinearRing(coordslist)
-        'Dim Poly As New Topology.Polygon(LR)
-        'For Each Point In WorkSet
-        '    Dim P As New Topology.Coordinate(Point.P.Lon, Point.P.Lat)
-        '    Dim Pt As New Topology.Point(P)
-        '    If Not Poly.Intersects(Pt) Then
-        '        Tmpworkset.AddLast(Point)
-        '    End If
+        '        'coordslist.Clear()
+        '        'For Each Point In ParentIso.PointSet
+        '        '    coordslist.Add(New Topology.Coordinate(Point.P.Lon, Point.P.Lat))
+        '        'Next
+        '        'Dim LR As New Topology.LinearRing(coordslist)
+        '        'Dim Poly As New Topology.Polygon(LR)
+        '        'For Each Point In WorkSet
+        '        '    Dim P As New Topology.Coordinate(Point.P.Lon, Point.P.Lat)
+        '        '    Dim Pt As New Topology.Point(P)
+        '        '    If Not Poly.Intersects(Pt) Then
+        '        '        Tmpworkset.AddLast(Point)
+        '        '    End If
 
-        'Next
+        '        'Next
 
-        'WorkSet = Tmpworkset
-        'Tmpworkset = Nothing
+        '        'WorkSet = Tmpworkset
+        '        'Tmpworkset = Nothing
 
-        'Dim RemoveList As New LinkedList(Of Topology.IPoint)
-        ''While Not Complete
+        '        'Dim RemoveList As New LinkedList(Of Topology.IPoint)
+        '        ''While Not Complete
 
-        'For i = 0 To LR.NumPoints - 1
-        '    Dim P As Topology.IPoint = LR.GetPointN(i)
+        '        'For i = 0 To LR.NumPoints - 1
+        '        '    Dim P As Topology.IPoint = LR.GetPointN(i)
 
-        '    Dim LR2 As Topology.LineString = CType(LR.Difference(P), Topology.LineString)
+        '        '    Dim LR2 As Topology.LineString = CType(LR.Difference(P), Topology.LineString)
 
-        '    If LR2.Intersects(P) Then
-        '        LR = New Topology.LinearRing(LR2)
-        '        RemoveList.AddLast(P)
-        '    End If
+        '        '    If LR2.Intersects(P) Then
+        '        '        LR = New Topology.LinearRing(LR2)
+        '        '        RemoveList.AddLast(P)
+        '        '    End If
 
-        'Next
-        ''End While
+        '        'Next
+        '        ''End While
 
-        If Not DoNotCleanUp Then
-
-
-            Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
-
-            Dim PrevCount As Integer = 0
-            Do
-                PrevCount = _NextPointSet.Count
-                _NextPointSet.Clear()
-                Dim Index As Integer = 0
-                Dim MaxDists(IsoMaxCount - 1) As Double
-
-                For Each Point In ParentIso.PointSet
-                    PointIndex = CInt(Point.CapFromPos * IsoMaxCount / 360) Mod IsoMaxCount
-                    MaxDists(PointIndex) = Math.Max(Point.DistFromPos, MaxDists(PointIndex))
-                Next
-                For Each Point In WorkSet
-                    If Not Double.IsNaN(Point.CapFromPos) Then
-
-                        PointIndex = CInt(Point.CapFromPos * IsoMaxCount / 360) Mod IsoMaxCount
-                        MaxDists(PointIndex) = Math.Max(Point.DistFromPos, MaxDists(PointIndex))
-                    End If
-                    Index += 1
-
-                Next
-
-                Console.WriteLine("CleanUp half loop in " & Now.Subtract(Start).TotalMilliseconds & " with " & LoopCount & " Loops")
+        '        If Not DoNotCleanUp Then
 
 
+        '            Dim _NextPointSet As New LinkedList(Of clsrouteinfopoints)
 
-                Index = 0
+        '            Dim PrevCount As Integer = 0
+        '            Do
+        '                PrevCount = _NextPointSet.Count
+        '                _NextPointSet.Clear()
+        '                Dim Index As Integer = 0
+        '                Dim MaxDists(IsoMaxCount - 1) As Double
 
-                For Each Point In WorkSet '(From Pt In WorkSet Order By Pt.CapFromPos)
-                    'If Not Double.IsNaN(Point.CapFromPos) AndAlso (Point.CapFromPos <> PrevAngle AndAlso MaxDists(CInt(Point.CapFromPos * IsoMaxCount / 360) Mod IsoMaxCount) = Point.DistFromPos) Then
-                    If Not Double.IsNaN(Point.CapFromPos) AndAlso (MaxDists(CInt(Point.CapFromPos * IsoMaxCount / 360) Mod IsoMaxCount) = Point.DistFromPos) Then
-                        _NextPointSet.AddLast(Point)
-                        'PrevAngle = Point.CapFromPos
-                    End If
-                    Index += 1
-                Next
-                WorkSet = New ConcurrentBag(Of clsrouteinfopoints)(_NextPointSet)
-                ReDim Dists(WorkSet.Count - 1)
-                ReDim FilteredDist(WorkSet.Count - 1)
-                LoopCount += 1
-            Loop Until _NextPointSet.Count <= IsoMaxCount Or _NextPointSet.Count = PrevCount
-            _PointSet = New ConcurrentBag(Of clsrouteinfopoints)(_NextPointSet)
+        '                For Each Point In ParentIso.PointSet
+        '                    PointIndex = CInt(Point.CapFromPos * IsoMaxCount / 360) Mod IsoMaxCount
+        '                    MaxDists(PointIndex) = Math.Max(Point.DistFromPos, MaxDists(PointIndex))
+        '                Next
+        '                For Each Point In WorkSet
+        '                    If Not Double.IsNaN(Point.CapFromPos) Then
 
-        Else
-            _PointSet = WorkSet
+        '                        PointIndex = CInt(Point.CapFromPos * IsoMaxCount / 360) Mod IsoMaxCount
+        '                        MaxDists(PointIndex) = Math.Max(Point.DistFromPos, MaxDists(PointIndex))
+        '                    End If
+        '                    Index += 1
 
-        End If
-        ''Create IndexLut for IsoChrone
-        '_Iso_IndexLut(0) = 0
-        'For Each Point In _PointSet
+        '                Next
 
-        '    Dim Index As Integer = CInt(Point.CapFromPos * NB_MAX_INDEX_ISO_LUT / 360)
-        '    If _Iso_IndexLut(Index) = -1 Then
-        '        _Iso_IndexLut(Index) = PointIndex
+        '                Console.WriteLine("CleanUp half loop in " & Now.Subtract(Start).TotalMilliseconds & " with " & LoopCount & " Loops")
 
-        '    End If
-        '    PointIndex += 1
-        'Next
-        EndCount = _PointSet.Count
-        Console.WriteLine("CleanUp from " & StartCount & " to " & EndCount & " in " & Now.Subtract(Start).TotalMilliseconds & " with " & LoopCount & " Loops")
+
+
+        '                Index = 0
+
+        '                For Each Point In WorkSet '(From Pt In WorkSet Order By Pt.CapFromPos)
+        '                    'If Not Double.IsNaN(Point.CapFromPos) AndAlso (Point.CapFromPos <> PrevAngle AndAlso MaxDists(CInt(Point.CapFromPos * IsoMaxCount / 360) Mod IsoMaxCount) = Point.DistFromPos) Then
+        '                    If Not Double.IsNaN(Point.CapFromPos) AndAlso (MaxDists(CInt(Point.CapFromPos * IsoMaxCount / 360) Mod IsoMaxCount) = Point.DistFromPos) Then
+        '                        _NextPointSet.AddLast(Point)
+        '                        'PrevAngle = Point.CapFromPos
+        '                    End If
+        '                    Index += 1
+        '                Next
+        '                WorkSet = New ConcurrentBag(Of clsrouteinfopoints)(_NextPointSet)
+        '                ReDim Dists(WorkSet.Count - 1)
+        '                ReDim FilteredDist(WorkSet.Count - 1)
+        '                LoopCount += 1
+        '            Loop Until _NextPointSet.Count <= IsoMaxCount Or _NextPointSet.Count = PrevCount
+        '            _PointSet = New ConcurrentBag(Of clsrouteinfopoints)(_NextPointSet)
+
+        '        Else
+        '            _PointSet = WorkSet
+
+        '        End If
+        '        ''Create IndexLut for IsoChrone
+        '        '_Iso_IndexLut(0) = 0
+        '        'For Each Point In _PointSet
+
+        '        '    Dim Index As Integer = CInt(Point.CapFromPos * NB_MAX_INDEX_ISO_LUT / 360)
+        '        '    If _Iso_IndexLut(Index) = -1 Then
+        '        '        _Iso_IndexLut(Index) = PointIndex
+
+        '        '    End If
+        '        '    PointIndex += 1
+        '        'Next
+        '        EndCount = _PointSet.Count
+        '        Console.WriteLine("CleanUp from " & StartCount & " to " & EndCount & " in " & Now.Subtract(Start).TotalMilliseconds & " with " & LoopCount & " Loops")
         Return
     End Sub
 
@@ -233,37 +251,39 @@ Public Class IsoChrone
         End If
     End Function
 
-    Function IndexFromAngle(Loxo As Double) As Integer
+    Function IndexFromAngle(Loxo As Double) As Double
 
-        If Loxo < 0 Then
-            Loxo = (Loxo + 3600) Mod 360
-        End If
+        Return CInt(((Loxo Mod 360) - _Step / 2) / _Step) * _Step
 
-        Return IndexFromAngleDycho(PointSet, Loxo, 0, _PointSet.Count)
+        'If Loxo < 0 Then
+        '    Loxo = (Loxo + 3600) Mod 360
+        'End If
 
-        'Dim StartIndex As Integer = _Iso_IndexLut(CInt(Loxo / 10)) - 1
+        'Return IndexFromAngleDycho(PointSet, Loxo, 0, _PointSet.Count)
 
-        ''If StartIndex < 0 Then
-        'StartIndex = 0
-        ''End If
+        ''Dim StartIndex As Integer = _Iso_IndexLut(CInt(Loxo / 10)) - 1
 
-        'Dim PointIndex As Integer
-        'Dim AngleError As Double = Double.MaxValue
-        'Try
+        ' ''If StartIndex < 0 Then
+        ''StartIndex = 0
+        ' ''End If
 
-        '    For PointIndex = StartIndex To _PointSet.Count - 1
-        '        Dim LocalError As Double = Math.Abs(Loxo - _PointSet(PointIndex).CapFromPos)
-        '        If LocalError <= AngleError Then
-        '            AngleError = LocalError
-        '        Else
-        '            Return PointIndex - 1
-        '        End If
-        '    Next
+        ''Dim PointIndex As Integer
+        ''Dim AngleError As Double = Double.MaxValue
+        ''Try
 
-        '    Return _PointSet.Count - 1
-        'Finally
+        ''    For PointIndex = StartIndex To _PointSet.Count - 1
+        ''        Dim LocalError As Double = Math.Abs(Loxo - _PointSet(PointIndex).CapFromPos)
+        ''        If LocalError <= AngleError Then
+        ''            AngleError = LocalError
+        ''        Else
+        ''            Return PointIndex - 1
+        ''        End If
+        ''    Next
 
-        'End Try
+        ''    Return _PointSet.Count - 1
+        ''Finally
+
+        ''End Try
 
     End Function
 
@@ -293,6 +313,14 @@ Public Class IsoChrone
             End If
         End If
     End Function
+
+    Sub ReplacePointAtIndex(idx As Double, P As clsrouteinfopoints)
+        If _PointSet.ContainsKey(idx) Then
+            _PointSet(idx) = P
+        Else
+            _PointSet.Add(idx, P)
+        End If
+    End Sub
 
 
 

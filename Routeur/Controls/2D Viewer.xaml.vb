@@ -616,7 +616,6 @@ Render1:
                                 IsoIndex += 1
                                 If Not iso.Drawn Or ForceIsoRedraw Then
                                     Dim MaxIndex As Integer = iso.MaxIndex
-                                    Dim index As Integer
                                     'Dim PrevIndex As Integer
                                     Dim CurP As Coords
                                     PrevLoxo = 0
@@ -627,7 +626,7 @@ Render1:
                                         Next
                                     End If
 #End If
-                                    For index = 0 To MaxIndex
+                                    For Each index As Double In iso.PointSet.Keys
                                         If Not HideIsochronesLines Then
                                             If Not iso.PointSet(index) Is Nothing AndAlso Not iso.PointSet(index).P Is Nothing Then
                                                 CurP = iso.PointSet(index).P
