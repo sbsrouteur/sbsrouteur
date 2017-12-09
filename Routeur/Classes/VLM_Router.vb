@@ -717,7 +717,12 @@ Public Class VLM_Router
     Public ReadOnly Property IsoChrones() As LinkedList(Of IsoChrone)
         Get
             If _iso IsNot Nothing Then
-                Return New LinkedList(Of IsoChrone)(_iso.IsoChrones)
+                Try
+                    Return New LinkedList(Of IsoChrone)(_iso.IsoChrones)
+                Catch
+                    ' jsut ignore exceptions here.
+                End Try
+
             End If
             Return Nothing
         End Get
@@ -1134,8 +1139,9 @@ Public Class VLM_Router
 
                             If CType(NextOrder.RouteValue, RoutePointWPValue).SetBearingAtWP Then
                                 'Change mode to bearing 
-                                NextOrder.RouteValue = New RoutePointDoubleValue With {.Value = CType(NextOrder.RouteValue, RoutePointWPValue).BearingAtWP}
+                                Dim WPAngle As Double = CType(NextOrder.RouteValue, RoutePointWPValue).BearingAtWP
                                 NextOrder.RouteMode = EnumRouteMode.Bearing
+                                NextOrder.RouteValue = New RoutePointDoubleValue With {.Value = WPAngle}
                                 NextPos = BearingNavHelper.ComputeTrackBearing(mi, _Sails, BoatType, CurPos, CType(NextOrder.RouteValue, RoutePointDoubleValue).Value, CurBoatSpeed)
                             Else
                                 'Go to WP
