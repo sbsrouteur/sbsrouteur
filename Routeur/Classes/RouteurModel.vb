@@ -409,14 +409,14 @@ Public Class RouteurModel
 
     Public Shared ReadOnly Property Base_Game_Url() As String
         Get
-            Return "http://" & S10_SERVER
+            Return "https://" & S10_SERVER
 
         End Get
     End Property
 
     Public Shared ReadOnly Property Cached_Base_Game_Url(CacheIndex As Integer) As String
         Get
-            Return "http://c" & CacheIndex & "." & S10_SERVER
+            Return "https://c" & CacheIndex & "." & S10_SERVER
 
         End Get
     End Property
