@@ -415,47 +415,51 @@ Render1:
     End Sub
 
     Private Sub SafeDrawLine(Bmp As WriteableBitmap, ByVal PrevP As Coords, ByVal P As Coords, ByVal Color As Integer, Optional ForceDraw As Boolean = False)
-        Dim MapSpan As Integer
-        For MapSpan = -1 To 1
-            Dim PrevPoint2 As New Point(MapTransform.LonToCanvas(PrevP.N_Lon_Deg + 360 * MapSpan), MapTransform.LatToCanvas(PrevP.N_Lat_Deg))
-            Dim NewP2 As New Point(MapTransform.LonToCanvas(P.N_Lon_Deg + 360 * MapSpan), MapTransform.LatToCanvas(P.N_Lat_Deg))
+        Try
+            Dim MapSpan As Integer
+            For MapSpan = -1 To 1
+                Dim PrevPoint2 As New Point(MapTransform.LonToCanvas(PrevP.N_Lon_Deg + 360 * MapSpan), MapTransform.LatToCanvas(PrevP.N_Lat_Deg))
+                Dim NewP2 As New Point(MapTransform.LonToCanvas(P.N_Lon_Deg + 360 * MapSpan), MapTransform.LatToCanvas(P.N_Lat_Deg))
 
-            If Not ForceDraw AndAlso OutOfCanvas(PrevPoint2) AndAlso OutOfCanvas(NewP2) Then
-                Continue For
-            End If
-
-            If (PrevP.N_Lon * P.N_Lon < 0 AndAlso Math.Abs(P.N_Lon - PrevP.N_Lon) >= Math.PI) Then
-                Dim Pint As Point
-                Dim DLon As Double
-                Dim LonSpan As Double
-                If PrevP.N_Lon < 0 Then
-                    Pint.X = MapTransform.LonToCanvas(-179.99 + 360 * MapSpan)
-                    DLon = 180 + PrevP.N_Lon_Deg
-                    LonSpan = PrevP.N_Lon_Deg + 360 - P.Lon_Deg
-                Else
-                    Pint.X = MapTransform.LonToCanvas(179.99 + 360 * MapSpan)
-                    DLon = 180 - PrevP.N_Lon_Deg
-                    LonSpan = Abs(-180 - P.N_Lon_Deg) + 180 - PrevP.Lon_Deg
+                If Not ForceDraw AndAlso OutOfCanvas(PrevPoint2) AndAlso OutOfCanvas(NewP2) Then
+                    Continue For
                 End If
 
-                'Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
-                Pint.Y = MapTransform.LatToCanvas(PrevP.N_Lat_Deg + (P.N_Lat_Deg - PrevP.N_Lat_Deg) * DLon / LonSpan)
-                Bmp.DrawLine(CInt(Math.Floor(PrevPoint2.X)), CInt(Math.Floor(PrevPoint2.Y)), CInt(Math.Ceiling(Pint.X)), CInt(Math.Ceiling(Pint.Y)), Color)
+                If (PrevP.N_Lon * P.N_Lon < 0 AndAlso Math.Abs(P.N_Lon - PrevP.N_Lon) >= Math.PI) Then
+                    Dim Pint As Point
+                    Dim DLon As Double
+                    Dim LonSpan As Double
+                    If PrevP.N_Lon < 0 Then
+                        Pint.X = MapTransform.LonToCanvas(-179.99 + 360 * MapSpan)
+                        DLon = 180 + PrevP.N_Lon_Deg
+                        LonSpan = PrevP.N_Lon_Deg + 360 - P.Lon_Deg
+                    Else
+                        Pint.X = MapTransform.LonToCanvas(179.99 + 360 * MapSpan)
+                        DLon = 180 - PrevP.N_Lon_Deg
+                        LonSpan = Abs(-180 - P.N_Lon_Deg) + 180 - PrevP.Lon_Deg
+                    End If
 
-                If P.N_Lon < 0 Then
-                    Pint.X = MapTransform.LonToCanvas(-179.99 + 360 * MapSpan)
+                    'Pint.Y = LatToCanvas(PrevP.Lat_Deg + (P.Lat_Deg - PrevP.Lat_Deg) * (PrevP.Lon_Deg + 180) / (360 + PrevP.Lon_Deg - P.Lon_Deg))
+                    Pint.Y = MapTransform.LatToCanvas(PrevP.N_Lat_Deg + (P.N_Lat_Deg - PrevP.N_Lat_Deg) * DLon / LonSpan)
+                    Bmp.DrawLine(CInt(Math.Floor(PrevPoint2.X)), CInt(Math.Floor(PrevPoint2.Y)), CInt(Math.Ceiling(Pint.X)), CInt(Math.Ceiling(Pint.Y)), Color)
+
+                    If P.N_Lon < 0 Then
+                        Pint.X = MapTransform.LonToCanvas(-179.99 + 360 * MapSpan)
+                    Else
+                        Pint.X = MapTransform.LonToCanvas(179.99 + 360 * MapSpan)
+                    End If
+
+                    Bmp.DrawLine(CInt(Pint.X), CInt(Pint.Y), CInt(NewP2.X), CInt(NewP2.Y), Color)
                 Else
-                    Pint.X = MapTransform.LonToCanvas(179.99 + 360 * MapSpan)
+
+
+                    Bmp.DrawLine(CInt(PrevPoint2.X), CInt(PrevPoint2.Y), CInt(NewP2.X), CInt(NewP2.Y), Color)
+
                 End If
-
-                Bmp.DrawLine(CInt(Pint.X), CInt(Pint.Y), CInt(NewP2.X), CInt(NewP2.Y), Color)
-            Else
-
-
-                Bmp.DrawLine(CInt(PrevPoint2.X), CInt(PrevPoint2.Y), CInt(NewP2.X), CInt(NewP2.Y), Color)
-
-            End If
-        Next
+            Next
+        Catch ex As Exception
+            MessageBox.Show("SafeDraw line exception : " & ex.Message & vbCrLf & ex.StackTrace)
+        End Try
     End Sub
 
     Public Function UpdatePath(PathInfo As PathInfo) As Boolean
