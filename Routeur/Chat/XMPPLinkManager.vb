@@ -199,6 +199,7 @@ Public Class XMPPLinkManager
     Private Sub Link_OnRosterItem(sender As Object, item As RosterItem) Handles _Link.OnRosterItem
         Dim J As New JidExtension(CStr(item.Attributes("jid")))
         Try
+            '// Todo auto invoke pb with cross thread here
             _Roster.Add(J)
         Catch ex As Exception
             MessageBox.Show("Link_OnRosterItem" & ex.Message)
