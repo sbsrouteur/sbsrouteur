@@ -76,6 +76,7 @@ Public Class IsoRouter
         Dim MaxEllipsisDist As Double
         Dim CurThreadCount1 As Integer = 0
         Dim CurThreadCount2 As Integer = 0
+        Dim MeteoAtPoint As MeteoInfo = Nothing
 
 
         If Iso Is Nothing Then
@@ -83,7 +84,7 @@ Public Class IsoRouter
             'Special Case for startpoint
             RetIsoChrone = New IsoChrone(_SailManager, _StartPoint.P, IsoChrone.ANGLE_STEP)
             For alpha = 0 To 360 - _AngleStep Step IsoChrone.ANGLE_STEP '_AngleStep
-                P1 = ReachPoint(_StartPoint, alpha, _VacLength, False)
+                P1 = ReachPoint(_StartPoint, alpha, _VacLength, False, MeteoAtPoint)
                 If Not P1 Is Nothing Then
 
                     Dim tc As New TravelCalculator
@@ -111,11 +112,11 @@ Public Class IsoRouter
             'Dim _IsoSegs As New List(Of MapSegment)
             Dim PrevPoint As Coords = Nothing
             Dim CurPoint As Coords = Nothing
-            'Dim MaxDist As Double = 0
-            'Dim MinDist As Double = Double.MaxValue
-            'Dim MaxSpeed As Double = 0
-            'Dim SumSpeed As Double = 0
-            'Dim NbSpeed As Double = 0
+            Dim MaxDist As Double = 0
+            Dim MinDist As Double = Double.MaxValue
+            Dim MaxSpeed As Double = 0
+            Dim SumSpeed As Double = 0
+            Dim NbSpeed As Double = 0
 
             Dim TcEllipsis As New TravelCalculator With {.StartPoint = _StartPoint.P, .EndPoint = _DestPoint}
             MaxEllipsisDist = TcEllipsis.SurfaceDistance * _EllipseExt
@@ -123,21 +124,21 @@ Public Class IsoRouter
             TcEllipsis.EndPoint = Nothing
             TcEllipsis = Nothing
 
-            'For Each Point In Iso.PointSet.Values
-            '    If Point IsNot Nothing Then
-            '        MaxDist = Math.Max(MaxDist, Point.DistFromPos)
-            '        MinDist = Math.Min(MinDist, Point.DistFromPos)
-            '        MaxSpeed = Math.Max(MaxSpeed, Point.Speed)
-            '        SumSpeed += Point.Speed
-            '        NbSpeed += 1
-            '    End If
-            'Next
+            For Each Point In Iso.PointSet.Values
+                If Point IsNot Nothing Then
+                    MaxDist = Math.Max(MaxDist, Point.DistFromPos)
+                    MinDist = Math.Min(MinDist, Point.DistFromPos)
+                    MaxSpeed = Math.Max(MaxSpeed, Point.Speed)
+                    SumSpeed += Point.Speed
+                    NbSpeed += 1
+                End If
+            Next
 
             'If MaxSpeed = 0 Then
             '    Return Nothing
             'End If
-            Dim NbMinutes As Double '= 'New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / 360 / MaxSpeed * TimeSpan.TicksPerHour)).TotalMinutes
-            NbMinutes = RouteurModel.VacationMinutes ' * Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes) 
+            Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / 360 / MaxSpeed * TimeSpan.TicksPerHour)).TotalMinutes
+            NbMinutes = RouteurModel.VacationMinutes * Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes)
             CurStep = New TimeSpan(0, CInt(NbMinutes), 0)
 
 
@@ -152,6 +153,7 @@ Public Class IsoRouter
             'Next
 
             For Each pindex As Double In Iso.PointSet.Keys
+                MeteoAtPoint = Nothing
                 'Parallel.For(StartIndex, Iso.PointSet.Count - 1,
                 '           Sub(Pindex As Integer)
                 Dim tcfn1 As New TravelCalculator
@@ -174,24 +176,22 @@ Public Class IsoRouter
                     tcfn1.StartPoint = rp.P
                     tcfn1.EndPoint = _StartPoint.P
 
-                    'Dim TcAngleTrim As New TravelCalculator()
-                    'Dim MinSearch As Double = 180
-                    'Dim MaxSearch As Double = 180
-                    'Dim PrevIndex As Integer = (pindex + Iso.PointSet.Count - 1) Mod Iso.PointSet.Count
-                    'Dim NextIndex As Integer = (pindex + 1) Mod Iso.PointSet.Count
-                    'If Iso.PointSet(PrevIndex) IsNot Nothing Then
-                    '    TcAngleTrim.EndPoint = Iso.PointSet(PrevIndex).P
-                    '    TcAngleTrim.StartPoint = rp.P
-                    '    MaxSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                    'End If
-                    'If Iso.PointSet(NextIndex) IsNot Nothing Then
-                    '    TcAngleTrim.StartPoint = rp.P
-                    '    TcAngleTrim.EndPoint = Iso.PointSet(NextIndex).P
-                    '    MinSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
-                    'End If
+                    Dim TcAngleTrim As New TravelCalculator() With {.StartPoint = rp.P}
+                    Dim MinSearch As Double = 180
+                    Dim MaxSearch As Double = 180
+                    Dim PrevIndex As Double = (pindex - IsoChrone.ANGLE_STEP + 360) Mod 360
+                    Dim NextIndex As Double = (pindex + IsoChrone.ANGLE_STEP + 360) Mod 360
+                    If Iso.PointSet.ContainsKey(PrevIndex) AndAlso Iso.PointSet(PrevIndex) IsNot Nothing Then
+                        TcAngleTrim.EndPoint = Iso.PointSet(PrevIndex).P
+                        MinSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                    End If
+                    If Iso.PointSet.ContainsKey(NextIndex) AndAlso Iso.PointSet(NextIndex) IsNot Nothing Then
+                        TcAngleTrim.EndPoint = Iso.PointSet(NextIndex).P
+                        MaxSearch = WindAngleWithSign(TcAngleTrim.LoxoCourse_Deg, Ortho)
+                    End If
 
-                    Dim MinAngle As Double = Ortho - 90 '+ MinSearch
-                    Dim maxAngle As Double = Ortho + 90 '+ MaxSearch
+                    Dim MinAngle As Double = MinSearch '(Ortho - MinSearch + 360) Mod 360.0 '+ MinSearch
+                    Dim maxAngle As Double = MaxSearch '(Ortho + MaxSearch + 360) Mod 360.0 '+ MaxSearch
 
                     If MinAngle > maxAngle Then
                         maxAngle += 360
@@ -204,17 +204,26 @@ Public Class IsoRouter
 #If DBG_ISO = 1 Then
                     'Console.WriteLine("StepCount " & StepCount & " @ " & Pindex)
 #End If
+                    Dim FirstAngle As Boolean = True
                     For alphaindex As Double = MinAngle To maxAngle Step CInt(_AngleStep) 'StepCount
                         'Parallel.For(0, StepCount,
                         'Sub(AlphaIndex As Integer)
                         'Dim IsoBucket As Integer = Interlocked.Increment(CurThreadCount2)
                         'Routeur.Stats.SetStatValue(Stats.StatID.Isocrhone_ThreadCount2) = IsoBucket
-                        Dim alpha As Double = alphaindex '(MinAngle + _AngleStep * alphaindex) Mod 360
+                        Dim alpha As Double = (alphaindex + Ortho) Mod 360 '(MinAngle + _AngleStep * alphaindex) Mod 360
                         Dim P As clsrouteinfopoints
                         Dim tc As New TravelCalculator
                         Dim EllipsisDit As Double = 0
 
-                        P = ReachPoint(rp, alpha, CurStep, True)
+                        P = ReachPoint(rp, alpha, CurStep, True, MeteoAtPoint)
+                        If FirstAngle AndAlso MeteoAtPoint IsNot Nothing Then
+                            Dim WA As Double = WindAngle(alpha, MeteoAtPoint.Dir)
+
+                            alphaindex -= (WA Mod _AngleStep)
+                        End If
+
+                        firstangle = False
+
                         Dim CurDist As Double = 0
                         Dim LoxoCourse As Double = 0
                         If P IsNot Nothing Then
@@ -424,7 +433,7 @@ Public Class IsoRouter
         RaiseEvent RouteComplete()
     End Sub
 
-    Private Function ReachPoint(ByVal Start As clsrouteinfopoints, ByVal Cap As Double, ByVal Duration As TimeSpan, IgnoreCollisions As Boolean) As clsrouteinfopoints
+    Private Function ReachPoint(ByVal Start As clsrouteinfopoints, ByVal Cap As Double, ByVal Duration As TimeSpan, IgnoreCollisions As Boolean, ByRef MeteoInfo As MeteoInfo) As clsrouteinfopoints
 
         Static CumDuration As Long = 0
         Static CumWait As Long = 0
@@ -442,7 +451,7 @@ Public Class IsoRouter
             Dim RetPoint As clsrouteinfopoints = Nothing
             Dim TC As New TravelCalculator
             Dim Speed As Double
-            Dim MI As MeteoInfo = Nothing
+            'Dim MI As MeteoInfo = Nothing
             Dim i As Long
             Dim TotalDist As Double = 0
             Static PrevDist As Double = 0
@@ -450,7 +459,7 @@ Public Class IsoRouter
             Dim MaxWindAngle As Double = 0
             Dim StartTicks As DateTime = Start.T
             Dim CurDate As DateTime = StartTicks
-
+            Dim MI As MeteoInfo = MeteoInfo
             TC.StartPoint = Start.P
 
             'normalize cap
@@ -461,18 +470,21 @@ Public Class IsoRouter
             'Static LoopMs As Double = 0
             'Dim LoopStart As DateTime = Now
             If Not _RouterPrefs.FastRouteShortMeteo Then
-                MI = Nothing
+                Dim FirstVac As Boolean = True
                 For i = CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute) To Duration.Ticks Step CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)
-                    MI = Nothing
-                    Dim WaitStart As DateTime = Now
-                    Do
+                    If Not FirstVac Or MI Is Nothing Then
+                        Dim WaitStart As DateTime = Now
+                        Do
 
-                        MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, False)
+                            MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, False)
 
-                    Loop While MI Is Nothing And Not _CancelRequested
+                        Loop While MI Is Nothing And Not _CancelRequested
+                        FirstVac = False
+                        CumWait += Now.Subtract(WaitStart).Ticks
+                        LoopCount += 1
+                        MeteoInfo = MI
+                    End If
 
-                    CumWait += Now.Subtract(WaitStart).Ticks
-                    LoopCount += 1
                     If _CancelRequested Then
                         Return Nothing
                     End If

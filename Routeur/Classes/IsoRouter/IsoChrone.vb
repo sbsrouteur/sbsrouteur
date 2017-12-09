@@ -17,7 +17,7 @@
 Imports Routeur.VLM_Router
 Imports System.Threading
 Imports DotSpatial
-Imports System.Collections.Concurrent
+Imports System.Collections
 
 Public Class IsoChrone
 
@@ -25,7 +25,7 @@ Public Class IsoChrone
 
     'Private _Data() As clsrouteinfopoints
 
-    Private _PointSet As New Dictionary(Of Double, clsrouteinfopoints)
+    Private _PointSet As New SortedList(Of Double, clsrouteinfopoints)
 
 #If DBG_ISO_POINT_SET Then
     Private _RawPointSet As New LinkedList(Of clsrouteinfopoints)
@@ -83,7 +83,7 @@ Public Class IsoChrone
     End Property
 #End If
 
-    ReadOnly Property PointSet As Dictionary(Of Double, clsrouteinfopoints)
+    ReadOnly Property PointSet As SortedList(Of Double, clsrouteinfopoints)
         Get
             Return _PointSet
         End Get
@@ -253,7 +253,7 @@ Public Class IsoChrone
 
     Function IndexFromAngle(Loxo As Double) As Double
 
-        Return CInt(((Loxo Mod 360) - _Step / 2) / _Step) * _Step
+        Return CInt(((Loxo Mod 360.0) - _Step / 2) / _Step) * _Step
 
         'If Loxo < 0 Then
         '    Loxo = (Loxo + 3600) Mod 360
@@ -287,32 +287,32 @@ Public Class IsoChrone
 
     End Function
 
-    Private Function IndexFromAngleDycho(PointSet As ConcurrentBag(Of clsrouteinfopoints), Loxo As Double, p2 As Integer, p3 As Integer) As Integer
+    'Private Function IndexFromAngleDycho(PointSet As ConcurrentBag(Of clsrouteinfopoints), Loxo As Double, p2 As Integer, p3 As Integer) As Integer
 
-        If _PointSet.Count = 0 Then
-            Return 0
-        ElseIf (p3 - p2) = 0 Then
-            Return p3 Mod 360
-        ElseIf (p3 - p2) = 1 Then
-            Dim Err1 As Double = Math.Abs(PointSet(p2).CapFromPos - Loxo)
-            Dim Err2 As Double = Math.Abs(PointSet(p2).CapFromPos - Loxo)
+    '    If _PointSet.Count = 0 Then
+    '        Return 0
+    '    ElseIf (p3 - p2) = 0 Then
+    '        Return p3 Mod 360
+    '    ElseIf (p3 - p2) = 1 Then
+    '        Dim Err1 As Double = Math.Abs(PointSet(p2).CapFromPos - Loxo)
+    '        Dim Err2 As Double = Math.Abs(PointSet(p2).CapFromPos - Loxo)
 
-            If Err1 <= Err2 Then
-                Return p2
-            ElseIf p3 = 360 Then
-                Return 0
-            Else
-                Return p3
-            End If
-        Else
-            Dim Middle As Integer = CInt((p3 + p2) / 2)
-            If Loxo > PointSet(Middle).CapFromPos Then
-                Return IndexFromAngleDycho(PointSet, Loxo, Middle, p3)
-            Else
-                Return IndexFromAngleDycho(PointSet, Loxo, p2, Middle)
-            End If
-        End If
-    End Function
+    '        If Err1 <= Err2 Then
+    '            Return p2
+    '        ElseIf p3 = 360 Then
+    '            Return 0
+    '        Else
+    '            Return p3
+    '        End If
+    '    Else
+    '        Dim Middle As Integer = CInt((p3 + p2) / 2)
+    '        If Loxo > PointSet(Middle).CapFromPos Then
+    '            Return IndexFromAngleDycho(PointSet, Loxo, Middle, p3)
+    '        Else
+    '            Return IndexFromAngleDycho(PointSet, Loxo, p2, Middle)
+    '        End If
+    '    End If
+    'End Function
 
     Sub ReplacePointAtIndex(idx As Double, P As clsrouteinfopoints)
         If _PointSet.ContainsKey(idx) Then

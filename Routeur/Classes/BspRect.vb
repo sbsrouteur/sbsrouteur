@@ -115,7 +115,7 @@ Public Class BspRect
                     CacheHitCount += 1
                     Return _SegmentsArray(X, Y)
                 Else
-                    SpinLock(X, Y)
+                    'SpinLock(X, Y)
                     Try
                         If _SegmentsArray(X, Y) Is Nothing Then
 
@@ -135,7 +135,7 @@ Public Class BspRect
 
                         End If
                     Finally
-                        SpinLockExit(X, Y)
+                        'SpinLockExit(X, Y)
                     End Try
                 End If
                 Return _SegmentsArray(X, Y)
