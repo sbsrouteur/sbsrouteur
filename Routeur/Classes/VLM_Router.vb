@@ -2071,27 +2071,27 @@ Public Class VLM_Router
 
 
     Private Function Login(Optional ByVal User As String = "", Optional ByVal Password As String = "") As CookieContainer
-        Try
-            Dim LoginURL As String = STR_GetUserInfo(True, User, Password)
-            Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(LoginURL), HttpWebRequest)
-            Dim wr As WebResponse
-            Dim Encoder As New System.Text.ASCIIEncoding
-            Dim rs As System.IO.StreamReader
-            Dim Response As String
-            Http.CookieContainer = New CookieContainer
-            wr = Http.GetResponse()
-            rs = New System.IO.StreamReader(wr.GetResponseStream())
-            Response = rs.ReadToEnd
-            If Response.Contains("Access restricted") Then
-                Return Nothing
-            Else
-                Return Http.CookieContainer
-            End If
-        Catch ex As Exception
-            AddLog("Exception during Login : " & ex.Message)
-        End Try
+        'Try
+        '    Dim LoginURL As String = STR_GetUserInfo(True, User, Password)
+        '    Dim Http As HttpWebRequest = CType(HttpWebRequest.Create(LoginURL), HttpWebRequest)
+        '    Dim wr As WebResponse
+        '    Dim Encoder As New System.Text.ASCIIEncoding
+        '    Dim rs As System.IO.StreamReader
+        '    Dim Response As String
+        '    Http.CookieContainer = New CookieContainer
+        '    wr = Http.GetResponse()
+        '    rs = New System.IO.StreamReader(wr.GetResponseStream())
+        '    Response = rs.ReadToEnd
+        '    If Response.Contains("Access restricted") Then
+        '        Return Nothing
+        '    Else
+        '        Return Http.CookieContainer
+        '    End If
+        'Catch ex As Exception
+        '    AddLog("Exception during Login : " & ex.Message)
+        'End Try
 
-        'If failure, just return nothing, hopefully the caller will handle that gracefully
+        ''If failure, just return nothing, hopefully the caller will handle that gracefully
         Return Nothing
 
 
