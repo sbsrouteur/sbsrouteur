@@ -27,7 +27,7 @@ Public Class RouteurModel
     Implements INotifyPropertyChanged
 
     Public Shared DBGCoastHighlights As New LinkedList(Of MapSegment)
-
+    Public Shared DBGPolar As New LinkedList(Of Coords)
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
 
@@ -899,6 +899,10 @@ Public Class RouteurModel
         End Select
     End Sub
 
+    Private Sub _2DViewer_LogMsg(msg As String) Handles _2DViewer.LogMsg
+        _VorHandler.Log.Add(msg)
+    End Sub
+
     Private Sub _2DViewer_PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Handles _2DViewer.PropertyChanged
 
         Select Case e.PropertyName
@@ -960,6 +964,7 @@ Public Class RouteurModel
                     P.WPs = CurPlayer.RaceInfo.races_waypoints
                     P.NSZ = CurPlayer.RaceInfo.NSZ
                 End If
+                P.Polar = DBGPolar
                 P.ManagedRoutes = (From R In _RouteManager.VisibleRoutes Where R.RaceID = VorHandler.PlayerInfo.RaceInfo.idraces).ToList
 
                 P.TrackColor = VorHandler.PlayerInfo.TrackColor
@@ -967,6 +972,7 @@ Public Class RouteurModel
                 P.RoutingBorder = VorHandler.IsoRoutingBorder
 
                 P.CurrentPos = VorHandler.UserInfo.Position
+
 
 #If DBG_ISO_POINT_SET Then
                 P.DbgIsoNumber = _VorHandler.DbgIsoNumber
@@ -1010,6 +1016,7 @@ Public Class RouteurModel
 
     Private _DbgShowBSPList As New DelegateCommand(Of Object)(AddressOf OnDbgShowBSPListHandler, Function(o) True)
     Private _OnNext24VacsExport As New DelegateCommand(Of Object)(AddressOf OnExportNext24Vacs, Function(o) True)
+    Private _OnShowPolarAtMouse As New DelegateCommand(Of Object)(AddressOf OnShowPolarAtMouse, Function(o) True)
 
     Public ReadOnly Property SetBearingMenu() As ICommand
         Get
@@ -1052,6 +1059,13 @@ Public Class RouteurModel
             Return _OnNext24VacsExport
         End Get
     End Property
+
+    Public ReadOnly Property ShowPolarAtMouse As ICommand
+        Get
+            Return _OnShowPolarAtMouse
+        End Get
+    End Property
+
 
     Private Sub OnAutoStartIsoRouter()
 
@@ -1189,6 +1203,10 @@ Public Class RouteurModel
     Sub OnExportNext24Vacs(o As Object)
         VorHandler.ExportNext24Vacs()
 
+    End Sub
+
+    Sub OnShowPolarAtMouse(o As Object)
+        VorHandler.DrawPolarAtMousePos()
     End Sub
 
 

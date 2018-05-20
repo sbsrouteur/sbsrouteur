@@ -64,6 +64,8 @@ Public Class Stats
         Isocrhone_ThreadCount1
         Isocrhone_ThreadCount2
         DB_IntersectMapSegAvgMs
+        DB_IntersectMapSegCount
+        DB_IntersectMapSegAvg
     End Enum
 
     Public Shared ReadOnly Property Stats() As ObservableCollection(Of StatInfo)

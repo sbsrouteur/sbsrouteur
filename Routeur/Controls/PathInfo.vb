@@ -32,6 +32,7 @@ Public Class PathInfo
     Public Property RoutingBorder As LinkedList(Of Coords)
     Public Property CoastHighligts As LinkedList(Of MapSegment)
     Public Property CurrentPos As Coords
+    Public Property Polar As LinkedList(Of Coords)
 
 #If DBG_ISO_POINT_SET Then
     Public Property DbgIsoNumber As Integer = 0

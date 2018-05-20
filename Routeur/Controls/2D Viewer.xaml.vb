@@ -40,6 +40,7 @@ Partial Public Class _2D_Viewer
 #Const DBG_UPDATE_PATH = 0
 
     Public Event PropertyChanged(ByVal sender As Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs) Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
+    Public Event LogMsg(msg As String)
 
     Private _WindArrows(30, 30) As Path
     Private _TrajPath As Path
@@ -138,13 +139,20 @@ Partial Public Class _2D_Viewer
 
 
                 img.StreamSource = rs
-                img.EndInit()
+                Try
+                    img.EndInit()
+                Catch ex As Exception
+                    'Corrupted Image in DB
+                    _DBLink.DeleteCorruptedImage(Ti)
+                    Return Nothing
+                End Try
+
                 RetValue = BitmapFactory.ConvertToPbgra32Format(img)
                 rs.Close()
 
                 Return RetValue
             End Using
-        ElseIf ImageBuffer.GetLength(0) = 0 Then
+        ElseIf ImageBuffer Is Nothing OrElse ImageBuffer.GetLength(0) = 0 Then
             'Corrupted tile in DB
             _DBLink.DeleteCorruptedImage(Ti)
             Return Nothing
@@ -451,14 +459,27 @@ Render1:
 
                     Bmp.DrawLine(CInt(Pint.X), CInt(Pint.Y), CInt(NewP2.X), CInt(NewP2.Y), Color)
                 Else
+                    Dim dx As Double = NewP2.X - PrevPoint2.X
+                    Dim dy As Double = NewP2.Y - PrevPoint2.Y
+                    Dim sign As Double
 
+                    If dx * dy >= 0 Then
+                        sign = 1
+                    Else
+                        sign = -1
+                    End If
+
+
+                    If (OutOfCanvas(PrevPoint2) Or OutOfCanvas(NewP2)) Then
+                        MakeInCanvas(Bmp, PrevPoint2, NewP2)
+                    End If
 
                     Bmp.DrawLine(CInt(PrevPoint2.X), CInt(PrevPoint2.Y), CInt(NewP2.X), CInt(NewP2.Y), Color)
 
-                End If
+                    End If
             Next
         Catch ex As Exception
-            MessageBox.Show("SafeDraw line exception : " & ex.Message & vbCrLf & ex.StackTrace)
+            RaiseEvent LogMsg("SafeDraw line exception : " & ex.Message & vbCrLf & ex.StackTrace)
         End Try
     End Sub
 
@@ -576,11 +597,20 @@ Render1:
                 'Next
 
 #End If
+                Dim PenSegs As Integer = &HFFFFF00
                 For Each seg As MapSegment In PathInfo.CoastHighligts
                     Dim lP1 As New Coords(seg.Lat1, seg.Lon1)
                     Dim lP2 As New Coords(seg.Lat2, seg.Lon2)
-                    Dim PenSegs As Integer = &HFFFFF00
                     SafeDrawLine(_RBmp, lP1, lP2, PenSegs)
+                Next
+
+                Dim CurPos As Coords = Nothing
+
+                For Each P As Coords In PathInfo.Polar
+                    If CurPos IsNot Nothing Then
+                        SafeDrawLine(_RBmp, CurPos, P, PenSegs)
+                    End If
+                    CurPos = P
                 Next
 
 
@@ -595,9 +625,9 @@ Render1:
                     Dim PrevLoxo As Double = 0
                     'Try
                     If WindBrushes Is Nothing Then
-                        ReDim WindBrushes(70)
+                        ReDim WindBrushes(100)
 
-                        For i = 0 To 69
+                        For i = 0 To 99
                             WindBrushes(i) = WindColors.GetColor(i)
 
                         Next
@@ -997,18 +1027,21 @@ Render1:
         Dim i As Integer
         Dim NSZColor As Integer = &H7FFF0000
 
-        For maps As Integer = -1 To 1
-            Points(0) = CInt(MapTransform.LonToCanvas(NSZ(0).Lon1 + 360 * maps))
-            Points(1) = CInt(MapTransform.LatToCanvas(NSZ(0).Lat1))
-            For i = StartIndex To EndIndex
-                Points(2 * (i + 1) + 0) = CInt(MapTransform.LonToCanvas(NSZ(i).Lon2 + 360 * maps))
-                Points(2 * (i + 1) + 1) = CInt(MapTransform.LatToCanvas(NSZ(i).Lat2))
+        Try
+            For maps As Integer = -1 To 1
+                Points(0) = CInt(MapTransform.LonToCanvas(NSZ(0).Lon1 + 360 * maps))
+                Points(1) = CInt(MapTransform.LatToCanvas(NSZ(0).Lat1))
+                For i = StartIndex To EndIndex
+                    Points(2 * (i + 1) + 0) = CInt(MapTransform.LonToCanvas(NSZ(i).Lon2 + 360 * maps))
+                    Points(2 * (i + 1) + 1) = CInt(MapTransform.LatToCanvas(NSZ(i).Lat2))
+                Next
+                Points(2 * (i) + 2) = Points(0)
+                Points(2 * (i) + 3) = Points(1)
+                _BackDropBmp.FillPolygon(Points, NSZColor)
             Next
-            Points(2 * (i) + 2) = Points(0)
-            Points(2 * (i) + 3) = Points(1)
-            _BackDropBmp.FillPolygon(Points, NSZColor)
-        Next
-
+        Catch ex As OverflowException
+            'Ignore overzooming
+        End Try
     End Sub
 
     Private Sub DrawNSZ(ByVal NSZ As List(Of MapSegment))
@@ -1328,7 +1361,7 @@ Render1:
     Private Sub DrawPath(RBmp As WriteableBitmap, Path As LinkedList(Of Coords), PenColor As Integer, WithPointCircles As Boolean, Optional CurrentPos As Coords = Nothing, Optional ForceDraw As Boolean = False)
 
         Dim P1 As Point
-        Dim PrevPoint As Point
+        'Dim PrevPoint As Point
 
         If Path IsNot Nothing Then
             Dim Pnt As New Coords
@@ -1337,9 +1370,9 @@ Render1:
 
             If CurrentPos IsNot Nothing Then
                 PrevP = CurrentPos
-                PrevPoint = New Point
-                PrevPoint.X = MapTransform.LonToCanvas(PrevP.Lon_Deg)
-                PrevPoint.Y = MapTransform.LatToCanvas(PrevP.Lat_Deg)
+                'PrevPoint = New Point
+                'PrevPoint.X = MapTransform.LonToCanvas(PrevP.Lon_Deg)
+                'PrevPoint.Y = MapTransform.LatToCanvas(PrevP.Lat_Deg)
             End If
 
             For Each C As Coords In Path
@@ -1365,7 +1398,7 @@ Render1:
                     End If
                     PrevP.Lon_Deg = C.Lon_Deg
                     PrevP.Lat_Deg = C.Lat_Deg
-                    PrevPoint = P1
+                    'PrevPoint = P1
 
 
                 End If
@@ -1389,4 +1422,75 @@ Render1:
         _MapTransform.ActualHeight = ActualHeight
         _MapTransform.ActualWidth = ActualWidth
     End Sub
+
+    Private Sub MakeInCanvas(Bmp As WriteableBitmap, ByRef P1 As Point, ByRef P2 As Point)
+
+        Dim PIn As Point
+        Dim POut As Point
+
+
+        If OutOfCanvas(P1) Then
+            PIn = P2
+            POut = P1
+        ElseIf OutOfCanvas(P2) Then
+            PIn = P1
+            POut = P2
+        Else
+            'nothing to do
+            Return
+        End If
+
+        Dim dx As Double = PIn.X - POut.X
+        Dim dy As Double = PIn.Y - POut.Y
+        Dim TX As Double
+        Dim TY As Double
+
+        If dx > 0 Then
+            TX = 0
+        ElseIf dx < 0 Then
+            TX = Bmp.Width
+        Else
+            'Vert line
+            If dy <= 0 Then
+                POut.Y = 0
+            Else
+                POut.Y = Bmp.Height
+            End If
+
+            Return
+        End If
+
+        If dy > 0 Then
+            TY = Bmp.Height
+        ElseIf dy < 0 Then
+            TY = 0
+        Else
+            'Horz Line
+            If dx >= 0 Then
+                POut.X = 0
+            Else
+                POut.Y = Bmp.Width
+            End If
+        End If
+
+
+        Dim I1 As New Point(PIn.X + dx / dy * (TY - PIn.Y), TY)
+        Dim I2 As New Point(TX, PIn.Y + dy / dx * (TX - PIn.Y))
+
+        Dim D1 As Double = (PIn.X - I1.X) * (PIn.X - I1.X) + (PIn.Y - I1.Y) * (PIn.Y - I1.Y)
+        Dim D2 As Double = (PIn.X - I2.X) * (PIn.X - I2.X) + (PIn.Y - I2.Y) * (PIn.Y - I2.Y)
+        If D1 <= D2 Then
+            POut.X = I1.X
+            POut.Y = I1.Y
+        Else
+            POut.X = I2.X
+            POut.Y = I2.Y
+        End If
+
+        Return
+
+
+
+    End Sub
+
 End Class

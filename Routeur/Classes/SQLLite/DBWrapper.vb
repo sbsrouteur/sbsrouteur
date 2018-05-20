@@ -30,7 +30,9 @@ Public Class DBWrapper
     Private Shared _DBPath As String
     Private Shared _Lock As New Object
     Private Shared _InitOK As Boolean = False
-    
+    Private _MemCache As New HashSet(Of String)
+
+
     Shared Sub New()
 
         SyncLock _Lock
@@ -62,15 +64,15 @@ Public Class DBWrapper
         Try
             SyncLock _Lock
 
-            
-            SQLiteConnection.CreateFile(DBFileName)
 
-            Dim Conn As New SQLiteConnection(_DBPath)
-            Conn.Open()
-            Dim cmd As New SQLiteCommand(My.Resources.CreateDBScript, Conn)
-            cmd.ExecuteNonQuery()
-            cmd.CommandText = My.Resources.CreateRangeIndex
-            cmd.ExecuteNonQuery()
+                SQLiteConnection.CreateFile(DBFileName)
+
+                Dim Conn As New SQLiteConnection(_DBPath)
+                Conn.Open()
+                Dim cmd As New SQLiteCommand(My.Resources.CreateDBScript, Conn)
+                cmd.ExecuteNonQuery()
+                cmd.CommandText = My.Resources.CreateRangeIndex
+                cmd.ExecuteNonQuery()
                 Conn.Close()
             End SyncLock
 
@@ -254,10 +256,16 @@ RestartPoint:
                         Dim MaxLon As String = Math.Max(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
                         Dim MinLat As String = Math.Min(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
                         Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                        Dim CoordsFilterString As String
+                        If (Math.Max(lon1, lon2) - Math.Min(lon1, lon2)) > 180 Then
+                            CoordsFilterString = " (MaxX  >= " & MaxLon & " or MinX <=" & MinLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") "
+                        Else
+                            CoordsFilterString = " (MaxX  >= " & MinLon & " and MinX <=" & MaxLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") "
+                        End If
 
                         Cmd.CommandText = "Select IdSegment,lon1,lat1,lon2,lat2 from mapssegments inner join ( " &
                                             " select id from MapLevel_Idx" & MapLevel & " where " &
-                                            " (MaxX  >= " & MinLon & " and MinX <=" & MaxLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") " &
+                                            CoordsFilterString &
                                             ") As T on IdSegment = id"
 
                         If sorted Then
@@ -347,6 +355,7 @@ RestartPoint:
         Dim StartTick As DateTime = Now
         Static CumTime As Long = 0
         Static HitCount As Long = 0
+        Static FoundSegs As Long = 0
         Try
             HitCount += 1
             Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me)
@@ -357,6 +366,7 @@ RestartPoint:
 
             'Debug.WriteLine(coords.ToString & ";" & coords1.ToString)
             If SegList IsNot Nothing Then
+                FoundSegs += SegList.Count
                 For Each Seg As MapSegment In SegList
                     If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
                         Return True
@@ -372,6 +382,8 @@ RestartPoint:
         Finally
             CumTime = CLng(CumTime + Now.Subtract(StartTick).TotalMilliseconds)
             Routeur.Stats.SetStatValue(Stats.StatID.DB_IntersectMapSegAvgMs) = CumTime / HitCount
+            Routeur.Stats.SetStatValue(Stats.StatID.DB_IntersectMapSegAvg) = FoundSegs / HitCount
+            Routeur.Stats.SetStatValue(Stats.StatID.DB_IntersectMapSegCount) = FoundSegs
         End Try
 
 
@@ -657,11 +669,13 @@ RestartPoint:
 
     Function ImageTileExists(TI As TileInfo) As Boolean
 
+        Dim Key As String = TI.TX & "/" & TI.TY & "/" & TI.Z
+
         If TI.TX < 0 OrElse TI.TY < 0 OrElse TI.TX > 2 ^ TI.Z OrElse TI.TY > 2 ^ TI.Z Then
             Dim i As Integer = 1
         End If
 
-        If Not _InitOK Then
+        If Not _InitOK OrElse _MemCache.Contains(Key) Then
             Return True
         End If
 
@@ -672,7 +686,12 @@ RestartPoint:
                 cmd.CommandText = "Select idMapLut from MapLut where level=" & TI.Z & " and X=" & TI.TX & " and Y=" & TI.TY & ";"
                 Dim Id As Object = cmd.ExecuteScalar
 
-                Return Id IsNot Nothing
+                If Id IsNot Nothing Then
+                    _MemCache.Add(Key)
+                    Return True
+                Else
+                    Return False
+                End If
 
             End Using
             con.Close()
@@ -700,6 +719,17 @@ RestartPoint:
                         cmd.CommandText = "delete from MapLut where RefBlob = " & IdImage & ";"
                         cmd.CommandText &= " delete from  MapImage where IdMapImage =" & IdImage & ";"
                         cmd.ExecuteNonQuery()
+
+                        Dim Key As String = Ti.TX & "/" & Ti.TY & "/" & Ti.Z
+
+                        If Ti.TX < 0 OrElse Ti.TY < 0 OrElse Ti.TX > 2 ^ Ti.Z OrElse Ti.TY > 2 ^ Ti.Z Then
+                            Dim i As Integer = 1
+                        End If
+
+                        If _MemCache.Contains(Key) Then
+                            _MemCache.Remove(Key)
+                        End If
+
                         Return
                     Finally
                         

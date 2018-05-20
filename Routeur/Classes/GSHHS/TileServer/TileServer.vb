@@ -171,7 +171,7 @@ restart_download:
 #End If
 
         End If
-        Debug.WriteLine("tileserver Q;" & _queryCount & " " & _HitCount / _queryCount)
+        Debug.WriteLine("tileserver Q;" & _queryCount & " hit ratio:" & _HitCount / _queryCount)
     End Sub
 
     Public Property Busy() As Boolean

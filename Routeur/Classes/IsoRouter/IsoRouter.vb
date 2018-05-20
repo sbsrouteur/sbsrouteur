@@ -140,7 +140,12 @@ Public Class IsoRouter
             Dim NbMinutes As Double = New TimeSpan(CLng(2 * 2 * Math.PI * MaxDist / 360 / MaxSpeed * TimeSpan.TicksPerHour)).TotalMinutes
             NbMinutes = RouteurModel.VacationMinutes * Math.Ceiling(NbMinutes / RouteurModel.VacationMinutes)
             CurStep = New TimeSpan(0, CInt(NbMinutes), 0)
-
+            'Dim T As DateTime = Iso.PointSet.First.Value.T.Add(CurStep)
+            'For Each Point In RetIsoChrone.PointSet.Values
+            '    If Point IsNot Nothing Then
+            '        Point.T = T
+            '    End If
+            'Next
 
             Dim tc2 As New TravelCalculator
 
@@ -216,6 +221,7 @@ Public Class IsoRouter
                         Dim EllipsisDit As Double = 0
 
                         P = ReachPoint(rp, alpha, CurStep, True, MeteoAtPoint)
+                        
                         If FirstAngle AndAlso MeteoAtPoint IsNot Nothing Then
                             Dim WA As Double = WindAngle(alpha, MeteoAtPoint.Dir)
 
@@ -253,6 +259,8 @@ Public Class IsoRouter
 
                                     If tcfn2.EndPoint Is Nothing OrElse CurDist >= tcfn2.SurfaceDistanceLoxo Then
                                         AddPoint = True
+                                    ElseIf tcfn2.SurfaceDistanceLoxo > 1000 Then
+                                        Dim bkp = 0
                                     End If
                                 Else
                                     AddPoint = True
@@ -299,6 +307,13 @@ Public Class IsoRouter
                 'End Sub)
             Next
 
+            'Check dates
+            'T = Iso.PointSet.First.Value.T.Add(CurStep)
+            'For Each Point In RetIsoChrone.PointSet.Values
+            '    If Point IsNot Nothing Then
+            '        Point.T = T
+            '    End If
+            'Next
 
             'Clean up bad points
             'If RetIsoChrone IsNot Nothing Then
@@ -433,7 +448,7 @@ Public Class IsoRouter
         RaiseEvent RouteComplete()
     End Sub
 
-    Private Function ReachPoint(ByVal Start As clsrouteinfopoints, ByVal Cap As Double, ByVal Duration As TimeSpan, IgnoreCollisions As Boolean, ByRef MeteoInfo As MeteoInfo) As clsrouteinfopoints
+    Public Function ReachPoint(ByVal Start As clsrouteinfopoints, ByVal Cap As Double, ByVal Duration As TimeSpan, IgnoreCollisions As Boolean, ByRef MeteoInfo As MeteoInfo, Optional SinglePoint As Boolean = False) As clsrouteinfopoints
 
         Static CumDuration As Long = 0
         Static CumWait As Long = 0
@@ -457,7 +472,7 @@ Public Class IsoRouter
             Static PrevDist As Double = 0
             Dim MinWindAngle As Double = 0
             Dim MaxWindAngle As Double = 0
-            Dim StartTicks As DateTime = Start.T
+            Dim StartTicks As DateTime = Start.T.AddMinutes(-RouteurModel.VacationMinutes)
             Dim CurDate As DateTime = StartTicks
             Dim MI As MeteoInfo = MeteoInfo
             TC.StartPoint = Start.P
@@ -485,7 +500,7 @@ Public Class IsoRouter
                         MeteoInfo = MI
                     End If
 
-                    If _CancelRequested Then
+                    If _CancelRequested AndAlso Not SinglePoint Then
                         Return Nothing
                     End If
                     Dim Alpha As Double = WindAngle(Cap, MI.Dir)
@@ -524,7 +539,7 @@ Public Class IsoRouter
                 End While
                 CumWait += Now.Subtract(WaitStart).Ticks
                 LoopCount += 1
-                If _CancelRequested Then
+                If _CancelRequested AndAlso Not SinglePoint Then
                     Return Nothing
                 End If
 
@@ -571,7 +586,7 @@ Public Class IsoRouter
                 RetPoint = New clsrouteinfopoints
                 With RetPoint
                     .P = New Coords(TC.EndPoint)
-                    .T = CurDate
+                    .T = CurDate.AddMinutes(RouteurModel.VacationMinutes)
                     .Speed = Speed
                     .WindStrength = MI.Strength
                     .WindDir = MI.Dir

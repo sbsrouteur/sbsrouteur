@@ -94,7 +94,7 @@ Public Class VLM_Router
     Private _VMGStarted As Integer
     Private _HasPosition As Boolean = False
     Private _Workerscount As Integer
-    Private _StopRouting As Boolean = False
+    'Private _StopRouting As Boolean = False
     Private _CurWPDist As Double = 0
     Private WithEvents _RoutingRestart As New Timers.Timer
     Private _RoutingRestartPending As Boolean = False
@@ -138,7 +138,7 @@ Public Class VLM_Router
     Private _PixelSize As Double
 
     Private _CurMousePos As Coords
-
+    Private _CtxMousPos As Coords
 
     Private Shared _PosValide As Boolean = False
     Private Shared _Sails As New clsSailManager
@@ -1085,7 +1085,7 @@ Public Class VLM_Router
 
             'Get Meteo at date
             'mi = _Meteo.GetMeteoToDate(CurPos, CurDate.AddTicks(CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)), True)
-            mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
+            mi = _Meteo.GetMeteoToDate(CurPos, CurDate.AddMinutes(-RouteurModel.VacationMinutes), True)
 
             If mi Is Nothing Then
                 Return RetRoute
@@ -2771,6 +2771,7 @@ Public Class VLM_Router
         _VMGETA = New DateTime(0)
         _OrthoETA = New DateTime(0)
         _VBVMGETA = New DateTime(0)
+        _CtxMousPos = _CurMousePos
 
         _MenuWindAngleValid = False
         _MenuWPWindAngleValid = False
@@ -3384,6 +3385,78 @@ Public Class VLM_Router
             Next
             fs.Close()
         End Using
+    End Sub
+
+    Sub DrawPolarAtMousePos()
+
+        Dim CurDist As Double = Double.MaxValue
+        Dim Tc As New TravelCalculator
+        Dim CurIso As IsoChrone
+        Dim CurPoint As clsrouteinfopoints
+        Tc.StartPoint = _CtxMousPos
+
+        If IsoChrones Is Nothing OrElse IsoChrones.Count = 0 Then
+            Return
+        End If
+
+        For Each Iso In IsoChrones
+            For Each Point In Iso.PointSet
+                Tc.EndPoint = Point.Value.P
+                If (Tc.SurfaceDistance < CurDist) Then
+                    CurDist = Tc.SurfaceDistance
+                    CurIso = Iso
+                    CurPoint = Point.Value
+                    'Log.Add("Imporved point " & CurDist)
+                End If
+            Next
+        Next
+
+        Dim CurP As clsrouteinfopoints = CurIso.PointSet.First.Value
+
+        If CurP Is Nothing Then
+            Log.Add("Houlala we sort of lost the ISO. No first point")
+        Else
+            Log.Add("Getting polar for " & CurP.T.ToString)
+        End If
+
+        Dim NextIso As Boolean = False
+        Dim DeltaT As TimeSpan
+        For Each iso In IsoChrones
+            Dim P1 As clsrouteinfopoints = iso.PointSet.First.Value
+            If P1 IsNot Nothing Then
+                If NextIso Then
+                    DeltaT = P1.T.Subtract(CurP.T)
+                    Exit For
+                ElseIf iso Is CurIso Then
+                    NextIso = True
+                Else
+                    DeltaT = P1.T.Subtract(CurP.T)
+                End If
+            End If
+            
+        Next
+
+        If DeltaT.TotalSeconds < 0 Then
+            DeltaT = New TimeSpan(CLng(Abs(DeltaT.TotalSeconds) * TimeSpan.TicksPerSecond))
+        ElseIf DeltaT.TotalSeconds = 0 Then
+            DeltaT = New TimeSpan(0, 5, 0)
+        End If
+
+        'Compute polar at this point
+        RouteurModel.DBGPolar.Clear()
+
+        If _iso IsNot Nothing Then
+
+            For i As Double = 0 To 360 Step 1
+                Dim Dest As clsrouteinfopoints = _iso.ReachPoint(CurPoint, i, DeltaT, True, Nothing, True)
+                If Dest IsNot Nothing AndAlso Dest.P IsNot Nothing Then
+                    RouteurModel.DBGPolar.AddLast(Dest.P)
+                End If
+            Next
+        End If
+
+        'Log.Add("Point found @" & CurPoint.P.ToString & " " & CurPoint.T)
+
     End Sub
 
 

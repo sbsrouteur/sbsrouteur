@@ -20,7 +20,7 @@ Imports System.Threading
 Public Class BspRect
 
     Private Const MAX_IGNORED_COUNT As Integer = 2000
-    Private Const MAX_TREE_Z As Integer = 11
+    Private Const MAX_TREE_Z As Integer = 13
 
     Public Enum inlandstate As Byte
         Unknown = 0
@@ -250,9 +250,24 @@ Public Class BspRect
     Function BuildBspCellLine(C1 As Coords, C2 As Coords) As List(Of Coords)
         Dim RetList As New List(Of Coords)
 
-        If C1 = C2 Then
+        If C1 = C2 OrElse C1.N_Lat = C2.N_Lat AndAlso C1.N_Lon = C2.N_Lon Then
             RetList.Add(C1)
             Return RetList
+        End If
+
+        If Abs(C2.N_Lon_Deg - C1.N_Lon_Deg) > 180 Then
+            'wrong antimeridien handling
+            RetList.Add(C1)
+            Return RetList
+            'If C2.N_Lon_Deg > C1.N_Lon_Deg Then
+            '    Dim C3 As New Coords(C1)
+            '    C1 = C2
+            '    C2 = C3
+            'End If
+            'Dim ret As List(Of Coords) = BuildBspCellLine(C2, New Coords(C2.Lat_Deg, 180))
+
+            'ret.AddRange (BuildBspCellLine (New Coords(c1
+
         End If
 
         Dim DxOffset As Double = (360) / (2 ^ MAX_TREE_Z)

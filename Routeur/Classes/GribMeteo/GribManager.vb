@@ -1198,7 +1198,7 @@ Public Class GribManager
                 While _MeteoLoadQueue.Count > 0
                     Dim LoadInfo As MeteoLoadRequest = _MeteoLoadQueue.Dequeue
                     'If _MeteoLoadQueue.Count Mod 100000 = 0 Then
-                    Console.WriteLine("Queue -- " & _MeteoLoadQueue.Count)
+                    'Console.WriteLine("Queue -- " & _MeteoLoadQueue.Count)
                     'End If
 
                     If _MeteoArrays(LoadInfo.MeteoIndex) Is Nothing OrElse _MeteoArrays(LoadInfo.MeteoIndex).Data(LoadInfo.LonIndex, LoadInfo.LatIndex) Is Nothing _
