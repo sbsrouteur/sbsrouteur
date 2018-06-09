@@ -459,16 +459,6 @@ Render1:
 
                     Bmp.DrawLine(CInt(Pint.X), CInt(Pint.Y), CInt(NewP2.X), CInt(NewP2.Y), Color)
                 Else
-                    Dim dx As Double = NewP2.X - PrevPoint2.X
-                    Dim dy As Double = NewP2.Y - PrevPoint2.Y
-                    Dim sign As Double
-
-                    If dx * dy >= 0 Then
-                        sign = 1
-                    Else
-                        sign = -1
-                    End If
-
 
                     If (OutOfCanvas(PrevPoint2) Or OutOfCanvas(NewP2)) Then
                         MakeInCanvas(Bmp, PrevPoint2, NewP2)
