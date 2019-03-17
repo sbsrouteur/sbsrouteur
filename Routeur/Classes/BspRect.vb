@@ -14,13 +14,14 @@
 'You should have received a copy of the GNU General Public License
 'along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
+Imports System.Data.SQLite
 Imports System.Math
 Imports System.Threading
 
 Public Class BspRect
 
     Private Const MAX_IGNORED_COUNT As Integer = 2000
-    Private Const MAX_TREE_Z As Integer = 13
+    Private Const MAX_TREE_Z As Integer = 10
 
     Public Enum inlandstate As Byte
         Unknown = 0
@@ -28,6 +29,7 @@ Public Class BspRect
         InSea = 2
         Mixed = 3
     End Enum
+
 
 
     Private Shared MIN_POLYGON_SPLIT As Double = 0.01
@@ -97,19 +99,17 @@ Public Class BspRect
 
     End Sub
 
-    Public ReadOnly Property GetSegments(Center As Coords, db As DBWrapper) As List(Of MapSegment)
+    Public ReadOnly Property GetSegments(X As Integer, Y As Integer, db As DBWrapper, dbCon As SQLiteConnection) As List(Of MapSegment)
         Get
             Static HitCount As Long = 1
             Static CacheHitCount As Long = 0
             Static CumDuration As Long = 0
             'Dim start As DateTime = Now
 
-            If Double.IsNaN(Center.N_Lon_Deg) OrElse Double.IsNaN(Center.N_Lat_Deg) Then
-                Return Nothing
-            End If
+            'If Double.IsNaN(Center.N_Lon_Deg) OrElse Double.IsNaN(Center.N_Lat_Deg) Then
+            '    Return Nothing
+            'End If
             Try
-                Dim X As Integer = CInt(Math.Floor((Center.N_Lon_Deg + 180) / (360 / (2 ^ MAX_TREE_Z))))
-                Dim Y As Integer = CInt(Math.Floor((Center.N_Lat_Deg + 90) / (180 / (2 ^ MAX_TREE_Z))))
 
                 If _SegmentsArray(X, Y) IsNot Nothing Then
                     CacheHitCount += 1
@@ -127,7 +127,7 @@ Public Class BspRect
                             Dim P1 As New Coords(CLat - dLat, CLon - dLon)
                             Dim P2 As New Coords(CLat + dLat, CLon + dLon)
 
-                            Dim Segs = db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg)
+                            Dim Segs = db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg, dbCon)
                             If Segs IsNot Nothing Then
                                 TmpSegments.AddRange(Segs)
                             End If
@@ -151,21 +151,30 @@ Public Class BspRect
         End Get
     End Property
 
-    Public ReadOnly Property GetSegments(C1 As Coords, C2 As Coords, db As DBWrapper) As List(Of MapSegment)
+    Public ReadOnly Property GetSegments(C1 As Coords, C2 As Coords, db As DBWrapper, DBCon As SQLiteConnection) As List(Of MapSegment)
         Get
 
             Dim TmpSeg As New Dictionary(Of Long, MapSegment)
-
+            Dim BSPCells As New HashSet(Of Long)
             Dim CellList As List(Of Coords) = BuildBspCellLine(C1, C2)
             For Each Center As Coords In CellList
-                Dim l = GetSegments(Center, db)
-                If l IsNot Nothing Then
-                    For Each seg In l
-                        If Not TmpSeg.ContainsKey(seg.Id) Then
-                            TmpSeg.Add(seg.Id, seg)
-                        End If
-                    Next
+                If Center IsNot Nothing Then
+                    Dim X As Integer = CInt(Math.Floor((Center.N_Lon_Deg + 180) / (360 / (2 ^ MAX_TREE_Z))))
+                    Dim Y As Integer = CInt(Math.Floor((Center.N_Lat_Deg + 90) / (180 / (2 ^ MAX_TREE_Z))))
+                    Dim CellKey As Long = CLng(X * 2 ^ MAX_TREE_Z + Y)
 
+                    If Not BSPCells.Contains(CellKey) Then
+                        Dim l = GetSegments(X, Y, db, DBCon)
+                        If l IsNot Nothing Then
+                            For Each seg In l
+                                If Not TmpSeg.ContainsKey(seg.Id) Then
+                                    TmpSeg.Add(seg.Id, seg)
+                                End If
+                            Next
+
+                        End If
+                        BSPCells.Add(CellKey)
+                    End If
                 End If
             Next
 
@@ -519,12 +528,12 @@ Public Class BspRect
             Dim Y As Integer = CInt(Math.Floor((center.N_Lat_Deg + 90) / (180 / 2 ^ MAX_TREE_Z)))
 
             If _SegmentsArray(X, Y) Is Nothing Then
-                Dim CLat As Double = (Y + 0.5) * 180 / (2 ^ MAX_TREE_Z) - 90
-                Dim CLon As Double = (X + 0.5) * 360 / (2 ^ MAX_TREE_Z) - 180
-                Dim dLat As Double = 180 / (2 ^ MAX_TREE_Z)
-                Dim dLon As Double = 360 / (2 ^ MAX_TREE_Z)
-                Dim P1 As New Coords(CLat, CLon)
-                Dim lSegs = GetSegments(P1, db)
+                'Dim CLat As Double = (Y + 0.5) * 180 / (2 ^ MAX_TREE_Z) - 90
+                'Dim CLon As Double = (X + 0.5) * 360 / (2 ^ MAX_TREE_Z) - 180
+                'Dim dLat As Double = 180 / (2 ^ MAX_TREE_Z)
+                'Dim dLon As Double = 360 / (2 ^ MAX_TREE_Z)
+                'Dim P1 As New Coords(CLat, CLon)
+                Dim lSegs = GetSegments(X, Y, db, Nothing)
             End If
             If Not FirstPass AndAlso Not _SegmentsArray(X, Y).Contains(M) Then
                 _SegmentsArray(X, Y).Add(M)

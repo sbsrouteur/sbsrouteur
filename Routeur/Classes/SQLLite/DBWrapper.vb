@@ -27,7 +27,7 @@ Public Class DBWrapper
     Private Const OldDbName As String = "RouteurDB"
     Private Const DBName As String = "RouteurDB_dev.db3"
 
-    Private Shared _DBPath As String
+    Friend Shared DBPath As String
     Private Shared _Lock As New Object
     Private Shared _InitOK As Boolean = False
     Private _MemCache As New HashSet(Of String)
@@ -37,7 +37,7 @@ Public Class DBWrapper
 
         SyncLock _Lock
             Dim BaseFile As String = System.IO.Path.Combine(RouteurModel.BaseFileDir, DBName)
-            _DBPath = "Data Source = """ & BaseFile & """ ; Version = 3; ConnectionPooling=100"
+            DBPath = "Data Source = """ & BaseFile & """ ; Version = 3; ConnectionPooling=100"
 
             If Not _InitOK Then
                 If Not File.Exists(BaseFile) Then
@@ -67,7 +67,7 @@ Public Class DBWrapper
 
                 SQLiteConnection.CreateFile(DBFileName)
 
-                Dim Conn As New SQLiteConnection(_DBPath)
+                Dim Conn As New SQLiteConnection(DBPath)
                 Conn.Open()
                 Dim cmd As New SQLiteCommand(My.Resources.CreateDBScript, Conn)
                 cmd.ExecuteNonQuery()
@@ -84,7 +84,7 @@ Public Class DBWrapper
 
     Public Function DataMapInited(MapLevel As Integer) As Boolean
 
-        Dim Conn As New SQLiteConnection(_DBPath)
+        Dim Conn As New SQLiteConnection(DBPath)
         Conn.Open()
         Dim Cmd As New SQLiteCommand("Select * from MapsSegments where maplevel = " & MapLevel, Conn)
 
@@ -124,7 +124,7 @@ Public Class DBWrapper
         End If
 
         If Conn Is Nothing Then
-            Conn = New SQLiteConnection(_DBPath)
+            Conn = New SQLiteConnection(DBPath)
             Conn.Open()
             Trans = Conn.BeginTransaction()
         End If
@@ -224,7 +224,7 @@ Public Class DBWrapper
         End Select
     End Function
 
-    Public Function SegmentList(ByVal lon1 As Double, ByVal lat1 As Double, ByVal lon2 As Double, ByVal lat2 As Double, Optional sorted As Boolean = False) As List(Of MapSegment)
+    Public Function SegmentList(ByVal lon1 As Double, ByVal lat1 As Double, ByVal lon2 As Double, ByVal lat2 As Double, ByVal DBCon As SQLiteConnection, Optional sorted As Boolean = False) As List(Of MapSegment)
 
         If Not _InitOK Then
             'Do not try loading coast lines until db is fully inited
@@ -245,88 +245,99 @@ Public Class DBWrapper
 
 RestartPoint:
 
-            Using Con As New SQLiteConnection(_DBPath)
+            Dim Con As SQLiteConnection
+
+            If DBCon Is Nothing Then
+                Con = New SQLiteConnection(DBPath)
                 Con.Open()
+            Else
+                Con = DBCon
 
-                Using Cmd As New SQLiteCommand(Con)
-                    Dim Reader As SQLiteDataReader = Nothing
+            End If
 
-                    Try
-                        Dim MinLon As String = Math.Min(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                        Dim MaxLon As String = Math.Max(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                        Dim MinLat As String = Math.Min(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                        Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                        Dim CoordsFilterString As String
-                        If (Math.Max(lon1, lon2) - Math.Min(lon1, lon2)) > 180 Then
-                            CoordsFilterString = " (MaxX  >= " & MaxLon & " or MinX <=" & MinLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") "
-                        Else
-                            CoordsFilterString = " (MaxX  >= " & MinLon & " and MinX <=" & MaxLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") "
-                        End If
+            Using Cmd As New SQLiteCommand(Con)
+                Dim Reader As SQLiteDataReader = Nothing
 
-                        Cmd.CommandText = "Select IdSegment,lon1,lat1,lon2,lat2 from mapssegments inner join ( " &
+                Try
+                    Dim MinLon As String = Math.Min(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    Dim MaxLon As String = Math.Max(lon1, lon2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    Dim MinLat As String = Math.Min(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    Dim MaxLat As String = Math.Max(lat1, lat2).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    Dim CoordsFilterString As String
+                    If (Math.Max(lon1, lon2) - Math.Min(lon1, lon2)) > 180 Then
+                        CoordsFilterString = " (MaxX  >= " & MaxLon & " or MinX <=" & MinLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") "
+                    Else
+                        CoordsFilterString = " (MaxX  >= " & MinLon & " and MinX <=" & MaxLon & ") and ( MaxY >=" & MinLat & " and MinY <=" & MaxLat & ") "
+                    End If
+
+                    Cmd.CommandText = "Select IdSegment,lon1,lat1,lon2,lat2 from mapssegments inner join ( " &
                                             " select id from MapLevel_Idx" & MapLevel & " where " &
                                             CoordsFilterString &
                                             ") As T on IdSegment = id"
 
-                        If sorted Then
-                            Cmd.CommandText = Cmd.CommandText & " order by IdSegment asc"
-                        End If
-                        Reader = Cmd.ExecuteReader
-                        If Reader.HasRows Then
+                    If sorted Then
+                        Cmd.CommandText = Cmd.CommandText & " order by IdSegment asc"
+                    End If
+                    Reader = Cmd.ExecuteReader
+                    If Reader.HasRows Then
 
-                            HitCountNZ += 1
+                        HitCountNZ += 1
 
-                            While Reader.Read
-                                Dim seg_lon1 As Double = CDbl(Reader("lon1"))
-                                Dim seg_lon2 As Double = CDbl(Reader("lon2"))
-                                Dim seg_lat1 As Double = CDbl(Reader("lat1"))
-                                Dim seg_lat2 As Double = CDbl(Reader("lat2"))
-                                Dim IdSeg As Long = CLng(Reader("IdSegment"))
+                        While Reader.Read
+                            Dim seg_lon1 As Double = CDbl(Reader("lon1"))
+                            Dim seg_lon2 As Double = CDbl(Reader("lon2"))
+                            Dim seg_lat1 As Double = CDbl(Reader("lat1"))
+                            Dim seg_lat2 As Double = CDbl(Reader("lat2"))
+                            Dim IdSeg As Long = CLng(Reader("IdSegment"))
 
-                                If seg_lon1 * seg_lon2 < 0 AndAlso Math.Abs(seg_lon1 - seg_lon2) > 180 Then
-                                    'Quick hack use denormalization twice (#38)
-                                    Dim Direction As Integer = 1
-                                    If seg_lon1 < 0 Then
-                                        Direction = -1
-                                    End If
-                                    RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1, .Lon2 = seg_lon2 + Direction * 360, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
-                                    RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1 - 360 * Direction, .Lon2 = seg_lon2 + 360, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
-                                Else
-                                    RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+                            If seg_lon1 * seg_lon2 < 0 AndAlso Math.Abs(seg_lon1 - seg_lon2) > 180 Then
+                                'Quick hack use denormalization twice (#38)
+                                Dim Direction As Integer = 1
+                                If seg_lon1 < 0 Then
+                                    Direction = -1
                                 End If
-                                TotalHitCount += 1
+                                RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1, .Lon2 = seg_lon2 + Direction * 360, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+                                RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1 - 360 * Direction, .Lon2 = seg_lon2 + 360, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+                            Else
+                                RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
+                            End If
+                            TotalHitCount += 1
 
-                            End While
+                        End While
 
 
-                        End If
-                        HitCount += 1
-                        Return RetList
-                    Catch ex As Exception
-                        Debug.WriteLine("SegmentList exception " & ex.Message)
-                        HitCountError += 1
-                        RestartOnLockException = True
-                    Finally
+                    End If
+                    HitCount += 1
+                    Return RetList
+                Catch ex As Exception
+                    Debug.WriteLine("SegmentList exception " & ex.Message)
+                    HitCountError += 1
+                    RestartOnLockException = True
+                Finally
 
-                        If Reader IsNot Nothing Then
-                            Reader.Close()
-                        End If
-                        If Cmd IsNot Nothing Then
-                            Cmd.Dispose()
+                    If Reader IsNot Nothing Then
+                        Reader.Close()
+                    End If
+                    If Cmd IsNot Nothing Then
+                        Cmd.Dispose()
 
-                        End If
-                        Con.Close()
-                    End Try
-                End Using
-
-                If RestartOnLockException Then
-                    RestartOnLockException = False
-                    GoTo RestartPoint
-                End If
-
-                Return Nothing
-
+                    End If
+                    'Con.Close()
+                End Try
             End Using
+
+            If RestartOnLockException Then
+                RestartOnLockException = False
+                GoTo RestartPoint
+            End If
+
+            Return Nothing
+
+            If Con IsNot DBCon Then
+                Con.Close()
+                Con.Dispose()
+            End If
+            'End Using
         Finally
             Dim EndTick As DateTime = Now
             Static lastupdate As DateTime
@@ -350,7 +361,7 @@ RestartPoint:
 
     Public Property MapLevel As Integer = 1
 
-    Public Function IntersectMapSegment(coords As Coords, coords1 As Coords, bspRect As BspRect) As Boolean
+    Public Function IntersectMapSegment(coords As Coords, coords1 As Coords, bspRect As BspRect, Con As SQLiteConnection) As Boolean
 
         Dim StartTick As DateTime = Now
         Static CumTime As Long = 0
@@ -358,7 +369,7 @@ RestartPoint:
         Static FoundSegs As Long = 0
         Try
             HitCount += 1
-            Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me)
+            Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me, Con)
 
             If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
                 Return False
@@ -407,7 +418,7 @@ RestartPoint:
             End If
 
             If CurVersion < DBVersion Then
-                Using conn As New SQLiteConnection(_DBPath)
+                Using conn As New SQLiteConnection(DBPath)
                     conn.Open()
                     For i As Integer = CurVersion To DBVersion - 1
 
@@ -448,7 +459,7 @@ RestartPoint:
     End Sub
 
     Private Shared Function GetCurDBVersion() As Integer
-        Using Conn As New SQLiteConnection(_DBPath)
+        Using Conn As New SQLiteConnection(DBPath)
             Conn.Open()
             Using cmd As New SQLiteCommand("Select Max(VersionNumber) from DBVersion", Conn)
                 Dim RetObjet As Object = (cmd.ExecuteScalar)
@@ -476,7 +487,7 @@ RestartPoint:
         Dim LastBearing As Double = -9999
         Dim SkipPoint As Boolean
         Dim EpochLimit As Long = CLng(Now.Subtract(New DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds - 48 * 3600)
-        Using conn As New SQLiteConnection(_DBPath)
+        Using conn As New SQLiteConnection(DBPath)
             conn.Open()
             Using cmd As New SQLiteCommand("select PointDate, Lon, Lat from TrackPoints inner join Tracks on TrackPoints.RefTrack = Tracks.id " &
                                             " where RaceID = " & RaceID & " and BoatNum=" & BoatId & " order by PointDate", conn)
@@ -526,9 +537,9 @@ RestartPoint:
     End Sub
 
     Function GetLastTrackDate(RaceID As Integer, BoatNum As Integer) As Long
-        Using conn As New SQLiteConnection(_DBPath)
+        Using conn As New SQLiteConnection(DBPath)
             conn.Open()
-            Using cmd As New SQLiteCommand(_DBPath, conn)
+            Using cmd As New SQLiteCommand(DBPath, conn)
                 cmd.CommandText = "select max(pointdate) from trackpoints " &
                                     "inner join tracks on reftrack = id where raceid=" & RaceID & " and BoatNum = " & BoatNum
                 Dim Epoch As Object = cmd.ExecuteScalar
@@ -557,7 +568,7 @@ RestartPoint:
         Static CurRace As Integer = -1
 
 
-        Using con As New SQLiteConnection(_DBPath)
+        Using con As New SQLiteConnection(DBPath)
             con.Open()
             Dim Trans As SQLiteTransaction
             Using cmd As New SQLiteCommand(con)
@@ -627,7 +638,7 @@ RestartPoint:
             HashString &= b.ToString("X2")
         Next
 
-        Using con As New SQLiteConnection(_DBPath)
+        Using con As New SQLiteConnection(DBPath)
             con.Open()
             Dim Trans As SQLiteTransaction = Nothing
             Using cmd As New SQLiteCommand(con)
@@ -679,7 +690,7 @@ RestartPoint:
             Return True
         End If
 
-        Using con As New SQLiteConnection(_DBPath)
+        Using con As New SQLiteConnection(DBPath)
             con.Open()
             Using cmd As New SQLiteCommand(con)
 
@@ -705,7 +716,7 @@ RestartPoint:
             Return
         End If
 
-        Using con As New SQLiteConnection(_DBPath)
+        Using con As New SQLiteConnection(DBPath)
             con.Open()
 
             Dim NbRetries As Integer = 0
@@ -732,7 +743,7 @@ RestartPoint:
 
                         Return
                     Finally
-                        
+
                     End Try
 
                 End Using
@@ -750,7 +761,7 @@ RestartPoint:
             Return Nothing
         End If
 
-        Using con As New SQLiteConnection(_DBPath)
+        Using con As New SQLiteConnection(DBPath)
             con.Open()
             Dim Reader As SQLiteDataReader = Nothing
             Dim NbRetries As Integer = 0
@@ -785,7 +796,7 @@ RestartPoint:
 
     Sub ClearMapTileCache()
 
-        Using con As New SQLiteConnection(_DBPath)
+        Using con As New SQLiteConnection(DBPath)
             con.Open()
             Using cn As New SQLiteCommand(con)
 
