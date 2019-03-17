@@ -119,7 +119,7 @@ Module WS_Wrapper
 
     Public Function GetRaceInfo(ByVal RAN As String) As String
 
-        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo.php?forcefmt=json&idrace=" & RAN
+        Dim URL As String = RouteurModel.Base_Game_Url & "/ws/raceinfo/desc.php?forcefmt=json&idrace=" & RAN
         Dim Retstring As String = ""
         Try
             Retstring = RequestPage(URL)
