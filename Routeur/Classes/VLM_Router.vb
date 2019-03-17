@@ -498,7 +498,7 @@ Public Class VLM_Router
             _XTRAssessmentON = False
             Return
         End If
-        Dim trimmeddate As DateTime = _UserInfo.[Date].AddSeconds(-_UserInfo.[Date].Second)
+        Dim trimmeddate As DateTime = _UserInfo.[Date] '.AddSeconds(-_UserInfo.[Date].Second)
 
         While _XTRRoute.Count > 0 AndAlso _XTRRoute(0).T.AddSeconds(_XTRRoute(0).T.Second) < _UserInfo.[Date]
             _XTRRoute.RemoveAt(0)
@@ -1201,7 +1201,7 @@ Public Class VLM_Router
                 CurRaceWP = GetNextRankingWP(CurRaceWP)
             End If
 
-            If GSHHS_Reader._Tree IsNot Nothing AndAlso Db.IntersectMapSegment(CurPos, NextPos, GSHHS_Reader._Tree) Then
+            If GSHHS_Reader._Tree IsNot Nothing AndAlso Db.IntersectMapSegment(CurPos, NextPos, GSHHS_Reader._Tree, Nothing) Then
                 AddLog("Estimate collision with coast in " & CurDate.Subtract(Now).ToString())
                 Return RetRoute
             End If
@@ -3185,7 +3185,7 @@ Public Class VLM_Router
             Dim C1 As Coords = BestRouteAtPoint(BestRouteAtPoint.Count - 2).P
             Dim C2 As Coords = BestRouteAtPoint(BestRouteAtPoint.Count - 1).P
 
-            Dim SegList As IList = GSHHS_Reader._Tree.GetSegments(C1, C2, New DBWrapper)
+            Dim SegList As IList = GSHHS_Reader._Tree.GetSegments(C1, C2, New DBWrapper, Nothing)
             MessageBox.Show("Segment List is here " & SegList.Count & " long")
             RouteurModel.DBGCoastHighlights.Clear()
             For Each segment As MapSegment In SegList
@@ -3448,7 +3448,7 @@ Public Class VLM_Router
         If _iso IsNot Nothing Then
 
             For i As Double = 0 To 360 Step 1
-                Dim Dest As clsrouteinfopoints = _iso.ReachPoint(CurPoint, i, DeltaT, True, Nothing, True)
+                Dim Dest As clsrouteinfopoints = _iso.ReachPoint(CurPoint, i, DeltaT, True, Nothing, Nothing, True)
                 If Dest IsNot Nothing AndAlso Dest.P IsNot Nothing Then
                     RouteurModel.DBGPolar.AddLast(Dest.P)
                 End If

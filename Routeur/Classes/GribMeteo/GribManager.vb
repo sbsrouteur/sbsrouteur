@@ -335,7 +335,7 @@ Public Class GribManager
                 HourOffset = MAX_INDEX_03H * 3 + GRIB_GRAIN_12H * (MeteoIndex - MAX_INDEX_03H)
 
             End If
-            ReturnUrl = "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" & RequestDate.Hour.ToString("00") & _
+            ReturnUrl = "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" & RequestDate.Hour.ToString("00") &
                         "z.pgrb2full.0p50.f" & (HourOffset).ToString("000") & "&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
                         & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH")
             Return ReturnUrl
@@ -392,14 +392,14 @@ Public Class GribManager
         If Dte.Ticks = 0 Then
             Return 0
         End If
-        Dim TotalHours As Double = Dte.AddHours(-_GMT_Offset).Subtract(CurGrib).TotalHours
+        Dim TotalHours As Double = Dte.AddHours(-_GMT_Offset).Subtract(CurGrib).TotalSeconds
 
         If TotalHours < 0 Then
             Dim i As Int16 = 0
-        ElseIf TotalHours <= MAX_GRIB_05_03H Then
-            Return TotalHours Mod GRIB_GRAIN_3H
+        ElseIf TotalHours <= MAX_GRIB_05_03H*3600 Then
+            Return TotalHours Mod (GRIB_GRAIN_3H * 3600)
         Else
-            Return TotalHours Mod GRIB_GRAIN_12H
+            Return TotalHours Mod (GRIB_GRAIN_12H * 3600)
         End If
 
     End Function
@@ -700,6 +700,11 @@ Public Class GribManager
 
 #Const METEO = 2
 
+        'trim meteo to millidegs
+        lon = CInt(1000.0 * lon) / 1000.0
+        lat = CInt(1000.0 * lat) / 1000.0
+
+
 #If METEO = 0 Then
         Return GetMeteoToDateSelectiveTWSA(dte, lon, lat, nolock)
 #ElseIf METEO = 1 Then
@@ -753,9 +758,9 @@ Public Class GribManager
 
 
 
-        RetInfo.UGRD = u0 + DteOffset / GribGrain * (u1 - u0)
-        RetInfo.VGRD = v0 + DteOffset / GribGrain * (v1 - v0)
-        RetInfo.Strength = tws0 + DteOffset / GribGrain * (tws1 - tws0)
+        RetInfo.UGRD = u0 + DteOffset / GribGrain / 3600 * (u1 - u0)
+        RetInfo.VGRD = v0 + DteOffset / GribGrain / 3600 * (v1 - v0)
+        RetInfo.Strength = tws0 + DteOffset / GribGrain / 3600 * (tws1 - tws0)
 
         If RetInfo.Dir < 0 Then
             RetInfo.Dir += 360
@@ -799,8 +804,8 @@ Public Class GribManager
         Dim RetInfo As New MeteoInfo
 
         If Dir0 = Dir1 OrElse Dir0 = DirInterpolation.UV OrElse Dir1 = DirInterpolation.UV Then
-            RetInfo.Dir = M0.Dir + DteOffset / GribGrain * CheckAngleInterp(M1.Dir - M0.Dir)
-            RetInfo.Strength = M0.Strength + DteOffset / GribGrain * (M1.Strength - M0.Strength)
+            RetInfo.Dir = M0.Dir + DteOffset / GribGrain / 3600 * CheckAngleInterp(M1.Dir - M0.Dir)
+            RetInfo.Strength = M0.Strength + DteOffset / GribGrain / 3600 * (M1.Strength - M0.Strength)
         Else
             Dim u1 As Double
             Dim u2 As Double
@@ -809,8 +814,8 @@ Public Class GribManager
 
             TransformBackUV(M0.Dir, M0.Strength, u1, v1)
             TransformBackUV(M1.Dir, M1.Strength, u2, v2)
-            RetInfo.UGRD = SimpleAverage(u1, u2, DteOffset / GribGrain)
-            RetInfo.VGRD = SimpleAverage(v1, v2, DteOffset / GribGrain)
+            RetInfo.UGRD = SimpleAverage(u1, u2, DteOffset / GribGrain / 3600)
+            RetInfo.VGRD = SimpleAverage(v1, v2, DteOffset / GribGrain / 3600)
 
         End If
 
@@ -849,8 +854,8 @@ Public Class GribManager
 
         Dim RetInfo As New MeteoInfo
 
-        RetInfo.Dir = M0.Dir + DteOffset / GribGrain * CheckAngleInterp(M1.Dir - M0.Dir)
-        RetInfo.Strength = M0.Strength + DteOffset / GribGrain * (M1.Strength - M0.Strength)
+        RetInfo.Dir = M0.Dir + DteOffset / GribGrain / 3600 * CheckAngleInterp(M1.Dir - M0.Dir)
+        RetInfo.Strength = M0.Strength + DteOffset / GribGrain / 3600 * (M1.Strength - M0.Strength)
 
         If RetInfo.Dir < 0 Then
             RetInfo.Dir += 360

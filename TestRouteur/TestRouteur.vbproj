@@ -95,12 +95,6 @@
     <Content Include="AuthoringTests.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Routeur\Routeur_32.vbproj">
-      <Project>{AA398C30-64B7-4250-8966-1AF443B6F4BE}</Project>
-      <Name>Routeur_32</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Shadow Include="Références de test\Routeur.accessor" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
