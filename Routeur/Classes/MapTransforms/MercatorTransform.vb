@@ -3,12 +3,28 @@
 Public Class MercatorTransform
 
     Implements IMapTransform
+    Private Const MULT As Integer = 10000
+    Private _LogTable(180 * MULT) As Double
+
+    Public Sub New()
+        For i As Integer = 0 To 180 * MULT
+            _LogTable(i) = Double.NaN
+        Next
+
+    End Sub
 
     Public Function LatToCanvas(ByVal V As Double) As Double Implements IMapTransform.LatToCanvas
 
-        V = V / 180.0 * PI
-        V = Log(Tan(V) + 1 / Cos(V))
-        V = V / PI * 180.0
+        Dim idx As Integer = CInt(V * MULT)
+        Dim ret As Double = _LogTable(idx)
+        If ret <> ret Then
+            V = V / 180.0 * PI
+            V = Log(Tan(V) + 1 / Cos(V))
+            V = V / PI * 180.0
+            _LogTable(idx) = V
+        Else
+            V = ret
+        End If
         If Double.IsNaN(V) Then
             Dim i As Integer = 0
         End If
