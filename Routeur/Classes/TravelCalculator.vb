@@ -261,7 +261,16 @@ Public Class TravelCalculator
         End If
     End Function
 
-    Public Function ReachDistanceLoxo(Dist As Double, HeadingDeg As Double) As Coords
+    Public Function ReachDistanceLoxo(ByVal Dist As Double, ByVal tc_deg As Double) As Coords
+        Const USE_AVIAT As Boolean = False
+        If USE_AVIAT Then
+            Return ReachDistanceAviat(Dist, tc_deg)
+        Else
+            Return ReachDistanceVLM(Dist, tc_deg)
+        End If
+    End Function
+
+    Public Function ReachDistanceLoxo_Aviat(Dist As Double, HeadingDeg As Double) As Coords
 
         Dim Lat1 As Double = StartPoint.N_Lat
         Dim Lon1 As Double = -StartPoint.N_Lon
@@ -331,7 +340,7 @@ Public Class TravelCalculator
         Dim RetCoords As New Coords
 
 
-        Dim d As Double = Dist / Earth_Radius
+        Dim d As Double = Dist / 60 / 180.0 * PI
         Dim tc_rad As Double = tc_deg / 180 * PI
 
         '66	  latitude = aboat->latitude + d*cos(aboat->heading);
