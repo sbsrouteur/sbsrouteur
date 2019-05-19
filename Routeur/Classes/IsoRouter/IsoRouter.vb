@@ -268,7 +268,7 @@ Public Class IsoRouter
                                         AddPoint = True
                                     End If
 
-                                    If AddPoint = True AndAlso (RouteurModel.NoObstacle Or Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree, DBCon)) Then
+                                    If AddPoint = True AndAlso (RouteurModel.NoObstacle OrElse Not _DB.IntersectMapSegment(rp.P, P.P, GSHHS_Reader._Tree, DBCon)) Then
                                         AddPoint = True
                                     Else
                                         AddPoint = False
