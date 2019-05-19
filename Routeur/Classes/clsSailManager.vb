@@ -46,10 +46,12 @@ Public Class clsSailManager
     Private _PolarLut(,,) As Double
     Private _WindList()() As Integer
     Private _TWAList()() As Integer
+    Private _WindListCache()() As Integer
+    Private _TWAListCache()() As Integer
     Private _NbWinds() As Integer
     Private _NbAngles As Integer
 
-    Private _Polar(180 * POLAR_ANGLE_MULTIPLIER, MaxWindSpeedMultiplied) As Double
+    'Private _Polar(180 * POLAR_ANGLE_MULTIPLIER * MaxWindSpeedMultiplied) As Double
     Private _PolarCorner(MaxWindSpeedMultiplied, 2) As Double
 
     Private Const CORNER_SPEED As Integer = 0
@@ -64,11 +66,14 @@ Public Class clsSailManager
         End Get
     End Property
 
-    Private Function GetArrayIndex(ByVal A() As Integer, ByVal Value As Double, ByVal ValueBelow As Boolean) As Integer
+    Private Function GetArrayIndex(ByVal A() As Integer, ByVal Value As Double, ACache() As Integer) As Integer
 
         'Dim RetIndex As Integer = 0
-
-        Return GetArrayIndexRecurs(A, Value, 0, A.Length - 1, ValueBelow)
+        Dim v As Integer = Min(ACache.Length - 1, CInt(Floor(Value)))
+        If ACache(v) = -1 Then
+            ACache(v) = GetArrayIndexRecurs(A, Value, 0, A.Length - 1)
+        End If
+        Return ACache(v)
         'Dim CurIndex As Integer = 0
         'Value = Abs(Value)
 
@@ -89,7 +94,7 @@ Public Class clsSailManager
         'Return A.Length - 1
     End Function
 
-    Private Function GetArrayIndexRecurs(ByVal A() As Integer, ByVal Value As Double, MinIndex As Integer, MaxIndex As Integer, ByVal ValueBelow As Boolean) As Integer
+    Private Function GetArrayIndexRecurs(ByVal A() As Integer, ByVal Value As Double, MinIndex As Integer, MaxIndex As Integer) As Integer
 
         If MinIndex < 0 Then
             MinIndex = 0
@@ -100,28 +105,21 @@ Public Class clsSailManager
         End If
 
         If MinIndex + 1 = MaxIndex Then
-            If ValueBelow Then
-                Return MinIndex
-            Else
-                Return MaxIndex
-            End If
+            Return MinIndex
         End If
         Dim MidIndex As Integer = CInt((MaxIndex + MinIndex) / 2)
 
         If Value = A(MidIndex) Then
-            If ValueBelow Then
-                If MidIndex > 0 Then
-                    Return MidIndex - 1
-                Else
-                    Return 0
-                End If
+            If MidIndex > 0 Then
+                Return MidIndex - 1
             Else
-                Return MidIndex
-            End If
+                Return 0
+                End If
+
         ElseIf Value > A(MidIndex) Then
-            Return GetArrayIndexRecurs(A, Value, MidIndex, MaxIndex, ValueBelow)
+            Return GetArrayIndexRecurs(A, Value, MidIndex, MaxIndex)
         Else
-            Return GetArrayIndexRecurs(A, Value, MinIndex, MidIndex, ValueBelow)
+            Return GetArrayIndexRecurs(A, Value, MinIndex, MidIndex)
         End If
 
     End Function
@@ -198,17 +196,18 @@ Public Class clsSailManager
 #End If
 
         Try
-            If SailMode = EnumSail.OneSail Then
-                'SyncLock _Polar
-                If _Polar(D, F) <> 65535 AndAlso _Polar(D, F) <> 0 Then
-#If POLAR_STAT = 1 Then
-NbCallCached += 1
+            'If SailMode = EnumSail.OneSail Then
+            '    'SyncLock _Polar
+            '    '                Dim P As Double = _Polar(60 * POLAR_SPEED_MULTIPLIER * D + F)
+            '    '                If P <> 65535 AndAlso P <> 0 Then
+            '    '#If POLAR_STAT = 1 Then
+            '    'NbCallCached += 1
 
-#End If
-                    Return _Polar(D, F)
-                End If
-                'End SyncLock
-            End If
+            '    '#End If
+            '    '                    Return P
+            '    '                End If
+            '    'End SyncLock
+            'End If
 
             Dim SailIndex = GetSailIndex(SailMode)
             Dim CurSpeed As Integer = 0
@@ -228,7 +227,7 @@ NbCallCached += 1
                     For Angle As Double = 0 To 180
                         For Wind As Double = 0 To 60
                             Out.Write(GetSpeed(BoatType, SailMode, Angle, Wind).ToString("0.0###", System.Globalization.CultureInfo.InvariantCulture))
-                            If Wind < 60 Then
+                            If Wind <60 Then
                                 Out.Write(";")
                             Else
                                 Out.WriteLine()
@@ -243,9 +242,9 @@ NbCallCached += 1
                 Return -1
             End If
 
-            Dim WMin As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, True)
+            Dim WMin As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, _WindListCache(SailIndex))
             Dim WMax As Integer = WMin + 1 'GetArrayIndex(_WindList(SailIndex), WindSpeed, False)
-            Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, True)
+            Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, _TWAListCache(SailIndex))
             Dim AMax As Integer = AMin + 1 'GetArrayIndex(_TWAList(SailIndex), WindAngle, False)
 
             If WindAngle = 62 And WindSpeed > 55 Then
@@ -285,9 +284,9 @@ NbCallCached += 1
                 RetVal = V1
             End If
 
-            SyncLock _Polar
-                _Polar(D, F) = RetVal
-            End SyncLock
+            'SyncLock _Polar
+            '    _Polar(60 * POLAR_SPEED_MULTIPLIER * D + F) = RetVal
+            'End SyncLock
             Return RetVal
 
         Finally
@@ -311,13 +310,13 @@ NbCallCached += 1
         Static InitStarted As Integer = 0
 
         If InitStarted = 0 AndAlso System.Threading.Interlocked.CompareExchange(InitStarted, 1, 0) = 0 Then
-            For WindStrength As Integer = 0 To MaxWindSpeedMultiplied
+            'For WindStrength As Integer = 0 To MaxWindSpeedMultiplied
 
 
-                For alpha As Integer = 0 To 180 * POLAR_ANGLE_MULTIPLIER
-                    _Polar(alpha, WindStrength) = 65535
-                Next
-            Next
+            '    For alpha As Integer = 0 To 180 * POLAR_ANGLE_MULTIPLIER
+            '        _Polar(60 * POLAR_SPEED_MULTIPLIER * alpha + WindStrength) = 65535
+            '    Next
+            'Next
 
             Dim th As New System.Threading.Thread(AddressOf InitPolarThread)
             th.Start()
@@ -440,11 +439,21 @@ NbCallCached += 1
                     _WindList(SailIndex)(i - 1) = CInt(winds(i))
                 Next
 
+                ReDim _WindListCache(SailIndex)(MAXWINDSPEED)
+                For i = 0 To MAXWINDSPEED
+                    _WindListCache(SailIndex)(i) = -1
+                Next
+
                 _NbAngles = Lines.Length - 2
                 ReDim _TWAList(SailIndex)(_NbAngles - 1)
                 If _PolarLut Is Nothing Then
                     ReDim _PolarLut(6, _NbWinds(SailIndex), _NbAngles)
                 End If
+                ReDim _TWAListCache(SailIndex)(180)
+                For i = 0 To 180
+                    _TWAListCache(SailIndex)(i) = -1
+                Next
+
             Else
                 'polar line
                 polars = Line.Replace("</vpp>", "").Split(";"c)
@@ -616,12 +625,14 @@ NbCallCached += 1
         ReDim _NbWinds(EnumSail.MaxSailIndex)
         ReDim _TWAList(EnumSail.MaxSailIndex)
         ReDim _WindList(EnumSail.MaxSailIndex)
+        ReDim _TWAListCache(EnumSail.MaxSailIndex)
+        ReDim _WindListCache(EnumSail.MaxSailIndex)
 
-        For i = 0 To 180 * POLAR_ANGLE_MULTIPLIER
-            For j = 0 To 60 * POLAR_SPEED_MULTIPLIER
-                _Polar(i, j) = 65535
-            Next
-        Next
+        'For i = 0 To 180 * POLAR_ANGLE_MULTIPLIER
+        '    For j = 0 To 60 * POLAR_SPEED_MULTIPLIER
+        '        _Polar(60 * POLAR_SPEED_MULTIPLIER * i + j) = 65535
+        '    Next
+        'Next
     End Sub
 
 
