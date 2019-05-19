@@ -21,7 +21,10 @@ Imports System.Threading
 Public Class BspRect
 
     Private Const MAX_IGNORED_COUNT As Integer = 2000
-    Private Const MAX_TREE_Z As Integer = 10
+    Private Const MAX_TREE_Z As Integer = 12
+
+    Shared MercatorTransform As New MercatorTransform With {.ActualHeight = 10000, .ActualWidth = 10000, .LatOffset = 0, .LonOffset = 0, .Scale = 1}
+
 
     Public Enum inlandstate As Byte
         Unknown = 0
@@ -120,12 +123,14 @@ Public Class BspRect
                         If _SegmentsArray(X, Y) Is Nothing Then
 
                             Dim TmpSegments = New List(Of MapSegment)
-                            Dim CLat As Double = (Y + 0.5) * 180 / (2 ^ MAX_TREE_Z) - 90
-                            Dim CLon As Double = (X + 0.5) * 360 / (2 ^ MAX_TREE_Z) - 180
-                            Dim dLat As Double = 180 / (2 ^ (MAX_TREE_Z - 1))
-                            Dim dLon As Double = 360 / (2 ^ (MAX_TREE_Z - 1))
-                            Dim P1 As New Coords(CLat - dLat, CLon - dLon)
-                            Dim P2 As New Coords(CLat + dLat, CLon + dLon)
+                            Const dlat As Double = 360 / 2 ^ MAX_TREE_Z
+                            Const dlon As Double = 180 / 2 ^ MAX_TREE_Z
+                            Dim CLat As Double = (Y + dlat / 2) * 180 / (2 ^ MAX_TREE_Z) - 90
+                            Dim CLon As Double = (X + dlon / 2) * 360 / (2 ^ MAX_TREE_Z) - 180
+                            'Dim dLat As Double = 180 / (2 ^ (MAX_TREE_Z - 1))
+                            'Dim dLon As Double = 360 / (2 ^ (MAX_TREE_Z - 1))
+                            Dim P1 As New Coords(CLat - dlat, CLon - dlon)
+                            Dim P2 As New Coords(CLat + dlat, CLon + dlon)
 
                             Dim Segs = db.SegmentList(P1.N_Lon_Deg, P1.Lat_Deg, P2.N_Lon_Deg, P2.Lat_Deg, dbCon)
                             If Segs IsNot Nothing Then
@@ -218,9 +223,8 @@ Public Class BspRect
             Return RetList
         End If
         'Transform coords to mercator map spaces
-        Dim M As New MercatorTransform With {.ActualHeight = 10000, .ActualWidth = 10000, .LatOffset = 0, .LonOffset = 0, .Scale = 1}
         Dim DxOffset As Double = (360) / (2 ^ (MAX_TREE_Z + 1))
-        Dim DyOffset As Double = (M.LatToCanvas(85) - M.LatToCanvas(-85)) / (2 ^ (MAX_TREE_Z + 1) / 360 * 170)
+        Dim DyOffset As Double = (MercatorTransform.LatToCanvas(85) - MercatorTransform.LatToCanvas(-85)) / (2 ^ (MAX_TREE_Z + 1) / 360 * 170)
 
         If C2.Lon < C1.Lon Then
             DxOffset = -DxOffset
@@ -233,21 +237,21 @@ Public Class BspRect
         'FIXME handle antemeridien
         If ((C2.Lat_Deg - C1.Lat_Deg) = 0 OrElse Abs(C2.N_Lon_Deg - C1.N_Lon_Deg) > 2 * Abs(C2.Lat_Deg - C1.Lat_Deg)) _
             AndAlso (C2.Lon_Deg - C1.Lon_Deg <> 0) Then
-            Dim Dy As Double = (M.LatToCanvas(C2.Lat_Deg) - M.LatToCanvas(C1.Lat_Deg)) / (C2.Lon_Deg - C1.Lon_Deg) * DxOffset
-            Dim CurY As Double = M.LatToCanvas(C1.Lat_Deg) - Dy
+            Dim Dy As Double = (MercatorTransform.LatToCanvas(C2.Lat_Deg) - MercatorTransform.LatToCanvas(C1.Lat_Deg)) / (C2.Lon_Deg - C1.Lon_Deg) * DxOffset
+            Dim CurY As Double = MercatorTransform.LatToCanvas(C1.Lat_Deg) - Dy
             For x = C1.N_Lon_Deg - DxOffset To C2.N_Lon_Deg + DxOffset Step DxOffset * 0.4
-                RetList.Add(New Coords(M.CanvasToLat(CurY), x))
-                RetList.Add(New Coords(M.CanvasToLat(CurY - DyOffset), x))
-                RetList.Add(New Coords(M.CanvasToLat(CurY + DyOffset), x))
+                RetList.Add(New Coords(MercatorTransform.CanvasToLat(CurY), x))
+                RetList.Add(New Coords(MercatorTransform.CanvasToLat(CurY - DyOffset), x))
+                RetList.Add(New Coords(MercatorTransform.CanvasToLat(CurY + DyOffset), x))
                 CurY += Dy
             Next
         Else
-            Dim Dx As Double = (C2.Lon_Deg - C1.Lon_Deg) / (M.LatToCanvas(C2.Lat_Deg) - M.LatToCanvas(C1.Lat_Deg)) * DyOffset
+            Dim Dx As Double = (C2.Lon_Deg - C1.Lon_Deg) / (MercatorTransform.LatToCanvas(C2.Lat_Deg) - MercatorTransform.LatToCanvas(C1.Lat_Deg)) * DyOffset
             Dim CurX As Double = C1.Lon_Deg - Dx
-            For y = M.LatToCanvas(C1.Lat_Deg) - DyOffset To M.LatToCanvas(C2.Lat_Deg) + DyOffset Step DyOffset * 0.4
-                RetList.Add(New Coords(M.CanvasToLat(y), CurX))
-                RetList.Add(New Coords(M.CanvasToLat(y), CurX - DxOffset))
-                RetList.Add(New Coords(M.CanvasToLat(y), CurX + DxOffset))
+            For y = MercatorTransform.LatToCanvas(C1.Lat_Deg) - DyOffset To MercatorTransform.LatToCanvas(C2.Lat_Deg) + DyOffset Step DyOffset * 0.4
+                RetList.Add(New Coords(MercatorTransform.CanvasToLat(y), CurX))
+                RetList.Add(New Coords(MercatorTransform.CanvasToLat(y), CurX - DxOffset))
+                RetList.Add(New Coords(MercatorTransform.CanvasToLat(y), CurX + DxOffset))
                 CurX += Dx
             Next
         End If
