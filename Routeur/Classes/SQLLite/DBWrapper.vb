@@ -232,6 +232,9 @@ Public Class DBWrapper
         End If
         Dim RetList As New List(Of MapSegment)
         Dim Start As DateTime = Now
+
+#Const RINDEX_STAT = 0
+#If INDEX_STAT = 1 Then
         Static CumDuration As Long = 0
         Static Count As Integer = 1
         Static HitCount As Long = 0
@@ -239,9 +242,12 @@ Public Class DBWrapper
         Static TotalHitCount As Long = 0
         Static HitCountError As Long = 0
         Try
+#End If
 
 
-            Dim RestartOnLockException As Boolean = False
+
+
+        Dim RestartOnLockException As Boolean = False
 
 RestartPoint:
 
@@ -280,9 +286,9 @@ RestartPoint:
                     End If
                     Reader = Cmd.ExecuteReader
                     If Reader.HasRows Then
-
+#If INDEX_STAT = 1 Then
                         HitCountNZ += 1
-
+#End If
                         While Reader.Read
                             Dim seg_lon1 As Double = CDbl(Reader("lon1"))
                             Dim seg_lon2 As Double = CDbl(Reader("lon2"))
@@ -301,17 +307,23 @@ RestartPoint:
                             Else
                                 RetList.Add(New MapSegment With {.Id = IdSeg, .Lon1 = seg_lon1, .Lon2 = seg_lon2, .Lat1 = seg_lat1, .Lat2 = seg_lat2})
                             End If
+#If INDEX_STAT = 1 Then
                             TotalHitCount += 1
-
+#End If
                         End While
 
 
                     End If
+
+#If INDEX_STAT = 1 Then
                     HitCount += 1
+#End If
                     Return RetList
                 Catch ex As Exception
                     Debug.WriteLine("SegmentList exception " & ex.Message)
+#If INDEX_STAT = 1 Then
                     HitCountError += 1
+#End If
                     RestartOnLockException = True
                 Finally
 
@@ -338,6 +350,7 @@ RestartPoint:
                 Con.Dispose()
             End If
             'End Using
+#If INDEX_STAT = 1 Then
         Finally
             Dim EndTick As DateTime = Now
             Static lastupdate As DateTime
@@ -354,8 +367,9 @@ RestartPoint:
                 End If
                 lastupdate = Now
             End If
-        End Try
 
+        End Try
+#End If
 
     End Function
 
@@ -363,39 +377,50 @@ RestartPoint:
 
     Public Function IntersectMapSegment(coords As Coords, coords1 As Coords, bspRect As BspRect, Con As SQLiteConnection) As Boolean
 
+#Const INTERSECT_MAP_STATS = 0
+
+#If INTERSECT_MAP_STATS = 1 Then
         Dim StartTick As DateTime = Now
         Static CumTime As Long = 0
         Static HitCount As Long = 0
         Static FoundSegs As Long = 0
+
+
         Try
             HitCount += 1
-            Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me, Con)
+#End If
+        Dim SegList As IList = bspRect.GetSegments(coords, coords1, Me, Con)
 
-            If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
+        If coords.Lat = coords1.Lat AndAlso coords.Lon = coords1.Lon Then
                 Return False
             End If
 
-            'Debug.WriteLine(coords.ToString & ";" & coords1.ToString)
-            If SegList IsNot Nothing Then
-                FoundSegs += SegList.Count
-                For Each Seg As MapSegment In SegList
-                    If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
-                        Return True
-                    End If
+        'Debug.WriteLine(coords.ToString & ";" & coords1.ToString)
+        If SegList IsNot Nothing Then
+#If INTERSECT_MAP_STATS = 1 Then
+            FoundSegs += SegList.Count
+#End If
+            For Each Seg As MapSegment In SegList
+                If Seg IsNot Nothing AndAlso GSHHS_Utils.IntersectSegments(coords, coords1, New Coords(Seg.Lat1, Seg.Lon1), New Coords(Seg.Lat2, Seg.Lon2)) Then
+                    Return True
+                End If
 
-                    'Debug.WriteLine(";;" & Seg.Lat1 & ";" & Seg.Lon1 & ";" & Seg.Lat2 & ";" & Seg.Lon2)
+                'Debug.WriteLine(";;" & Seg.Lat1 & ";" & Seg.Lon1 & ";" & Seg.Lat2 & ";" & Seg.Lon2)
 
-                Next
-            End If
+            Next
+        End If
 
 
-            Return False
+        Return False
+
+#If INTERSECT_MAP_STATS = 1 Then
         Finally
             CumTime = CLng(CumTime + Now.Subtract(StartTick).TotalMilliseconds)
             Routeur.Stats.SetStatValue(Stats.StatID.DB_IntersectMapSegAvgMs) = CumTime / HitCount
             Routeur.Stats.SetStatValue(Stats.StatID.DB_IntersectMapSegAvg) = FoundSegs / HitCount
             Routeur.Stats.SetStatValue(Stats.StatID.DB_IntersectMapSegCount) = FoundSegs
         End Try
+#End If
 
 
 
