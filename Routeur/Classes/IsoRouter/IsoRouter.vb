@@ -474,7 +474,7 @@ Public Class IsoRouter
             Static PrevDist As Double = 0
             Dim MinWindAngle As Double = 0
             Dim MaxWindAngle As Double = 0
-            Dim StartTicks As DateTime = Start.T.AddMinutes(-RouteurModel.VacationMinutes)
+            Dim StartTicks As DateTime = Start.T '.AddMinutes(-RouteurModel.VacationMinutes)
             Dim CurDate As DateTime = StartTicks
             Dim MI As MeteoInfo = MeteoInfo
             TC.StartPoint = Start.P
