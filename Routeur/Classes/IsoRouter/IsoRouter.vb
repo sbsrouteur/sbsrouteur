@@ -588,7 +588,7 @@ Public Class IsoRouter
                 RetPoint = New clsrouteinfopoints
                 With RetPoint
                     .P = New Coords(TC.EndPoint)
-                    .T = CurDate.AddMinutes(RouteurModel.VacationMinutes)
+                    .T = CurDate '.AddMinutes(RouteurModel.VacationMinutes)
                     .Speed = Speed
                     .WindStrength = MI.Strength
                     .WindDir = MI.Dir
