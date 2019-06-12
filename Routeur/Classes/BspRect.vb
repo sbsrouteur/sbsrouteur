@@ -24,6 +24,7 @@ Public Class BspRect
     Private Const MAX_TREE_Z As Integer = 12
 
     Shared MercatorTransform As New MercatorTransform With {.ActualHeight = 10000, .ActualWidth = 10000, .LatOffset = 0, .LonOffset = 0, .Scale = 1}
+    Shared s_DyOffset As Double
 
 
     Public Enum inlandstate As Byte
@@ -67,12 +68,17 @@ Public Class BspRect
 
     'Shared Optimizer As New bspOptimizer
 
+    Shared Sub New()
+        s_DyOffset = (MercatorTransform.LatToCanvas(85) - MercatorTransform.LatToCanvas(-85)) / (2 ^ (MAX_TREE_Z + 1) / 360 * 170)
+    End Sub
+
     Public Sub New()
 
         ReDim _SegmentsArray(CInt(2 ^ MAX_TREE_Z), CInt(2 ^ MAX_TREE_Z))
         For i As Integer = 0 To SPIN_COUNT - 1
             _SpinLock(i) = New SpinLock
         Next
+
     End Sub
 
 
@@ -224,7 +230,7 @@ Public Class BspRect
         End If
         'Transform coords to mercator map spaces
         Dim DxOffset As Double = (360) / (2 ^ (MAX_TREE_Z + 1))
-        Dim DyOffset As Double = (MercatorTransform.LatToCanvas(85) - MercatorTransform.LatToCanvas(-85)) / (2 ^ (MAX_TREE_Z + 1) / 360 * 170)
+        Dim DyOffset As Double = s_DyOffset
 
         If C2.Lon < C1.Lon Then
             DxOffset = -DxOffset

@@ -66,12 +66,17 @@ Public Class clsSailManager
         End Get
     End Property
 
-    Private Function GetArrayIndex(ByVal A() As Integer, ByVal Value As Double, ACache() As Integer) As Integer
+    Private Function GetArrayIndex(ByVal A() As Integer, ByVal Value As Double, ACache() As Integer, CacheLength As Integer) As Integer
 
         'Dim RetIndex As Integer = 0
-        Dim v As Integer = Min(ACache.Length - 1, CInt(Floor(Value)))
+        Dim v As Integer = CInt(Floor(Value))
+
+        If v > CacheLength - 1 Then
+            v = CacheLength - 1
+        End If
+
         If ACache(v) = -1 Then
-            ACache(v) = GetArrayIndexRecurs(A, Value, 0, A.Length - 1)
+            ACache(v) = GetArrayIndexRecurs(A, Value, 0, CacheLength - 1)
         End If
         Return ACache(v)
         'Dim CurIndex As Integer = 0
@@ -174,14 +179,22 @@ Public Class clsSailManager
 
     Public Function GetSpeed(ByVal BoatType As String, ByVal SailMode As EnumSail, ByVal WindAngle As Double, ByVal WindSpeed As Double) As Double
 
-        WindAngle = Abs(WindAngle)
-        Dim D As Integer = CInt(POLAR_ANGLE_MULTIPLIER * ((WindAngle + 360) Mod 180))
-        Dim F As Integer = CInt(POLAR_SPEED_MULTIPLIER * WindSpeed)
+        Dim D As Integer
+        Dim F As Integer
+
         If WindAngle = 180 Then
             D = 180 * POLAR_ANGLE_MULTIPLIER
+        ElseIf WindAngle > 180 OrElse WindAngle < 0 Then
+            WindAngle = Abs(WindAngle)
+            D = CInt(POLAR_ANGLE_MULTIPLIER * ((WindAngle + 360) Mod 180))
+        Else
+            D = CInt(POLAR_ANGLE_MULTIPLIER * (WindAngle))
         End If
+
         If F > MaxWindSpeedMultiplied Then
             F = MaxWindSpeedMultiplied
+        Else
+            F = CInt(POLAR_SPEED_MULTIPLIER * WindSpeed)
         End If
 
 #Const POLAR_STAT = 0
@@ -242,14 +255,14 @@ Public Class clsSailManager
                 Return -1
             End If
 
-            Dim WMin As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, _WindListCache(SailIndex))
+            Dim WMin As Integer = GetArrayIndex(_WindList(SailIndex), WindSpeed, _WindListCache(SailIndex), MAXWINDSPEED + 1)
             Dim WMax As Integer = WMin + 1 'GetArrayIndex(_WindList(SailIndex), WindSpeed, False)
-            Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, _TWAListCache(SailIndex))
+            Dim AMin As Integer = GetArrayIndex(_TWAList(SailIndex), WindAngle, _TWAListCache(SailIndex), 181)
             Dim AMax As Integer = AMin + 1 'GetArrayIndex(_TWAList(SailIndex), WindAngle, False)
 
-            If WindAngle = 62 And WindSpeed > 55 Then
-                Dim bp As Integer = 0
-            End If
+            'If WindAngle = 62 And WindSpeed > 55 Then
+            '    Dim bp As Integer = 0
+            'End If
 
             If WMin = WMax AndAlso WMin = 0 Then
                 WMax = 1

@@ -3,7 +3,7 @@
 Public Class MercatorTransform
 
     Implements IMapTransform
-    Private Const MULT As Integer = 10000
+    Private Const MULT As Integer = 50000
     Private _LogTable(180 * MULT) As Double
 
     Public Sub New()
@@ -15,7 +15,7 @@ Public Class MercatorTransform
 
     Public Function LatToCanvas(ByVal V As Double) As Double Implements IMapTransform.LatToCanvas
 
-        Dim idx As Integer = CInt(V * MULT)
+        Dim idx As Integer = CInt((V + 90) * MULT)
         Dim ret As Double = _LogTable(idx)
         If ret <> ret Then
             V = V / 180.0 * PI
