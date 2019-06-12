@@ -337,7 +337,7 @@ Public Class GribManager
             End If
             ReturnUrl = "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl?file=gfs.t" & RequestDate.Hour.ToString("00") &
                         "z.pgrb2full.0p50.f" & (HourOffset).ToString("000") & "&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&subregion=&leftlon=" & WestLon & "&rightlon=" & EastLon _
-                        & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMddHH")
+                        & "&toplat=" & NorthLat & "&bottomlat=" & SouthLat & "&dir=%2Fgfs." & RequestDate.ToString("yyyyMMdd/HH")
             Return ReturnUrl
         Else
 
