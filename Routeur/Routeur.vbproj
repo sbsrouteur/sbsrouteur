@@ -415,9 +415,8 @@
     <Compile Include="RouteurMain.xaml.vb">
       <DependentUpon>RouteurMain.xaml</DependentUpon>
     </Compile>
-    <Reference Include="WriteableBitmapEx.Wpf, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Refs\WriteableBitmapEx_v1.0.8.0\WPF\WriteableBitmapEx.Wpf.dll</HintPath>
+    <Reference Include="WriteableBitmapEx.Wpf, Version=1.6.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WriteableBitmapEx.1.6.2\lib\net40\WriteableBitmapEx.Wpf.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -575,6 +574,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="packages.config" />
     <None Include="xml\RouteExport.xsd">
       <SubType>Designer</SubType>
     </None>
