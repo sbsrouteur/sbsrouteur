@@ -14,9 +14,8 @@
     <OptionCompare>Binary</OptionCompare>
     <OptionStrict>On</OptionStrict>
     <OptionInfer>On</OptionInfer>
-    <ManifestCertificateThumbprint>6EAAF07A5ECF1164977FC83AAD362270DEBC3C6D</ManifestCertificateThumbprint>
-    <ManifestKeyFile>
-    </ManifestKeyFile>
+    <ManifestCertificateThumbprint>D8DCC258A896E59A1B057690504912D5ABAC99E4</ManifestCertificateThumbprint>
+    <ManifestKeyFile>Routeur_1_TemporaryKey.pfx</ManifestKeyFile>
     <GenerateManifests>true</GenerateManifests>
     <SignManifests>true</SignManifests>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -575,6 +574,7 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="packages.config" />
+    <None Include="Routeur_1_TemporaryKey.pfx" />
     <None Include="xml\RouteExport.xsd">
       <SubType>Designer</SubType>
     </None>

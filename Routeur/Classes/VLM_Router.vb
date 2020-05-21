@@ -510,6 +510,8 @@ Public Class VLM_Router
         End If
 
         Dim PosError As Boolean = False
+        Dim PosErrorLon As Boolean = False
+        Dim PosErrorLat As Boolean = False
         Dim WindError As Boolean = False
         Dim SpeedError As Boolean = False
         Dim BoatSpeedError As Boolean = False
@@ -521,13 +523,14 @@ Public Class VLM_Router
         End If
 
         With _XTRRoute(0)
-            Const MAX_ERROR_POS As Double = 0.001
-            Const MAX_ERROR_WIND As Double = 0.075
-            Const MAX_ERROR_SPEED As Double = 0.02
+            Const MAX_ERROR_POS As Double = 0.00000001
+            Const MAX_ERROR_WIND As Double = 0.00000001
+            Const MAX_ERROR_SPEED As Double = 0.00000001
 
-            If Abs(.P.Lon_Deg - _UserInfo.Position.Lon_Deg) > MAX_ERROR_POS OrElse Abs(.P.Lat_Deg - _UserInfo.Position.Lat_Deg) > MAX_ERROR_POS Then
-                PosError = True
-            End If
+            PosErrorLon = Abs(.P.Lon_Deg - _UserInfo.Position.Lon_Deg) > MAX_ERROR_POS
+            PosErrorLat = Abs(.P.Lat_Deg - _UserInfo.Position.Lat_Deg) > MAX_ERROR_POS
+
+            PosError = PosErrorLat OrElse PosErrorLon
 
             If Abs(mi.Strength - _UserInfo.TWS) > MAX_ERROR_WIND OrElse Abs(mi.Dir - _UserInfo.TWD) > MAX_ERROR_WIND Then
                 WindError = True
@@ -540,6 +543,13 @@ Public Class VLM_Router
             If PosError Then
                 Dim tc As New TravelCalculator With {.StartPoint = _XTRRoute(0).P, .EndPoint = New Coords(_UserInfo.Position)}
                 AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " position error " & tc.SurfaceDistance & " angle : " & tc.LoxoCourse_Deg & "°")
+                If PosErrorLon Then
+                    AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " lon error " & .P.Lon_Deg - _UserInfo.Position.Lon_Deg & " lon : " & _UserInfo.Position.Lon_Deg & "°")
+                End If
+
+                If PosErrorLat Then
+                    AddLog("XTR Error after " & Now.Subtract(_XTRStart).ToString & " lon error " & .P.Lat_Deg - _UserInfo.Position.Lat_Deg & " lat : " & _UserInfo.Position.Lat_Deg & "°")
+                End If
             End If
 
             If BoatSpeedError Then
@@ -1085,8 +1095,8 @@ Public Class VLM_Router
 
             'Get Meteo at date
             'mi = _Meteo.GetMeteoToDate(CurPos, CurDate.AddTicks(CLng(RouteurModel.VacationMinutes * TimeSpan.TicksPerMinute)), True)
-            'mi = _Meteo.GetMeteoToDate(CurPos, CurDate.AddMinutes(-RouteurModel.VacationMinutes), True)
-            mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
+            mi = _Meteo.GetMeteoToDate(CurPos, CurDate.AddMinutes(-RouteurModel.VacationMinutes), True)
+            'mi = _Meteo.GetMeteoToDate(CurPos, CurDate, True)
 
             If mi Is Nothing Then
                 Return RetRoute
@@ -1303,10 +1313,11 @@ Public Class VLM_Router
                 End With
                 Route(5) = RP
                 CancelComputation = False
-                Dim startdate As DateTime = _UserInfo.[Date]
+                Dim startdate As DateTime = _UserInfo.[Date] '.AddMinutes(_PlayerInfo.RaceInfo.vacfreq)
                 If startdate < RaceStartDate Then
                     startdate = RaceStartDate
                 End If
+                startdate = startdate.AddMinutes(_PlayerInfo.RaceInfo.vacfreq)
                 Dim prefs As RacePrefs = RacePrefs.GetRaceInfo(_PlayerInfo.RaceInfo.idraces)
 
                 PilototoRoute = ComputeBoatEstimate(Route, RouteurModel.CurWP, CurPos, startdate, CancelComputation, DBWrapper.GetMapLevel(prefs.MapLevel))

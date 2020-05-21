@@ -24,11 +24,11 @@ Module BearingNavHelper
         Dim TC As New TravelCalculator
         TC.StartPoint = From
         While CurTick < EndDate
-            CurTick = CurTick.AddMinutes(RouteurModel.VacationMinutes)
             Dim mi As MeteoInfo = Meteo.GetMeteoToDate(CurPOS, CurTick, Not MayBlock, Not MayBlock)
             If mi Is Nothing Then
                 Return Nothing
             End If
+            CurTick = CurTick.AddMinutes(RouteurModel.VacationMinutes)
 
             Dim S As Double = Sails.GetSpeed(BoatType, clsSailManager.EnumSail.OneSail, VLM_Router.WindAngle(Bearing, mi.Dir), mi.Strength)
             Dist += S / 60 * RouteurModel.VacationMinutes

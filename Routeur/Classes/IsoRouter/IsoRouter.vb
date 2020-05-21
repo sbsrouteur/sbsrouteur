@@ -351,7 +351,7 @@ Public Class IsoRouter
         'Get the start meteo conditions TODO handle cancellation during the loadmeteo lockup
         Dim mi As MeteoInfo = Nothing
         While mi Is Nothing
-            mi = _Meteo.GetMeteoToDate(_StartPoint.T, _StartPoint.P.N_Lon_Deg, _StartPoint.P.Lat_Deg, False, False)
+            mi = _Meteo.GetMeteoToDate(_StartPoint.T.AddMinutes(-RouteurModel.VacationMinutes), _StartPoint.P.N_Lon_Deg, _StartPoint.P.Lat_Deg, False, False)
             System.Threading.Thread.Sleep(50)
         End While
 
@@ -493,7 +493,7 @@ Public Class IsoRouter
                         Dim WaitStart As DateTime = Now
                         Do
 
-                            MI = _Meteo.GetMeteoToDate(CurDate, TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, False)
+                            MI = _Meteo.GetMeteoToDate(CurDate.AddMinutes(-RouteurModel.VacationMinutes), TC.StartPoint.N_Lon_Deg, TC.StartPoint.Lat_Deg, False)
 
                         Loop While MI Is Nothing And Not _CancelRequested
                         FirstVac = False
@@ -751,7 +751,7 @@ Public Class IsoRouter
 
             With _StartPoint
                 .P = New Coords(From)
-                .T = StartDate
+                .T = StartDate.AddMinutes(RouteurModel.VacationMinutes)
                 If WP2 IsNot Nothing Then
                     _DestPoint = GSHHS_Reader.PointToSegmentIntersect(.P, WP1, WP2)
                 Else

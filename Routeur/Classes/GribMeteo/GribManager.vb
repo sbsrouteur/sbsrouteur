@@ -474,6 +474,10 @@ Public Class GribManager
         Dim dX As Double = ((Lon - MeteoArray.GetArrayIndexLon(Lon0, GetIndexGrain(MeteoIndex))) Mod 360) / GetIndexGrain(MeteoIndex)
         Dim dY As Double = (Lat - MeteoArray.GetArrayIndexLat(Lat0, GetIndexGrain(MeteoIndex))) / GetIndexGrain(MeteoIndex)
 
+        If dX < 0 OrElse dX > 1 OrElse dY < 0 OrElse dY > 1 Then
+            Dim dkp As Integer = 0
+        End If
+
 
         If Not CheckGribData(MeteoIndex, Lon0, Lat0, NoLock, noload) Then
             Return Nothing

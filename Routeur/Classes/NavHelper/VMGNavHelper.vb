@@ -41,7 +41,7 @@ Module VMGNavHelper
         Dim BoatSpeed As Double = 0
         Dim BestVMG As Double = 0
 
-        For Angle = 0 To 90 Step 0.1
+        For Angle = 0 To 90 Step 1 '0.1
             Dim MinAngle As Double
             Dim MaxAngle As Double
             Sails.GetCornerAngles(mi.Strength, MinAngle, MaxAngle)

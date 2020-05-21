@@ -16,6 +16,9 @@ Public Class MercatorTransform
     Public Function LatToCanvas(ByVal V As Double) As Double Implements IMapTransform.LatToCanvas
 
         Dim idx As Integer = CInt((V + 90) * MULT)
+        If idx < 0 Then
+            idx = 0
+        End If
         Dim ret As Double = _LogTable(idx)
         If ret <> ret Then
             V = V / 180.0 * PI

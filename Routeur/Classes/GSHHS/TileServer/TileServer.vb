@@ -116,7 +116,9 @@ Public Class TileServer
 restart_download:
             FileError = False
             Dim TileData() As Byte = WC.DownloadData(_VLM_TILE_SERVER & "/cache/gshhstiles/" & TI.Z & "/" & TI.TX & "/" & TI.TY & ".png")
-
+            If TileData.Length = 0 Then
+                Dim i As Integer = 0
+            End If
             _DBLink.AddDBTile(TI.Z, TI.TX, TI.TY, TileData)
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Failed to get tile " & TI.FileName)

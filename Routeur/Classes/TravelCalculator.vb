@@ -412,10 +412,72 @@ Public Class TravelCalculator
         If StartPoint Is Nothing Or EndPoint Is Nothing Then
             Return 0
         End If
-        Dim retval As Double = Atan2(Sin(-StartPoint.Lon + EndPoint.Lon) * Cos(EndPoint.Lat), _
-                     Cos(StartPoint.Lat) * Sin(EndPoint.Lat) - Sin(StartPoint.Lat) * Cos(EndPoint.Lat) * Cos(-StartPoint.Lon + EndPoint.Lon))
+        'Dim retval As Double = Atan2(Sin(-StartPoint.Lon + EndPoint.Lon) * Cos(EndPoint.Lat), _
+        '             Cos(StartPoint.Lat) * Sin(EndPoint.Lat) - Sin(StartPoint.Lat) * Cos(EndPoint.Lat) * Cos(-StartPoint.Lon + EndPoint.Lon))
 
-        retval = retval Mod (2 * PI)
+        'retval = retval Mod (2 * PI)
+        'Return retval
+
+        Dim lon1 As Double = StartPoint.Lon
+        Dim lon2 As Double = EndPoint.Lon
+        Dim lat1 As Double = StartPoint.Lat
+        Dim lat2 As Double = EndPoint.Lat
+        Dim retval As Double
+
+
+        Dim g, d, den As Double
+
+        g = (lon2 - lon1) Mod (2 * Math.PI)
+        If (Math.Abs(g) < 0.0000001) Then
+
+            '/* close enough to vertical, clamp to vertical*/
+            den = lat2 - lat1
+            If den > 0 Then
+                retval = 0
+            Else
+                den = Math.PI
+            End If
+
+
+        Else
+
+            If (g <= -Math.PI) Then
+
+                g += 2 * Math.PI
+
+            ElseIf (g > Math.PI) Then
+
+                g -= 2 * Math.PI
+            End If
+
+
+            d = Math.Acos(Math.Sin(lat2) * Math.Sin(lat1) + Math.Cos(lat2) * Math.Cos(lat1) * Math.Cos(g))
+
+            den = Math.Cos(lat1) * Math.Sin(d)
+            Dim lcos As Double = (Math.Sin(lat2) - Math.Sin(lat1) * Math.Cos(d)) / den
+            If (lcos > 1) Then
+
+                lcos = 1
+                'Console.log("Nan Catch pos")
+
+            ElseIf (lcos < -1) Then
+
+                lcos = -1
+                'Console.log("Nan Catch neg")
+            End If
+
+            If (g < 0) Then
+
+                retval = 2 * Math.PI - Math.Acos(lcos)
+
+            Else
+
+                retval = Math.Acos(lcos)
+            End If
+        End If
+
+        retval = retval Mod (2 * Math.PI)
+
         Return retval
 
     End Function

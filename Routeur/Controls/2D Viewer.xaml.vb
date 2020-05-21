@@ -466,7 +466,7 @@ Render1:
 
                     Bmp.DrawLine(CInt(PrevPoint2.X), CInt(PrevPoint2.Y), CInt(NewP2.X), CInt(NewP2.Y), Color)
 
-                    End If
+                End If
             Next
         Catch ex As Exception
             RaiseEvent LogMsg("SafeDraw line exception : " & ex.Message & vbCrLf & ex.StackTrace)
@@ -1173,9 +1173,10 @@ Render1:
 
 
             Using _BackDropBmp.GetBitmapContext
-                'DrawNSZ(NSZ)
-                'DrawGates(WPs)
                 _BackDropBmp.Blit(R, Img, New Rect(0, 0, TileServer.TILE_SIZE, TileServer.TILE_SIZE))
+                DrawNSZ(NSZ)
+                DrawGates(WPs)
+
             End Using
             'LocalBmp.Freeze()
         End If
@@ -1298,10 +1299,10 @@ Render1:
         If Not _BgStarted AndAlso _BgReloadRequest Then
             _BgStarted = True 'BgBackDropDrawing(0)
             _Frm.DataContext = _MapPg
-            Using _BackDropBmp.GetBitmapContext
-                DrawNSZ(_NSZ)
-                DrawGates(_WPs)
-            End Using
+            'Using _BackDropBmp.GetBitmapContext
+            '    DrawNSZ(_NSZ)
+            '    DrawGates(_WPs)
+            'End Using
             _ThBgDraw = New Thread(AddressOf BgBackDropDrawing)
             _ThreadLastStart = Now
             _ThBgDraw.Start(Nothing)
@@ -1350,7 +1351,7 @@ Render1:
 
     Private Sub DrawPath(RBmp As WriteableBitmap, Path As LinkedList(Of Coords), PenColor As Integer, WithPointCircles As Boolean, Optional CurrentPos As Coords = Nothing, Optional ForceDraw As Boolean = False)
 
-        Dim P1 As Point
+        'Dim P1 As Point
         'Dim PrevPoint As Point
 
         If Path IsNot Nothing Then
@@ -1368,8 +1369,8 @@ Render1:
             For Each C As Coords In Path
                 If C IsNot Nothing Then
 
-                    P1.X = MapTransform.LonToCanvas(C.Lon_Deg)
-                    P1.Y = MapTransform.LatToCanvas(C.Lat_Deg)
+                    'P1.X = MapTransform.LonToCanvas(C.Lon_Deg)
+                    'P1.Y = MapTransform.LatToCanvas(C.Lat_Deg)
 
                     CurPos.Lon_Deg = C.Lon_Deg
                     CurPos.Lat_Deg = C.Lat_Deg
@@ -1417,6 +1418,7 @@ Render1:
 
         Dim PIn As Point
         Dim POut As Point
+
 
 
         If OutOfCanvas(P1) Then
